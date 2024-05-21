@@ -5,6 +5,7 @@ import 'package:tlbilling/components/custom_elevated_button.dart';
 import 'package:tlbilling/components/custom_form_field.dart';
 import 'package:tlbilling/utils/app_colors.dart';
 import 'package:tlbilling/utils/app_constants.dart';
+import 'package:toastification/toastification.dart';
 
 class AppWidgetUtils {
   static Widget buildSizedBox({double? custWidth, double? custHeight}) {
@@ -29,7 +30,8 @@ class AppWidgetUtils {
   }
 
   static buildSearchField(
-      String? name, TextEditingController controller, BuildContext context) {
+      String? name, TextEditingController controller, BuildContext context,
+      {List<TextInputFormatter>? inputFormatters}) {
     double searchFieldWidth = MediaQuery.of(context).size.width * 0.19;
 
     return Padding(
@@ -39,12 +41,16 @@ class AppWidgetUtils {
         controller: controller,
         height: 40,
         width: searchFieldWidth,
-        maxLength: name == AppConstants.mobileNumber ? 10 : 1000,
-        inputFormatters: name == AppConstants.mobileNumber
-            ? [FilteringTextInputFormatter.digitsOnly]
-            : [
-                FilteringTextInputFormatter.allow(RegExp("[a-z A-Z]")),
-              ],
+        maxLength:
+            (name == AppConstants.mobileNumber || name == AppConstants.pinCode)
+                ? 10
+                : null,
+        inputFormatters:
+            (name == AppConstants.mobileNumber || name == AppConstants.pinCode)
+                ? [FilteringTextInputFormatter.digitsOnly]
+                : [
+                    FilteringTextInputFormatter.allow(RegExp("[a-z A-Z]")),
+                  ],
         hintColor: AppColors().hintColor,
         suffixIcon: IconButton(
           onPressed: () {},
@@ -73,6 +79,27 @@ class AppWidgetUtils {
         ]));
   }
 
+  static buildToast(
+      BuildContext context,
+      ToastificationType? type,
+      String titleText,
+      Widget? icon,
+      String description,
+      Color? backgroundColor) {
+    return toastification.show(
+      showProgressBar: false,
+      backgroundColor: backgroundColor,
+      borderRadius: BorderRadius.circular(10),
+      type: type,
+      style: ToastificationStyle.minimal,
+      context: context,
+      title: Text(titleText),
+      icon: icon,
+      description: Text(description),
+      autoCloseDuration: const Duration(seconds: 5),
+    );
+  }
+
   static buildAddbutton(BuildContext context,
       {String? text, Function()? onPressed, int? flex}) {
     // double searchFieldWidth = MediaQuery.of(context).size.width * 0.17;
@@ -87,5 +114,9 @@ class AppWidgetUtils {
           suffixIcon: SvgPicture.asset(AppConstants.icAdd),
           onPressed: onPressed),
     );
+  }
+
+  static buildLoading() {
+    return CircularProgressIndicator();
   }
 }

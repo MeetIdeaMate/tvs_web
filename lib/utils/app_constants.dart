@@ -11,7 +11,14 @@ class AppConstants {
   static const female = 'Female';
   static const male = 'male';
   static const deleteMsg = 'Are you Sure you want to delete the employee?';
+  static const hasiniTvs = 'HASINI TVS';
 
+  //SharedPreference
+  static const designation = 'designation';
+  static const token = 'token';
+  static const userId = 'userId';
+  static const userName = 'userName';
+  static const useRefId = 'useRefId';
 //LoginPage
 
   static const loginheader = 'Login to your account';
@@ -94,6 +101,7 @@ class AppConstants {
   //images
   static const imgNoData = 'assets/images/img_nodata.svg';
   static const imgLoginPagebg = 'assets/images/img_tvs.png';
+  static const imgTvsLogo = 'assets/images/img_tvs_logo.png';
 
   //SideMenu
   static const purchase = 'Purchase';
@@ -236,7 +244,7 @@ class AppConstants {
 //user
 
   static const username = 'User Name';
-  static const designation = 'Designation';
+  // static const designation = 'Designation';
   static const userFilterHint = 'User Name / Mobile Number';
   static const addUser = 'Add User';
   static const newuser = 'New user';
