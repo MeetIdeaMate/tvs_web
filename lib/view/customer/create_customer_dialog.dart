@@ -1,3 +1,4 @@
+import 'package:blurry_modal_progress_hud/blurry_modal_progress_hud.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -12,6 +13,7 @@ import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/utils/app_util_widgets.dart';
 import 'package:tlbilling/utils/input_validation.dart';
 import 'package:tlbilling/view/customer/create_customer_dialog_bloc.dart';
+import 'package:toastification/toastification.dart';
 
 class CreateCustomerDialog extends StatefulWidget {
   const CreateCustomerDialog({super.key});
@@ -23,25 +25,31 @@ class CreateCustomerDialog extends StatefulWidget {
 class _CreateCustomerDialogState extends State<CreateCustomerDialog> {
   final _appColors = AppColors();
   final _createCustomerDialogBlocImpl = CreateCustomerDialogBlocImpl();
+
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      backgroundColor: _appColors.whiteColor,
-      surfaceTintColor: _appColors.whiteColor,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      contentPadding: const EdgeInsets.all(10),
-      title: _buildCustomerFormTitle(),
-      actions: [
-        _buildSaveButton(),
-      ],
-      content: SizedBox(
-        width: MediaQuery.sizeOf(context).width * 0.4,
-        child: Padding(
-          padding: const EdgeInsets.all(10),
-          child: _buildCustomerCreateForm(),
-        ),
-      ),
-    );
+    return BlurryModalProgressHUD(
+        inAsyncCall: _createCustomerDialogBlocImpl.isAsyncCall,
+        color: _appColors.whiteColor,
+        progressIndicator: AppWidgetUtils.buildLoading(),
+        child: AlertDialog(
+          backgroundColor: _appColors.whiteColor,
+          surfaceTintColor: _appColors.whiteColor,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          contentPadding: const EdgeInsets.all(10),
+          title: _buildCustomerFormTitle(),
+          actions: [
+            _buildSaveButton(),
+          ],
+          content: SizedBox(
+            width: MediaQuery.sizeOf(context).width * 0.4,
+            child: Padding(
+              padding: const EdgeInsets.all(10),
+              child: _buildCustomerCreateForm(),
+            ),
+          ),
+        ));
   }
 
   _buildCustomerFormTitle() {
@@ -228,10 +236,45 @@ class _CreateCustomerDialogState extends State<CreateCustomerDialog> {
       onPressed: () {
         if (_createCustomerDialogBlocImpl.custFormKey.currentState!
             .validate()) {
+          _isLoading(true);
+          _createCustomerDialogBlocImpl.addCustomer((statusCode) {
+            if (statusCode == 200 || statusCode == 201) {
+              _isLoading(false);
+              Navigator.pop(context);
+              AppWidgetUtils.buildToast(
+                  context,
+                  ToastificationType.success,
+                  'Employee Created',
+                  Icon(
+                    Icons.check_circle_outline_rounded,
+                    color: _appColors.successColor,
+                  ),
+                  'Employee Created Successfully',
+                  _appColors.successLightColor);
+            } else {
+              _isLoading(false);
+              AppWidgetUtils.buildToast(
+                  context,
+                  ToastificationType.error,
+                  'Branch Created',
+                  Icon(
+                    Icons.error_outline_outlined,
+                    color: _appColors.errorColor,
+                  ),
+                  'Something went wrong try again...',
+                  _appColors.errorLightColor);
+            }
+          });
           // ignore: avoid_print
           print('customer created success');
         }
       },
     );
+  }
+
+  _isLoading(bool? isLoadingState) {
+    setState(() {
+      _createCustomerDialogBlocImpl.isAsyncCall = isLoadingState;
+    });
   }
 }

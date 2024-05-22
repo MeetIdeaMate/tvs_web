@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:lottie/lottie.dart';
 import 'package:tlbilling/components/custom_elevated_button.dart';
 import 'package:tlbilling/components/custom_form_field.dart';
 import 'package:tlbilling/utils/app_colors.dart';
@@ -18,6 +20,42 @@ class AppWidgetUtils {
       text!,
       style:
           TextStyle(color: color, fontSize: fontSize, fontWeight: fontWeight),
+    );
+  }
+
+  static Widget buildCustomPoppinsTextWidget(String text,
+      {Color? color, double? fontSize, FontWeight? fontWeight}) {
+    return Text(
+      text,
+      style: GoogleFonts.poppins(
+          color: color, fontSize: fontSize, fontWeight: fontWeight),
+    );
+  }
+
+  static Widget buildCustomNunitoSansTextWidget(String text,
+      {Color? color, double? fontSize, FontWeight? fontWeight}) {
+    return Text(
+      text,
+      style: GoogleFonts.nunitoSans(
+          color: color, fontSize: fontSize, fontWeight: fontWeight),
+    );
+  }
+
+  static Widget buildCustomRobotoTextWidget(String text,
+      {Color? color, double? fontSize, FontWeight? fontWeight}) {
+    return Text(
+      text,
+      style: GoogleFonts.roboto(
+          color: color, fontSize: fontSize, fontWeight: fontWeight),
+    );
+  }
+
+  static Widget buildCustomInterTextWidget(String text,
+      {Color? color, double? fontSize, FontWeight? fontWeight}) {
+    return Text(
+      text,
+      style: GoogleFonts.inter(
+          color: color, fontSize: fontSize, fontWeight: fontWeight),
     );
   }
 
@@ -117,6 +155,8 @@ class AppWidgetUtils {
   }
 
   static buildLoading() {
-    return CircularProgressIndicator();
+    return LottieBuilder.asset(AppConstants.jsonLoader,
+    height: 200,
+    width: 200,);
   }
 }

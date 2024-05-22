@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:tlbilling/api_service/app_service_utils.dart';
+import 'package:tlbilling/models/post_model/add_employee_model.dart';
 
 abstract class CreateEmployeeDialogBloc {
   TextEditingController get empNameController;
@@ -25,6 +27,7 @@ class CreateEmployeeDialogBlocImpl extends CreateEmployeeDialogBloc {
   String? _selectEmpGender;
   String? _selectEmpCity;
   final _empFprmKey = GlobalKey<FormState>();
+  final _appServices = AppServiceUtilImpl();
 
   @override
   TextEditingController get empNameController => _empNameController;

@@ -94,6 +94,11 @@ class AppConstants {
   static const icFilledClose = 'assets/icons/ic_filled_close.svg';
   static const icSwapArrow = 'assets/icons/ic_swap_arrow.svg';
   static const icHumanAdd = 'assets/icons/ic_human_add.svg';
+  static const icVoucher = 'assets/icons/ic_notes.svg';
+  static const icPrint = 'assets/icons/ic_print.svg';
+
+  //json
+  static const jsonLoader = 'assets/json/json_loading_animation.json';
 
   //fonts
   static const poppinsRegular = 'assets/fonts/Poppins-Regular.ttf';
@@ -114,6 +119,8 @@ class AppConstants {
   static const transport = 'Transport';
   static const reports = 'Reports';
   static const user = 'user';
+  static const voucherReceipt = 'Voc / Rec';
+  static const receipt = 'Receipt';
 
   static const employee = 'Employee';
   static const pinCode = 'Pin Code';
@@ -168,6 +175,7 @@ class AppConstants {
 
   static const addEmployee = 'Add Employee';
   static const addNew = 'Add New';
+  static const add = 'Add';
   static const empName = 'Employee Name';
   static const exName = 'EX: Ajithkumar';
   static const allCity = 'All City';
@@ -240,6 +248,22 @@ class AppConstants {
   static const transporterDetails = 'Transporter Details';
   static const selectTransporter = 'Select Transporter';
   static const emailAddress = 'Email Address';
+
+  //voucher/receipt
+  static const voucher = 'Voucher';
+  static const receiptId = 'Receipt Id';
+  static const receiptNumber = 'Receipt Number';
+  static const receiptDate = 'Receipt Date';
+  static const receivedFrom = 'Received From';
+  static const paymentType = 'Payment Type  ';
+  static const print = 'Print';
+  static const amount = 'Amount';
+  static const voucherId = 'Voucher Id';
+  static const voucherDate = 'Voucher Date';
+  static const giver = 'Giver';
+  static const receiver = 'Receiver';
+  static const newVoucher = 'New Voucher';
+  static const payTo = 'Pay To';
 
 //user
 

@@ -29,6 +29,7 @@ class _LoginPageState extends State<LoginPage> {
         body: BlurryModalProgressHUD(
             inAsyncCall: _loading,
             progressIndicator: AppWidgetUtils.buildLoading(),
+            color: _appColors.whiteColor,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               // crossAxisAlignment: CrossAxisAlignment.,

@@ -1,3 +1,4 @@
+import 'package:blurry_modal_progress_hud/blurry_modal_progress_hud.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:tlbilling/components/custom_action_button.dart';
@@ -8,6 +9,7 @@ import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/utils/app_util_widgets.dart';
 import 'package:tlbilling/utils/input_validation.dart';
 import 'package:tlbilling/view/branch/create_branch_dialog_bloc.dart';
+import 'package:toastification/toastification.dart';
 
 class CreateBranchDialog extends StatefulWidget {
   const CreateBranchDialog({super.key});
@@ -21,25 +23,31 @@ class _CreateBranchDialogState extends State<CreateBranchDialog> {
   final _createBranchDialogBlocImpl = CreateBranchDialogBlocImpl();
   final List<String> _city = ['kvp', 'chennai'];
   final List<String> _mainBranch = ['madurai', 'kovilpatti'];
+
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      backgroundColor: _appColors.whiteColor,
-      surfaceTintColor: _appColors.whiteColor,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      contentPadding: const EdgeInsets.all(10),
-      title: _buildBranchFormTitle(),
-      actions: [
-        _buildSaveButton(),
-      ],
-      content: SizedBox(
-        width: MediaQuery.sizeOf(context).width * 0.4,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 30),
-          child: _buildBranchCreateForm(),
-        ),
-      ),
-    );
+    return BlurryModalProgressHUD(
+        inAsyncCall: _createBranchDialogBlocImpl.isAsyncCall,
+        progressIndicator: AppWidgetUtils.buildLoading(),
+        color: _appColors.whiteColor,
+        child: AlertDialog(
+          backgroundColor: _appColors.whiteColor,
+          surfaceTintColor: _appColors.whiteColor,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          contentPadding: const EdgeInsets.all(10),
+          title: _buildBranchFormTitle(),
+          actions: [
+            _buildSaveButton(),
+          ],
+          content: SizedBox(
+            width: MediaQuery.sizeOf(context).width * 0.4,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 30),
+              child: _buildBranchCreateForm(),
+            ),
+          ),
+        ));
   }
 
   _buildBranchFormTitle() {
@@ -73,8 +81,35 @@ class _CreateBranchDialogState extends State<CreateBranchDialog> {
       onPressed: () {
         if (_createBranchDialogBlocImpl.branchFormKey.currentState!
             .validate()) {
-          // ignore: avoid_print
-          print('customer created success');
+          _isLoading(true);
+          _createBranchDialogBlocImpl.addBranch((statusCode) {
+            if (statusCode == 200 || statusCode == 201) {
+              _isLoading(false);
+              Navigator.pop(context);
+              AppWidgetUtils.buildToast(
+                  context,
+                  ToastificationType.success,
+                  'Branch Created',
+                  Icon(
+                    Icons.check_circle_outline_rounded,
+                    color: _appColors.successColor,
+                  ),
+                  'Branch Created Successfully',
+                  _appColors.successLightColor);
+            } else {
+              _isLoading(false);
+              AppWidgetUtils.buildToast(
+                  context,
+                  ToastificationType.error,
+                  'Branch Created',
+                  Icon(
+                    Icons.error_outline_outlined,
+                    color: _appColors.errorColor,
+                  ),
+                  'Something went wrong try again...',
+                  _appColors.errorLightColor);
+            }
+          });
         }
       },
     );
@@ -212,6 +247,10 @@ class _CreateBranchDialogState extends State<CreateBranchDialog> {
                     onChanged: (String? value) {
                       setState(() {
                         _createBranchDialogBlocImpl.selectedBranch = value;
+                        _createBranchDialogBlocImpl.selectedBranch ==
+                                'Main Branch'
+                            ? _createBranchDialogBlocImpl.isMainBranch = true
+                            : false;
                       });
                     }),
                 Text(AppConstants.mainBranch,
@@ -240,5 +279,11 @@ class _CreateBranchDialogState extends State<CreateBranchDialog> {
         ],
       ),
     );
+  }
+
+  _isLoading(bool? isLoadingState) {
+    setState(() {
+      _createBranchDialogBlocImpl.isAsyncCall = isLoadingState;
+    });
   }
 }

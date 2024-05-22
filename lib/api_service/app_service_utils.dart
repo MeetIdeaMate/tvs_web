@@ -1,11 +1,21 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tlbilling/api_service/app_url.dart';
+import 'package:tlbilling/models/post_model/add_branch_model.dart';
+import 'package:tlbilling/models/post_model/add_employee_model.dart';
 import 'package:tlbilling/utils/app_constants.dart';
 
 abstract class AppServiceUtil {
   Future<void> login(
       String userName, String password, Function(int) onSuccessCallBack);
+
+  Future<void> addBranch(AddBranchModel addBranchModel,
+      Function(int? statusCode) onSuccessCallBack);
+
+  Future<void> addCustomer(Function(int? statusCode) onSuccessCallBack,
+      AddCustomerModel addEmployeeModel);
 }
 
 class AppServiceUtilImpl extends AppServiceUtil {
@@ -33,6 +43,38 @@ class AppServiceUtilImpl extends AppServiceUtil {
       }
     } on DioException catch (e) {
       onSuccessCallBack(e.response?.statusCode ?? 0);
+    }
+  }
+
+  @override
+  Future<void> addBranch(AddBranchModel addBranchModel,
+      Function(int? statusCode) onSuccessCallBack) async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      var token = prefs.getString('token');
+      dio.options.headers['Authorization'] = 'Bearer $token';
+      var response =
+          await dio.post(AppUrl.addBranch, data: jsonEncode(addBranchModel));
+      onSuccessCallBack(response.statusCode);
+    } on DioException catch (e) {
+      onSuccessCallBack(e.response?.statusCode);
+    }
+  }
+
+  @override
+  Future<void> addCustomer(Function(int? statusCode) onSuccessCallBack,
+      AddCustomerModel addEmployeeModel) async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      var token = prefs.getString('token');
+      dio.options.headers['Authorization'] = 'Bearer $token';
+      var response = await dio.post(AppUrl.addCustomer,
+          data: jsonEncode(addEmployeeModel));
+      print('********************${jsonEncode(addEmployeeModel)}');
+      print('********************${response.data}');
+      onSuccessCallBack(response.statusCode);
+    } on DioException catch (e) {
+      onSuccessCallBack(e.response?.statusCode);
     }
   }
 }

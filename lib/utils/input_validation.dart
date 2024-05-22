@@ -122,7 +122,7 @@ class InputValidations {
 
   static pinCodeValidation(String errorText) {
     if (errorText.isNotEmpty) {
-      if (errorText.length != 10) {
+      if (errorText.length != 6) {
         return AppConstants.pinCodeValidation;
       }
     }
