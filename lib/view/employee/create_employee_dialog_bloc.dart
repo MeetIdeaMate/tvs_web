@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:tlbilling/api_service/app_service_utils.dart';
-import 'package:tlbilling/models/post_model/add_employee_model.dart';
+import 'package:tlbilling/models/post_model/add_customer_model.dart';
 
 abstract class CreateEmployeeDialogBloc {
   TextEditingController get empNameController;

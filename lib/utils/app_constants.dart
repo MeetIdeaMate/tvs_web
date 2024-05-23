@@ -49,7 +49,7 @@ class AppConstants {
   static const timeValidation = 'Enter Appointment Time';
   static const aadharValidation = 'Please Enter Aadhar';
   static const gstDigitErrorText = 'Please enter a 15-digit Digit number';
-  static const aadharDigitErrorText = 'Please enter a 16-digit mobile number';
+  static const aadharDigitErrorText = 'Please enter a 12-digit mobile number';
   static const panDigitErrorMsg = 'Please enter a 10-digit Pan Number';
   static const mobileNumberDigitErrorText =
       'Please enter a 10-digit mobile number';
@@ -186,12 +186,12 @@ class AppConstants {
   static const empFilterHint = 'Employee Name / Mobile Number';
 
   static const empType = 'Employee Type';
-  static const branch = 'branch';
+  static const branch = 'Branch';
   static const age = 'Age';
   static const exAge = 'Ex. 29';
   static const exSelect = ' Select ';
   static const exEmail = 'Ex. ajith@techlambdas.com';
-  static const gender = 'gender';
+  static const gender = 'Gender';
   static const exMobNo = '+91 9876545430';
 
   static const typeHere = 'Type Here';

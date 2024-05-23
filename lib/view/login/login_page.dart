@@ -24,6 +24,13 @@ class _LoginPageState extends State<LoginPage> {
   bool _loading = false;
 
   @override
+  void initState() {
+    super.initState();
+    _loginPageBlocImpl.mobileNumberTextController.text = '9876543210';
+    _loginPageBlocImpl.passwordTextController.text = '1234';
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
         body: BlurryModalProgressHUD(

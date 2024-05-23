@@ -1,18 +1,33 @@
 import 'package:flutter/material.dart';
 import 'package:tlbilling/api_service/app_service_utils.dart';
-import 'package:tlbilling/models/post_model/add_employee_model.dart';
+import 'package:tlbilling/models/get_model/get_all_customers_model.dart';
+import 'package:tlbilling/models/post_model/add_customer_model.dart';
 
 abstract class CreateCustomerDialogBloc {
   TextEditingController get customerNameTextController;
+
   TextEditingController get custMobileNoTextController;
+
   TextEditingController get custMailIdTextController;
+
   TextEditingController get custAccNoTextController;
+
   TextEditingController get custAadharNoTextController;
+
   TextEditingController get custCitytextcontroller;
+
   TextEditingController get custAddressTextController;
+
   TextEditingController get custIFSCTextController;
+
   GlobalKey<FormState> get custFormKey;
+
   Future<void> addCustomer(Function(int? statusCode) onSuccessCallBack);
+
+  Future<GetAllCustomersModel?> getCustomerDetails(String customerId);
+
+  Future<void> updateCustomer(
+      String customerId, Function(int statusCode) onSuccessCallBack);
 }
 
 class CreateCustomerDialogBlocImpl extends CreateCustomerDialogBloc {
@@ -58,18 +73,42 @@ class CreateCustomerDialogBlocImpl extends CreateCustomerDialogBloc {
   GlobalKey<FormState> get custFormKey => _custFormKey;
 
   @override
-  Future<void> addCustomer(Function(int? statusCode) onSuccessCallBack) async{
-    return await _apiCalls.addCustomer(onSuccessCallBack,
-    AddCustomerModel(aadharNo: custAadharNoTextController.text,
-    address: custAddressTextController.text,
-    mobileNo: custMobileNoTextController.text,
-    accountNo: custAccNoTextController.text,
-    city: custCitytextcontroller.text,
-    emailId: custMailIdTextController.text,
-    customerName: customerNameTextController.text,
-    ifsc: custIFSCTextController.text));
+  Future<void> addCustomer(Function(int? statusCode) onSuccessCallBack) async {
+    return await _apiCalls.addCustomer(
+        onSuccessCallBack,
+        AddCustomerModel(
+            aadharNo: custAadharNoTextController.text,
+            address: custAddressTextController.text,
+            mobileNo: custMobileNoTextController.text,
+            accountNo: custAccNoTextController.text,
+            city: custCitytextcontroller.text,
+            emailId: custMailIdTextController.text,
+            customerName: customerNameTextController.text,
+            ifsc: custIFSCTextController.text));
   }
 
   @override
   TextEditingController get custIFSCTextController => _custIFSCTextController;
+
+  @override
+  Future<GetAllCustomersModel?> getCustomerDetails(String customerId) async {
+    return await _apiCalls.getCustomerDetails(customerId);
+  }
+
+  @override
+  Future<void> updateCustomer(
+      String customerId, Function(int statusCode) onSuccessCallBack) async {
+    return await _apiCalls.updateCustomer(
+        customerId,
+        AddCustomerModel(
+            aadharNo: custAadharNoTextController.text,
+            address: custAddressTextController.text,
+            mobileNo: custMobileNoTextController.text,
+            accountNo: custAccNoTextController.text,
+            city: custCitytextcontroller.text,
+            emailId: custMailIdTextController.text,
+            customerName: customerNameTextController.text,
+            ifsc: custIFSCTextController.text),
+        onSuccessCallBack);
+  }
 }
