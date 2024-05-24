@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:tlbilling/components/side_menu_navigation.dart';
 import 'package:tlbilling/utils/app_constants.dart';
-import 'package:tlbilling/view/login/login_page.dart';
-
+import 'package:tlbilling/view/user/user_view.dart';
 //import 'package:tlbilling/view/login/login_page.dart';
 
 void main() {
@@ -19,7 +19,7 @@ class MyApp extends StatelessWidget {
         fontFamily: AppConstants.poppinsRegular,
       ),
       title: 'TL Billing',
-      home: const LoginPage(),
+      home: const SideMenuNavigation(),
       debugShowCheckedModeBanner: false,
     );
   }

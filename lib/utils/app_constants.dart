@@ -96,6 +96,8 @@ class AppConstants {
   static const icHumanAdd = 'assets/icons/ic_human_add.svg';
   static const icVoucher = 'assets/icons/ic_notes.svg';
   static const icPrint = 'assets/icons/ic_print.svg';
+  static const icClaneder = 'assets/icons/ic_calender.svg';
+  static const icPdfPrint = 'assets/icons/ic_pdf_print.svg';
 
   //json
   static const jsonLoader = 'assets/json/json_loading_animation.json';
@@ -269,7 +271,7 @@ class AppConstants {
 
   static const username = 'User Name';
   // static const designation = 'Designation';
-  static const userFilterHint = 'User Name / Mobile Number';
+  static const userFilterHint = 'User Name';
   static const addUser = 'Add User';
   static const newuser = 'New user';
   static const hintPinCode = 'Enter pin Code';
@@ -283,4 +285,31 @@ class AppConstants {
   static const mainBranch = 'Main Branch';
   static const branchDetails = 'Branch Details';
   static const hasiniMotor = 'Hasini Motor';
+
+  //API
+
+  static const all = 'All';
+  static const loading = 'Loading...';
+  static const errorLoading = 'Error Loading...';
+  static const purchaseReport = 'Purchase Report';
+  static const salesReport = 'Sales Report';
+
+  //report
+
+  static const billType = 'BillType';
+  static const fromDate = 'From Date';
+  static const toDate = 'To Date';
+  static const pdfGeneration = 'Generate Pdf / Print';
+
+  // purchaseReport Table header
+
+  static const String partNumber = 'Part Number';
+
+  static const String totalValue = 'Total Value';
+  static const String discount = 'Discount';
+  static const String taxableValue = 'Taxable Value';
+  static const String cgstPercent = 'CGST %';
+  static const String cgstAmount = 'CGST ₹';
+  static const String sgstPercent = 'SGST %';
+  static const String sgstAmount = 'SGST ₹';
 }

@@ -10,6 +10,7 @@ import 'package:tlbilling/view/customer/customer_view.dart';
 import 'package:tlbilling/view/employee/employee_view_screen.dart';
 import 'package:tlbilling/view/login/login_page.dart';
 import 'package:tlbilling/view/purchase/purchase_view.dart';
+import 'package:tlbilling/view/report/report_screen.dart';
 import 'package:tlbilling/view/stocks/stocks_view.dart';
 import 'package:tlbilling/view/transfer/transfer_view.dart';
 
@@ -212,7 +213,7 @@ class _SideMenuNavigationState extends State<SideMenuNavigation> {
               _buildDrawerMenuItem(
                 AppConstants.icVoucher,
                 AppConstants.voucherReceipt,
-                    () {
+                () {
                   _onMenuItemSelected(AppConstants.voucherReceipt);
                 },
               ),
@@ -302,7 +303,7 @@ class _SideMenuNavigationState extends State<SideMenuNavigation> {
       case AppConstants.branch:
         return const BranchView();
       case AppConstants.reports:
-        return const Text('reports');
+        return const ReportScreen();
       case AppConstants.voucherReceipt:
         return const VoucherReceiptList();
 
