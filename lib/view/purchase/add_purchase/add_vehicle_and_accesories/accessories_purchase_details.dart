@@ -20,17 +20,19 @@ class _AccessoriesPurchaseDetailsState
 
   @override
   Widget build(BuildContext context) {
-    return Padding(padding: const EdgeInsets.all(12),
-    child: Column(
-      children: [
-        _buildMaterialNumberAndName(),
-        _buildDefaultHeight(),
-        _buildHSNCodeAndQty(),
-        _buildDefaultHeight(),
-        _buildUnitRate(),
-        _buildDefaultHeight()
-      ],
-    ),);
+    return Padding(
+      padding: const EdgeInsets.all(12),
+      child: Column(
+        children: [
+          _buildMaterialNumberAndName(),
+          _buildDefaultHeight(),
+          _buildHSNCodeAndQty(),
+          _buildDefaultHeight(),
+          _buildUnitRate(),
+          _buildDefaultHeight()
+        ],
+      ),
+    );
   }
 
   Widget _buildMaterialNumberAndName() {

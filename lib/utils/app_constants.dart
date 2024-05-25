@@ -11,6 +11,14 @@ class AppConstants {
   static const female = 'Female';
   static const male = 'male';
   static const deleteMsg = 'Are you Sure you want to delete the employee?';
+  static const hasiniTvs = 'HASINI TVS';
+
+  //SharedPreference
+  static const designation = 'designation';
+  static const token = 'token';
+  static const userId = 'userId';
+  static const userName = 'userName';
+  static const useRefId = 'useRefId';
 
 //LoginPage
 
@@ -42,7 +50,7 @@ class AppConstants {
   static const timeValidation = 'Enter Appointment Time';
   static const aadharValidation = 'Please Enter Aadhar';
   static const gstDigitErrorText = 'Please enter a 15-digit Digit number';
-  static const aadharDigitErrorText = 'Please enter a 16-digit mobile number';
+  static const aadharDigitErrorText = 'Please enter a 12-digit aadhar number';
   static const panDigitErrorMsg = 'Please enter a 10-digit Pan Number';
   static const mobileNumberDigitErrorText =
       'Please enter a 10-digit mobile number';
@@ -87,6 +95,11 @@ class AppConstants {
   static const icFilledClose = 'assets/icons/ic_filled_close.svg';
   static const icSwapArrow = 'assets/icons/ic_swap_arrow.svg';
   static const icHumanAdd = 'assets/icons/ic_human_add.svg';
+  static const icVoucher = 'assets/icons/ic_notes.svg';
+  static const icPrint = 'assets/icons/ic_print.svg';
+
+  //json
+  static const jsonLoader = 'assets/json/json_loading_animation.json';
 
   //fonts
   static const poppinsRegular = 'assets/fonts/Poppins-Regular.ttf';
@@ -94,6 +107,7 @@ class AppConstants {
   //images
   static const imgNoData = 'assets/images/img_nodata.svg';
   static const imgLoginPagebg = 'assets/images/img_tvs.png';
+  static const imgTvsLogo = 'assets/images/img_tvs_logo.png';
 
   //SideMenu
   static const purchase = 'Purchase';
@@ -106,6 +120,8 @@ class AppConstants {
   static const transport = 'Transport';
   static const reports = 'Reports';
   static const user = 'user';
+  static const voucherReceipt = 'Voc / Rec';
+  static const receipt = 'Receipt';
 
   static const employee = 'Employee';
   static const pinCode = 'Pin Code';
@@ -160,6 +176,7 @@ class AppConstants {
 
   static const addEmployee = 'Add Employee';
   static const addNew = 'Add New';
+  static const add = 'Add';
   static const empName = 'Employee Name';
   static const exName = 'EX: Ajithkumar';
   static const allCity = 'All City';
@@ -170,12 +187,12 @@ class AppConstants {
   static const empFilterHint = 'Employee Name / Mobile Number';
 
   static const empType = 'Employee Type';
-  static const branch = 'branch';
+  static const branch = 'Branch';
   static const age = 'Age';
   static const exAge = 'Ex. 29';
   static const exSelect = ' Select ';
   static const exEmail = 'Ex. ajith@techlambdas.com';
-  static const gender = 'gender';
+  static const gender = 'Gender';
   static const exMobNo = '+91 9876545430';
 
   static const typeHere = 'Type Here';
@@ -233,10 +250,27 @@ class AppConstants {
   static const selectTransporter = 'Select Transporter';
   static const emailAddress = 'Email Address';
 
+  //voucher/receipt
+  static const voucher = 'Voucher';
+  static const receiptId = 'Receipt Id';
+  static const receiptNumber = 'Receipt Number';
+  static const receiptDate = 'Receipt Date';
+  static const receivedFrom = 'Received From';
+  static const paymentType = 'Payment Type  ';
+  static const print = 'Print';
+  static const amount = 'Amount';
+  static const voucherId = 'Voucher Id';
+  static const voucherDate = 'Voucher Date';
+  static const giver = 'Giver';
+  static const receiver = 'Receiver';
+  static const newVoucher = 'New Voucher';
+  static const payTo = 'Pay To';
+
 //user
 
   static const username = 'User Name';
-  static const designation = 'Designation';
+
+  // static const designation = 'Designation';
   static const userFilterHint = 'User Name / Mobile Number';
   static const addUser = 'Add User';
   static const newuser = 'New user';
@@ -245,10 +279,22 @@ class AppConstants {
   static const hintAge = 'Enter Age';
 
   //branch
-
   static const addBranch = 'Add branch';
   static const subBranch = 'Sub Branches';
   static const mainBranch = 'Main Branch';
   static const branchDetails = 'Branch Details';
   static const hasiniMotor = 'Hasini Motor';
+
+  //message texts
+  static const loginSuccess = 'Login Success';
+  static const loginFailed = 'Login Failed';
+  static const loginToApplication = 'Login to application';
+  static const invalidUser = 'Invalid user found or inactive';
+  static const branchCreated = 'Branch Created';
+  static const branchCreatedSuccessFully = 'Branch created successFully';
+  static const somethingWentWrong = 'Something went wrong try again...!';
+  static const customerUpdate = 'Customer Update';
+  static const customerCreate = 'Customer Create';
+  static const customerUpdateSuccessfully = 'Customer updated successFully';
+  static const customerCreatedSuccessfully = 'Customer created successFully';
 }

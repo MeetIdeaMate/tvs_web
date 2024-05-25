@@ -64,7 +64,7 @@ class _StocksViewState extends State<StocksView>
                 _stocksViewBloc.partNumberSearchController.text.isEmpty;
             final IconData iconData = isTextEmpty ? Icons.search : Icons.close;
             final Color iconColor =
-            isTextEmpty ? _appColors.primaryColor : Colors.red;
+                isTextEmpty ? _appColors.primaryColor : Colors.red;
             return TldsInputFormField(
               width: 203,
               height: 40,
@@ -96,7 +96,7 @@ class _StocksViewState extends State<StocksView>
                 _stocksViewBloc.vehicleNameSearchController.text.isEmpty;
             final IconData iconData = isTextEmpty ? Icons.search : Icons.close;
             final Color iconColor =
-            isTextEmpty ? _appColors.primaryColor : Colors.red;
+                isTextEmpty ? _appColors.primaryColor : Colors.red;
             return TldsInputFormField(
               width: 203,
               height: 40,

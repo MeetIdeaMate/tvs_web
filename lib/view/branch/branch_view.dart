@@ -120,20 +120,18 @@ class _MyWidgetState extends State<BranchView> {
 
   _buildPinCodeFilter() {
     return AppWidgetUtils.buildSearchField(AppConstants.pinCode,
-        _branchViewBlocImpl.filterBranchnameController, context);
+        _branchViewBlocImpl.filterpinCodeController, context);
   }
 
   _buildCityFilter() {
-    return Expanded(
-      child: CustomDropDownButtonFormField(
-        //    width: MediaQuery.of(context).size.width * 0.1,
-        height: 40,
-        dropDownItems: city!,
-        hintText: AppConstants.exSelect,
-        onChange: (String? newValue) {
-          _branchViewBlocImpl.selectedCity = newValue;
-        },
-      ),
+    return CustomDropDownButtonFormField(
+      width: MediaQuery.of(context).size.width * 0.1,
+      height: 40,
+      dropDownItems: city!,
+      hintText: AppConstants.exSelect,
+      onChange: (String? newValue) {
+        _branchViewBlocImpl.selectedCity = newValue;
+      },
     );
   }
 

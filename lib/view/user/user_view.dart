@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:tlbilling/components/custom_dropdown_button_form_field.dart';
+import 'package:tlbilling/components/custom_form_field.dart';
 import 'package:tlbilling/utils/app_colors.dart';
 import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/utils/app_util_widgets.dart';
@@ -94,7 +96,7 @@ class _UserViewState extends State<UserView> {
             showDialog(
               context: context,
               builder: (context) {
-                return const CreateUserDialogBloc();
+                return const CreateUserDialog();
               },
             );
           },
@@ -117,8 +119,23 @@ class _UserViewState extends State<UserView> {
   }
 
   _buildUserNameAndMobNoFilter() {
-    return AppWidgetUtils.buildSearchField(AppConstants.userFilterHint,
-        _userViewBlocImpl.searchUserNameAndMobNoController, context);
+    return Padding(
+      padding: const EdgeInsets.only(right: 5),
+      child: CustomFormField(
+        hintText: AppConstants.userFilterHint,
+        controller: _userViewBlocImpl.searchUserNameAndMobNoController,
+        height: 40,
+        width: MediaQuery.of(context).size.width * 0.19,
+        inputFormatters: [
+          FilteringTextInputFormatter.allow(RegExp("[a-z A-Z 0-9]")),
+        ],
+        hintColor: AppColors().hintColor,
+        suffixIcon: IconButton(
+          onPressed: () {},
+          icon: SvgPicture.asset(AppConstants.icSearch),
+        ),
+      ),
+    );
   }
 
   _buildUserTableView(BuildContext context) {

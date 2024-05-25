@@ -241,54 +241,60 @@ class _AddVehicleAndAccessoriesState extends State<AddVehicleAndAccessories> {
 
   Widget _buildVehicleAndAccessoriesDetails() {
     return SizedBox(
-      width: MediaQuery.sizeOf(context).width * 0.36,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(padding: const EdgeInsets.symmetric(horizontal: 12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildDefaultHeight(),
+        width: MediaQuery.sizeOf(context).width * 0.36,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildDefaultHeight(),
+                  StreamBuilder(
+                    stream: _addVehicleAndAccessoriesBloc
+                        .selectedPurchaseTypeStream,
+                    builder: (context, snapshot) {
+                      return _addVehicleAndAccessoriesBloc
+                                  .selectedPurchaseType ==
+                              'Vehicle'
+                          ? _buildCustomTextWidget(
+                              AppConstants.vehicleDetails,
+                              fontSize: 20,
+                              color: _appColors.primaryColor,
+                            )
+                          : _buildCustomTextWidget(
+                              AppConstants.accessoriesDetails,
+                              fontSize: 20,
+                              color: _appColors.primaryColor,
+                            );
+                    },
+                  ),
+                  _buildDefaultHeight(),
+                  _buildVehicleAccessoriesSegmentedButton(),
+                ],
+              ),
+            ),
+            _buildDefaultHeight(),
             StreamBuilder(
               stream: _addVehicleAndAccessoriesBloc.selectedPurchaseTypeStream,
               builder: (context, snapshot) {
-                return _addVehicleAndAccessoriesBloc.selectedPurchaseType ==
-                    'Vehicle'
-                    ? _buildCustomTextWidget(
-                  AppConstants.vehicleDetails,
-                  fontSize: 20,
-                  color: _appColors.primaryColor,
-                )
-                    : _buildCustomTextWidget(
-                  AppConstants.accessoriesDetails,
-                  fontSize: 20,
-                  color: _appColors.primaryColor,
-                );
+                if (_addVehicleAndAccessoriesBloc.selectedPurchaseType ==
+                    'Vehicle') {
+                  return const VehiclePurchaseDetails();
+                } else if (_addVehicleAndAccessoriesBloc.selectedPurchaseType ==
+                    'Accessories') {
+                  return const AccessoriesPurchaseDetails();
+                }
+                return Container();
               },
             ),
-            _buildDefaultHeight(),
-            _buildVehicleAccessoriesSegmentedButton(),
-          ],),),
-          _buildDefaultHeight(),
-          StreamBuilder(
-            stream: _addVehicleAndAccessoriesBloc.selectedPurchaseTypeStream,
-            builder: (context, snapshot) {
-              if (_addVehicleAndAccessoriesBloc.selectedPurchaseType ==
-                  'Vehicle') {
-                return const VehiclePurchaseDetails();
-              } else if (_addVehicleAndAccessoriesBloc.selectedPurchaseType ==
-                  'Accessories') {
-                return const AccessoriesPurchaseDetails();
-              }
-              return Container();
-            },
-          ),
-          Padding(padding: const EdgeInsets.all(12),
-          child: _buildAddToTableButton(),)
-        ],
-      )
-    );
+            Padding(
+              padding: const EdgeInsets.all(12),
+              child: _buildAddToTableButton(),
+            )
+          ],
+        ));
   }
 
   Widget _buildVehicleAccessoriesSegmentedButton() {

@@ -16,6 +16,7 @@ import 'package:tlbilling/view/transfer/transfer_view.dart';
 import 'package:tlbilling/view/transport/transport_view.dart';
 import 'package:tlbilling/view/user/user_view.dart';
 import 'package:tlbilling/view/vendor/vendor_view.dart';
+import 'package:tlbilling/view/voucher_receipt/voucher_receipt_list.dart';
 
 class SideMenuNavigation extends StatefulWidget {
   const SideMenuNavigation({super.key});
@@ -209,6 +210,13 @@ class _SideMenuNavigationState extends State<SideMenuNavigation> {
                 },
               ),
               _buildDrawerMenuItem(
+                AppConstants.icVoucher,
+                AppConstants.voucherReceipt,
+                () {
+                  _onMenuItemSelected(AppConstants.voucherReceipt);
+                },
+              ),
+              _buildDrawerMenuItem(
                 AppConstants.icReport,
                 AppConstants.reports,
                 () {
@@ -295,6 +303,8 @@ class _SideMenuNavigationState extends State<SideMenuNavigation> {
         return const BranchView();
       case AppConstants.reports:
         return const Text('reports');
+      case AppConstants.voucherReceipt:
+        return const VoucherReceiptList();
 
       case AppConstants.logOut:
         return Container();

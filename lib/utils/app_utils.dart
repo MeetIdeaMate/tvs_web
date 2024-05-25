@@ -35,11 +35,22 @@ class AppUtils {
     return _apiDateFormat.parse(inputDateTime);
   }
 
-  static OutlineInputBorder outlineInputBorder({Color? color}){
+  static OutlineInputBorder outlineInputBorder({Color? color}) {
     return OutlineInputBorder(
         borderRadius: BorderRadius.circular(5),
         borderSide: BorderSide(
           color: color ?? AppColors().primaryColor,
         ));
+  }
+
+  static toUppercase(
+      {String? value, TextEditingController? textEditingController}) {
+    final upperCaseValue = value?.toUpperCase();
+    if (value != upperCaseValue) {
+      textEditingController?.value = textEditingController.value.copyWith(
+        text: upperCaseValue,
+        selection: TextSelection.collapsed(offset: upperCaseValue?.length ?? 0),
+      );
+    }
   }
 }

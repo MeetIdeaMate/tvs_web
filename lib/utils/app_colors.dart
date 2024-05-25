@@ -30,4 +30,13 @@ class AppColors {
   Color selectedVehicleAndAccessoriesColor = HexColor('#FAFAFA');
   Color transferDetailsContainerColor = HexColor('#F4F4F4');
   Color cardBorderColor = HexColor('#E0E0E0');
+
+//State Colors
+
+  Color successLightColor = HexColor('#B1E4BF');
+  Color errorLightColor = HexColor('#FFF5F6');
+  Color warnningColor = HexColor('#EB0006');
+  Color warnningLightColor = HexColor('#FFF5F6');
+  Color infoColor = HexColor('#0052EA');
+  Color infoLightColor = HexColor('#A7C5FD');
 }

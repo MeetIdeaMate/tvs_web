@@ -11,14 +11,14 @@ import 'package:tlbilling/utils/input_validation.dart';
 import 'package:tlbilling/view/employee/create_employee_dialog.dart';
 import 'package:tlbilling/view/user/create_user_dialog_bloc.dart';
 
-class CreateUserDialogBloc extends StatefulWidget {
-  const CreateUserDialogBloc({super.key});
+class CreateUserDialog extends StatefulWidget {
+  const CreateUserDialog({super.key});
 
   @override
-  State<CreateUserDialogBloc> createState() => _CreateUserDialogBlocState();
+  State<CreateUserDialog> createState() => _CreateUserDialogState();
 }
 
-class _CreateUserDialogBlocState extends State<CreateUserDialogBloc> {
+class _CreateUserDialogState extends State<CreateUserDialog> {
   final _appColors = AppColors();
   final _createUserDialogBlocImpl = CreateUserDialogBlocImpl();
   List<String>? username = ['muthu', 'Laskhu'];
@@ -135,6 +135,7 @@ class _CreateUserDialogBlocState extends State<CreateUserDialogBloc> {
         Expanded(
           child: CustomFormField(
               inputFormat: [FilteringTextInputFormatter.digitsOnly],
+              maxLength: 10,
               suffixIcon: SvgPicture.asset(
                 colorFilter:
                     ColorFilter.mode(_appColors.primaryColor, BlendMode.srcIn),
@@ -206,10 +207,7 @@ class _CreateUserDialogBlocState extends State<CreateUserDialogBloc> {
     return CustomActionButtons(
       buttonText: AppConstants.addUser,
       onPressed: () {
-        if (_createUserDialogBlocImpl.userFormKey.currentState!.validate()) {
-          // ignore: avoid_print
-          print('customer created success');
-        }
+        if (_createUserDialogBlocImpl.userFormKey.currentState!.validate()) {}
       },
     );
   }
