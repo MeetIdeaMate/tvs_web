@@ -1,6 +1,7 @@
 import 'dart:convert';
 
-AddBranchModel addBranchModelFromJson(String str) => AddBranchModel.fromJson(json.decode(str));
+AddBranchModel addBranchModelFromJson(String str) =>
+    AddBranchModel.fromJson(json.decode(str));
 
 String addBranchModelToJson(AddBranchModel data) => json.encode(data.toJson());
 
@@ -36,34 +37,38 @@ class AddBranchModel {
   });
 
   factory AddBranchModel.fromJson(Map<String, dynamic> json) => AddBranchModel(
-    address: json["address"],
-    branchId: json["branchId"],
-    branchName: json["branchName"],
-    city: json["city"],
-    createdBy: json["createdBy"],
-    createdDateTime: json["createdDateTime"] == null ? null : DateTime.parse(json["createdDateTime"]),
-    id: json["id"],
-    mainBranch: json["mainBranch"],
-    mainBranchId: json["mainBranchId"],
-    mobileNo: json["mobileNo"],
-    pinCode: json["pinCode"],
-    updatedBy: json["updatedBy"],
-    updatedDateTime: json["updatedDateTime"] == null ? null : DateTime.parse(json["updatedDateTime"]),
-  );
+        address: json["address"],
+        branchId: json["branchId"],
+        branchName: json["branchName"],
+        city: json["city"],
+        createdBy: json["createdBy"],
+        createdDateTime: json["createdDateTime"] == null
+            ? null
+            : DateTime.parse(json["createdDateTime"]),
+        id: json["id"],
+        mainBranch: json["mainBranch"],
+        mainBranchId: json["mainBranchId"],
+        mobileNo: json["mobileNo"],
+        pinCode: json["pinCode"],
+        updatedBy: json["updatedBy"],
+        updatedDateTime: json["updatedDateTime"] == null
+            ? null
+            : DateTime.parse(json["updatedDateTime"]),
+      );
 
   Map<String, dynamic> toJson() => {
-    "address": address,
-    "branchId": branchId,
-    "branchName": branchName,
-    "city": city,
-    "createdBy": createdBy,
-    "createdDateTime": createdDateTime?.toIso8601String(),
-    "id": id,
-    "mainBranch": mainBranch,
-    "mainBranchId": mainBranchId,
-    "mobileNo": mobileNo,
-    "pinCode": pinCode,
-    "updatedBy": updatedBy,
-    "updatedDateTime": updatedDateTime?.toIso8601String(),
-  };
+        "address": address,
+        "branchId": branchId,
+        "branchName": branchName,
+        "city": city,
+        "createdBy": createdBy,
+        "createdDateTime": createdDateTime?.toIso8601String(),
+        "id": id,
+        "mainBranch": mainBranch,
+        "mainBranchId": mainBranchId,
+        "mobileNo": mobileNo,
+        "pinCode": pinCode,
+        "updatedBy": updatedBy,
+        "updatedDateTime": updatedDateTime?.toIso8601String(),
+      };
 }

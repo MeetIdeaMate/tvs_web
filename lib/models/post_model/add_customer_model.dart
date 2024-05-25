@@ -1,8 +1,10 @@
 import 'dart:convert';
 
-AddCustomerModel addEmployeeModelFromJson(String str) => AddCustomerModel.fromJson(json.decode(str));
+AddCustomerModel addEmployeeModelFromJson(String str) =>
+    AddCustomerModel.fromJson(json.decode(str));
 
-String addEmployeeModelToJson(AddCustomerModel data) => json.encode(data.toJson());
+String addEmployeeModelToJson(AddCustomerModel data) =>
+    json.encode(data.toJson());
 
 class AddCustomerModel {
   String? aadharNo;
@@ -27,27 +29,28 @@ class AddCustomerModel {
     this.mobileNo,
   });
 
-  factory AddCustomerModel.fromJson(Map<String, dynamic> json) => AddCustomerModel(
-    aadharNo: json["aadharNo"],
-    accountNo: json["accountNo"],
-    address: json["address"],
-    branchName: json["branchName"],
-    city: json["city"],
-    customerName: json["customerName"],
-    emailId: json["emailId"],
-    ifsc: json["ifsc"],
-    mobileNo: json["mobileNo"],
-  );
+  factory AddCustomerModel.fromJson(Map<String, dynamic> json) =>
+      AddCustomerModel(
+        aadharNo: json["aadharNo"],
+        accountNo: json["accountNo"],
+        address: json["address"],
+        branchName: json["branchName"],
+        city: json["city"],
+        customerName: json["customerName"],
+        emailId: json["emailId"],
+        ifsc: json["ifsc"],
+        mobileNo: json["mobileNo"],
+      );
 
   Map<String, dynamic> toJson() => {
-    "aadharNo": aadharNo,
-    "accountNo": accountNo,
-    "address": address,
-    "branchName": branchName,
-    "city": city,
-    "customerName": customerName,
-    "emailId": emailId,
-    "ifsc": ifsc,
-    "mobileNo": mobileNo,
-  };
+        "aadharNo": aadharNo,
+        "accountNo": accountNo,
+        "address": address,
+        "branchName": branchName,
+        "city": city,
+        "customerName": customerName,
+        "emailId": emailId,
+        "ifsc": ifsc,
+        "mobileNo": mobileNo,
+      };
 }

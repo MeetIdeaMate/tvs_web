@@ -207,10 +207,7 @@ class _CreateUserDialogState extends State<CreateUserDialog> {
     return CustomActionButtons(
       buttonText: AppConstants.addUser,
       onPressed: () {
-        if (_createUserDialogBlocImpl.userFormKey.currentState!.validate()) {
-          // ignore: avoid_print
-          print('customer created success');
-        }
+        if (_createUserDialogBlocImpl.userFormKey.currentState!.validate()) {}
       },
     );
   }

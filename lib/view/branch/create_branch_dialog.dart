@@ -36,7 +36,7 @@ class _CreateBranchDialogState extends State<CreateBranchDialog> {
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           contentPadding: const EdgeInsets.all(10),
-          title: _buildBranchFormTitle(),
+          title: _buildCreateBranchTitle(),
           actions: [
             _buildSaveButton(),
           ],
@@ -50,7 +50,7 @@ class _CreateBranchDialogState extends State<CreateBranchDialog> {
         ));
   }
 
-  _buildBranchFormTitle() {
+  _buildCreateBranchTitle() {
     return Column(
       children: [
         Row(
@@ -89,24 +89,24 @@ class _CreateBranchDialogState extends State<CreateBranchDialog> {
               AppWidgetUtils.buildToast(
                   context,
                   ToastificationType.success,
-                  'Branch Created',
+                  AppConstants.branchCreated,
                   Icon(
                     Icons.check_circle_outline_rounded,
                     color: _appColors.successColor,
                   ),
-                  'Branch Created Successfully',
+                  AppConstants.branchCreatedSuccessFully,
                   _appColors.successLightColor);
             } else {
               _isLoading(false);
               AppWidgetUtils.buildToast(
                   context,
                   ToastificationType.error,
-                  'Branch Created',
+                  AppConstants.branchCreated,
                   Icon(
                     Icons.error_outline_outlined,
                     color: _appColors.errorColor,
                   ),
-                  'Something went wrong try again...',
+                  AppConstants.somethingWentWrong,
                   _appColors.errorLightColor);
             }
           });

@@ -25,14 +25,13 @@ class ParentResponseModel {
   factory ParentResponseModel.fromJson(Map<String, dynamic> json) =>
       ParentResponseModel(
         result:
-        json["result"] == null ? null : ResultObj.fromJson(json["result"]),
+            json["result"] == null ? null : ResultObj.fromJson(json["result"]),
         error: json["error"],
         status: json["status"],
         statusCode: json["statusCode"],
       );
 
-  Map<String, dynamic> toJson() =>
-      {
+  Map<String, dynamic> toJson() => {
         "result": result?.toJson(),
         "error": error,
         "status": status,
@@ -46,14 +45,12 @@ class ResultObj {
 
   ResultObj({this.getAllCustomersByPaginationModel, this.getAllCustomersModel});
 
-  factory ResultObj.fromJson(Map<String, dynamic> json) =>
-      ResultObj(
-          getAllCustomersByPaginationModel: json['customersWithPage'] != null
-              ? GetAllCustomersByPaginationModel.fromJson(
-              json['customersWithPage'])
-              : null,
-          getAllCustomersModel: json[''] != null ? GetAllCustomersModel.fromJson(
-              json['']) : null);
+  factory ResultObj.fromJson(Map<String, dynamic> json) => ResultObj(
+      getAllCustomersByPaginationModel: json['customersWithPage'] != null
+          ? GetAllCustomersByPaginationModel.fromJson(json['customersWithPage'])
+          : null,
+      getAllCustomersModel:
+          json[''] != null ? GetAllCustomersModel.fromJson(json['']) : null);
 
   Map<String, dynamic> toJson() => {};
 }

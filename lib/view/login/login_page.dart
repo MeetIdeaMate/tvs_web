@@ -199,10 +199,10 @@ class _LoginPageState extends State<LoginPage> {
             AppWidgetUtils.buildToast(
                 context,
                 ToastificationType.success,
-                'Login Success',
+                AppConstants.loginSuccess,
                 Icon(Icons.check_circle_outline_rounded,
                     color: _appColors.successColor),
-                'Login in to Application',
+                AppConstants.loginToApplication,
                 _appColors.successLightColor);
             _isLoadingState(state: false);
             Navigator.pushReplacement(context, MaterialPageRoute(
@@ -215,12 +215,10 @@ class _LoginPageState extends State<LoginPage> {
           AppWidgetUtils.buildToast(
               context,
               ToastificationType.error,
-              'Invalid User Found or Inactive',
+              AppConstants.invalidUser,
               Icon(Icons.error_outline, color: _appColors.errorColor),
-              'Login Failed',
+              AppConstants.loginFailed,
               _appColors.errorLightColor);
-
-          // print('Invalid User Found or Inactive');
         }
       });
     }

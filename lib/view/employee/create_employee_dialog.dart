@@ -264,10 +264,8 @@ class _CreateEmployeeDialogState extends State<CreateEmployeeDialog> {
     return CustomActionButtons(
       buttonText: AppConstants.addEmployee,
       onPressed: () {
-        if (_createEmployeeDialogBlocImpl.empFormkey.currentState!.validate()) {
-          // ignore: avoid_print
-          print('customer created success');
-        }
+        if (_createEmployeeDialogBlocImpl.empFormkey.currentState!
+            .validate()) {}
       },
     );
   }

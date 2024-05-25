@@ -212,7 +212,7 @@ class _SideMenuNavigationState extends State<SideMenuNavigation> {
               _buildDrawerMenuItem(
                 AppConstants.icVoucher,
                 AppConstants.voucherReceipt,
-                    () {
+                () {
                   _onMenuItemSelected(AppConstants.voucherReceipt);
                 },
               ),

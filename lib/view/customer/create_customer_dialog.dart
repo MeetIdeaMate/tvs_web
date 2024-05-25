@@ -33,7 +33,7 @@ class _CreateCustomerDialogState extends State<CreateCustomerDialog> {
   @override
   void initState() {
     super.initState();
-    _loadData();
+    _loadCustomerDetails();
   }
 
   @override
@@ -263,24 +263,24 @@ class _CreateCustomerDialogState extends State<CreateCustomerDialog> {
                   AppWidgetUtils.buildToast(
                       context,
                       ToastificationType.success,
-                      'Customer Update',
+                      AppConstants.customerUpdate,
                       Icon(
                         Icons.check_circle_outline_rounded,
                         color: _appColors.successColor,
                       ),
-                      'Employee Updated Successfully',
+                      AppConstants.customerUpdateSuccessfully,
                       _appColors.successLightColor);
                 } else {
                   _isLoading(false);
                   AppWidgetUtils.buildToast(
                       context,
                       ToastificationType.error,
-                      'Customer Update',
+                      AppConstants.customerUpdate,
                       Icon(
                         Icons.error_outline_outlined,
                         color: _appColors.errorColor,
                       ),
-                      'Something went wrong try again...',
+                      AppConstants.somethingWentWrong,
                       _appColors.errorLightColor);
                 }
               },
@@ -293,24 +293,24 @@ class _CreateCustomerDialogState extends State<CreateCustomerDialog> {
                 AppWidgetUtils.buildToast(
                     context,
                     ToastificationType.success,
-                    'Customer Created',
+                    AppConstants.customerUpdate,
                     Icon(
                       Icons.check_circle_outline_rounded,
                       color: _appColors.successColor,
                     ),
-                    'Customer Created Successfully',
+                    AppConstants.customerUpdateSuccessfully,
                     _appColors.successLightColor);
               } else {
                 _isLoading(false);
                 AppWidgetUtils.buildToast(
                     context,
                     ToastificationType.error,
-                    'Customer Created',
+                    AppConstants.customerUpdate,
                     Icon(
                       Icons.error_outline_outlined,
                       color: _appColors.errorColor,
                     ),
-                    'Something went wrong try again...',
+                    AppConstants.somethingWentWrong,
                     _appColors.errorLightColor);
               }
             });
@@ -326,7 +326,7 @@ class _CreateCustomerDialogState extends State<CreateCustomerDialog> {
     });
   }
 
-  void _loadData() async {
+  void _loadCustomerDetails() async {
     _createCustomerDialogBlocImpl
         .getCustomerDetails(widget.customerId ?? '')
         .then((customerData) {

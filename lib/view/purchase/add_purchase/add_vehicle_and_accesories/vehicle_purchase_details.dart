@@ -108,7 +108,9 @@ class _VehiclePurchaseDetailsState extends State<VehiclePurchaseDetails> {
       children: [
         Expanded(
             child: TldsInputFormField(
-                inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d{0,8}'))],
+                inputFormatters: [
+              FilteringTextInputFormatter.allow(RegExp(r'^\d{0,8}'))
+            ],
                 height: 40,
                 labelText: AppConstants.hsnCode,
                 hintText: AppConstants.hsnCode,

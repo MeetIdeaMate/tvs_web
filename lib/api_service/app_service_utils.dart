@@ -97,22 +97,20 @@ class AppServiceUtilImpl extends AppServiceUtil {
       var token = prefs.getString('token');
       dio.options.headers['Authorization'] = 'Bearer $token';
       String url = '${AppUrl.customer}/page?page=0&size=10';
-      if(city.isNotEmpty){
+      if (city.isNotEmpty) {
         url += '&city=$city';
       }
-      if(customerName.isNotEmpty){
+      if (customerName.isNotEmpty) {
         url += '&customerName=$customerName';
       }
-      if(mobileNumber.isNotEmpty){
+      if (mobileNumber.isNotEmpty) {
         url += '&mobileNo=$mobileNumber';
       }
       var response = await dio.get('${url}');
       return parentResponseModelFromJson(jsonEncode(response.data))
           .result
           ?.getAllCustomersByPaginationModel;
-    } on DioException catch (e) {
-      print('********************$e');
-    }
+    } on DioException catch (e) {}
     return null;
   }
 
@@ -124,9 +122,7 @@ class AppServiceUtilImpl extends AppServiceUtil {
       dio.options.headers['Authorization'] = 'Bearer $token';
       var response = await dio.get('${AppUrl.customer}/$customerId');
       return GetAllCustomersModel.fromJson(response.data);
-    } on DioException catch (e) {
-      print('********************$e');
-    }
+    } on DioException catch (e) {}
     return null;
   }
 

@@ -23,38 +23,11 @@ class AppWidgetUtils {
     );
   }
 
-  static Widget buildCustomPoppinsTextWidget(String text,
+  static Widget buildCustomDmSansTextWidget(String text,
       {Color? color, double? fontSize, FontWeight? fontWeight}) {
     return Text(
       text,
-      style: GoogleFonts.poppins(
-          color: color, fontSize: fontSize, fontWeight: fontWeight),
-    );
-  }
-
-  static Widget buildCustomNunitoSansTextWidget(String text,
-      {Color? color, double? fontSize, FontWeight? fontWeight}) {
-    return Text(
-      text,
-      style: GoogleFonts.nunitoSans(
-          color: color, fontSize: fontSize, fontWeight: fontWeight),
-    );
-  }
-
-  static Widget buildCustomRobotoTextWidget(String text,
-      {Color? color, double? fontSize, FontWeight? fontWeight}) {
-    return Text(
-      text,
-      style: GoogleFonts.roboto(
-          color: color, fontSize: fontSize, fontWeight: fontWeight),
-    );
-  }
-
-  static Widget buildCustomInterTextWidget(String text,
-      {Color? color, double? fontSize, FontWeight? fontWeight}) {
-    return Text(
-      text,
-      style: GoogleFonts.inter(
+      style: GoogleFonts.dmSans(
           color: color, fontSize: fontSize, fontWeight: fontWeight),
     );
   }
@@ -155,8 +128,10 @@ class AppWidgetUtils {
   }
 
   static buildLoading() {
-    return LottieBuilder.asset(AppConstants.jsonLoader,
-    height: 200,
-    width: 200,);
+    return LottieBuilder.asset(
+      AppConstants.jsonLoader,
+      height: 200,
+      width: 200,
+    );
   }
 }

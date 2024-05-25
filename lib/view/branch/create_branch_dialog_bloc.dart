@@ -19,6 +19,10 @@ abstract class CreateBranchDialogBloc {
 
   String? get selectedCity;
 
+  bool? get isMainBranch;
+
+  bool? get isAsyncCall;
+
   GlobalKey<FormState> get branchFormKey;
 
   Future<void> addBranch(Function(int? statusCode) onSuccessCallBack);
@@ -35,8 +39,8 @@ class CreateBranchDialogBlocImpl extends CreateBranchDialogBloc {
   String? _selectCity;
   final _branchFormKey = GlobalKey<FormState>();
   final _appService = AppServiceUtilImpl();
-  bool? isMainBranch;
-  bool? isAsyncCall = false;
+  bool? _isMainBranch;
+  bool? _isAsyncCall;
 
   @override
   TextEditingController get addressController => _addressController;
@@ -88,5 +92,19 @@ class CreateBranchDialogBlocImpl extends CreateBranchDialogBloc {
             pinCode: pinCodeController.text,
             mainBranch: isMainBranch),
         onSuccessCallBack);
+  }
+
+  @override
+  bool? get isMainBranch => _isMainBranch;
+
+  set isMainBranch(bool? newValue) {
+    _isMainBranch = newValue;
+  }
+
+  @override
+  bool? get isAsyncCall => _isAsyncCall;
+
+  set isAsyncCall(bool? newValue) {
+    isAsyncCall = false;
   }
 }

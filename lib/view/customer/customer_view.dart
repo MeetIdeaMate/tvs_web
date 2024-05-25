@@ -137,7 +137,7 @@ class _CustomerViewState extends State<CustomerView> {
     );
   }
 
-  void _searchData(){
+  void _searchData() {
     _customerScreenBlocImpl.getAllCustomersByPagination();
     _customerScreenBlocImpl.customerTableStream(true);
   }
@@ -179,12 +179,12 @@ class _CustomerViewState extends State<CustomerView> {
                   return Center(
                     child: AppWidgetUtils.buildLoading(),
                   );
-                }else if(snapshot.hasData){
-                  if(customerDetails?.isEmpty ?? false){
+                } else if (snapshot.hasData) {
+                  if (customerDetails?.isEmpty ?? false) {
                     return Center(
                       child: SvgPicture.asset(AppConstants.imgNoData),
                     );
-                  }else{
+                  } else {
                     return DataTable(
                       dividerThickness: 0.01,
                       columns: [
@@ -208,52 +208,56 @@ class _CustomerViewState extends State<CustomerView> {
                         ),
                       ],
                       rows: customerDetails
-                          ?.asMap()
-                          .entries
-                          .map((entry) => DataRow(
-                          color: MaterialStateProperty.resolveWith(
-                                  (states) {
-                                if (entry.key % 2 == 0) {
-                                  return _appColors.whiteColor;
-                                } else {
-                                  return _appColors.transparentBlueColor;
-                                }
-                              }),
-                          cells: [
-                            DataCell(Text('${entry.key + 1}')),
-                            DataCell(
-                                Text(entry.value.customerName ?? '')),
-                            DataCell(Text(entry.value.mobileNo ?? '')),
-                            DataCell(Text(entry.value.accountNo ?? '')),
-                            DataCell(Text(entry.value.city ?? '')),
-                            DataCell(
-                              IconButton(
-                                icon: SvgPicture.asset(
-                                    AppConstants.icEdit),
-                                onPressed: () {
-                                  showDialog(
-                                    context: context,
-                                    builder: (context) {
-                                      return CreateCustomerDialog(
-                                          customerId:
-                                          entry.value.customerId);
-                                    },
-                                  ).then((value) {
-                                    if (entry.value.customerId !=
-                                        null) {
-                                      _customerScreenBlocImpl
-                                          .customerTableStream(true);
-                                    }
-                                  });
-                                },
-                              ),
-                            ),
-                          ]))
-                          .toList() ??
+                              ?.asMap()
+                              .entries
+                              .map((entry) => DataRow(
+                                      color: MaterialStateProperty.resolveWith(
+                                          (states) {
+                                        if (entry.key % 2 == 0) {
+                                          return _appColors.whiteColor;
+                                        } else {
+                                          return _appColors
+                                              .transparentBlueColor;
+                                        }
+                                      }),
+                                      cells: [
+                                        DataCell(Text('${entry.key + 1}')),
+                                        DataCell(Text(
+                                            entry.value.customerName ?? '')),
+                                        DataCell(
+                                            Text(entry.value.mobileNo ?? '')),
+                                        DataCell(
+                                            Text(entry.value.accountNo ?? '')),
+                                        DataCell(Text(entry.value.city ?? '')),
+                                        DataCell(
+                                          IconButton(
+                                            icon: SvgPicture.asset(
+                                                AppConstants.icEdit),
+                                            onPressed: () {
+                                              showDialog(
+                                                context: context,
+                                                builder: (context) {
+                                                  return CreateCustomerDialog(
+                                                      customerId: entry
+                                                          .value.customerId);
+                                                },
+                                              ).then((value) {
+                                                if (entry.value.customerId !=
+                                                    null) {
+                                                  _customerScreenBlocImpl
+                                                      .customerTableStream(
+                                                          true);
+                                                }
+                                              });
+                                            },
+                                          ),
+                                        ),
+                                      ]))
+                              .toList() ??
                           [],
                     );
                   }
-                }else{
+                } else {
                   return Center(
                     child: SvgPicture.asset(AppConstants.imgNoData),
                   );

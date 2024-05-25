@@ -45,9 +45,9 @@ class CustomerViewBlocImpl extends CustomerViewBloc {
   Future<GetAllCustomersByPaginationModel?>
       getAllCustomersByPagination() async {
     return _appServices.getAllCustomersByPagination(
-        custCityTextController.text,
-        custMobileNoController.text,
-        custNameFilterController.text,
+      custCityTextController.text,
+      custMobileNoController.text,
+      custNameFilterController.text,
     );
   }
 

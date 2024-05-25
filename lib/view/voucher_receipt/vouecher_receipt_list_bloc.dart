@@ -80,7 +80,7 @@ class VoucherReceiptListBlocImpl extends VoucherReceiptListBloc {
 
   @override
   String? get selectedEmployee => _selectedEmployee;
-  set selectedEmployee(String? value){
+  set selectedEmployee(String? value) {
     _selectedEmployee = value;
   }
 }

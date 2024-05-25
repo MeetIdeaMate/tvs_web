@@ -19,6 +19,7 @@ class AppConstants {
   static const userId = 'userId';
   static const userName = 'userName';
   static const useRefId = 'useRefId';
+
 //LoginPage
 
   static const loginheader = 'Login to your account';
@@ -49,7 +50,7 @@ class AppConstants {
   static const timeValidation = 'Enter Appointment Time';
   static const aadharValidation = 'Please Enter Aadhar';
   static const gstDigitErrorText = 'Please enter a 15-digit Digit number';
-  static const aadharDigitErrorText = 'Please enter a 12-digit mobile number';
+  static const aadharDigitErrorText = 'Please enter a 12-digit aadhar number';
   static const panDigitErrorMsg = 'Please enter a 10-digit Pan Number';
   static const mobileNumberDigitErrorText =
       'Please enter a 10-digit mobile number';
@@ -268,6 +269,7 @@ class AppConstants {
 //user
 
   static const username = 'User Name';
+
   // static const designation = 'Designation';
   static const userFilterHint = 'User Name / Mobile Number';
   static const addUser = 'Add User';
@@ -277,10 +279,22 @@ class AppConstants {
   static const hintAge = 'Enter Age';
 
   //branch
-
   static const addBranch = 'Add branch';
   static const subBranch = 'Sub Branches';
   static const mainBranch = 'Main Branch';
   static const branchDetails = 'Branch Details';
   static const hasiniMotor = 'Hasini Motor';
+
+  //message texts
+  static const loginSuccess = 'Login Success';
+  static const loginFailed = 'Login Failed';
+  static const loginToApplication = 'Login to application';
+  static const invalidUser = 'Invalid user found or inactive';
+  static const branchCreated = 'Branch Created';
+  static const branchCreatedSuccessFully = 'Branch created successFully';
+  static const somethingWentWrong = 'Something went wrong try again...!';
+  static const customerUpdate = 'Customer Update';
+  static const customerCreate = 'Customer Create';
+  static const customerUpdateSuccessfully = 'Customer updated successFully';
+  static const customerCreatedSuccessfully = 'Customer created successFully';
 }

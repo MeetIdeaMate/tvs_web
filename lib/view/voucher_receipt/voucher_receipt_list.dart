@@ -52,7 +52,7 @@ class _VoucherReceiptListState extends State<VoucherReceiptList>
   }
 
   Widget _buildHeaderText() {
-    return AppWidgetUtils.buildCustomNunitoSansTextWidget(AppConstants.receipt,
+    return AppWidgetUtils.buildCustomDmSansTextWidget(AppConstants.receipt,
         color: _appColors.primaryColor,
         fontSize: 28,
         fontWeight: FontWeight.w700);
@@ -266,7 +266,7 @@ class _VoucherReceiptListState extends State<VoucherReceiptList>
   }
 
   _buildTransferTableHeader(String headerValue, {int flex = 1}) => DataColumn(
-      label: AppWidgetUtils.buildCustomInterTextWidget(headerValue,
+      label: AppWidgetUtils.buildCustomDmSansTextWidget(headerValue,
           fontSize: 14, fontWeight: FontWeight.w700));
 
   Widget _buildFormField(

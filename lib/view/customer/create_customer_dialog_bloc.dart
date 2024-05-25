@@ -22,6 +22,8 @@ abstract class CreateCustomerDialogBloc {
 
   GlobalKey<FormState> get custFormKey;
 
+  bool? get isAsyncCall;
+
   Future<void> addCustomer(Function(int? statusCode) onSuccessCallBack);
 
   Future<GetAllCustomersModel?> getCustomerDetails(String customerId);
@@ -41,7 +43,7 @@ class CreateCustomerDialogBlocImpl extends CreateCustomerDialogBloc {
   final _custAddressTextController = TextEditingController();
   final _custIFSCTextController = TextEditingController();
   final _apiCalls = AppServiceUtilImpl();
-  bool? isAsyncCall = false;
+  bool? _isAsyncCall;
 
   @override
   TextEditingController get customerNameTextController =>
@@ -110,5 +112,12 @@ class CreateCustomerDialogBlocImpl extends CreateCustomerDialogBloc {
             customerName: customerNameTextController.text,
             ifsc: custIFSCTextController.text),
         onSuccessCallBack);
+  }
+
+  @override
+  bool? get isAsyncCall => _isAsyncCall;
+
+  set isAsyncCall(bool? newValue) {
+    isAsyncCall = false;
   }
 }
