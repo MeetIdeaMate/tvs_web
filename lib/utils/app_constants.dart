@@ -19,6 +19,7 @@ class AppConstants {
   static const userId = 'userId';
   static const userName = 'userName';
   static const useRefId = 'useRefId';
+
 //LoginPage
 
   static const loginheader = 'Login to your account';
@@ -49,7 +50,7 @@ class AppConstants {
   static const timeValidation = 'Enter Appointment Time';
   static const aadharValidation = 'Please Enter Aadhar';
   static const gstDigitErrorText = 'Please enter a 15-digit Digit number';
-  static const aadharDigitErrorText = 'Please enter a 16-digit mobile number';
+  static const aadharDigitErrorText = 'Please enter a 12-digit aadhar number';
   static const panDigitErrorMsg = 'Please enter a 10-digit Pan Number';
   static const mobileNumberDigitErrorText =
       'Please enter a 10-digit mobile number';
@@ -184,16 +185,16 @@ class AppConstants {
   static const allWorkType = 'All Work Type';
   static const allBranch = 'All Branch';
   static const workType = 'Work Type';
-  static const branchName = 'Branch name';
+  static const branchName = 'Branch Name';
   static const empFilterHint = 'Employee Name / Mobile Number';
 
   static const empType = 'Employee Type';
-  static const branch = 'branch';
+  static const branch = 'Branch';
   static const age = 'Age';
   static const exAge = 'Ex. 29';
   static const exSelect = ' Select ';
   static const exEmail = 'Ex. ajith@techlambdas.com';
-  static const gender = 'gender';
+  static const gender = 'Gender';
   static const exMobNo = '+91 9876545430';
 
   static const typeHere = 'Type Here';
@@ -206,6 +207,7 @@ class AppConstants {
   static const engineNumber = 'Engine Number';
   static const frameNumber = 'Frame Number';
   static const vehicleName = 'Vehicle Name';
+  static const vehicleType = 'Vehicle Type';
   static const vehicleDescription = 'Vehicle Description';
   static const vehicleDetails = 'Vehicle Details';
   static const hsnCode = 'HSN Code';
@@ -270,8 +272,9 @@ class AppConstants {
 //user
 
   static const username = 'User Name';
+
   // static const designation = 'Designation';
-  static const userFilterHint = 'User Name';
+  static const userFilterHint = 'User Name / Mobile Number';
   static const addUser = 'Add User';
   static const newuser = 'New user';
   static const hintPinCode = 'Enter pin Code';
@@ -279,20 +282,34 @@ class AppConstants {
   static const hintAge = 'Enter Age';
 
   //branch
-
   static const addBranch = 'Add branch';
   static const subBranch = 'Sub Branches';
   static const mainBranch = 'Main Branch';
   static const branchDetails = 'Branch Details';
   static const hasiniMotor = 'Hasini Motor';
 
+  //message texts
+  static const loginSuccess = 'Login Success';
+  static const loginFailed = 'Login Failed';
+  static const loginToApplication = 'Login to application';
+  static const invalidUser = 'Invalid user found or inactive';
+  static const branchCreated = 'Branch Created';
+  static const branchCreatedSuccessFully = 'Branch created successFully';
+  static const somethingWentWrong = 'Something went wrong try again...!';
+  static const customerUpdate = 'Customer Update';
+  static const customerCreate = 'Customer Create';
+  static const customerUpdateSuccessfully = 'Customer updated successFully';
+  static const customerCreatedSuccessfully = 'Customer created successFully';
+  static const employeeUpdate = 'Employee Update';
+  static const employeeCreate = 'Employee Create';
+  static const employeeUpdateSuccessfully = 'Employee updated successFully';
+  static const employeeCreatedSuccessfully = 'Employee created successFully';
+
   //API
 
   static const all = 'All';
   static const loading = 'Loading...';
   static const errorLoading = 'Error Loading...';
-  static const purchaseReport = 'Purchase Report';
-  static const salesReport = 'Sales Report';
 
   //report
 
@@ -300,6 +317,11 @@ class AppConstants {
   static const fromDate = 'From Date';
   static const toDate = 'To Date';
   static const pdfGeneration = 'Generate Pdf / Print';
+  static const accessoriesType = 'Accessories Type';
+  static const String selectedBranch = 'Select Branch';
+  static const purchaseReport = 'Purchase Report';
+  static const salesReport = 'Sales Report';
+  static const stocksReport = 'Stocks report';
 
   // purchaseReport Table header
 

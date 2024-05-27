@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 abstract class SalesReportBloc {
@@ -6,6 +8,8 @@ abstract class SalesReportBloc {
   TextEditingController get toDateEditText;
   TextEditingController get customerNameEditText;
   String? get selectedPayementType;
+  TabController get salesScreenTabController;
+  Stream<bool> get tabChangeStreamController;
 }
 
 class SaledReportBlocImpl extends SalesReportBloc {
@@ -14,7 +18,17 @@ class SaledReportBlocImpl extends SalesReportBloc {
   final _toDateEditText = TextEditingController();
 
   final _customerNameEditText = TextEditingController();
+  final _tabChangeStreamController = StreamController<bool>.broadcast();
+  late TabController _salesScreenTabController;
+  @override
+  TabController get salesScreenTabController => _salesScreenTabController;
+
+  set salesScreenTabController(TabController newTab) {
+    _salesScreenTabController = newTab;
+  }
+
   String? _selectedPaymentType;
+
   @override
   TextEditingController get fromDateEditText => _fromDateTextFeild;
 
@@ -29,4 +43,12 @@ class SaledReportBlocImpl extends SalesReportBloc {
 
   @override
   String? get selectedPayementType => _selectedPaymentType;
+
+  @override
+  Stream<bool> get tabChangeStreamController =>
+      _tabChangeStreamController.stream;
+
+  tabChangeStreamControll(bool newValue) {
+    _tabChangeStreamController.add(newValue);
+  }
 }

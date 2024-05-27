@@ -52,42 +52,45 @@ class _TransferViewState extends State<TransferView>
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Row(children: [
-          StreamBuilder(
-            stream: _transferViewBloc.transporterNameSearchStream,
-            builder: (context, snapshot) {
-              return _buildFormField(_transferViewBloc.transporterNameSearchController,
-              AppConstants.transporterName);
-            },
-          ),
-          _buildDefaultWidth(),
-          StreamBuilder(
-            stream: _transferViewBloc.vehicleNameSearchStream,
-            builder: (context, snapshot) {
-              return _buildFormField(_transferViewBloc.vehicleNameSearchController,
-                  AppConstants.vehicleName);
-            },
-          ),
-          _buildDefaultWidth(),
-          TldsDropDownButtonFormField(
-            height: 40,
-            width: MediaQuery.sizeOf(context).width * 0.15,
-            hintText: AppConstants.selectVendor,
-            dropDownItems: _transferViewBloc.status,
-            onChange: (String? newValue) {
-              _transferViewBloc.selectedStatus = newValue ?? '';
-            },
-          ),
-        ],),
-        Row(children: [
-          _buildNewTransfer()
-        ],)
+        Row(
+          children: [
+            StreamBuilder(
+              stream: _transferViewBloc.transporterNameSearchStream,
+              builder: (context, snapshot) {
+                return _buildFormField(
+                    _transferViewBloc.transporterNameSearchController,
+                    AppConstants.transporterName);
+              },
+            ),
+            _buildDefaultWidth(),
+            StreamBuilder(
+              stream: _transferViewBloc.vehicleNameSearchStream,
+              builder: (context, snapshot) {
+                return _buildFormField(
+                    _transferViewBloc.vehicleNameSearchController,
+                    AppConstants.vehicleName);
+              },
+            ),
+            _buildDefaultWidth(),
+            TldsDropDownButtonFormField(
+              height: 40,
+              width: MediaQuery.sizeOf(context).width * 0.15,
+              hintText: AppConstants.selectVendor,
+              dropDownItems: _transferViewBloc.status,
+              onChange: (String? newValue) {
+                _transferViewBloc.selectedStatus = newValue ?? '';
+              },
+            ),
+          ],
+        ),
+        Row(
+          children: [_buildNewTransfer()],
+        )
       ],
     );
   }
 
-
-  Widget _buildNewTransfer(){
+  Widget _buildNewTransfer() {
     return CustomElevatedButton(
       height: 40,
       width: 189,
@@ -186,16 +189,18 @@ class _TransferViewState extends State<TransferView>
               DataCell(Text(data[AppConstants.transporterName] ?? '')),
               DataCell(Text(data[AppConstants.mobileNumber] ?? '')),
               DataCell(Text(data[AppConstants.vehicleNumber] ?? '')),
-              DataCell(Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(50),
-                    border: Border.all(
-                        color: data[AppConstants.status] == 'Transferred'
-                            ? _appColors.whiteColor
-                            : _appColors.yellowColor)),
-                child: Padding(padding: const EdgeInsets.all(4),
-                child: _buildTransferStatus(data))
-              ),),
+              DataCell(
+                Container(
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(50),
+                        border: Border.all(
+                            color: data[AppConstants.status] == 'Transferred'
+                                ? _appColors.whiteColor
+                                : _appColors.yellowColor)),
+                    child: Padding(
+                        padding: const EdgeInsets.all(4),
+                        child: _buildTransferStatus(data))),
+              ),
               DataCell(
                 Row(
                   children: [
@@ -219,23 +224,26 @@ class _TransferViewState extends State<TransferView>
     );
   }
 
-  Widget _buildTransferStatus(Map<String, String> data){
+  Widget _buildTransferStatus(Map<String, String> data) {
     return Row(
       children: [
-        Text(data[AppConstants.status] ?? '',style: TextStyle(color:
-        data[AppConstants.status] == 'Transferred'
-            ? _appColors.successColor
-            : _appColors.yellowColor),),
+        Text(
+          data[AppConstants.status] ?? '',
+          style: TextStyle(
+              color: data[AppConstants.status] == 'Transferred'
+                  ? _appColors.successColor
+                  : _appColors.yellowColor),
+        ),
         AppWidgetUtils.buildSizedBox(custWidth: 4),
         data[AppConstants.status] == 'Transferred'
             ? Icon(
-          Icons.check,
-          color: _appColors.successColor,
-        )
+                Icons.check,
+                color: _appColors.successColor,
+              )
             : Icon(
-          Icons.info_outline,
-          color: _appColors.yellowColor,
-        ),
+                Icons.info_outline,
+                color: _appColors.yellowColor,
+              ),
       ],
     );
   }
@@ -257,25 +265,26 @@ class _TransferViewState extends State<TransferView>
         custHeight: MediaQuery.sizeOf(context).height * 0.02);
   }
 
-  Widget _buildFormField(TextEditingController textController, String hintText) {
-    final bool isTextEmpty =
-        textController.text.isEmpty;
+  Widget _buildFormField(
+      TextEditingController textController, String hintText) {
+    final bool isTextEmpty = textController.text.isEmpty;
     final IconData iconData = isTextEmpty ? Icons.search : Icons.close;
-    final Color iconColor =
-    isTextEmpty ? _appColors.primaryColor : Colors.red;
+    final Color iconColor = isTextEmpty ? _appColors.primaryColor : Colors.red;
     return TldsInputFormField(
       width: 203,
       height: 40,
       controller: textController,
       hintText: hintText,
       suffixIcon: IconButton(
-        onPressed: iconData == Icons.search ? (){
-          //add search cont here
-          _checkController(hintText);
-        } : () {
-          textController.clear();
-          _checkController(hintText);
-        },
+        onPressed: iconData == Icons.search
+            ? () {
+                //add search cont here
+                _checkController(hintText);
+              }
+            : () {
+                textController.clear();
+                _checkController(hintText);
+              },
         icon: Icon(
           iconData,
           color: iconColor,
@@ -289,9 +298,9 @@ class _TransferViewState extends State<TransferView>
   }
 
   void _checkController(String transporterName) {
-    if(AppConstants.transporterName == transporterName){
+    if (AppConstants.transporterName == transporterName) {
       _transferViewBloc.transporterNameStreamController(true);
-    }else{
+    } else {
       _transferViewBloc.vehicleNameSearchStreamController(true);
     }
   }

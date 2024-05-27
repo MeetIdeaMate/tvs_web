@@ -1,53 +1,36 @@
-import 'dart:convert';
+class AddEmployeeModel {
+  String address;
+  int age;
+  String branchId;
+  String city;
+  String designation;
+  String emailId;
+  String employeeName;
+  String gender;
+  String mobileNumber;
 
-AddCustomerModel addEmployeeModelFromJson(String str) => AddCustomerModel.fromJson(json.decode(str));
+  AddEmployeeModel(
+      {required this.address,
+      required this.age,
+      required this.branchId,
+      required this.city,
+      required this.designation,
+      required this.emailId,
+      required this.employeeName,
+      required this.gender,
+      required this.mobileNumber});
 
-String addEmployeeModelToJson(AddCustomerModel data) => json.encode(data.toJson());
-
-class AddCustomerModel {
-  String? aadharNo;
-  String? accountNo;
-  String? address;
-  String? branchName;
-  String? city;
-  String? customerName;
-  String? emailId;
-  String? ifsc;
-  String? mobileNo;
-
-  AddCustomerModel({
-    this.aadharNo,
-    this.accountNo,
-    this.address,
-    this.branchName,
-    this.city,
-    this.customerName,
-    this.emailId,
-    this.ifsc,
-    this.mobileNo,
-  });
-
-  factory AddCustomerModel.fromJson(Map<String, dynamic> json) => AddCustomerModel(
-    aadharNo: json["aadharNo"],
-    accountNo: json["accountNo"],
-    address: json["address"],
-    branchName: json["branchName"],
-    city: json["city"],
-    customerName: json["customerName"],
-    emailId: json["emailId"],
-    ifsc: json["ifsc"],
-    mobileNo: json["mobileNo"],
-  );
-
-  Map<String, dynamic> toJson() => {
-    "aadharNo": aadharNo,
-    "accountNo": accountNo,
-    "address": address,
-    "branchName": branchName,
-    "city": city,
-    "customerName": customerName,
-    "emailId": emailId,
-    "ifsc": ifsc,
-    "mobileNo": mobileNo,
-  };
+  Map<String, dynamic> toJson() {
+    return {
+      "address": address,
+      "age": age,
+      "branchId": branchId,
+      "city": city,
+      "designation": designation,
+      "emailId": emailId,
+      "employeeName": employeeName,
+      "gender": gender,
+      "mobileNumber": mobileNumber
+    };
+  }
 }

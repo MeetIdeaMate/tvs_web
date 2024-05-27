@@ -11,12 +11,16 @@ import 'package:tlbilling/components/custom_form_field.dart';
 import 'package:tlbilling/utils/app_colors.dart';
 import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/utils/app_util_widgets.dart';
+import 'package:tlbilling/utils/app_utils.dart';
 import 'package:tlbilling/utils/input_validation.dart';
 import 'package:tlbilling/view/customer/create_customer_dialog_bloc.dart';
+import 'package:tlbilling/view/customer/customer_view_bloc.dart';
 import 'package:toastification/toastification.dart';
 
 class CreateCustomerDialog extends StatefulWidget {
-  const CreateCustomerDialog({super.key});
+  final String? customerId;
+
+  const CreateCustomerDialog({super.key, this.customerId});
 
   @override
   State<CreateCustomerDialog> createState() => _CreateCustomerDialogState();
@@ -27,9 +31,15 @@ class _CreateCustomerDialogState extends State<CreateCustomerDialog> {
   final _createCustomerDialogBlocImpl = CreateCustomerDialogBlocImpl();
 
   @override
+  void initState() {
+    super.initState();
+    _loadCustomerDetails();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return BlurryModalProgressHUD(
-        inAsyncCall: _createCustomerDialogBlocImpl.isAsyncCall,
+        inAsyncCall: false,
         color: _appColors.whiteColor,
         progressIndicator: AppWidgetUtils.buildLoading(),
         child: AlertDialog(
@@ -150,7 +160,7 @@ class _CreateCustomerDialogState extends State<CreateCustomerDialog> {
     return Expanded(
       child: CustomFormField(
           inputFormatters: [
-            FilteringTextInputFormatter.allow(RegExp("[a-z A-Z @]")),
+            FilteringTextInputFormatter.allow(RegExp("[a-z A-Z  ]")),
           ],
           requiredLabelText:
               AppWidgetUtils.labelTextWithRequired(AppConstants.name),
@@ -205,7 +215,7 @@ class _CreateCustomerDialogState extends State<CreateCustomerDialog> {
               validator: (value) {
                 return InputValidations.aadharValidation(value!);
               },
-              maxLength: 16,
+              maxLength: 12,
               hintText: AppConstants.hintAatharNo,
               labelText: AppConstants.aadharNo,
               controller:
@@ -214,11 +224,17 @@ class _CreateCustomerDialogState extends State<CreateCustomerDialog> {
         AppWidgetUtils.buildSizedBox(custWidth: 14),
         Expanded(
           child: CustomFormField(
+              onChanged: (String value) {
+                AppUtils.toUppercase(
+                    value: value,
+                    textEditingController:
+                        _createCustomerDialogBlocImpl.custAccNoTextController);
+              },
               maxLength: 10,
               hintText: AppConstants.hintPanNo,
               labelText: AppConstants.panNo,
               inputFormatters: [
-                FilteringTextInputFormatter.allow(RegExp("[A-Z 0-9]")),
+                FilteringTextInputFormatter.allow(RegExp("[A-Z a-z 0-9]")),
               ],
               validator: (value) {
                 return InputValidations.panValidation(value!);
@@ -237,36 +253,68 @@ class _CreateCustomerDialogState extends State<CreateCustomerDialog> {
         if (_createCustomerDialogBlocImpl.custFormKey.currentState!
             .validate()) {
           _isLoading(true);
-          _createCustomerDialogBlocImpl.addCustomer((statusCode) {
-            if (statusCode == 200 || statusCode == 201) {
-              _isLoading(false);
-              Navigator.pop(context);
-              AppWidgetUtils.buildToast(
-                  context,
-                  ToastificationType.success,
-                  'Employee Created',
-                  Icon(
-                    Icons.check_circle_outline_rounded,
-                    color: _appColors.successColor,
-                  ),
-                  'Employee Created Successfully',
-                  _appColors.successLightColor);
-            } else {
-              _isLoading(false);
-              AppWidgetUtils.buildToast(
-                  context,
-                  ToastificationType.error,
-                  'Branch Created',
-                  Icon(
-                    Icons.error_outline_outlined,
-                    color: _appColors.errorColor,
-                  ),
-                  'Something went wrong try again...',
-                  _appColors.errorLightColor);
-            }
-          });
-          // ignore: avoid_print
-          print('customer created success');
+          if (widget.customerId != null) {
+            return _createCustomerDialogBlocImpl.updateCustomer(
+              widget.customerId ?? '',
+              (statusCode) {
+                if (statusCode == 200 || statusCode == 201) {
+                  _isLoading(false);
+                  Navigator.pop(context);
+                  AppWidgetUtils.buildToast(
+                      context,
+                      ToastificationType.success,
+                      AppConstants.customerUpdate,
+                      Icon(
+                        Icons.check_circle_outline_rounded,
+                        color: _appColors.successColor,
+                      ),
+                      AppConstants.customerUpdateSuccessfully,
+                      _appColors.successLightColor);
+                } else {
+                  _isLoading(false);
+                  AppWidgetUtils.buildToast(
+                      context,
+                      ToastificationType.error,
+                      AppConstants.customerUpdate,
+                      Icon(
+                        Icons.error_outline_outlined,
+                        color: _appColors.errorColor,
+                      ),
+                      AppConstants.somethingWentWrong,
+                      _appColors.errorLightColor);
+                }
+              },
+            );
+          } else {
+            return _createCustomerDialogBlocImpl.addCustomer((statusCode) {
+              if (statusCode == 200 || statusCode == 201) {
+                _isLoading(false);
+                Navigator.pop(context);
+                AppWidgetUtils.buildToast(
+                    context,
+                    ToastificationType.success,
+                    AppConstants.customerUpdate,
+                    Icon(
+                      Icons.check_circle_outline_rounded,
+                      color: _appColors.successColor,
+                    ),
+                    AppConstants.customerUpdateSuccessfully,
+                    _appColors.successLightColor);
+              } else {
+                _isLoading(false);
+                AppWidgetUtils.buildToast(
+                    context,
+                    ToastificationType.error,
+                    AppConstants.customerUpdate,
+                    Icon(
+                      Icons.error_outline_outlined,
+                      color: _appColors.errorColor,
+                    ),
+                    AppConstants.somethingWentWrong,
+                    _appColors.errorLightColor);
+              }
+            });
+          }
         }
       },
     );
@@ -275,6 +323,27 @@ class _CreateCustomerDialogState extends State<CreateCustomerDialog> {
   _isLoading(bool? isLoadingState) {
     setState(() {
       _createCustomerDialogBlocImpl.isAsyncCall = isLoadingState;
+    });
+  }
+
+  void _loadCustomerDetails() async {
+    _createCustomerDialogBlocImpl
+        .getCustomerDetails(widget.customerId ?? '')
+        .then((customerData) {
+      _createCustomerDialogBlocImpl.customerNameTextController.text =
+          customerData?.customerName ?? '';
+      _createCustomerDialogBlocImpl.custMailIdTextController.text =
+          customerData?.emailId ?? '';
+      _createCustomerDialogBlocImpl.custCitytextcontroller.text =
+          customerData?.city ?? '';
+      _createCustomerDialogBlocImpl.custMobileNoTextController.text =
+          customerData?.mobileNo ?? '';
+      _createCustomerDialogBlocImpl.custAadharNoTextController.text =
+          customerData?.aadharNo ?? '';
+      _createCustomerDialogBlocImpl.custAddressTextController.text =
+          customerData?.address ?? '';
+      _createCustomerDialogBlocImpl.custAccNoTextController.text =
+          customerData?.accountNo ?? '';
     });
   }
 }

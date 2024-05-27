@@ -218,10 +218,7 @@ class _CreateVendorDialogState extends State<CreateVendorDialog> {
       buttonText: AppConstants.addVendor,
       onPressed: () {
         if (_createVendorDialogBlocImpl.vendorFormKey.currentState!
-            .validate()) {
-          // ignore: avoid_print
-          print('customer created success');
-        }
+            .validate()) {}
       },
     );
   }

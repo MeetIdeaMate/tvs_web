@@ -13,12 +13,14 @@ import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/utils/app_util_widgets.dart';
 import 'package:tlbilling/utils/input_validation.dart';
 import 'package:tlbilling/view/user/create_user_dialog_bloc.dart';
+import 'package:tlbilling/view/user/user_view_bloc.dart';
 import 'package:tlds_flutter/components/tlds_input_form_field.dart';
 import 'package:tlds_flutter/util/app_colors.dart';
 import 'package:toastification/toastification.dart';
 
 class CreateUserDialog extends StatefulWidget {
-  const CreateUserDialog({super.key});
+  final UserViewBlocImpl userViewBloc;
+  const CreateUserDialog({super.key, required this.userViewBloc});
 
   @override
   State<CreateUserDialog> createState() => _CreateUserDialogState();
@@ -112,13 +114,13 @@ class _CreateUserDialogState extends State<CreateUserDialog> {
             future: _createUserDialogBlocImpl.getEmployeeName(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return Center(child: Text(AppConstants.loading));
+                return const Center(child: Text(AppConstants.loading));
               } else if (snapshot.hasError) {
                 return Center(child: Text('Error: ${snapshot.error}'));
               } else if (!snapshot.hasData ||
                   snapshot.data!.result == null ||
                   snapshot.data!.result!.employeeListModel == null) {
-                return Center(child: Text('No data available'));
+                return const Center(child: Text('No data available'));
               }
               final employeesList = snapshot.data!.result!.employeeListModel;
               final employeeNamesSet = employeesList!
@@ -153,8 +155,6 @@ class _CreateUserDialogState extends State<CreateUserDialog> {
                         selectedemployee.employeeId;
                     _createUserDialogBlocImpl.employeeNameEditText.text =
                         selectedemployee.employeeName.toString();
-                    print(_createUserDialogBlocImpl.selectedEmpId =
-                        selectedemployee.employeeId);
 
                     _buildEmployeeNameOnchange(
                         employeeName: selectedemployee.employeeName,
@@ -316,6 +316,7 @@ class _CreateUserDialogState extends State<CreateUserDialog> {
             AppColor().successLightColor);
         Navigator.pop(context);
         _isLoadingState(state: false);
+        widget.userViewBloc.usersListStream(true);
       }, (statusCode) {
         //  print('  user post  $statusCode');
         if (statusCode == 409) {

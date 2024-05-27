@@ -1,3 +1,4 @@
+import 'package:blurry_modal_progress_hud/blurry_modal_progress_hud.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
@@ -9,10 +10,15 @@ import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/utils/app_util_widgets.dart';
 import 'package:tlbilling/utils/input_validation.dart';
 import 'package:tlbilling/view/employee/create_employee_dialog_bloc.dart';
+import 'package:tlbilling/view/employee/employee_view_bloc.dart';
 import 'package:toastification/toastification.dart';
 
 class CreateEmployeeDialog extends StatefulWidget {
-  const CreateEmployeeDialog({super.key});
+  final EmployeeViewBlocImpl employeeViewBloc;
+  final String? employeeId;
+
+  const CreateEmployeeDialog(
+      {super.key, required this.employeeViewBloc, this.employeeId});
 
   @override
   State<CreateEmployeeDialog> createState() => _CreateEmployeeDialogState();
@@ -25,23 +31,59 @@ class _CreateEmployeeDialogState extends State<CreateEmployeeDialog> {
   final List<String>? city = ['kvp', 'chennai'];
 
   final _appColors = AppColors();
+
   final _createEmployeeDialogBlocImpl = CreateEmployeeDialogBlocImpl();
+  bool _isLoading = false;
+  void _isLoadingState({required bool state}) {
+    setState(() {
+      _isLoading = state;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _createEmployeeDialogBlocImpl
+        .getEmployeeById(widget.employeeId ?? '')
+        .then((value) {
+      _createEmployeeDialogBlocImpl.empNameController.text =
+          value?.employeeName ?? '';
+      _createEmployeeDialogBlocImpl.empAgeController.text =
+          value?.age.toString() ?? '';
+      _createEmployeeDialogBlocImpl.empCityEditText.text = value?.city ?? '';
+      _createEmployeeDialogBlocImpl.empMobNoController.text =
+          value?.mobileNumber ?? '';
+      _createEmployeeDialogBlocImpl.empEmailController.text =
+          value?.emailId ?? '';
+      _createEmployeeDialogBlocImpl.empaddressController.text =
+          value?.address ?? '';
+      _createEmployeeDialogBlocImpl.selectedEmpBranch = value?.branchName ?? '';
+
+      _createEmployeeDialogBlocImpl.selectEmpGender = value?.gender ?? '';
+      _createEmployeeDialogBlocImpl.selectedEmpType = value?.designation ?? '';
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      backgroundColor: _appColors.whiteColor,
-      surfaceTintColor: _appColors.whiteColor,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      contentPadding: const EdgeInsets.all(10),
-      title: _buildEmployeeFormTitle(),
-      actions: [
-        _buildSaveButton(),
-      ],
-      content: SizedBox(
-        width: MediaQuery.sizeOf(context).width * 0.4,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 30),
-          child: _buildEmployeeCreateForm(),
+    return BlurryModalProgressHUD(
+      inAsyncCall: _isLoading,
+      progressIndicator: AppWidgetUtils.buildLoading(),
+      child: AlertDialog(
+        backgroundColor: _appColors.whiteColor,
+        surfaceTintColor: _appColors.whiteColor,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        contentPadding: const EdgeInsets.all(10),
+        title: _buildEmployeeFormTitle(),
+        actions: [
+          _buildSaveButton(),
+        ],
+        content: SizedBox(
+          width: MediaQuery.sizeOf(context).width * 0.4,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 30),
+            child: _buildEmployeeCreateForm(),
+          ),
         ),
       ),
     );
@@ -140,33 +182,74 @@ class _CreateEmployeeDialogState extends State<CreateEmployeeDialog> {
     return Row(
       children: [
         Expanded(
-          child: CustomDropDownButtonFormField(
-            height: 70,
-            requiredLabelText:
-                AppWidgetUtils.labelTextWithRequired(AppConstants.empType),
-            dropDownItems: empType!,
-            validator: (value) {
-              return InputValidations.empTypeValidation(value ?? '');
-            },
-            hintText: AppConstants.exSelect,
-            onChange: (String? newValue) {
-              _createEmployeeDialogBlocImpl.selectedEmpType = newValue ?? '';
+          child: FutureBuilder(
+            future: _createEmployeeDialogBlocImpl.getConfigByIdModel(
+                configId: AppConstants.designation),
+            builder: (context, snapshot) {
+              return CustomDropDownButtonFormField(
+                height: 70,
+                requiredLabelText:
+                    AppWidgetUtils.labelTextWithRequired(AppConstants.empType),
+                dropDownItems: snapshot.data ?? [],
+                validator: (value) {
+                  return InputValidations.empTypeValidation(value ?? '');
+                },
+                hintText: (snapshot.connectionState == ConnectionState.waiting)
+                    ? AppConstants.loading
+                    : (snapshot.hasError || snapshot.data == null)
+                        ? AppConstants.errorLoading
+                        : AppConstants.exSelect,
+                onChange: (String? newValue) {
+                  _createEmployeeDialogBlocImpl.selectedEmpType =
+                      newValue ?? '';
+                },
+              );
             },
           ),
         ),
         AppWidgetUtils.buildSizedBox(custWidth: 14),
         Expanded(
-          child: CustomDropDownButtonFormField(
-            height: 70,
-            requiredLabelText:
-                AppWidgetUtils.labelTextWithRequired(AppConstants.branch),
-            dropDownItems: empBranch!,
-            hintText: AppConstants.exSelect,
-            validator: (value) {
-              return InputValidations.branchValidation(value ?? '');
-            },
-            onChange: (String? newValue) {
-              _createEmployeeDialogBlocImpl.selectedEmpBranch = newValue ?? '';
+          child: FutureBuilder(
+            future: _createEmployeeDialogBlocImpl.getBranchName(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                // While the data is loading, you can show a loading indicator
+                return const Text(AppConstants.loading);
+              } else if (snapshot.hasError) {
+                // If an error occurred while fetching data, you can show an error message
+                return Text('Error: ${snapshot.error}');
+              } else if (snapshot.hasData) {
+                // When the data is successfully fetched
+                List<String>? branchNameList = snapshot
+                    .data?.result?.getAllBranchList
+                    ?.map((e) => e.branchName)
+                    .where((branchName) => branchName != null)
+                    .cast<String>()
+                    .toList();
+
+                return CustomDropDownButtonFormField(
+                  height: 70,
+                  requiredLabelText:
+                      AppWidgetUtils.labelTextWithRequired(AppConstants.branch),
+                  dropDownItems: branchNameList ?? [],
+                  hintText: AppConstants.exSelect,
+                  validator: (value) {
+                    return InputValidations.branchValidation(value ?? '');
+                  },
+                  onChange: (String? newValue) {
+                    var employeeValue = snapshot.data?.result?.getAllBranchList
+                        ?.firstWhere(
+                            (element) => element.branchName == newValue);
+                    _createEmployeeDialogBlocImpl.selectEmpBranchId =
+                        employeeValue?.branchId;
+                    _createEmployeeDialogBlocImpl.selectedEmpBranch =
+                        newValue ?? '';
+                  },
+                );
+              } else {
+                // In case there is no data and no error
+                return const Text('No data available');
+              }
             },
           ),
         )
@@ -187,38 +270,38 @@ class _CreateEmployeeDialogState extends State<CreateEmployeeDialog> {
         ),
         AppWidgetUtils.buildSizedBox(custWidth: 12),
         Expanded(
-          child: CustomDropDownButtonFormField(
-            //height: 50,
-            requiredLabelText:
-                AppWidgetUtils.labelTextWithRequired(AppConstants.gender),
-            dropDownItems: empGender!,
-            hintText: AppConstants.exSelect,
-            validator: (value) {
-              return InputValidations.genderValidation(value ?? '');
-            },
-            onChange: (String? newValue) {
-              _createEmployeeDialogBlocImpl.selectEmpGender = newValue ?? '';
+          child: FutureBuilder(
+            future: _createEmployeeDialogBlocImpl.getConfigByIdModel(
+                configId: AppConstants.gender),
+            builder: (context, snapshot) {
+              return CustomDropDownButtonFormField(
+                //height: 50,
+                requiredLabelText:
+                    AppWidgetUtils.labelTextWithRequired(AppConstants.gender),
+                dropDownItems: snapshot.data ?? [],
+                hintText: AppConstants.exSelect,
+                validator: (value) {
+                  return InputValidations.genderValidation(value ?? '');
+                },
+                onChange: (String? newValue) {
+                  _createEmployeeDialogBlocImpl.selectEmpGender =
+                      newValue ?? '';
+                },
+              );
             },
           ),
         ),
         AppWidgetUtils.buildSizedBox(custWidth: 12),
         Expanded(
           flex: 2,
-          child: CustomDropDownButtonFormField(
-            // height: 50,
-            // width: MediaQuery.sizeOf(context).width * 0.3,
-            // width: 235,
-            requiredLabelText:
-                AppWidgetUtils.labelTextWithRequired(AppConstants.city),
-            dropDownItems: city!,
-            hintText: AppConstants.exSelect,
-            validator: (value) {
-              return InputValidations.cityValidation(value ?? '');
-            },
-            onChange: (String? newValue) {
-              _createEmployeeDialogBlocImpl.selectEmpCity = newValue ?? '';
-            },
-          ),
+          child: CustomFormField(
+              requiredLabelText:
+                  AppWidgetUtils.labelTextWithRequired(AppConstants.city),
+              validator: (value) {
+                return InputValidations.cityValidation(value ?? '');
+              },
+              hintText: AppConstants.hintCity,
+              controller: _createEmployeeDialogBlocImpl.empCityEditText),
         )
       ],
     );
@@ -262,11 +345,78 @@ class _CreateEmployeeDialogState extends State<CreateEmployeeDialog> {
 
   _buildSaveButton() {
     return CustomActionButtons(
-      buttonText: AppConstants.addEmployee,
-      onPressed: () {
-        if (_createEmployeeDialogBlocImpl.empFormkey.currentState!.validate()) {
-          // ignore: avoid_print
-          print('customer created success');
+        buttonText: AppConstants.addEmployee,
+        onPressed: () {
+          if (_createEmployeeDialogBlocImpl.empFormkey.currentState!
+              .validate()) {
+            _isLoadingState(state: true);
+            _buildCreateEmployee();
+          }
+        });
+  }
+
+  Future<void> _buildCreateEmployee() {
+    return _createEmployeeDialogBlocImpl.onboardNewEmployee(
+      (statusCode) {
+        if (widget.employeeId == null) {
+          if (statusCode == 200 || statusCode == 201) {
+            _isLoadingState(state: false);
+            Navigator.pop(context);
+            AppWidgetUtils.buildToast(
+                context,
+                ToastificationType.success,
+                AppConstants.employeeCreate,
+                Icon(
+                  Icons.check_circle_outline_rounded,
+                  color: _appColors.successColor,
+                ),
+                AppConstants.employeeCreatedSuccessfully,
+                _appColors.successLightColor);
+            widget.employeeViewBloc.employeeTableViewStream(true);
+          } else {
+            _isLoadingState(state: false);
+            AppWidgetUtils.buildToast(
+                context,
+                ToastificationType.error,
+                AppConstants.employeeCreate,
+                Icon(
+                  Icons.error_outline_outlined,
+                  color: _appColors.errorColor,
+                ),
+                AppConstants.somethingWentWrong,
+                _appColors.errorLightColor);
+          }
+        } else {
+          return _createEmployeeDialogBlocImpl
+              .updateEmployee(widget.employeeId ?? '', (statusCode) {
+            if (statusCode == 200 || statusCode == 201) {
+              _isLoadingState(state: false);
+              Navigator.pop(context);
+              AppWidgetUtils.buildToast(
+                  context,
+                  ToastificationType.success,
+                  AppConstants.employeeUpdate,
+                  Icon(
+                    Icons.check_circle_outline_rounded,
+                    color: _appColors.successColor,
+                  ),
+                  AppConstants.employeeUpdateSuccessfully,
+                  _appColors.successLightColor);
+              widget.employeeViewBloc.employeeTableViewStream(true);
+            } else {
+              _isLoadingState(state: false);
+              AppWidgetUtils.buildToast(
+                  context,
+                  ToastificationType.error,
+                  AppConstants.employeeUpdate,
+                  Icon(
+                    Icons.error_outline_outlined,
+                    color: _appColors.errorColor,
+                  ),
+                  AppConstants.somethingWentWrong,
+                  _appColors.errorLightColor);
+            }
+          });
         }
       },
     );

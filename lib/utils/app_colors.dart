@@ -39,4 +39,5 @@ class AppColors {
   Color warnningLightColor = HexColor('#FFF5F6');
   Color infoColor = HexColor('#0052EA');
   Color infoLightColor = HexColor('#A7C5FD');
+  Color tableTotalAmtRowColor = HexColor('#CBFFE3');
 }

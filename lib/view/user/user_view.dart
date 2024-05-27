@@ -56,7 +56,7 @@ class _UserViewState extends State<UserView> {
             showDialog(
               context: context,
               builder: (context) {
-                return const CreateUserDialog();
+                return CreateUserDialog(userViewBloc: _userViewBlocImpl);
               },
             );
           },

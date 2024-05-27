@@ -50,8 +50,8 @@ class _NewVoucherState extends State<NewVoucher> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        AppWidgetUtils.buildCustomRobotoTextWidget(AppConstants.newVoucher,
-        fontSize: 20, fontWeight: FontWeight.w700),
+        AppWidgetUtils.buildCustomDmSansTextWidget(AppConstants.newVoucher,
+            fontSize: 20, fontWeight: FontWeight.w700),
         IconButton(
             onPressed: () => Navigator.pop(context),
             icon: const Icon(Icons.close))

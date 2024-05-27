@@ -16,12 +16,19 @@ class _AddPurchaseState extends State<AddPurchase> {
   final _appColors = AppColor();
   @override
   Widget build(BuildContext context) {
-    return Scaffold(appBar: AppBar(title: Text(AppConstants.purchase,
-      style: GoogleFonts.poppins(color: _appColors.primaryColor),
-    ),),
-    body: const Row(children: [
-      PurchaseTable(),
-      AddVehicleAndAccessories(),
-    ],),);
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          AppConstants.purchase,
+          style: GoogleFonts.poppins(color: _appColors.primaryColor),
+        ),
+      ),
+      body: const Row(
+        children: [
+          PurchaseTable(),
+          AddVehicleAndAccessories(),
+        ],
+      ),
+    );
   }
 }

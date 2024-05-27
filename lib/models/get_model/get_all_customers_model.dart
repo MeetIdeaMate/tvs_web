@@ -1,55 +1,67 @@
 import 'dart:convert';
 
-AddBranchModel addBranchModelFromJson(String str) =>
-    AddBranchModel.fromJson(json.decode(str));
+List<GetAllCustomersModel> getAllCustomersModelFromJson(String str) =>
+    List<GetAllCustomersModel>.from(
+        json.decode(str).map((x) => GetAllCustomersModel.fromJson(x)));
 
-String addBranchModelToJson(AddBranchModel data) => json.encode(data.toJson());
+String getAllCustomersModelToJson(List<GetAllCustomersModel> data) =>
+    json.encode(List<dynamic>.from(data.map((x) => x.toJson())));
 
-class AddBranchModel {
+class GetAllCustomersModel {
+  String? aadharNo;
+  String? accountNo;
   String? address;
-  String? branchId;
   String? branchName;
   String? city;
   String? createdBy;
   DateTime? createdDateTime;
+  String? customerId;
+  String? customerName;
+  String? emailId;
   String? id;
-  bool? mainBranch;
-  String? mainBranchId;
+  String? ifsc;
+  String? image;
   String? mobileNo;
-  String? pinCode;
   String? updatedBy;
   DateTime? updatedDateTime;
 
-  AddBranchModel({
+  GetAllCustomersModel({
+    this.aadharNo,
+    this.accountNo,
     this.address,
-    this.branchId,
     this.branchName,
     this.city,
     this.createdBy,
     this.createdDateTime,
+    this.customerId,
+    this.customerName,
+    this.emailId,
     this.id,
-    this.mainBranch,
-    this.mainBranchId,
+    this.ifsc,
+    this.image,
     this.mobileNo,
-    this.pinCode,
     this.updatedBy,
     this.updatedDateTime,
   });
 
-  factory AddBranchModel.fromJson(Map<String, dynamic> json) => AddBranchModel(
+  factory GetAllCustomersModel.fromJson(Map<String, dynamic> json) =>
+      GetAllCustomersModel(
+        aadharNo: json["aadharNo"],
+        accountNo: json["accountNo"],
         address: json["address"],
-        branchId: json["branchId"],
         branchName: json["branchName"],
         city: json["city"],
         createdBy: json["createdBy"],
         createdDateTime: json["createdDateTime"] == null
             ? null
             : DateTime.parse(json["createdDateTime"]),
+        customerId: json["customerId"],
+        customerName: json["customerName"],
+        emailId: json["emailId"],
         id: json["id"],
-        mainBranch: json["mainBranch"],
-        mainBranchId: json["mainBranchId"],
+        ifsc: json["ifsc"],
+        image: json["image"],
         mobileNo: json["mobileNo"],
-        pinCode: json["pinCode"],
         updatedBy: json["updatedBy"],
         updatedDateTime: json["updatedDateTime"] == null
             ? null
@@ -57,17 +69,20 @@ class AddBranchModel {
       );
 
   Map<String, dynamic> toJson() => {
+        "aadharNo": aadharNo,
+        "accountNo": accountNo,
         "address": address,
-        "branchId": branchId,
         "branchName": branchName,
         "city": city,
         "createdBy": createdBy,
         "createdDateTime": createdDateTime?.toIso8601String(),
+        "customerId": customerId,
+        "customerName": customerName,
+        "emailId": emailId,
         "id": id,
-        "mainBranch": mainBranch,
-        "mainBranchId": mainBranchId,
+        "ifsc": ifsc,
+        "image": image,
         "mobileNo": mobileNo,
-        "pinCode": pinCode,
         "updatedBy": updatedBy,
         "updatedDateTime": updatedDateTime?.toIso8601String(),
       };

@@ -2,15 +2,16 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:tlbilling/api_service/app_service_utils.dart';
-import 'package:tlbilling/models/parent_response_model.dart';
+import 'package:tlbilling/models/get_model/get_all_employee_by_pagination.dart';
 
 abstract class EmployeeViewBloc {
   TextEditingController get empNameAndMobNoFilterController;
   String? get employeeCity;
   String? get employeeWorktype;
   String? get employeeBranch;
-  Future<ParentResponseModel> getEmployeesList();
+  Future<List<Content>?> getEmployeesList();
   Stream<bool> get employeeTableStream;
+  Future<List<String>> getConfigByIdModel({String? configId});
 }
 
 class EmployeeViewBlocImpl extends EmployeeViewBloc {
@@ -46,8 +47,8 @@ class EmployeeViewBlocImpl extends EmployeeViewBloc {
   String? get employeeBranch => _employeeBranch;
 
   @override
-  Future<ParentResponseModel> getEmployeesList() {
-    return _appServiceBlocImpl.getEmployeesList(
+  Future<List<Content>> getEmployeesList() {
+    return _appServiceBlocImpl.getAllEmployeesByPaginationModel(
         empNameAndMobNoFilterController.text,
         employeeCity ?? '',
         employeeWorktype ?? '',
@@ -59,5 +60,10 @@ class EmployeeViewBlocImpl extends EmployeeViewBloc {
 
   employeeTableViewStream(bool newValue) {
     return _employeeTableStream.add(newValue);
+  }
+
+  @override
+  Future<List<String>> getConfigByIdModel({String? configId}) {
+    return _appServiceBlocImpl.getConfigByIdModel(configId: configId);
   }
 }

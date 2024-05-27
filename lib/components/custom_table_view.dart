@@ -37,7 +37,10 @@ class CustomTableView extends StatelessWidget {
     return rowData.asMap().entries.map((entry) {
       final index = entry.key;
       final data = entry.value;
-      final color = index.isEven ? Colors.white : AppColors().transparentColor;
+      final isLastRow = index == rowData.length - 1;
+      final color =
+          isLastRow ? AppColors().tableTotalAmtRowColor : AppColors.white12;
+
       return DataRow(
         color: MaterialStateColor.resolveWith((states) => color),
         cells: _buildCells(data),
