@@ -97,6 +97,8 @@ class AppConstants {
   static const icHumanAdd = 'assets/icons/ic_human_add.svg';
   static const icVoucher = 'assets/icons/ic_notes.svg';
   static const icPrint = 'assets/icons/ic_print.svg';
+  static const icClaneder = 'assets/icons/ic_calender.svg';
+  static const icPdfPrint = 'assets/icons/ic_pdf_print.svg';
 
   //json
   static const jsonLoader = 'assets/json/json_loading_animation.json';
@@ -183,7 +185,7 @@ class AppConstants {
   static const allWorkType = 'All Work Type';
   static const allBranch = 'All Branch';
   static const workType = 'Work Type';
-  static const branchName = 'Branch name';
+  static const branchName = 'Branch Name';
   static const empFilterHint = 'Employee Name / Mobile Number';
 
   static const empType = 'Employee Type';
@@ -205,6 +207,7 @@ class AppConstants {
   static const engineNumber = 'Engine Number';
   static const frameNumber = 'Frame Number';
   static const vehicleName = 'Vehicle Name';
+  static const vehicleType = 'Vehicle Type';
   static const vehicleDescription = 'Vehicle Description';
   static const vehicleDetails = 'Vehicle Details';
   static const hsnCode = 'HSN Code';
@@ -297,4 +300,38 @@ class AppConstants {
   static const customerCreate = 'Customer Create';
   static const customerUpdateSuccessfully = 'Customer updated successFully';
   static const customerCreatedSuccessfully = 'Customer created successFully';
+  static const employeeUpdate = 'Employee Update';
+  static const employeeCreate = 'Employee Create';
+  static const employeeUpdateSuccessfully = 'Employee updated successFully';
+  static const employeeCreatedSuccessfully = 'Employee created successFully';
+
+  //API
+
+  static const all = 'All';
+  static const loading = 'Loading...';
+  static const errorLoading = 'Error Loading...';
+
+  //report
+
+  static const billType = 'BillType';
+  static const fromDate = 'From Date';
+  static const toDate = 'To Date';
+  static const pdfGeneration = 'Generate Pdf / Print';
+  static const accessoriesType = 'Accessories Type';
+  static const String selectedBranch = 'Select Branch';
+  static const purchaseReport = 'Purchase Report';
+  static const salesReport = 'Sales Report';
+  static const stocksReport = 'Stocks report';
+
+  // purchaseReport Table header
+
+  static const String partNumber = 'Part Number';
+
+  static const String totalValue = 'Total Value';
+  static const String discount = 'Discount';
+  static const String taxableValue = 'Taxable Value';
+  static const String cgstPercent = 'CGST %';
+  static const String cgstAmount = 'CGST ₹';
+  static const String sgstPercent = 'SGST %';
+  static const String sgstAmount = 'SGST ₹';
 }

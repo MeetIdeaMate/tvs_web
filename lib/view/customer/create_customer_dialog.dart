@@ -39,7 +39,7 @@ class _CreateCustomerDialogState extends State<CreateCustomerDialog> {
   @override
   Widget build(BuildContext context) {
     return BlurryModalProgressHUD(
-        inAsyncCall: _createCustomerDialogBlocImpl.isAsyncCall,
+        inAsyncCall: false,
         color: _appColors.whiteColor,
         progressIndicator: AppWidgetUtils.buildLoading(),
         child: AlertDialog(

@@ -32,17 +32,19 @@ class AppWidgetUtils {
     );
   }
 
-  static buildHeaderText(String headerText) {
+  static buildHeaderText(String headerText, {double? fontSize}) {
     return Text(headerText,
         style: TextStyle(
             color: AppColors().primaryColor,
-            fontSize: 22,
+            fontSize: fontSize ?? 22,
             fontWeight: FontWeight.w700));
   }
 
   static buildSearchField(
       String? name, TextEditingController controller, BuildContext context,
-      {List<TextInputFormatter>? inputFormatters}) {
+      {List<TextInputFormatter>? inputFormatters,
+      Widget? suffixIcon,
+      void Function(String)? onSubmit}) {
     double searchFieldWidth = MediaQuery.of(context).size.width * 0.19;
 
     return Padding(
@@ -63,10 +65,12 @@ class AppWidgetUtils {
                     FilteringTextInputFormatter.allow(RegExp("[a-z A-Z]")),
                   ],
         hintColor: AppColors().hintColor,
-        suffixIcon: IconButton(
-          onPressed: () {},
-          icon: SvgPicture.asset(AppConstants.icSearch),
-        ),
+        suffixIcon: suffixIcon ??
+            IconButton(
+              onPressed: () {},
+              icon: SvgPicture.asset(AppConstants.icSearch),
+            ),
+        onSubmit: onSubmit,
       ),
     );
   }
@@ -111,18 +115,21 @@ class AppWidgetUtils {
     );
   }
 
-  static buildAddbutton(BuildContext context,
-      {String? text, Function()? onPressed, int? flex}) {
+  static Widget buildAddbutton(BuildContext context,
+      {String? text, Function()? onPressed, int? flex, double? width}) {
     // double searchFieldWidth = MediaQuery.of(context).size.width * 0.17;
     return Expanded(
       flex: flex ?? 2,
       child: CustomElevatedButton(
+          width: width ?? 0.0,
           height: 40,
           text: text ?? '',
           fontSize: 16,
           buttonBackgroundColor: AppColors().primaryColor,
           fontColor: AppColors().whiteColor,
-          suffixIcon: SvgPicture.asset(AppConstants.icAdd),
+          suffixIcon: SvgPicture.asset(text == AppConstants.pdfGeneration
+              ? AppConstants.icPdfPrint
+              : AppConstants.icAdd),
           onPressed: onPressed),
     );
   }
