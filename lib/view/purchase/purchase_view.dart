@@ -187,6 +187,7 @@ class _PurchaseViewState extends State<PurchaseView>
   }
 
   void _checkController(String hintText) {
+    
     if (AppConstants.invoiceNo == hintText) {
       _purchaseViewBloc.invoiceSearchFieldStreamController(true);
     } else if (AppConstants.vehicleNumber == hintText) {
