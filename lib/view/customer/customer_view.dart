@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:tlbilling/models/get_model/get_all_customers_model.dart';
 import 'package:tlbilling/utils/app_colors.dart';
@@ -17,23 +18,6 @@ class CustomerView extends StatefulWidget {
 }
 
 class _CustomerViewState extends State<CustomerView> {
-  List<Map<String, String>> rowData = [
-    {
-      AppConstants.sno: '1',
-      AppConstants.customerName: 'MuthuLakshmi',
-      AppConstants.mobileNumber: '1234567890',
-      AppConstants.panNo: 'ABCD1234E',
-      AppConstants.city: 'Chennai',
-    },
-    {
-      AppConstants.sno: '2',
-      AppConstants.customerName: 'Lakshu',
-      AppConstants.mobileNumber: '9876543210',
-      AppConstants.panNo: 'WXYZ5678F',
-      AppConstants.city: 'kovilpatti',
-    },
-  ];
-
   final _appColors = AppColors();
   final _customerScreenBlocImpl = CustomerViewBlocImpl();
 
@@ -85,8 +69,10 @@ class _CustomerViewState extends State<CustomerView> {
           stream: _customerScreenBlocImpl.customerMobileNumberStreamController,
           builder: (context, snapshot) {
             return _buildFormField(
-                _customerScreenBlocImpl.custMobileNoController,
-                AppConstants.mobileNumber);
+              _customerScreenBlocImpl.custMobileNoController,
+              AppConstants.mobileNumber,
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+            );
           },
         ),
         AppWidgetUtils.buildSizedBox(custWidth: 5),
@@ -99,17 +85,18 @@ class _CustomerViewState extends State<CustomerView> {
           },
         ),
         const Spacer(),
-        _buildAddCustomerBotton(context)
+        _buildAddCustomerButton(context)
       ],
     );
   }
 
-  Widget _buildFormField(
-      TextEditingController textController, String hintText) {
+  Widget _buildFormField(TextEditingController textController, String hintText,
+      {List<TextInputFormatter>? inputFormatters}) {
     final bool isTextEmpty = textController.text.isEmpty;
     final IconData iconData = isTextEmpty ? Icons.search : Icons.close;
     final Color iconColor = isTextEmpty ? _appColors.primaryColor : Colors.red;
     return TldsInputFormField(
+      inputFormatters: inputFormatters,
       width: MediaQuery.sizeOf(context).width * 0.18,
       height: 40,
       controller: textController,
@@ -152,14 +139,14 @@ class _CustomerViewState extends State<CustomerView> {
     }
   }
 
-  _buildAddCustomerBotton(BuildContext context) {
+  _buildAddCustomerButton(BuildContext context) {
     return AppWidgetUtils.buildAddbutton(context, onPressed: () {
       showDialog(
         context: context,
         builder: (context) {
           return const CreateCustomerDialog();
         },
-      );
+      ).then((value) => _customerScreenBlocImpl.customerTableStream(true));
     }, text: AppConstants.addCustomer, flex: 2);
   }
 

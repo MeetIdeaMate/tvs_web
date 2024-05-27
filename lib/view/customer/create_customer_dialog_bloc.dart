@@ -43,7 +43,7 @@ class CreateCustomerDialogBlocImpl extends CreateCustomerDialogBloc {
   final _custAddressTextController = TextEditingController();
   final _custIFSCTextController = TextEditingController();
   final _apiCalls = AppServiceUtilImpl();
-  bool? _isAsyncCall;
+  bool? _isAsyncCall = false;
 
   @override
   TextEditingController get customerNameTextController =>
@@ -118,6 +118,6 @@ class CreateCustomerDialogBlocImpl extends CreateCustomerDialogBloc {
   bool? get isAsyncCall => _isAsyncCall;
 
   set isAsyncCall(bool? newValue) {
-    isAsyncCall = false;
+    _isAsyncCall = newValue;
   }
 }
