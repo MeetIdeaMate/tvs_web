@@ -40,7 +40,7 @@ class CreateBranchDialogBlocImpl extends CreateBranchDialogBloc {
   final _branchFormKey = GlobalKey<FormState>();
   final _appService = AppServiceUtilImpl();
   bool? _isMainBranch;
-  bool? _isAsyncCall;
+  bool? _isAsyncCall = false;
 
   @override
   TextEditingController get addressController => _addressController;
@@ -105,6 +105,6 @@ class CreateBranchDialogBlocImpl extends CreateBranchDialogBloc {
   bool? get isAsyncCall => _isAsyncCall;
 
   set isAsyncCall(bool? newValue) {
-    isAsyncCall = false;
+    _isAsyncCall = newValue;
   }
 }
