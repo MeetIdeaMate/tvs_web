@@ -4,7 +4,6 @@ import 'package:flutter/widgets.dart';
 import 'package:tlbilling/api_service/app_service_utils.dart';
 import 'package:tlbilling/models/get_employee_by_id.dart';
 import 'package:tlbilling/models/parent_response_model.dart';
-import 'package:tlbilling/models/post_model/add_customer_model.dart';
 import 'package:tlbilling/models/post_model/add_employee_model.dart';
 
 abstract class CreateEmployeeDialogBloc {
@@ -56,21 +55,21 @@ class CreateEmployeeDialogBlocImpl extends CreateEmployeeDialogBloc {
   TextEditingController get empaddressController => _empAddressController;
 
   @override
-  String? get selectedEmpType => _selectedEmpType!;
+  String? get selectedEmpType => _selectedEmpType ?? '';
   set selectedEmpType(String? value) {
-    _selectedEmpType = value!;
+    _selectedEmpType = value ?? '';
   }
 
   @override
   String? get selectedEmpBranch => _selectedEmpBranch;
   set selectedEmpBranch(String? value) {
-    _selectedEmpBranch = value!;
+    _selectedEmpBranch = value ?? '';
   }
 
   @override
   String? get selectEmpGender => _selectEmpGender;
   set selectEmpGender(String? value) {
-    _selectEmpGender = value!;
+    _selectEmpGender = value ?? "";
   }
 
   @override
@@ -79,7 +78,7 @@ class CreateEmployeeDialogBlocImpl extends CreateEmployeeDialogBloc {
   @override
   String? get selectEmpCity => _selectEmpCity;
   set selectEmpCity(String? value) {
-    _selectEmpCity = value!;
+    _selectEmpCity = value ?? "";
   }
 
   @override

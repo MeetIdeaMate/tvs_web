@@ -25,7 +25,7 @@ abstract class AppServiceUtil {
       AddCustomerModel addEmployeeModel);
 
   Future<GetAllCustomersByPaginationModel?> getAllCustomersByPagination(
-      String city, String mobileNumber, String customerName);
+      String city, String mobileNumber, String customerName, int currentPage);
 
   Future<GetAllCustomersModel?> getCustomerDetails(String customerId);
 
@@ -35,13 +35,17 @@ abstract class AppServiceUtil {
       Function(int statusCode) onSuccessCallBack);
   //Future<UserList>? getAllUserList();
   Future<UsersListModel?> getUserList(
-      String userName, String selectedDesignation);
+      String userName, String selectedDesignation, int currentPage);
 
   Future<List<String>> getConfigByIdModel({String? configId});
   Future<ParentResponseModel> getEmployeesName();
 
-  Future<List<Content>?> getAllEmployeesByPaginationModel(
-      String employeeName, String city, String designation, String branchName);
+  Future<GetAllEmployeesByPaginationModel> getAllEmployeesByPaginationModel(
+      int currentPage,
+      String employeeName,
+      String city,
+      String designation,
+      String branchName);
   Future<GetEmployeeById?> getEmployeeById(String employeeId);
   Future<void> updateUserStatus(String? userId, String? userUpdateStatus,
       Function(int statusCode) onSuccessCallBack);
@@ -109,11 +113,11 @@ class AppServiceUtilImpl extends AppServiceUtil {
 
   @override
   Future<UsersListModel?> getUserList(
-      String userName, String selectedDesignation) async {
+      String userName, String selectedDesignation, int currentPage) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var token = prefs.getString('token');
     dio.options.headers['Authorization'] = 'Bearer $token';
-    String userListUrl = AppUrl.user;
+    String userListUrl = '${AppUrl.user}page=$currentPage&pageSize=10';
 
     if (userName.isNotEmpty) {
       userListUrl += '&userName=$userName';
@@ -146,12 +150,15 @@ class AppServiceUtilImpl extends AppServiceUtil {
 
   @override
   Future<GetAllCustomersByPaginationModel?> getAllCustomersByPagination(
-      String city, String mobileNumber, String customerName) async {
+      String city,
+      String mobileNumber,
+      String customerName,
+      int currentPage) async {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       var token = prefs.getString('token');
       dio.options.headers['Authorization'] = 'Bearer $token';
-      String url = '${AppUrl.customer}/page?page=0&size=10';
+      String url = '${AppUrl.customer}/page?page=$currentPage&size=10';
       if (city.isNotEmpty) {
         url += '&city=$city';
       }
@@ -219,27 +226,33 @@ class AppServiceUtilImpl extends AppServiceUtil {
   }
 
   @override
-  Future<List<Content>> getAllEmployeesByPaginationModel(String employeeName,
-      String city, String designation, String branchName) async {
+  Future<GetAllEmployeesByPaginationModel> getAllEmployeesByPaginationModel(
+      int currentPage,
+      String employeeName,
+      String city,
+      String designation,
+      String branchName) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var token = prefs.getString('token');
     dio.options.headers['Authorization'] = 'Bearer $token';
-    String employeeListUrl = AppUrl.employeeByPagination;
+
+    String employeeListUrl =
+        '${AppUrl.employeeByPagination}page=$currentPage&pageSize=10';
 
     if (employeeName.isNotEmpty) {
       employeeListUrl += '&employeeName=$employeeName';
     }
-    if (designation.isNotEmpty || designation != 'All') {
+    if (designation.isNotEmpty && designation != 'All') {
       employeeListUrl += '&designation=$designation';
     }
-    if (branchName.isNotEmpty) {
+    if (branchName.isNotEmpty && branchName != 'All') {
       employeeListUrl += '&branchName=$branchName';
     }
 
     var response = await dio.get(employeeListUrl);
     final responseList = parentResponseModelFromJson(jsonEncode(response.data));
 
-    return responseList.result?.getAllEmployeesByPaginationModel?.content ?? [];
+    return responseList.result!.getAllEmployeesByPaginationModel!;
   }
 
   @override
@@ -357,7 +370,7 @@ class AppServiceUtilImpl extends AppServiceUtil {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       var token = prefs.getString('token');
       dio.options.headers['Authorization'] = 'Bearer $token';
-      var response = await dio.put('${AppUrl.customer}/$employeeId',
+      var response = await dio.put('${AppUrl.employee}/$employeeId',
           data: jsonEncode(empObj));
       statusCode(response.statusCode ?? 0);
     } on DioException catch (e) {

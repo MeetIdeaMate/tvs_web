@@ -12,6 +12,7 @@ class AppConstants {
   static const male = 'male';
   static const deleteMsg = 'Are you Sure you want to delete the employee?';
   static const hasiniTvs = 'HASINI TVS';
+  static const noData = 'No data';
 
   //SharedPreference
   static const designation = 'designation';
@@ -198,6 +199,7 @@ class AppConstants {
   static const exMobNo = '+91 9876545430';
 
   static const typeHere = 'Type Here';
+  static const upadteEmployee = 'Update Employee';
 
   //purchase
   static const invoiceNo = 'Invoice No';
@@ -305,6 +307,14 @@ class AppConstants {
   static const employeeUpdateSuccessfully = 'Employee updated successFully';
   static const employeeCreatedSuccessfully = 'Employee created successFully';
 
+  static const selectDiffrentUser =
+      'Please select different name to create user.';
+  static const userAlreadyCreated = ' User already created.';
+  static const addNewEmployee = 'Please add new employee';
+  static const empAlreadyCreated = ' Employee already created';
+  static const userCreated = 'User Created';
+  static const userCreateSuccessfully = 'User create successfully';
+
   //API
 
   static const all = 'All';
@@ -334,4 +344,11 @@ class AppConstants {
   static const String cgstAmount = 'CGST ₹';
   static const String sgstPercent = 'SGST %';
   static const String sgstAmount = 'SGST ₹';
+
+  //Pagenation
+
+  static const icFirstPage = 'assets/icons/ic_first_page.svg';
+  static const icLastPage = 'assets/icons/ic_last_page.svg';
+  static const icNextPage = 'assets/icons/ic_next_page.svg';
+  static const icPrevPage = 'assets/icons/ic_prev_page.svg';
 }

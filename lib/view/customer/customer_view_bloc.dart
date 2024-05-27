@@ -20,6 +20,9 @@ abstract class CustomerViewBloc {
   Stream get customerCityStreamController;
 
   Future<GetAllCustomersByPaginationModel?> getAllCustomersByPagination();
+
+  int get currentPage;
+  Stream<int> get pageNumberStream;
 }
 
 class CustomerViewBlocImpl extends CustomerViewBloc {
@@ -31,6 +34,9 @@ class CustomerViewBlocImpl extends CustomerViewBloc {
   final _customerMobileNumberStreamController = StreamController.broadcast();
   final _customerCityStreamController = StreamController.broadcast();
   final _appServices = AppServiceUtilImpl();
+
+  int _currentPage = 0;
+  final _pageNumberStreamController = StreamController<int>.broadcast();
 
   @override
   TextEditingController get custMobileNoController => _custNameTextController;
@@ -45,10 +51,10 @@ class CustomerViewBlocImpl extends CustomerViewBloc {
   Future<GetAllCustomersByPaginationModel?>
       getAllCustomersByPagination() async {
     return _appServices.getAllCustomersByPagination(
-      custCityTextController.text,
-      custMobileNoController.text,
-      custNameFilterController.text,
-    );
+        custCityTextController.text,
+        custMobileNoController.text,
+        custNameFilterController.text,
+        currentPage);
   }
 
   @override
@@ -81,5 +87,18 @@ class CustomerViewBlocImpl extends CustomerViewBloc {
 
   customerMobileNumberStream(bool streamValue) {
     _customerMobileNumberStreamController.add(streamValue);
+  }
+
+  @override
+  int get currentPage => _currentPage;
+  set currentPage(int pageValue) {
+    _currentPage = pageValue;
+  }
+
+  @override
+  Stream<int> get pageNumberStream => _pageNumberStreamController.stream;
+
+  pageNumberUpdateStreamController(int streamValue) {
+    _pageNumberStreamController.add(streamValue);
   }
 }

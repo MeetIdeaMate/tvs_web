@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:tlbilling/components/custom_dropdown_button_form_field.dart';
+import 'package:tlbilling/components/custom_pagenation.dart';
 import 'package:tlbilling/models/get_model/get_all_employee_by_pagination.dart';
 import 'package:tlbilling/utils/app_colors.dart';
 import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/utils/app_util_widgets.dart';
-import 'package:tlbilling/view/action_dialog/delete_dialog.dart';
 import 'package:tlbilling/view/employee/create_employee_dialog.dart';
 import 'package:tlbilling/view/employee/employee_view_bloc.dart';
 
@@ -73,10 +73,12 @@ class _EmployeeViewState extends State<EmployeeView> {
                       .empNameAndMobNoFilterController.text.isNotEmpty) {
                     _employeeViewBloc.employeeTableViewStream(true);
                     _employeeViewBloc.getEmployeesList();
+                    _employeeViewBloc.pageNumberUpdateStreamController(0);
                   }
                 } else {
                   _employeeViewBloc.empNameAndMobNoFilterController.clear();
                   _employeeViewBloc.employeeTableViewStream(false);
+                  _employeeViewBloc.pageNumberUpdateStreamController(0);
                 }
               },
               icon: Icon(
@@ -104,6 +106,7 @@ class _EmployeeViewState extends State<EmployeeView> {
         width: MediaQuery.of(context).size.width * 0.1,
         height: 40,
         dropDownItems: dropDownItems!,
+        dropDownValue: selectedvalue,
         hintText: hintText,
         onChange: onChange ??
             (String? newValue) {
@@ -127,6 +130,7 @@ class _EmployeeViewState extends State<EmployeeView> {
       builder: (context, snapshot) {
         List<String> designationList = snapshot.data ?? [];
         designationList.insert(0, AppConstants.all);
+        _employeeViewBloc.employeeWorktype = AppConstants.all;
 
         return _buildDropDown(
           dropDownItems:
@@ -142,6 +146,7 @@ class _EmployeeViewState extends State<EmployeeView> {
           onChange: (value) {
             _employeeViewBloc.employeeWorktype = value;
             _employeeViewBloc.employeeTableViewStream(true);
+            _employeeViewBloc.pageNumberUpdateStreamController(0);
             _employeeViewBloc.getEmployeesList();
           },
         );
@@ -150,10 +155,37 @@ class _EmployeeViewState extends State<EmployeeView> {
   }
 
   _buildEmpBranchDropdown() {
-    return _buildDropDown(
-        dropDownItems: city,
-        hintText: AppConstants.branchName,
-        selectedvalue: _employeeViewBloc.employeeBranch);
+    return FutureBuilder(
+        future: _employeeViewBloc.getBranchName(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Text(AppConstants.loading);
+          } else if (snapshot.hasError) {
+            return Text('Error: ${snapshot.error}');
+          } else if (snapshot.hasData) {
+            List<String>? branchNameList = snapshot
+                .data?.result?.getAllBranchList
+                ?.map((e) => e.branchName)
+                .where((branchName) => branchName != null)
+                .cast<String>()
+                .toList();
+            branchNameList?.insert(0, AppConstants.all);
+            _employeeViewBloc.employeeBranch = AppConstants.all;
+
+            return _buildDropDown(
+              dropDownItems: branchNameList,
+              hintText: AppConstants.branchName,
+              selectedvalue: _employeeViewBloc.employeeBranch,
+              onChange: (value) {
+                _employeeViewBloc.employeeBranch = value;
+                _employeeViewBloc.employeeTableViewStream(true);
+                _employeeViewBloc.getEmployeesList();
+                _employeeViewBloc.pageNumberUpdateStreamController(0);
+              },
+            );
+          }
+          return const Text(AppConstants.noData);
+        });
   }
 
   _buildAddEmployeebutton(BuildContext context) {
@@ -174,10 +206,14 @@ class _EmployeeViewState extends State<EmployeeView> {
 
   _buildEmployeeTableView(BuildContext context) {
     return Expanded(
-      child: StreamBuilder<bool>(
-        stream: _employeeViewBloc.employeeTableStream,
-        builder: (context, snapshot) {
-          return FutureBuilder<List<Content>>(
+      child: StreamBuilder<int>(
+        stream: _employeeViewBloc.pageNumberStream,
+        initialData: _employeeViewBloc.currentPage,
+        builder: (context, streamSnapshot) {
+          int currentPage = streamSnapshot.data ?? 0;
+          if (currentPage < 0) currentPage = 0;
+          _employeeViewBloc.currentPage = currentPage;
+          return FutureBuilder<GetAllEmployeesByPaginationModel>(
             future: _employeeViewBloc.getEmployeesList(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
@@ -185,11 +221,13 @@ class _EmployeeViewState extends State<EmployeeView> {
               } else if (snapshot.hasError) {
                 return const Center(
                     child: Text(AppConstants.somethingWentWrong));
-              } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+              } else if (!snapshot.hasData) {
                 return Center(child: SvgPicture.asset(AppConstants.imgNoData));
               }
+              GetAllEmployeesByPaginationModel employeeListmodel =
+                  snapshot.data!;
 
-              List<Content> userData = snapshot.data ?? [];
+              List<Content> userData = snapshot.data?.content ?? [];
 
               return Column(
                 children: [
@@ -225,35 +263,39 @@ class _EmployeeViewState extends State<EmployeeView> {
                                 _buildTableRow(entry.value.branchName),
                                 DataCell(
                                   Row(
-                                    mainAxisAlignment: MainAxisAlignment.start,
                                     children: [
                                       IconButton(
                                         icon: SvgPicture.asset(
                                             AppConstants.icEdit),
                                         onPressed: () {
-                                          // print('edit');
-                                          // CreateEmployeeDialog(
-                                          //     employeeViewBloc:
-                                          //         _employeeViewBloc,
-                                          //     employeeId:
-                                          //         entry.value.employeeId);
-                                        },
-                                      ),
-                                      IconButton(
-                                        icon: SvgPicture.asset(
-                                            AppConstants.icdelete),
-                                        onPressed: () {
                                           showDialog(
                                             context: context,
                                             builder: (context) {
-                                              return DeleteDialog(
-                                                content: AppConstants.deleteMsg,
-                                                onPressed: () {},
-                                              );
+                                              return CreateEmployeeDialog(
+                                                  employeeViewBloc:
+                                                      _employeeViewBloc,
+                                                  employeeId:
+                                                      entry.value.employeeId ??
+                                                          '');
                                             },
                                           );
                                         },
                                       ),
+                                      // IconButton(
+                                      //   icon: SvgPicture.asset(
+                                      //       AppConstants.icdelete),
+                                      //   onPressed: () {
+                                      //     showDialog(
+                                      //       context: context,
+                                      //       builder: (context) {
+                                      //         return DeleteDialog(
+                                      //           content: AppConstants.deleteMsg,
+                                      //           onPressed: () {},
+                                      //         );
+                                      //       },
+                                      //     );
+                                      //   },
+                                      // ),
                                     ],
                                   ),
                                 ),
@@ -263,6 +305,15 @@ class _EmployeeViewState extends State<EmployeeView> {
                         ),
                       ),
                     ),
+                  ),
+                  CustomPagination(
+                    itemsOnLastPage: employeeListmodel.totalElements ?? 0,
+                    currentPage: currentPage,
+                    totalPages: employeeListmodel.totalPages ?? 0,
+                    onPageChanged: (pageValue) {
+                      _employeeViewBloc
+                          .pageNumberUpdateStreamController(pageValue);
+                    },
                   ),
                 ],
               );

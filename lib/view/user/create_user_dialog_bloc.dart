@@ -88,7 +88,7 @@ class CreateUserDialogBlocImpl extends CreateUserDialogBloc {
 
   @override
   Future<UsersListModel?> getUserList() {
-    return _appServiceUtilsImpl.getUserList('', '');
+    return _appServiceUtilsImpl.getUserList('', '', 0);
   }
 
   @override

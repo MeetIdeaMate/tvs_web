@@ -14,7 +14,6 @@ import 'package:tlbilling/utils/app_util_widgets.dart';
 import 'package:tlbilling/utils/app_utils.dart';
 import 'package:tlbilling/utils/input_validation.dart';
 import 'package:tlbilling/view/customer/create_customer_dialog_bloc.dart';
-import 'package:tlbilling/view/customer/customer_view_bloc.dart';
 import 'package:toastification/toastification.dart';
 
 class CreateCustomerDialog extends StatefulWidget {

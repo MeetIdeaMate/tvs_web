@@ -3,15 +3,19 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:tlbilling/api_service/app_service_utils.dart';
 import 'package:tlbilling/models/get_model/get_all_employee_by_pagination.dart';
+import 'package:tlbilling/models/parent_response_model.dart';
 
 abstract class EmployeeViewBloc {
   TextEditingController get empNameAndMobNoFilterController;
   String? get employeeCity;
   String? get employeeWorktype;
   String? get employeeBranch;
-  Future<List<Content>?> getEmployeesList();
+  Future<GetAllEmployeesByPaginationModel> getEmployeesList();
   Stream<bool> get employeeTableStream;
   Future<List<String>> getConfigByIdModel({String? configId});
+  Future<ParentResponseModel> getBranchName();
+  int get currentPage;
+  Stream<int> get pageNumberStream;
 }
 
 class EmployeeViewBlocImpl extends EmployeeViewBloc {
@@ -21,6 +25,8 @@ class EmployeeViewBlocImpl extends EmployeeViewBloc {
   final _empNameAndMobNoFilterController = TextEditingController();
   final _appServiceBlocImpl = AppServiceUtilImpl();
   final _employeeTableStream = StreamController<bool>.broadcast();
+  int _currentPage = 0;
+  final _pageNumberStreamController = StreamController<int>.broadcast();
 
   @override
   TextEditingController get empNameAndMobNoFilterController =>
@@ -47,8 +53,9 @@ class EmployeeViewBlocImpl extends EmployeeViewBloc {
   String? get employeeBranch => _employeeBranch;
 
   @override
-  Future<List<Content>> getEmployeesList() {
+  Future<GetAllEmployeesByPaginationModel> getEmployeesList() {
     return _appServiceBlocImpl.getAllEmployeesByPaginationModel(
+        currentPage,
         empNameAndMobNoFilterController.text,
         employeeCity ?? '',
         employeeWorktype ?? '',
@@ -63,7 +70,25 @@ class EmployeeViewBlocImpl extends EmployeeViewBloc {
   }
 
   @override
+  int get currentPage => _currentPage;
+  set currentPage(int pageValue) {
+    _currentPage = pageValue;
+  }
+
+  @override
+  Stream<int> get pageNumberStream => _pageNumberStreamController.stream;
+
+  pageNumberUpdateStreamController(int streamValue) {
+    _pageNumberStreamController.add(streamValue);
+  }
+
+  @override
   Future<List<String>> getConfigByIdModel({String? configId}) {
     return _appServiceBlocImpl.getConfigByIdModel(configId: configId);
+  }
+
+  @override
+  Future<ParentResponseModel> getBranchName() {
+    return _appServiceBlocImpl.getBranchName();
   }
 }

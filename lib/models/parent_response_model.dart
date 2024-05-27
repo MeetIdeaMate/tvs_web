@@ -50,12 +50,12 @@ class ResultObj {
   GetAllCustomersByPaginationModel? getAllCustomersByPaginationModel;
   GetAllCustomersModel? getAllCustomersModel;
   GetAllEmployeesByPaginationModel? getAllEmployeesByPaginationModel;
-
   UsersListModel? usersListModel;
   ConfigModel? getConfigModel;
   List<EmployeeListModel>? employeeListModel;
   GetEmployeeById? employeeById;
   List<GatAllBranchList>? getAllBranchList;
+
   ResultObj(
       {this.getAllCustomersByPaginationModel,
       this.getAllCustomersModel,

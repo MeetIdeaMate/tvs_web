@@ -309,34 +309,25 @@ class _CreateUserDialogState extends State<CreateUserDialog> {
         AppWidgetUtils.buildToast(
             context,
             ToastificationType.success,
-            'User Created',
+            AppConstants.userCreated,
             Icon(Icons.check_circle_outline_rounded,
                 color: AppColor().successColor),
-            'User Created Successfully!',
+            AppConstants.userCreateSuccessfully,
             AppColor().successLightColor);
         Navigator.pop(context);
         _isLoadingState(state: false);
         widget.userViewBloc.usersListStream(true);
       }, (statusCode) {
-        //  print('  user post  $statusCode');
         if (statusCode == 409) {
           AppWidgetUtils.buildToast(
               context,
               ToastificationType.error,
-              'User already created.',
+              AppConstants.userAlreadyCreated,
               Icon(Icons.error_outline, color: AppColor().errorColor),
-              'Please select different name to create user.',
+              AppConstants.selectDiffrentUser,
               AppColor().errorLightColor);
         }
       });
-    } else {
-      AppWidgetUtils.buildToast(
-          context,
-          ToastificationType.error,
-          'User Update Error',
-          Icon(Icons.error_outline, color: AppColor().errorColor),
-          'Check All Fields For User Update!',
-          AppColor().errorLightColor);
     }
     _isLoadingState(state: false);
   }

@@ -10,6 +10,8 @@ abstract class UserViewBloc {
   Future<UsersListModel?> getUserList();
   Future<List<String>> getConfigByIdModel({String? configId});
   Stream<bool> get userListStream;
+  int get currentPage;
+  Stream<int> get pageNumberStream;
 }
 
 class UserViewBlocImpl extends UserViewBloc {
@@ -17,6 +19,8 @@ class UserViewBlocImpl extends UserViewBloc {
   String? _selectedDestination;
   final _userListStream = StreamController<bool>.broadcast();
   final _appServiceUtilsImpl = AppServiceUtilImpl();
+  int _currentPage = 0;
+  final _pageNumberStreamController = StreamController<int>.broadcast();
 
   @override
   TextEditingController get searchUserNameAndMobNoController =>
@@ -31,7 +35,9 @@ class UserViewBlocImpl extends UserViewBloc {
   @override
   Future<UsersListModel?> getUserList() {
     return _appServiceUtilsImpl.getUserList(
-        _searchUserNameAndMobNoController.text, _selectedDestination ?? '');
+        _searchUserNameAndMobNoController.text,
+        _selectedDestination ?? '',
+        currentPage);
   }
 
   @override
@@ -44,5 +50,18 @@ class UserViewBlocImpl extends UserViewBloc {
 
   usersListStream(bool newValue) {
     _userListStream.add(newValue);
+  }
+
+  @override
+  int get currentPage => _currentPage;
+  set currentPage(int pageValue) {
+    _currentPage = pageValue;
+  }
+
+  @override
+  Stream<int> get pageNumberStream => _pageNumberStreamController.stream;
+
+  pageNumberUpdateStreamController(int streamValue) {
+    _pageNumberStreamController.add(streamValue);
   }
 }

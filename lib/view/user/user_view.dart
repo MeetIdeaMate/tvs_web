@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:tlbilling/components/custom_dropdown_button_form_field.dart';
 import 'package:tlbilling/components/custom_form_field.dart';
+import 'package:tlbilling/components/custom_pagenation.dart';
 import 'package:tlbilling/models/user_model.dart';
 import 'package:tlbilling/utils/app_colors.dart';
 import 'package:tlbilling/utils/app_constants.dart';
@@ -73,7 +74,7 @@ class _UserViewState extends State<UserView> {
       builder: (context, snapshot) {
         List<String> designationList = snapshot.data ?? [];
         designationList.insert(0, AppConstants.all);
-        print(designationList);
+
         return CustomDropDownButtonFormField(
           width: MediaQuery.sizeOf(context).width * 0.15,
           height: 40,
@@ -89,6 +90,7 @@ class _UserViewState extends State<UserView> {
           onChange: (String? newValue) {
             _userViewBlocImpl.selectedDestination = newValue;
             _userViewBlocImpl.usersListStream(true);
+            _userViewBlocImpl.pageNumberUpdateStreamController(0);
             _userViewBlocImpl.getUserList();
           },
         );
@@ -122,11 +124,13 @@ class _UserViewState extends State<UserView> {
                     if (_userViewBlocImpl
                         .searchUserNameAndMobNoController.text.isNotEmpty) {
                       _userViewBlocImpl.usersListStream(true);
+                      _userViewBlocImpl.pageNumberUpdateStreamController(0);
                       _userViewBlocImpl.getUserList();
                     }
                   } else {
                     _userViewBlocImpl.searchUserNameAndMobNoController.clear();
                     _userViewBlocImpl.usersListStream(false);
+                    //  _userViewBlocImpl.pageNumberUpdateStreamController(0);
                   }
                 },
                 icon: Icon(
@@ -137,6 +141,7 @@ class _UserViewState extends State<UserView> {
               onSubmit: (value) {
                 if (value.isNotEmpty) {
                   _userViewBlocImpl.usersListStream(true);
+                  _userViewBlocImpl.pageNumberUpdateStreamController(0);
                   _userViewBlocImpl.getUserList();
                 }
               },
@@ -147,9 +152,13 @@ class _UserViewState extends State<UserView> {
 
   _buildUserTableView(BuildContext context) {
     return Expanded(
-      child: StreamBuilder<bool>(
-          stream: _userViewBlocImpl.userListStream,
-          builder: (context, snapshot) {
+      child: StreamBuilder<int>(
+          stream: _userViewBlocImpl.pageNumberStream,
+          builder: (context, streamSnapshot) {
+            int currentPage = streamSnapshot.data ?? 0;
+            if (currentPage < 0) currentPage = 0;
+            _userViewBlocImpl.currentPage = currentPage;
+
             return FutureBuilder(
               future: _userViewBlocImpl.getUserList(),
               builder: (context, snapshot) {
@@ -158,6 +167,8 @@ class _UserViewState extends State<UserView> {
                     child: AppWidgetUtils.buildLoading(),
                   );
                 } else if (snapshot.hasData) {
+                  UsersListModel userList = snapshot.data!;
+
                   List<UserDetailsList>? userData = snapshot.data?.content;
                   if (userData != null && userData.isNotEmpty) {
                     return Column(
@@ -244,6 +255,15 @@ class _UserViewState extends State<UserView> {
                               ),
                             ),
                           ),
+                        ),
+                        CustomPagination(
+                          itemsOnLastPage: userList.totalElements ?? 0,
+                          currentPage: currentPage,
+                          totalPages: userList.totalPages ?? 0,
+                          onPageChanged: (pageValue) {
+                            _userViewBlocImpl
+                                .pageNumberUpdateStreamController(pageValue);
+                          },
                         ),
                       ],
                     );
