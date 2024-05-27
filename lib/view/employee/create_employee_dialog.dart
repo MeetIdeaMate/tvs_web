@@ -43,6 +43,10 @@ class _CreateEmployeeDialogState extends State<CreateEmployeeDialog> {
   @override
   void initState() {
     super.initState();
+    _getEditEmployeeDetailsById();
+  }
+
+  void _getEditEmployeeDetailsById() {
     _createEmployeeDialogBlocImpl
         .getEmployeeById(widget.employeeId ?? '')
         .then((value) {
@@ -135,211 +139,244 @@ class _CreateEmployeeDialogState extends State<CreateEmployeeDialog> {
   _buildEmpNameAndEmailFields() {
     return Row(
       children: [
-        Expanded(
-          child: CustomFormField(
-              inputFormatters: [
-                FilteringTextInputFormatter.allow(RegExp('[A-Z a-z @]'))
-              ],
-              height: 70,
-              suffixIcon: SvgPicture.asset(
-                colorFilter:
-                    ColorFilter.mode(_appColors.primaryColor, BlendMode.srcIn),
-                AppConstants.icPerson,
-                fit: BoxFit.none,
-              ),
-              requiredLabelText:
-                  AppWidgetUtils.labelTextWithRequired(AppConstants.empName),
-              validator: (value) {
-                return InputValidations.nameValidation(value ?? '');
-              },
-              hintText: AppConstants.hintName,
-              controller: _createEmployeeDialogBlocImpl.empNameController),
-        ),
+        _buildEmployeenNameFields(),
         AppWidgetUtils.buildSizedBox(custWidth: 14),
-        Expanded(
-          child: Padding(
-            padding: const EdgeInsets.only(bottom: 25),
-            child: CustomFormField(
-                suffixIcon: SvgPicture.asset(
-                  colorFilter: ColorFilter.mode(
-                      _appColors.primaryColor, BlendMode.srcIn),
-                  AppConstants.icMail,
-                  fit: BoxFit.none,
-                ),
-                validator: (value) {
-                  return InputValidations.mailValidation(value ?? '');
-                },
-                labelText: AppConstants.emailAddress,
-                hintText: AppConstants.hintMail,
-                controller: _createEmployeeDialogBlocImpl.empEmailController),
-          ),
-        ),
+        _buildEmployeeEmailFields(),
       ],
+    );
+  }
+
+  Widget _buildEmployeeEmailFields() {
+    return Expanded(
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 25),
+        child: CustomFormField(
+            suffixIcon: SvgPicture.asset(
+              colorFilter:
+                  ColorFilter.mode(_appColors.primaryColor, BlendMode.srcIn),
+              AppConstants.icMail,
+              fit: BoxFit.none,
+            ),
+            validator: (value) {
+              return InputValidations.mailValidation(value ?? '');
+            },
+            labelText: AppConstants.emailAddress,
+            hintText: AppConstants.hintMail,
+            controller: _createEmployeeDialogBlocImpl.empEmailController),
+      ),
+    );
+  }
+
+  Widget _buildEmployeenNameFields() {
+    return Expanded(
+      child: CustomFormField(
+          inputFormatters: [
+            FilteringTextInputFormatter.allow(RegExp('[A-Z a-z @]'))
+          ],
+          height: 70,
+          suffixIcon: SvgPicture.asset(
+            colorFilter:
+                ColorFilter.mode(_appColors.primaryColor, BlendMode.srcIn),
+            AppConstants.icPerson,
+            fit: BoxFit.none,
+          ),
+          requiredLabelText:
+              AppWidgetUtils.labelTextWithRequired(AppConstants.empName),
+          validator: (value) {
+            return InputValidations.nameValidation(value ?? '');
+          },
+          hintText: AppConstants.hintName,
+          controller: _createEmployeeDialogBlocImpl.empNameController),
     );
   }
 
   _empTypeAndBranchFields() {
     return Row(
       children: [
-        Expanded(
-          child: FutureBuilder(
-            future: _createEmployeeDialogBlocImpl.getConfigByIdModel(
-                configId: AppConstants.designation),
-            builder: (context, snapshot) {
-              return CustomDropDownButtonFormField(
-                height: 70,
-                requiredLabelText:
-                    AppWidgetUtils.labelTextWithRequired(AppConstants.empType),
-                dropDownItems: snapshot.data ?? [],
-                validator: (value) {
-                  return InputValidations.empTypeValidation(value ?? '');
-                },
-                hintText: (snapshot.connectionState == ConnectionState.waiting)
-                    ? AppConstants.loading
-                    : (snapshot.hasError || snapshot.data == null)
-                        ? AppConstants.errorLoading
-                        : AppConstants.exSelect,
-                onChange: (String? newValue) {
-                  _createEmployeeDialogBlocImpl.selectedEmpType =
-                      newValue ?? '';
-                },
-              );
-            },
-          ),
-        ),
+        _buildEmployeeDesignation(),
         AppWidgetUtils.buildSizedBox(custWidth: 14),
-        Expanded(
-          child: FutureBuilder(
-            future: _createEmployeeDialogBlocImpl.getBranchName(),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                // While the data is loading, you can show a loading indicator
-                return const Text(AppConstants.loading);
-              } else if (snapshot.hasError) {
-                // If an error occurred while fetching data, you can show an error message
-                return Text('Error: ${snapshot.error}');
-              } else if (snapshot.hasData) {
-                // When the data is successfully fetched
-                List<String>? branchNameList = snapshot
-                    .data?.result?.getAllBranchList
-                    ?.map((e) => e.branchName)
-                    .where((branchName) => branchName != null)
-                    .cast<String>()
-                    .toList();
-
-                return CustomDropDownButtonFormField(
-                  height: 70,
-                  requiredLabelText:
-                      AppWidgetUtils.labelTextWithRequired(AppConstants.branch),
-                  dropDownItems: branchNameList ?? [],
-                  hintText: AppConstants.exSelect,
-                  validator: (value) {
-                    return InputValidations.branchValidation(value ?? '');
-                  },
-                  onChange: (String? newValue) {
-                    var employeeValue = snapshot.data?.result?.getAllBranchList
-                        ?.firstWhere(
-                            (element) => element.branchName == newValue);
-                    _createEmployeeDialogBlocImpl.selectEmpBranchId =
-                        employeeValue?.branchId;
-                    _createEmployeeDialogBlocImpl.selectedEmpBranch =
-                        newValue ?? '';
-                  },
-                );
-              } else {
-                // In case there is no data and no error
-                return const Text('No data available');
-              }
-            },
-          ),
-        )
+        _buildEmployeeBranch()
       ],
+    );
+  }
+
+  Widget _buildEmployeeBranch() {
+    return Expanded(
+      child: FutureBuilder(
+        future: _createEmployeeDialogBlocImpl.getBranchName(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            // While the data is loading, you can show a loading indicator
+            return const Text(AppConstants.loading);
+          } else if (snapshot.hasError) {
+            // If an error occurred while fetching data, you can show an error message
+            return Text('Error: ${snapshot.error}');
+          } else if (snapshot.hasData) {
+            // When the data is successfully fetched
+            List<String>? branchNameList = snapshot
+                .data?.result?.getAllBranchList
+                ?.map((e) => e.branchName)
+                .where((branchName) => branchName != null)
+                .cast<String>()
+                .toList();
+
+            return CustomDropDownButtonFormField(
+              height: 70,
+              requiredLabelText:
+                  AppWidgetUtils.labelTextWithRequired(AppConstants.branch),
+              dropDownItems: branchNameList ?? [],
+              hintText: AppConstants.exSelect,
+              validator: (value) {
+                return InputValidations.branchValidation(value ?? '');
+              },
+              onChange: (String? newValue) {
+                var employeeValue = snapshot.data?.result?.getAllBranchList
+                    ?.firstWhere((element) => element.branchName == newValue);
+                _createEmployeeDialogBlocImpl.selectEmpBranchId =
+                    employeeValue?.branchId;
+                _createEmployeeDialogBlocImpl.selectedEmpBranch =
+                    newValue ?? '';
+              },
+            );
+          } else {
+            // In case there is no data and no error
+            return const Text('No data available');
+          }
+        },
+      ),
+    );
+  }
+
+  Widget _buildEmployeeDesignation() {
+    return Expanded(
+      child: FutureBuilder(
+        future: _createEmployeeDialogBlocImpl.getConfigByIdModel(
+            configId: AppConstants.designation),
+        builder: (context, snapshot) {
+          return CustomDropDownButtonFormField(
+            height: 70,
+            requiredLabelText:
+                AppWidgetUtils.labelTextWithRequired(AppConstants.empType),
+            dropDownItems: snapshot.data ?? [],
+            validator: (value) {
+              return InputValidations.empTypeValidation(value ?? '');
+            },
+            hintText: (snapshot.connectionState == ConnectionState.waiting)
+                ? AppConstants.loading
+                : (snapshot.hasError || snapshot.data == null)
+                    ? AppConstants.errorLoading
+                    : AppConstants.exSelect,
+            onChange: (String? newValue) {
+              _createEmployeeDialogBlocImpl.selectedEmpType = newValue ?? '';
+            },
+          );
+        },
+      ),
     );
   }
 
   _buildAgeGenderAndCityFields() {
     return Row(
       children: [
-        Expanded(
-          child: CustomFormField(
-              maxLength: 2,
-              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              labelText: AppConstants.age,
-              hintText: AppConstants.hintAge,
-              controller: _createEmployeeDialogBlocImpl.empAgeController),
-        ),
+        _buildEmployeeAgeFields(),
         AppWidgetUtils.buildSizedBox(custWidth: 12),
-        Expanded(
-          child: FutureBuilder(
-            future: _createEmployeeDialogBlocImpl.getConfigByIdModel(
-                configId: AppConstants.gender),
-            builder: (context, snapshot) {
-              return CustomDropDownButtonFormField(
-                //height: 50,
-                requiredLabelText:
-                    AppWidgetUtils.labelTextWithRequired(AppConstants.gender),
-                dropDownItems: snapshot.data ?? [],
-                hintText: AppConstants.exSelect,
-                validator: (value) {
-                  return InputValidations.genderValidation(value ?? '');
-                },
-                onChange: (String? newValue) {
-                  _createEmployeeDialogBlocImpl.selectEmpGender =
-                      newValue ?? '';
-                },
-              );
-            },
-          ),
-        ),
+        _buildEmpGenderDropdown(),
         AppWidgetUtils.buildSizedBox(custWidth: 12),
-        Expanded(
-          flex: 2,
-          child: CustomFormField(
-              requiredLabelText:
-                  AppWidgetUtils.labelTextWithRequired(AppConstants.city),
-              validator: (value) {
-                return InputValidations.cityValidation(value ?? '');
-              },
-              hintText: AppConstants.hintCity,
-              controller: _createEmployeeDialogBlocImpl.empCityEditText),
-        )
+        _buildEmpCityFields()
       ],
+    );
+  }
+
+  Widget _buildEmpCityFields() {
+    return Expanded(
+      flex: 2,
+      child: CustomFormField(
+          requiredLabelText:
+              AppWidgetUtils.labelTextWithRequired(AppConstants.city),
+          validator: (value) {
+            return InputValidations.cityValidation(value ?? '');
+          },
+          hintText: AppConstants.hintCity,
+          controller: _createEmployeeDialogBlocImpl.empCityEditText),
+    );
+  }
+
+  Widget _buildEmpGenderDropdown() {
+    return Expanded(
+      child: FutureBuilder(
+        future: _createEmployeeDialogBlocImpl.getConfigByIdModel(
+            configId: AppConstants.gender),
+        builder: (context, snapshot) {
+          return CustomDropDownButtonFormField(
+            //height: 50,
+            requiredLabelText:
+                AppWidgetUtils.labelTextWithRequired(AppConstants.gender),
+            dropDownItems: snapshot.data ?? [],
+            hintText: AppConstants.exSelect,
+            validator: (value) {
+              return InputValidations.genderValidation(value ?? '');
+            },
+            onChange: (String? newValue) {
+              _createEmployeeDialogBlocImpl.selectEmpGender = newValue ?? '';
+            },
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildEmployeeAgeFields() {
+    return Expanded(
+      child: CustomFormField(
+          maxLength: 2,
+          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+          labelText: AppConstants.age,
+          hintText: AppConstants.hintAge,
+          controller: _createEmployeeDialogBlocImpl.empAgeController),
     );
   }
 
   _buildMobNoAndAddressFields() {
     return Row(
       children: [
-        Expanded(
-          child: CustomFormField(
-              suffixIcon: SvgPicture.asset(
-                colorFilter:
-                    ColorFilter.mode(_appColors.primaryColor, BlendMode.srcIn),
-                AppConstants.icCall,
-                fit: BoxFit.none,
-              ),
-              maxLength: 10,
-              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              requiredLabelText: AppWidgetUtils.labelTextWithRequired(
-                  AppConstants.mobileNumber),
-              validator: (value) {
-                return InputValidations.mobileNumberValidation(value ?? '');
-              },
-              hintText: AppConstants.exMobNo,
-              controller: _createEmployeeDialogBlocImpl.empMobNoController),
-        ),
+        _buildEmpMobileNoFields(),
         AppWidgetUtils.buildSizedBox(custWidth: 14),
-        Expanded(
-          child: CustomFormField(
-              requiredLabelText:
-                  AppWidgetUtils.labelTextWithRequired(AppConstants.address),
-              validator: (value) {
-                return InputValidations.addressValidation(value ?? '');
-              },
-              hintText: AppConstants.typeHere,
-              controller: _createEmployeeDialogBlocImpl.empaddressController),
-        ),
+        _buildEmployeeAdress(),
       ],
+    );
+  }
+
+  Widget _buildEmployeeAdress() {
+    return Expanded(
+      child: CustomFormField(
+          requiredLabelText:
+              AppWidgetUtils.labelTextWithRequired(AppConstants.address),
+          validator: (value) {
+            return InputValidations.addressValidation(value ?? '');
+          },
+          hintText: AppConstants.typeHere,
+          controller: _createEmployeeDialogBlocImpl.empaddressController),
+    );
+  }
+
+  Widget _buildEmpMobileNoFields() {
+    return Expanded(
+      child: CustomFormField(
+          suffixIcon: SvgPicture.asset(
+            colorFilter:
+                ColorFilter.mode(_appColors.primaryColor, BlendMode.srcIn),
+            AppConstants.icCall,
+            fit: BoxFit.none,
+          ),
+          maxLength: 10,
+          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+          requiredLabelText:
+              AppWidgetUtils.labelTextWithRequired(AppConstants.mobileNumber),
+          validator: (value) {
+            return InputValidations.mobileNumberValidation(value ?? '');
+          },
+          hintText: AppConstants.exMobNo,
+          controller: _createEmployeeDialogBlocImpl.empMobNoController),
     );
   }
 

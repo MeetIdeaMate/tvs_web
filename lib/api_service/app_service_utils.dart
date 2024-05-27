@@ -1,4 +1,3 @@
-// ignore_for_file: avoid_print
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
@@ -115,18 +114,15 @@ class AppServiceUtilImpl extends AppServiceUtil {
     var token = prefs.getString('token');
     dio.options.headers['Authorization'] = 'Bearer $token';
     String userListUrl = AppUrl.user;
-    print('**************8$userName');
+
     if (userName.isNotEmpty) {
       userListUrl += '&userName=$userName';
     }
     if (selectedDesignation.isNotEmpty && selectedDesignation != 'All') {
       userListUrl += '&designation=$selectedDesignation';
     }
-    print(userListUrl);
-    final response = await dio.get(userListUrl);
 
-    print('***************************$userListUrl');
-    print(response.statusCode);
+    final response = await dio.get(userListUrl);
 
     return parentResponseModelFromJson(jsonEncode(response.data))
         .result
@@ -210,8 +206,7 @@ class AppServiceUtilImpl extends AppServiceUtil {
     String configUrl = '${AppUrl.config}$configId';
 
     final response = await dio.get(configUrl);
-    print(' Url $configUrl');
-    print(' satatus code config ${response.statusCode}');
+
     if (response.statusCode == 200) {
       return parentResponseModelFromJson(jsonEncode(response.data))
               .result
@@ -243,9 +238,7 @@ class AppServiceUtilImpl extends AppServiceUtil {
 
     var response = await dio.get(employeeListUrl);
     final responseList = parentResponseModelFromJson(jsonEncode(response.data));
-    print(employeeListUrl);
-    print(parentResponseModelFromJson(jsonEncode(response.data)).toJson());
-    print(response.statusCode);
+
     return responseList.result?.getAllEmployeesByPaginationModel?.content ?? [];
   }
 
@@ -338,7 +331,7 @@ class AppServiceUtilImpl extends AppServiceUtil {
       dio.options.headers['Authorization'] = 'Bearer $token';
       var response =
           await dio.post(AppUrl.newEmployeeOnBoard, data: jsonEncode(empObj));
-      print(response.data);
+
       statusCode(response.statusCode);
     } on DioException catch (e) {
       statusCode(e.response?.statusCode);

@@ -231,6 +231,7 @@ class _EmployeeViewState extends State<EmployeeView> {
                                         icon: SvgPicture.asset(
                                             AppConstants.icEdit),
                                         onPressed: () {
+                                          // print('edit');
                                           // CreateEmployeeDialog(
                                           //     employeeViewBloc:
                                           //         _employeeViewBloc,
