@@ -342,4 +342,8 @@ class AppConstants {
   static const icCard = 'assets/icons/ic_card.svg';
   static const icCity = 'assets/icons/ic_city.svg';
   static const icLocation = 'assets/icons/ic_location.svg';
+
+    static const credit = 'credit';
+    static const loan = 'loan';
+    static const partPayment = 'part payment';
 }

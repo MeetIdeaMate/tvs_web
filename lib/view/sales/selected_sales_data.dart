@@ -97,7 +97,7 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
               value: widget.addSalesBloc.isDiscountChecked,
               onChanged: (value) {
                 setState(() {
-                  widget.addSalesBloc.isDiscountChecked = value!;
+                  widget.addSalesBloc.isDiscountChecked = value ?? false;
                 });
               },
             ),

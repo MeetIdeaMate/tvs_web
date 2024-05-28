@@ -50,7 +50,7 @@ class _CustomerDetailsState extends State<CustomerDetails> {
         AppWidgetUtils.buildSizedBox(custHeight: 10),
         _buildPaymentMethodSelection(context),
         const Spacer(),
-        CustomActionButtons(onPressed: () {}, buttonText: 'Save')
+        CustomActionButtons(onPressed: () {}, buttonText: AppConstants.save)
       ],
     );
   }
@@ -61,7 +61,7 @@ class _CustomerDetailsState extends State<CustomerDetails> {
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
         _buildPaymentOptions(),
-        if (widget.addSalesBloc.selectedPaymentOption == 'credit')
+        if (widget.addSalesBloc.selectedPaymentOption == AppConstants.credit)
           Expanded(
             child: TldsDropDownButtonFormField(
               height: 40,
@@ -71,7 +71,7 @@ class _CustomerDetailsState extends State<CustomerDetails> {
               onChange: (String? newValue) {},
             ),
           ),
-        if (widget.addSalesBloc.selectedPaymentOption == 'loan')
+        if (widget.addSalesBloc.selectedPaymentOption == AppConstants.loan)
           Expanded(
             child: TldsDropDownButtonFormField(
               height: 40,
@@ -241,7 +241,7 @@ class _CustomerDetailsState extends State<CustomerDetails> {
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
         _buildCustomRadioTile(
-          value: 'credit',
+          value: AppConstants.credit,
           groupValue: widget.addSalesBloc.selectedPaymentOption,
           onChanged: (value) {
             setState(() {
@@ -249,10 +249,10 @@ class _CustomerDetailsState extends State<CustomerDetails> {
             });
           },
           icon: Icons.credit_card,
-          label: 'Credit',
+          label: AppConstants.credit.toUpperCase(),
         ),
         _buildCustomRadioTile(
-          value: 'loan',
+          value: AppConstants.loan,
           groupValue: widget.addSalesBloc.selectedPaymentOption,
           onChanged: (value) {
             setState(() {
@@ -260,10 +260,10 @@ class _CustomerDetailsState extends State<CustomerDetails> {
             });
           },
           icon: Icons.monetization_on,
-          label: 'Loan',
+          label: AppConstants.loan.toUpperCase(),
         ),
         _buildCustomRadioTile(
-          value: 'part_payment',
+          value: AppConstants.partPayment,
           groupValue: widget.addSalesBloc.selectedPaymentOption,
           onChanged: (value) {
             setState(() {
@@ -271,7 +271,7 @@ class _CustomerDetailsState extends State<CustomerDetails> {
             });
           },
           icon: Icons.payment,
-          label: 'Part Payment',
+          label: AppConstants.partPayment.toUpperCase(),
         ),
       ],
     );
