@@ -10,6 +10,7 @@ import 'package:tlbilling/view/customer/customer_view.dart';
 import 'package:tlbilling/view/employee/employee_view_screen.dart';
 import 'package:tlbilling/view/login/login_page.dart';
 import 'package:tlbilling/view/purchase/purchase_view.dart';
+import 'package:tlbilling/view/report/report_screen.dart';
 import 'package:tlbilling/view/sales/sales_view.dart';
 import 'package:tlbilling/view/stocks/stocks_view.dart';
 import 'package:tlbilling/view/transfer/transfer_view.dart';
@@ -17,6 +18,7 @@ import 'package:tlbilling/view/transfer/transfer_view.dart';
 import 'package:tlbilling/view/transport/transport_view.dart';
 import 'package:tlbilling/view/user/user_view.dart';
 import 'package:tlbilling/view/vendor/vendor_view.dart';
+import 'package:tlbilling/view/voucher_receipt/voucher_receipt_list.dart';
 
 class SideMenuNavigation extends StatefulWidget {
   const SideMenuNavigation({super.key});
@@ -210,6 +212,13 @@ class _SideMenuNavigationState extends State<SideMenuNavigation> {
                 },
               ),
               _buildDrawerMenuItem(
+                AppConstants.icVoucher,
+                AppConstants.voucherReceipt,
+                () {
+                  _onMenuItemSelected(AppConstants.voucherReceipt);
+                },
+              ),
+              _buildDrawerMenuItem(
                 AppConstants.icReport,
                 AppConstants.reports,
                 () {
@@ -295,7 +304,9 @@ class _SideMenuNavigationState extends State<SideMenuNavigation> {
       case AppConstants.branch:
         return const BranchView();
       case AppConstants.reports:
-        return const Text('reports');
+        return const ReportScreen();
+      case AppConstants.voucherReceipt:
+        return const VoucherReceiptList();
 
       case AppConstants.logOut:
         return Container();

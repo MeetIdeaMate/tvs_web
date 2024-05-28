@@ -177,9 +177,10 @@ class _TransferDetailsState extends State<TransferDetails> {
               _buildDefaultHeight(
                   height: MediaQuery.sizeOf(context).width * 0.020),
               TldsInputFormField(
-                  controller: _transferBloc.transporterVehicleNumberController,
-              width: MediaQuery.sizeOf(context).width,
-              hintText: AppConstants.vehicleNumber,)
+                controller: _transferBloc.transporterVehicleNumberController,
+                width: MediaQuery.sizeOf(context).width,
+                hintText: AppConstants.vehicleNumber,
+              )
             ],
           ),
         ));

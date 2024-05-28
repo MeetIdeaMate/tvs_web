@@ -1,44 +1,64 @@
+import 'package:blurry_modal_progress_hud/blurry_modal_progress_hud.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:tlbilling/components/custom_action_button.dart';
 import 'package:tlbilling/components/custom_dropdown_button_form_field.dart';
 import 'package:tlbilling/components/custom_form_field.dart';
+import 'package:tlbilling/models/get_all_employee_model.dart';
+import 'package:tlbilling/models/parent_response_model.dart';
 import 'package:tlbilling/utils/app_colors.dart';
 import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/utils/app_util_widgets.dart';
 import 'package:tlbilling/utils/input_validation.dart';
-import 'package:tlbilling/view/employee/create_employee_dialog.dart';
 import 'package:tlbilling/view/user/create_user_dialog_bloc.dart';
+import 'package:tlbilling/view/user/user_view_bloc.dart';
+import 'package:tlds_flutter/components/tlds_input_form_field.dart';
+import 'package:tlds_flutter/util/app_colors.dart';
+import 'package:toastification/toastification.dart';
 
-class CreateUserDialogBloc extends StatefulWidget {
-  const CreateUserDialogBloc({super.key});
+class CreateUserDialog extends StatefulWidget {
+  final UserViewBlocImpl userViewBloc;
+  const CreateUserDialog({super.key, required this.userViewBloc});
 
   @override
-  State<CreateUserDialogBloc> createState() => _CreateUserDialogBlocState();
+  State<CreateUserDialog> createState() => _CreateUserDialogState();
 }
 
-class _CreateUserDialogBlocState extends State<CreateUserDialogBloc> {
+class _CreateUserDialogState extends State<CreateUserDialog> {
   final _appColors = AppColors();
   final _createUserDialogBlocImpl = CreateUserDialogBlocImpl();
   List<String>? username = ['muthu', 'Laskhu'];
+  List<String>? design = ['Manager', 'AssistMangaer'];
+  bool _isLoading = false;
+  void _isLoadingState({required bool state}) {
+    setState(() {
+      _isLoading = state;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      backgroundColor: _appColors.whiteColor,
-      surfaceTintColor: _appColors.whiteColor,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      contentPadding: const EdgeInsets.all(10),
-      title: _buildUserFormTitle(),
-      actions: [
-        _buildSaveButton(),
-      ],
-      content: SizedBox(
-        width: MediaQuery.sizeOf(context).width * 0.4,
-        height: 250,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 30),
-          child: _buildUserCreateForm(),
+    return BlurryModalProgressHUD(
+      inAsyncCall: _isLoading,
+      progressIndicator: AppWidgetUtils.buildLoading(),
+      child: AlertDialog(
+        backgroundColor: _appColors.whiteColor,
+        surfaceTintColor: _appColors.whiteColor,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        contentPadding: const EdgeInsets.all(10),
+        title: _buildUserFormTitle(),
+        actions: [
+          _buildSaveButton(),
+        ],
+        content: SizedBox(
+          width: MediaQuery.sizeOf(context).width * 0.4,
+          height: 250,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 30),
+            child: _buildUserCreateForm(),
+          ),
         ),
       ),
     );
@@ -76,80 +96,125 @@ class _CreateUserDialogBlocState extends State<CreateUserDialogBloc> {
         children: [
           AppWidgetUtils.buildSizedBox(custHeight: 10),
           _buildUserNameAndMobNoFields(),
-          AppWidgetUtils.buildSizedBox(custHeight: 13),
+          // AppWidgetUtils.buildSizedBox(custHeight: 13),
           _buildDesignationAndPasswordFields(),
         ],
       ),
     );
   }
+  // print(
+  //     '*************${snapshot.data!.map((e) => e.employeeId).toList()}');
 
   _buildUserNameAndMobNoFields() {
-    return Row(
-      children: [
+    return Row(children: [
+      Expanded(
+          child: Row(mainAxisAlignment: MainAxisAlignment.start, children: [
         Expanded(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Expanded(
-                child: CustomDropDownButtonFormField(
-                  height: 48,
-                  requiredLabelText: AppWidgetUtils.labelTextWithRequired(
-                      AppConstants.username),
-                  dropDownItems: username!,
-                  hintText: AppConstants.exSelect,
-                  validator: (value) {
-                    return InputValidations.userNameValidation(value ?? '');
-                  },
-                  onChange: (String? newValue) {
-                    _createUserDialogBlocImpl.selectedUserName = newValue;
-                  },
-                ),
-              ),
-              AppWidgetUtils.buildSizedBox(custWidth: 6),
-              Padding(
-                padding: const EdgeInsets.only(top: 20),
-                child: IconButton(
-                    style: ButtonStyle(
-                      shape: MaterialStateProperty.all(
-                        RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(5),
-                        ),
-                      ),
-                      backgroundColor:
-                          MaterialStateProperty.all(_appColors.primaryColor),
+          child: FutureBuilder<ParentResponseModel>(
+            future: _createUserDialogBlocImpl.getEmployeeName(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: Text(AppConstants.loading));
+              } else if (snapshot.hasError) {
+                return Center(child: Text('Error: ${snapshot.error}'));
+              } else if (!snapshot.hasData ||
+                  snapshot.data!.result == null ||
+                  snapshot.data!.result!.employeeListModel == null) {
+                return const Center(child: Text('No data available'));
+              }
+              final employeesList = snapshot.data!.result!.employeeListModel;
+              final employeeNamesSet = employeesList!
+                  .map((result) => result.employeeName ?? "")
+                  .toSet();
+              List<String> employeeNamesList = employeeNamesSet.toList();
+
+              return TypeAheadField<String>(
+                controller: _createUserDialogBlocImpl.employeeNameEditText,
+                suggestionsCallback: (search) => employeeNamesList
+                    .where((name) =>
+                        name.toLowerCase().contains(search.toLowerCase()))
+                    .toList(),
+                itemBuilder: (context, suggestion) {
+                  var selectedemployee = employeesList.firstWhere(
+                    (employee) => employee.employeeName == suggestion,
+                  );
+                  return ListTile(
+                    title: Text(suggestion),
+                    subtitle: Text(
+                      ' ${selectedemployee.mobileNumber}',
                     ),
-                    onPressed: () {
-                      showDialog(
-                        context: context,
-                        builder: (context) => const CreateEmployeeDialog(),
-                      );
+                    trailing: Text('${selectedemployee.city}'),
+                  );
+                },
+                onSelected: (String? value) {
+                  if (value != null) {
+                    var selectedemployee = employeesList.firstWhere(
+                      (employee) => employee.employeeName == value,
+                    );
+                    _createUserDialogBlocImpl.selectedEmpId =
+                        selectedemployee.employeeId;
+                    _createUserDialogBlocImpl.employeeNameEditText.text =
+                        selectedemployee.employeeName.toString();
+
+                    _buildEmployeeNameOnchange(
+                        employeeName: selectedemployee.employeeName,
+                        titles: employeesList);
+                  }
+                },
+                builder: (context, controller, focusNode) {
+                  return TldsInputFormField(
+                    controller: controller,
+
+                    focusNode: focusNode,
+                    requiredLabelText: AppWidgetUtils.labelTextWithRequired(
+                        AppConstants.username),
+                    //prefixIcon: AppConstants.icSelectPaitent,
+                    hintText:
+                        (snapshot.connectionState == ConnectionState.waiting)
+                            ? AppConstants.loading
+                            : (snapshot.hasError || snapshot.data == null)
+                                ? AppConstants.errorLoading
+                                : AppConstants.exSelect,
+                    validator: (String? value) {
+                      if (value!.isEmpty) {
+                        return 'select employee name';
+                      }
+                      return null;
                     },
-                    icon: SvgPicture.asset(
-                      AppConstants.icaddUser,
-                    )),
-              ),
-            ],
+                  );
+                },
+              );
+            },
           ),
         ),
         AppWidgetUtils.buildSizedBox(custWidth: 14),
-        Expanded(
-          child: CustomFormField(
-              inputFormat: [FilteringTextInputFormatter.digitsOnly],
-              suffixIcon: SvgPicture.asset(
-                colorFilter:
-                    ColorFilter.mode(_appColors.primaryColor, BlendMode.srcIn),
-                AppConstants.icCall,
-                fit: BoxFit.none,
-              ),
-              requiredLabelText: AppWidgetUtils.labelTextWithRequired(
-                  AppConstants.mobileNumber),
-              validator: (value) {
-                return InputValidations.mobileNumberValidation(value ?? '');
-              },
-              hintText: AppConstants.hintMobileNo,
-              controller: _createUserDialogBlocImpl.mobileNoTextController),
-        ),
-      ],
+        _buildMobNoTextField(),
+      ]))
+    ]);
+  }
+
+  Expanded _buildMobNoTextField() {
+    return Expanded(
+      child: StreamBuilder<bool>(
+          stream: _createUserDialogBlocImpl.employeeSelectStream,
+          builder: (context, snapshot) {
+            return CustomFormField(
+                inputFormat: [FilteringTextInputFormatter.digitsOnly],
+                maxLength: 10,
+                suffixIcon: SvgPicture.asset(
+                  colorFilter: ColorFilter.mode(
+                      _appColors.primaryColor, BlendMode.srcIn),
+                  AppConstants.icCall,
+                  fit: BoxFit.none,
+                ),
+                requiredLabelText: AppWidgetUtils.labelTextWithRequired(
+                    AppConstants.mobileNumber),
+                validator: (value) {
+                  return InputValidations.mobileNumberValidation(value ?? '');
+                },
+                hintText: AppConstants.hintMobileNo,
+                controller: _createUserDialogBlocImpl.mobileNoTextController);
+          }),
     );
   }
 
@@ -157,60 +222,143 @@ class _CreateUserDialogBlocState extends State<CreateUserDialogBloc> {
     return Row(
       children: [
         Expanded(
-          child: CustomDropDownButtonFormField(
-            height: 48,
-            requiredLabelText:
-                AppWidgetUtils.labelTextWithRequired(AppConstants.designation),
-            dropDownItems: username!,
-            validator: (value) {
-              return InputValidations.designationValidation(value ?? '');
-            },
-            hintText: AppConstants.exSelect,
-            onChange: (String? newValue) {
-              _createUserDialogBlocImpl.selectedDesignation = newValue;
-            },
-          ),
+          child: StreamBuilder<bool>(
+              stream: _createUserDialogBlocImpl.selectedDesinationStream,
+              builder: (context, snapshot) {
+                return FutureBuilder(
+                  future: _createUserDialogBlocImpl.getConfigByIdModel(
+                      configId: AppConstants.designation),
+                  builder: (context, snapshot) {
+                    //  List<String> designationList = snapshot.data ?? [];
+                    return Padding(
+                      padding: const EdgeInsets.only(top: 20),
+                      child: CustomDropDownButtonFormField(
+                          requiredLabelText:
+                              AppWidgetUtils.labelTextWithRequired(
+                                  AppConstants.designation),
+                          dropDownItems: (snapshot.hasData &&
+                                  (snapshot.data?.isNotEmpty == true))
+                              ? snapshot.data!
+                              : List.empty(),
+                          validator: (value) {
+                            return InputValidations.designationValidation(
+                                value ?? '');
+                          },
+                          hintText: (snapshot.connectionState ==
+                                  ConnectionState.waiting)
+                              ? 'Loading'
+                              : (snapshot.hasError || snapshot.data == null)
+                                  ? 'Error Loading'
+                                  : 'Select Designation',
+                          dropDownValue:
+                              _createUserDialogBlocImpl.selectedDesignation,
+                          onChange: null),
+                    );
+                  },
+                );
+              }),
         ),
         AppWidgetUtils.buildSizedBox(custWidth: 14),
-        Expanded(
-            child: StreamBuilder<bool>(
-                stream: _createUserDialogBlocImpl.passwordVisibleStream,
-                builder: (context, snapshot) {
-                  return CustomFormField(
-                    labelText: AppConstants.passwordLable,
-                    controller: _createUserDialogBlocImpl.passwordController,
-                    hintText: AppConstants.passwordLable,
-                    obscure: !_createUserDialogBlocImpl.ispasswordVisible,
-                    suffixIcon: IconButton(
-                      onPressed: () {
-                        _createUserDialogBlocImpl.ispasswordVisible =
-                            !_createUserDialogBlocImpl.ispasswordVisible;
-                        _createUserDialogBlocImpl
-                            .passwordVisbleStreamControler(true);
-                      },
-                      icon: Icon(
-                          _createUserDialogBlocImpl.ispasswordVisible
-                              ? Icons.visibility_outlined
-                              : Icons.visibility_off_outlined,
-                          color: _appColors.greyColor),
-                    ),
-                    validator: (validation) =>
-                        InputValidations.passwordValidation(validation!),
-                  );
-                })),
+        _buildPasswordTextField(),
       ],
     );
   }
 
+  Widget _buildPasswordTextField() {
+    return Expanded(
+        child: StreamBuilder<bool>(
+            stream: _createUserDialogBlocImpl.passwordVisibleStream,
+            builder: (context, snapshot) {
+              return Padding(
+                padding: const EdgeInsets.only(top: 18),
+                child: CustomFormField(
+                  labelText: AppConstants.passwordLable,
+                  controller: _createUserDialogBlocImpl.passwordController,
+                  hintText: AppConstants.passwordLable,
+                  obscure: !_createUserDialogBlocImpl.ispasswordVisible,
+                  suffixIcon: IconButton(
+                    onPressed: () {
+                      _createUserDialogBlocImpl.ispasswordVisible =
+                          !_createUserDialogBlocImpl.ispasswordVisible;
+                      _createUserDialogBlocImpl
+                          .passwordVisbleStreamControler(true);
+                    },
+                    icon: Icon(
+                        _createUserDialogBlocImpl.ispasswordVisible
+                            ? Icons.visibility_outlined
+                            : Icons.visibility_off_outlined,
+                        color: _appColors.greyColor),
+                  ),
+                  validator: (validation) =>
+                      InputValidations.passwordValidation(validation!),
+                ),
+              );
+            }));
+  }
+
   _buildSaveButton() {
     return CustomActionButtons(
-      buttonText: AppConstants.addUser,
-      onPressed: () {
-        if (_createUserDialogBlocImpl.userFormKey.currentState!.validate()) {
-          // ignore: avoid_print
-          print('customer created success');
+        buttonText: AppConstants.addUser, onPressed: _buildOnPressed);
+  }
+
+  _buildOnPressed() {
+    if (_createUserDialogBlocImpl.userFormKey.currentState!.validate()) {
+      _isLoadingState(state: true);
+      _createUserDialogBlocImpl.onboardNewUser(() {
+        _isLoadingState(state: true);
+        AppWidgetUtils.buildToast(
+            context,
+            ToastificationType.success,
+            'User Created',
+            Icon(Icons.check_circle_outline_rounded,
+                color: AppColor().successColor),
+            'User Created Successfully!',
+            AppColor().successLightColor);
+        Navigator.pop(context);
+        _isLoadingState(state: false);
+        widget.userViewBloc.usersListStream(true);
+      }, (statusCode) {
+        //  print('  user post  $statusCode');
+        if (statusCode == 409) {
+          AppWidgetUtils.buildToast(
+              context,
+              ToastificationType.error,
+              'User already created.',
+              Icon(Icons.error_outline, color: AppColor().errorColor),
+              'Please select different name to create user.',
+              AppColor().errorLightColor);
         }
-      },
-    );
+      });
+    } else {
+      AppWidgetUtils.buildToast(
+          context,
+          ToastificationType.error,
+          'User Update Error',
+          Icon(Icons.error_outline, color: AppColor().errorColor),
+          'Check All Fields For User Update!',
+          AppColor().errorLightColor);
+    }
+    _isLoadingState(state: false);
+  }
+
+  void _buildEmployeeNameOnchange({
+    String? employeeName,
+    List<EmployeeListModel>? titles,
+  }) {
+    var selectedEmployee =
+        titles?.firstWhere((element) => element.employeeName == employeeName);
+
+    if (selectedEmployee != null) {
+      _createUserDialogBlocImpl
+          .getEmployeeById(selectedEmployee.employeeId.toString())
+          .then((value) {
+        _createUserDialogBlocImpl.employeeNameSelectStream(true);
+        _createUserDialogBlocImpl.selectedDesinationStreamController(true);
+        _createUserDialogBlocImpl.selectedUserName = value?.employeeName;
+        _createUserDialogBlocImpl.mobileNoTextController.text =
+            value?.mobileNumber ?? '';
+        _createUserDialogBlocImpl.selectedDesignation = value?.designation;
+      });
+    }
   }
 }

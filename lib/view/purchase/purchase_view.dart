@@ -63,9 +63,7 @@ class _PurchaseViewState extends State<PurchaseView>
             AppWidgetUtils.buildHeaderText(AppConstants.purchase),
             _buildSearchFilters(),
             AppWidgetUtils.buildSizedBox(
-                custHeight: MediaQuery
-                    .sizeOf(context)
-                    .height * 0.02),
+                custHeight: MediaQuery.sizeOf(context).height * 0.02),
             _buildTabBar(),
             _buildTabBarView(),
           ],
@@ -90,9 +88,7 @@ class _PurchaseViewState extends State<PurchaseView>
               },
             ),
             AppWidgetUtils.buildSizedBox(
-              custWidth: MediaQuery
-                  .sizeOf(context)
-                  .width * 0.01,
+              custWidth: MediaQuery.sizeOf(context).width * 0.01,
             ),
             StreamBuilder(
               stream: _purchaseViewBloc.partNoSearchFieldControllerStream,
@@ -103,9 +99,7 @@ class _PurchaseViewState extends State<PurchaseView>
               },
             ),
             AppWidgetUtils.buildSizedBox(
-              custWidth: MediaQuery
-                  .sizeOf(context)
-                  .width * 0.01,
+              custWidth: MediaQuery.sizeOf(context).width * 0.01,
             ),
             StreamBuilder(
               stream: _purchaseViewBloc.vehicleSearchFieldControllerStream,
@@ -116,9 +110,7 @@ class _PurchaseViewState extends State<PurchaseView>
               },
             ),
             AppWidgetUtils.buildSizedBox(
-              custWidth: MediaQuery
-                  .sizeOf(context)
-                  .width * 0.01,
+              custWidth: MediaQuery.sizeOf(context).width * 0.01,
             ),
             StreamBuilder(
               stream: _purchaseViewBloc.hsnCodeSearchFieldControllerStream,
@@ -154,26 +146,26 @@ class _PurchaseViewState extends State<PurchaseView>
     );
   }
 
-  Widget _buildFormField(TextEditingController textController,
-      String hintText) {
-    final bool isTextEmpty =
-        textController.text.isEmpty;
+  Widget _buildFormField(
+      TextEditingController textController, String hintText) {
+    final bool isTextEmpty = textController.text.isEmpty;
     final IconData iconData = isTextEmpty ? Icons.search : Icons.close;
-    final Color iconColor =
-    isTextEmpty ? _appColors.primaryColor : Colors.red;
+    final Color iconColor = isTextEmpty ? _appColors.primaryColor : Colors.red;
     return TldsInputFormField(
       width: 203,
       height: 40,
       controller: textController,
       hintText: hintText,
       suffixIcon: IconButton(
-        onPressed: iconData == Icons.search ? () {
-          //add search cont here
-          _checkController(hintText);
-        } : () {
-          textController.clear();
-          _checkController(hintText);
-        },
+        onPressed: iconData == Icons.search
+            ? () {
+                //add search cont here
+                _checkController(hintText);
+              }
+            : () {
+                textController.clear();
+                _checkController(hintText);
+              },
         icon: Icon(
           iconData,
           color: iconColor,
@@ -192,9 +184,9 @@ class _PurchaseViewState extends State<PurchaseView>
       _purchaseViewBloc.invoiceSearchFieldStreamController(true);
     } else if (AppConstants.vehicleNumber == hintText) {
       _purchaseViewBloc.vehicleSearchFieldStreamController(true);
-    }else if(AppConstants.partNo == hintText){
+    } else if (AppConstants.partNo == hintText) {
       _purchaseViewBloc.partNoSearchFieldStreamController(true);
-    }else if(AppConstants.hsnCode == hintText){
+    } else if (AppConstants.hsnCode == hintText) {
       _purchaseViewBloc.hsnCodeSearchFieldStreamController(true);
     }
   }
@@ -227,10 +219,7 @@ class _PurchaseViewState extends State<PurchaseView>
 
   _buildCustomerTableView(BuildContext context) {
     return SizedBox(
-      width: MediaQuery
-          .of(context)
-          .size
-          .width,
+      width: MediaQuery.of(context).size.width,
       child: DataTable(
         key: UniqueKey(),
         dividerThickness: 0.01,
@@ -279,8 +268,7 @@ class _PurchaseViewState extends State<PurchaseView>
     );
   }
 
-  _buildVehicleTableHeader(String headerValue) =>
-      DataColumn(
+  _buildVehicleTableHeader(String headerValue) => DataColumn(
         label: Text(
           headerValue,
           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),

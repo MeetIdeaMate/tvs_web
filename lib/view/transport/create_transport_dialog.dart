@@ -88,10 +88,7 @@ class _CreateTransportDialogDialogState extends State<CreateTransportDialog> {
       buttonText: AppConstants.addTransport,
       onPressed: () {
         if (_createTransportBlocImpl.transportFormKey.currentState!
-            .validate()) {
-          // ignore: avoid_print
-          print('customer created success');
-        }
+            .validate()) {}
       },
     );
   }

@@ -29,7 +29,7 @@ class InputValidations {
   static String? nameValidation(String errorText) {
     if (errorText.isEmpty) {
       return AppConstants.nameValidationText;
-    } else if (RegExp(r"[^a-zA-Z]").hasMatch(errorText)) {
+    } else if (RegExp(r"[^a-zA-Z  ]").hasMatch(errorText)) {
       return AppConstants.nameValidationErrorText;
     }
     return null;
@@ -97,7 +97,7 @@ class InputValidations {
 
   static aadharValidation(String errorText) {
     if (errorText.isNotEmpty) {
-      if (errorText.length != 16) {
+      if (errorText.length != 12) {
         return AppConstants.aadharDigitErrorText;
       }
     }
@@ -122,7 +122,7 @@ class InputValidations {
 
   static pinCodeValidation(String errorText) {
     if (errorText.isNotEmpty) {
-      if (errorText.length != 10) {
+      if (errorText.length != 6) {
         return AppConstants.pinCodeValidation;
       }
     }
