@@ -11,6 +11,7 @@ import 'package:tlbilling/view/employee/employee_view_screen.dart';
 import 'package:tlbilling/view/login/login_page.dart';
 import 'package:tlbilling/view/purchase/purchase_view.dart';
 import 'package:tlbilling/view/report/report_screen.dart';
+import 'package:tlbilling/view/sales/sales_view.dart';
 import 'package:tlbilling/view/stocks/stocks_view.dart';
 import 'package:tlbilling/view/transfer/transfer_view.dart';
 
@@ -287,7 +288,7 @@ class _SideMenuNavigationState extends State<SideMenuNavigation> {
       case AppConstants.stocks:
         return const StocksView();
       case AppConstants.sales:
-        return const Text('sales');
+        return const SalesViewScreen();
       case AppConstants.customer:
         return const CustomerView();
       case AppConstants.transfer:
