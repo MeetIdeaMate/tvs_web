@@ -20,22 +20,23 @@ class AppConstants {
   static const userId = 'userId';
   static const userName = 'userName';
   static const useRefId = 'useRefId';
+  static const all = 'All';
+  static const today = 'Today';
+  static const pending = 'Pending';
+  static const completed = 'Completed';
 
-//LoginPage
-
+  //LoginPage
   static const loginheader = 'Login to your account';
   static const mobileNumberLable = 'Mobile Number';
   static const passwordLable = 'Password';
   static const loginButtonLable = 'Login Now';
   static const logOut = 'Log Out';
-
   static const mobileNumberHint = 'Enter your mobile number';
   static const passwordHint = 'Enter your password';
 
   //validation
   static const mobileNumberErrorText = 'Please Enter mobile number';
   static const gstNumberErrorText = 'Please Enter GST number';
-
   static const nameValidationErrorText = 'Please enter name correctly';
   static const nameValidationText = 'Please enter name';
   static const mailValidationText = 'Please enter mail';
@@ -125,12 +126,10 @@ class AppConstants {
   static const user = 'user';
   static const voucherReceipt = 'Voc / Rec';
   static const receipt = 'Receipt';
-
   static const employee = 'Employee';
   static const pinCode = 'Pin Code';
 
   //Customer
-
   static const addCustomer = 'Add Customer';
   static const noDataStore = 'No more data to show';
   static const name = 'Name';
@@ -149,25 +148,21 @@ class AppConstants {
   static const address = 'Address';
   static const uploadCustomerPhoto = 'Upload Customer Photo';
   static const customerName = 'Customer Name';
-
   static const sno = 'S.No';
   static const action = 'Action';
+  static const print = 'Print';
 
   //vendor
-
   static const addVendor = 'Add Vendor';
   static const gstNo = 'GST IN';
   static const hintGst = 'Enter GST';
   static const fax = 'Fax Number';
   static const hintFax = 'Enter Fax Number';
   static const exGst = 'Ex. GSTIN26523';
-
   static const exPan = 'Ex. 86452657';
-
   static const vendorName = 'Vendor Name';
   static const telephoneNumber = 'Telephone Number';
   static const hintTelephoneNumber = 'Enter Telephone Number';
-
   static const dashboard = 'Dashboard';
   static const accNo = 'Account Number';
   static const hintAccNo = 'Enter Account Number';
@@ -175,12 +170,10 @@ class AppConstants {
   static const enterIfscCode = 'Enter IFSC Code';
 
   //transport
-
   static const addTransport = 'Add Transport';
   static const transportName = 'Transport Name';
 
   //employee
-
   static const addEmployee = 'Add Employee';
   static const addNew = 'Add New';
   static const add = 'Add';
@@ -201,13 +194,14 @@ class AppConstants {
   static const exEmail = 'Ex. ajith@techlambdas.com';
   static const gender = 'Gender';
   static const exMobNo = '+91 9876545430';
-
   static const typeHere = 'Type Here';
   static const upadteEmployee = 'Update Employee';
 
   //purchase
   static const invoiceNo = 'Invoice No';
+  static const paymentType = 'Payment Type';
   static const invoiceDate = 'Invoice Date';
+  static const customerId = 'Customer id';
   static const partNo = 'Part No';
   static const vehicle = 'Vehicle';
   static const engineNumber = 'Engine Number';
@@ -218,9 +212,13 @@ class AppConstants {
   static const vehicleDetails = 'Vehicle Details';
   static const hsnCode = 'HSN Code';
   static const addPurchase = 'Add Purchase';
+  static const addSales = 'Add Sales';
   static const accessories = 'Accessories';
   static const quantity = 'Qty';
   static const totalInvAmount = 'Total Inv Amount';
+  static const pendingInvAmt = 'Pending Inv Amount';
+  static const balanceAmt = 'Balance Amount';
+  static const createdBy = 'Created By';
   static const vendorDetails = 'Vendor Details';
   static const selectVendor = 'Select Vendor';
   static const purchaseRef = 'Purchase Ref';
@@ -251,6 +249,7 @@ class AppConstants {
   static const vehicleList = 'Vehicle list';
   static const vehicleNameAndEngineNumber = 'Vehicle Name / Engine Number';
   static const selectVehicleOrAccessories = 'Select Vehicle Or Accessories';
+  static const selectVehicleAndAccessories = 'Selected Vehicle / Accessories';
   static const selectedVehicle = 'Selected Vehicle';
   static const selectedAccessories = 'Selected Accessories';
   static const transferDetails = 'Transfer Details';
@@ -265,8 +264,7 @@ class AppConstants {
   static const receiptNumber = 'Receipt Number';
   static const receiptDate = 'Receipt Date';
   static const receivedFrom = 'Received From';
-  static const paymentType = 'Payment Type  ';
-  static const print = 'Print';
+
   static const amount = 'Amount';
   static const voucherId = 'Voucher Id';
   static const voucherDate = 'Voucher Date';
@@ -276,7 +274,6 @@ class AppConstants {
   static const payTo = 'Pay To';
 
 //user
-
   static const username = 'User Name';
 
   // static const designation = 'Designation';
@@ -321,7 +318,6 @@ class AppConstants {
 
   //API
 
-  static const all = 'All';
   static const loading = 'Loading...';
   static const errorLoading = 'Error Loading...';
 
@@ -355,4 +351,20 @@ class AppConstants {
   static const icLastPage = 'assets/icons/ic_last_page.svg';
   static const icNextPage = 'assets/icons/ic_next_page.svg';
   static const icPrevPage = 'assets/icons/ic_prev_page.svg';
+
+  static const gstType = 'GST Type';
+
+  static const customerDetails = 'Customer Details';
+  static const selectCustomer = 'Select Customer';
+  static const paymentDetails = 'Payment Method';
+  static const creditType = 'Credit Type';
+  static const selectBank = 'Select Bank';
+  static const icBank = 'assets/icons/ic_bank.svg';
+  static const icCard = 'assets/icons/ic_card.svg';
+  static const icCity = 'assets/icons/ic_city.svg';
+  static const icLocation = 'assets/icons/ic_location.svg';
+
+  static const credit = 'credit';
+  static const loan = 'loan';
+  static const partPayment = 'part payment';
 }

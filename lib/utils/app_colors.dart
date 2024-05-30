@@ -12,6 +12,7 @@ class AppColors {
   Color lightBlueColor = HexColor('#176B87');
   Color hintColor = HexColor('#718EBF');
   Color grey = HexColor('#ADADAD');
+  Color darkHighlight = HexColor('#F4F4F4');
   static const Color white12 = Color.fromRGBO(255, 255, 255, 0.14);
   Color greyColor = Colors.grey;
   Color red = Colors.red;
@@ -40,4 +41,6 @@ class AppColors {
   Color infoColor = HexColor('#0052EA');
   Color infoLightColor = HexColor('#A7C5FD');
   Color tableTotalAmtRowColor = HexColor('#CBFFE3');
+  Color lightBgColor = HexColor('#FAFAFA');
+  Color bgHighlightColor = HexColor('#F2E9FF');
 }
