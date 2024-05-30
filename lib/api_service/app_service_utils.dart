@@ -4,6 +4,8 @@ import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tlbilling/api_service/app_url.dart';
 import 'package:tlbilling/models/get_employee_by_id.dart';
+import 'package:tlbilling/models/get_model/get_all_branch_model.dart';
+import 'package:tlbilling/models/get_model/get_all_branches_by_pagination.dart';
 import 'package:tlbilling/models/get_model/get_all_customer_by_pagination_model.dart';
 import 'package:tlbilling/models/get_model/get_all_customers_model.dart';
 import 'package:tlbilling/models/get_model/get_all_employee_by_pagination.dart';
@@ -11,6 +13,7 @@ import 'package:tlbilling/models/parent_response_model.dart';
 import 'package:tlbilling/models/post_model/add_branch_model.dart';
 import 'package:tlbilling/models/post_model/add_customer_model.dart';
 import 'package:tlbilling/models/post_model/add_employee_model.dart';
+import 'package:tlbilling/models/update/update_branch_model.dart';
 import 'package:tlbilling/models/user_model.dart';
 import 'package:tlbilling/utils/app_constants.dart';
 
@@ -33,12 +36,17 @@ abstract class AppServiceUtil {
       String customerId,
       AddCustomerModel addCustomerModel,
       Function(int statusCode) onSuccessCallBack);
+
   //Future<UserList>? getAllUserList();
   Future<UsersListModel?> getUserList(
       String userName, String selectedDesignation, int currentPage);
 
   Future<List<String>> getConfigByIdModel({String? configId});
+
   Future<ParentResponseModel> getEmployeesName();
+
+  // Future<List<Content>?> getAllEmployeesByPaginationModel(
+  //     String employeeName, String city, String designation, String branchName);
 
   Future<GetAllEmployeesByPaginationModel> getAllEmployeesByPaginationModel(
       int currentPage,
@@ -47,6 +55,7 @@ abstract class AppServiceUtil {
       String designation,
       String branchName);
   Future<GetEmployeeById?> getEmployeeById(String employeeId);
+
   Future<void> updateUserStatus(String? userId, String? userUpdateStatus,
       Function(int statusCode) onSuccessCallBack);
 
@@ -66,6 +75,13 @@ abstract class AppServiceUtil {
       Function(int? statusCode) statusCode);
 
   Future<ParentResponseModel> getBranchName();
+
+  Future<GetAllBranchesByPaginationModel?> getBranchList();
+
+  Future<GetAllBranchList?> getBranchDetailsById(String? branchId);
+
+  Future<void> updateBranch(UpdateBranchModel updateBranchModel,
+      String? branchId, Function(int statusCode) successCallBack);
 }
 
 class AppServiceUtilImpl extends AppServiceUtil {
@@ -104,7 +120,7 @@ class AppServiceUtilImpl extends AppServiceUtil {
       var token = prefs.getString('token');
       dio.options.headers['Authorization'] = 'Bearer $token';
       var response =
-          await dio.post(AppUrl.addBranch, data: jsonEncode(addBranchModel));
+          await dio.post(AppUrl.branch, data: jsonEncode(addBranchModel));
       onSuccessCallBack(response.statusCode);
     } on DioException catch (e) {
       onSuccessCallBack(e.response?.statusCode);
@@ -168,11 +184,13 @@ class AppServiceUtilImpl extends AppServiceUtil {
       if (mobileNumber.isNotEmpty) {
         url += '&mobileNo=$mobileNumber';
       }
-      var response = await dio.get('${url}');
+      var response = await dio.get(url);
       return parentResponseModelFromJson(jsonEncode(response.data))
           .result
           ?.getAllCustomersByPaginationModel;
-    } on DioException catch (e) {}
+    } on DioException catch (e) {
+      e.response?.statusCode ?? 0;
+    }
     return null;
   }
 
@@ -184,7 +202,9 @@ class AppServiceUtilImpl extends AppServiceUtil {
       dio.options.headers['Authorization'] = 'Bearer $token';
       var response = await dio.get('${AppUrl.customer}/$customerId');
       return GetAllCustomersModel.fromJson(response.data);
-    } on DioException catch (e) {}
+    } on DioException catch (e) {
+      e.response?.statusCode ?? 0;
+    }
     return null;
   }
 
@@ -211,9 +231,7 @@ class AppServiceUtilImpl extends AppServiceUtil {
     var token = prefs.getString('token');
     dio.options.headers['Authorization'] = 'Bearer $token';
     String configUrl = '${AppUrl.config}$configId';
-
     final response = await dio.get(configUrl);
-
     if (response.statusCode == 200) {
       return parentResponseModelFromJson(jsonEncode(response.data))
               .result
@@ -273,8 +291,7 @@ class AppServiceUtilImpl extends AppServiceUtil {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var token = prefs.getString('token');
     dio.options.headers['Authorization'] = 'Bearer $token';
-    String branchListUrl = AppUrl.addBranch;
-
+    String branchListUrl = AppUrl.branch;
     var response = await dio.get(branchListUrl);
     final responseList = parentResponseModelFromJson(jsonEncode(response.data));
 
@@ -375,6 +392,55 @@ class AppServiceUtilImpl extends AppServiceUtil {
       statusCode(response.statusCode ?? 0);
     } on DioException catch (e) {
       statusCode(e.response?.statusCode ?? 0);
+    }
+  }
+
+  @override
+  Future<GetAllBranchesByPaginationModel?> getBranchList() async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      var token = prefs.getString('token');
+      dio.options.headers['Authorization'] = 'Bearer $token';
+      var response = await dio.get('${AppUrl.branch}/page?page=0&size=10');
+      return ParentResponseModel.fromJson(response.data)
+          .result
+          ?.getAllBranchesByPaginationModel;
+    } on DioException catch (e) {
+      e.response?.statusCode ?? 0;
+    }
+    return null;
+  }
+
+  @override
+  Future<GetAllBranchList?> getBranchDetailsById(String? branchId) async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      var token = prefs.getString('token');
+      dio.options.headers['Authorization'] = 'Bearer $token';
+      var response = await dio.get('${AppUrl.branch}/$branchId');
+      return ParentResponseModel.fromJson(response.data).result?.getBranchById;
+    } on DioException catch (e) {
+      e.response?.statusCode ?? 0;
+    }
+    return null;
+  }
+
+  @override
+  Future<void> updateBranch(UpdateBranchModel updateBranchModel,
+      String? branchId, Function(int statusCode) successCallBack) async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      var token = prefs.getString('token');
+      dio.options.headers['Authorization'] = 'Bearer $token';
+      var response = await dio.put('${AppUrl.branch}/$branchId',
+          data: jsonEncode(updateBranchModel));
+      print('************URL********${AppUrl.branch}/$branchId');
+      successCallBack(response.statusCode ?? 0);
+      print('**************edit req******${updateBranchModel.toJson()}');
+      print('**************edit response******${response.data}');
+    } on DioException catch (e) {
+      successCallBack(e.response?.statusCode ?? 0);
+      e.response?.statusCode ?? 0;
     }
   }
 }

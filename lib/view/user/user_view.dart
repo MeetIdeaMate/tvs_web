@@ -141,7 +141,6 @@ class _UserViewState extends State<UserView> {
               onSubmit: (value) {
                 if (value.isNotEmpty) {
                   _userViewBlocImpl.usersListStream(true);
-                  _userViewBlocImpl.pageNumberUpdateStreamController(0);
                   _userViewBlocImpl.getUserList();
                 }
               },

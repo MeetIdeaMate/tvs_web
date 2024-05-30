@@ -4,7 +4,8 @@ import 'package:tlbilling/components/custom_elevated_button.dart';
 import 'package:tlbilling/utils/app_colors.dart';
 import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/utils/app_util_widgets.dart';
-import 'package:tlbilling/view/voucher_receipt/new_voucher/new_voucher_dart.dart';
+import 'package:tlbilling/view/voucher_receipt/new_receipt/new_receipt.dart';
+import 'package:tlbilling/view/voucher_receipt/new_voucher/new_voucher.dart';
 import 'package:tlbilling/view/voucher_receipt/vouecher_receipt_list_bloc.dart';
 import 'package:tlds_flutter/components/tlds_dropdown_button_form_field.dart';
 import 'package:tlds_flutter/components/tlds_input_form_field.dart';
@@ -74,8 +75,10 @@ class _VoucherReceiptListState extends State<VoucherReceiptList>
   Widget _buildSearchFilters() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             StreamBuilder(
               stream: _voucherReceiptBloc.receiptIdStream,
@@ -115,7 +118,13 @@ class _VoucherReceiptListState extends State<VoucherReceiptList>
       onPressed: () {
         showDialog(
           context: context,
-          builder: (context) => NewVoucher(blocInstance: _voucherReceiptBloc),
+          builder: (context) {
+            if (_voucherReceiptBloc.receiptVoucherTabController.index == 0) {
+              return const NewReceipt();
+            } else {
+              return NewVoucher(blocInstance: _voucherReceiptBloc);
+            }
+          },
         );
       },
     );
@@ -136,66 +145,63 @@ class _VoucherReceiptListState extends State<VoucherReceiptList>
 
   _buildTransferTableView(BuildContext context) {
     return Expanded(
-        child: SizedBox(
-      width: MediaQuery.sizeOf(context).width,
-      child: SingleChildScrollView(
-        scrollDirection: Axis.vertical,
         child: SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: DataTable(
-            key: UniqueKey(),
-            dividerThickness: 0.01,
-            columns: [
-              _buildTransferTableHeader(
-                AppConstants.sno,
-              ),
-              _buildTransferTableHeader(AppConstants.receiptNumber, flex: 2),
-              _buildTransferTableHeader(AppConstants.receiptDate, flex: 2),
-              _buildTransferTableHeader(AppConstants.vehicleName, flex: 2),
-              _buildTransferTableHeader(AppConstants.color, flex: 2),
-              _buildTransferTableHeader(AppConstants.receivedFrom, flex: 2),
-              _buildTransferTableHeader(AppConstants.paymentType, flex: 2),
-              _buildTransferTableHeader(AppConstants.amount, flex: 2),
-              _buildTransferTableHeader(AppConstants.print, flex: 2),
-              _buildTransferTableHeader(AppConstants.action, flex: 2),
-            ],
-            rows: List.generate(_voucherReceiptBloc.rowData.length, (index) {
-              final data = _voucherReceiptBloc.rowData[index];
+      scrollDirection: Axis.vertical,
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: DataTable(
+          key: UniqueKey(),
+          dividerThickness: 0.01,
+          columns: [
+            _buildTransferTableHeader(
+              AppConstants.sno,
+            ),
+            _buildTransferTableHeader(AppConstants.receiptNumber, flex: 2),
+            _buildTransferTableHeader(AppConstants.receiptDate, flex: 2),
+            _buildTransferTableHeader(AppConstants.vehicleName, flex: 2),
+            _buildTransferTableHeader(AppConstants.color, flex: 2),
+            _buildTransferTableHeader(AppConstants.receivedFrom, flex: 2),
+            _buildTransferTableHeader(AppConstants.paymentType, flex: 2),
+            _buildTransferTableHeader(AppConstants.amount, flex: 2),
+            _buildTransferTableHeader(AppConstants.print, flex: 2),
+            _buildTransferTableHeader(AppConstants.action, flex: 2),
+          ],
+          rows: List.generate(_voucherReceiptBloc.rowData.length, (index) {
+            final data = _voucherReceiptBloc.rowData[index];
 
-              final color = index.isEven
-                  ? _appColors.whiteColor
-                  : _appColors.transparentBlueColor;
-              return DataRow(
-                color: MaterialStateColor.resolveWith((states) => color),
-                cells: [
-                  DataCell(Text(data[AppConstants.sno] ?? '')),
-                  DataCell(Text(data[AppConstants.receiptNumber] ?? '')),
-                  DataCell(Text(data[AppConstants.receiptDate] ?? '')),
-                  DataCell(Text(data[AppConstants.vehicleName] ?? '')),
-                  DataCell(Text(data[AppConstants.color] ?? '')),
-                  DataCell(Text(data[AppConstants.receivedFrom] ?? '')),
-                  DataCell(Text(data[AppConstants.paymentType] ?? '')),
-                  DataCell(Text(data[AppConstants.amount] ?? '')),
-                  DataCell(IconButton(
+            final color = index.isEven
+                ? _appColors.whiteColor
+                : _appColors.transparentBlueColor;
+            return DataRow(
+              color: MaterialStateColor.resolveWith((states) => color),
+              cells: [
+                DataCell(Text(data[AppConstants.sno] ?? '')),
+                DataCell(Text(data[AppConstants.receiptNumber] ?? '')),
+                DataCell(Text(data[AppConstants.receiptDate] ?? '')),
+                DataCell(Text(data[AppConstants.vehicleName] ?? '')),
+                DataCell(Text(data[AppConstants.color] ?? '')),
+                DataCell(Text(data[AppConstants.receivedFrom] ?? '')),
+                DataCell(Text(data[AppConstants.paymentType] ?? '')),
+                DataCell(Text(data[AppConstants.amount] ?? '')),
+                DataCell(IconButton(
+                    onPressed: () {},
+                    icon: SvgPicture.asset(AppConstants.icPrint))),
+                DataCell(Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    IconButton(
                       onPressed: () {},
-                      icon: SvgPicture.asset(AppConstants.icPrint))),
-                  DataCell(Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      IconButton(
-                        onPressed: () {},
-                        icon: SvgPicture.asset(AppConstants.icEdit),
-                      ),
-                      IconButton(
-                        onPressed: () {},
-                        icon: SvgPicture.asset(AppConstants.icFilledClose),
-                      )
-                    ],
-                  )),
-                ],
-              );
-            }),
-          ),
+                      icon: SvgPicture.asset(AppConstants.icEdit),
+                    ),
+                    IconButton(
+                      onPressed: () {},
+                      icon: SvgPicture.asset(AppConstants.icFilledClose),
+                    )
+                  ],
+                )),
+              ],
+            );
+          }),
         ),
       ),
     ));
@@ -203,63 +209,59 @@ class _VoucherReceiptListState extends State<VoucherReceiptList>
 
   _buildVoucherTableView(BuildContext context) {
     return Expanded(
-        child: SizedBox(
-      width: MediaQuery.sizeOf(context).width,
-      child: SingleChildScrollView(
-        scrollDirection: Axis.vertical,
         child: SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: DataTable(
-            key: UniqueKey(),
-            dividerThickness: 0.01,
-            columns: [
-              _buildTransferTableHeader(
-                AppConstants.sno,
-              ),
-              _buildTransferTableHeader(AppConstants.voucherId, flex: 2),
-              _buildTransferTableHeader(AppConstants.voucherDate, flex: 2),
-              _buildTransferTableHeader(AppConstants.giver, flex: 2),
-              _buildTransferTableHeader(AppConstants.receiver, flex: 2),
-              _buildTransferTableHeader(AppConstants.amount, flex: 2),
-              _buildTransferTableHeader(AppConstants.print, flex: 2),
-              _buildTransferTableHeader(AppConstants.action, flex: 2),
-            ],
-            rows:
-                List.generate(_voucherReceiptBloc.voucherData.length, (index) {
-              final data = _voucherReceiptBloc.voucherData[index];
+      scrollDirection: Axis.vertical,
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: DataTable(
+          key: UniqueKey(),
+          dividerThickness: 0.01,
+          columns: [
+            _buildTransferTableHeader(
+              AppConstants.sno,
+            ),
+            _buildTransferTableHeader(AppConstants.voucherId, flex: 2),
+            _buildTransferTableHeader(AppConstants.voucherDate, flex: 2),
+            _buildTransferTableHeader(AppConstants.giver, flex: 2),
+            _buildTransferTableHeader(AppConstants.receiver, flex: 2),
+            _buildTransferTableHeader(AppConstants.amount, flex: 2),
+            _buildTransferTableHeader(AppConstants.print, flex: 2),
+            _buildTransferTableHeader(AppConstants.action, flex: 2),
+          ],
+          rows: List.generate(_voucherReceiptBloc.voucherData.length, (index) {
+            final data = _voucherReceiptBloc.voucherData[index];
 
-              final color = index.isEven
-                  ? _appColors.whiteColor
-                  : _appColors.transparentBlueColor;
-              return DataRow(
-                color: MaterialStateColor.resolveWith((states) => color),
-                cells: [
-                  DataCell(Text(data[AppConstants.sno] ?? '')),
-                  DataCell(Text(data[AppConstants.voucherId] ?? '')),
-                  DataCell(Text(data[AppConstants.voucherDate] ?? '')),
-                  DataCell(Text(data[AppConstants.giver] ?? '')),
-                  DataCell(Text(data[AppConstants.receiver] ?? '')),
-                  DataCell(Text(data[AppConstants.amount] ?? '')),
-                  DataCell(IconButton(
+            final color = index.isEven
+                ? _appColors.whiteColor
+                : _appColors.transparentBlueColor;
+            return DataRow(
+              color: MaterialStateColor.resolveWith((states) => color),
+              cells: [
+                DataCell(Text(data[AppConstants.sno] ?? '')),
+                DataCell(Text(data[AppConstants.voucherId] ?? '')),
+                DataCell(Text(data[AppConstants.voucherDate] ?? '')),
+                DataCell(Text(data[AppConstants.giver] ?? '')),
+                DataCell(Text(data[AppConstants.receiver] ?? '')),
+                DataCell(Text(data[AppConstants.amount] ?? '')),
+                DataCell(IconButton(
+                    onPressed: () {},
+                    icon: SvgPicture.asset(AppConstants.icPrint))),
+                DataCell(Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    IconButton(
                       onPressed: () {},
-                      icon: SvgPicture.asset(AppConstants.icPrint))),
-                  DataCell(Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      IconButton(
-                        onPressed: () {},
-                        icon: SvgPicture.asset(AppConstants.icEdit),
-                      ),
-                      IconButton(
-                        onPressed: () {},
-                        icon: SvgPicture.asset(AppConstants.icFilledClose),
-                      )
-                    ],
-                  )),
-                ],
-              );
-            }),
-          ),
+                      icon: SvgPicture.asset(AppConstants.icEdit),
+                    ),
+                    IconButton(
+                      onPressed: () {},
+                      icon: SvgPicture.asset(AppConstants.icFilledClose),
+                    )
+                  ],
+                )),
+              ],
+            );
+          }),
         ),
       ),
     ));

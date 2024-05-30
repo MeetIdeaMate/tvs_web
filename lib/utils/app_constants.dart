@@ -143,6 +143,7 @@ class AppConstants {
   static const hintAatharNo = 'Enter Aadhar Number';
   static const aadharNo = 'Aadhar Number';
   static const city = 'City';
+  static const cities = 'Cities';
   static const hintCity = 'Enter City';
   static const hintAddress = 'Enter Address';
   static const address = 'Address';
@@ -272,6 +273,8 @@ class AppConstants {
   static const receiver = 'Receiver';
   static const newVoucher = 'New Voucher';
   static const payTo = 'Pay To';
+  static const product = 'Product';
+  static const select = 'Select';
 
 //user
   static const username = 'User Name';
@@ -298,6 +301,9 @@ class AppConstants {
   static const invalidUser = 'Invalid user found or inactive';
   static const branchCreated = 'Branch Created';
   static const branchCreatedSuccessFully = 'Branch created successFully';
+  static const branchUpdated = 'Branch Updated';
+  static const branchUpdatedSuccessFully = 'Branch updated successFully';
+
   static const somethingWentWrong = 'Something went wrong try again...!';
   static const customerUpdate = 'Customer Update';
   static const customerCreate = 'Customer Create';
@@ -324,6 +330,7 @@ class AppConstants {
   //report
 
   static const billType = 'BillType';
+  static const date = 'Date';
   static const fromDate = 'From Date';
   static const toDate = 'To Date';
   static const pdfGeneration = 'Generate Pdf / Print';

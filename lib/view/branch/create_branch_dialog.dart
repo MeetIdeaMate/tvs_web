@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:tlbilling/components/custom_action_button.dart';
 import 'package:tlbilling/components/custom_dropdown_button_form_field.dart';
 import 'package:tlbilling/components/custom_form_field.dart';
+import 'package:tlbilling/models/get_model/get_all_branch_model.dart';
 import 'package:tlbilling/utils/app_colors.dart';
 import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/utils/app_util_widgets.dart';
@@ -12,7 +13,9 @@ import 'package:tlbilling/view/branch/create_branch_dialog_bloc.dart';
 import 'package:toastification/toastification.dart';
 
 class CreateBranchDialog extends StatefulWidget {
-  const CreateBranchDialog({super.key});
+  final String? branchId;
+
+  const CreateBranchDialog({super.key, this.branchId});
 
   @override
   State<CreateBranchDialog> createState() => _CreateBranchDialogState();
@@ -21,8 +24,18 @@ class CreateBranchDialog extends StatefulWidget {
 class _CreateBranchDialogState extends State<CreateBranchDialog> {
   final _appColors = AppColors();
   final _createBranchDialogBlocImpl = CreateBranchDialogBlocImpl();
-  final List<String> _city = ['kvp', 'chennai'];
-  final List<String> _mainBranch = ['madurai', 'kovilpatti'];
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.branchId != null) {
+      _createBranchDialogBlocImpl.getBranchDetailsById(widget.branchId).then(
+          (editableValueData) => _getEditBranchDetails(editableValueData));
+    } else {
+      _createBranchDialogBlocImpl.selectedBranchId = AppConstants.mainBranch;
+    }
+    _createBranchDialogBlocImpl.radioButtonStream(true);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -82,34 +95,68 @@ class _CreateBranchDialogState extends State<CreateBranchDialog> {
         if (_createBranchDialogBlocImpl.branchFormKey.currentState!
             .validate()) {
           _isLoading(true);
-          _createBranchDialogBlocImpl.addBranch((statusCode) {
-            if (statusCode == 200 || statusCode == 201) {
-              _isLoading(false);
-              Navigator.pop(context);
-              AppWidgetUtils.buildToast(
-                  context,
-                  ToastificationType.success,
-                  AppConstants.branchCreated,
-                  Icon(
-                    Icons.check_circle_outline_rounded,
-                    color: _appColors.successColor,
-                  ),
-                  AppConstants.branchCreatedSuccessFully,
-                  _appColors.successLightColor);
-            } else {
-              _isLoading(false);
-              AppWidgetUtils.buildToast(
-                  context,
-                  ToastificationType.error,
-                  AppConstants.branchCreated,
-                  Icon(
-                    Icons.error_outline_outlined,
-                    color: _appColors.errorColor,
-                  ),
-                  AppConstants.somethingWentWrong,
-                  _appColors.errorLightColor);
-            }
-          });
+          if (widget.branchId != null) {
+            _createBranchDialogBlocImpl.updateBranch(
+              widget.branchId,
+              (statusCode) {
+                if (statusCode == 200 || statusCode == 201) {
+                  _isLoading(false);
+                  Navigator.pop(context);
+                  AppWidgetUtils.buildToast(
+                      context,
+                      ToastificationType.success,
+                      AppConstants.branchUpdated,
+                      Icon(
+                        Icons.check_circle_outline_rounded,
+                        color: _appColors.successColor,
+                      ),
+                      AppConstants.branchUpdatedSuccessFully,
+                      _appColors.successLightColor);
+                } else {
+                  _isLoading(false);
+                  AppWidgetUtils.buildToast(
+                      context,
+                      ToastificationType.error,
+                      AppConstants.branchUpdated,
+                      Icon(
+                        Icons.error_outline_outlined,
+                        color: _appColors.errorColor,
+                      ),
+                      AppConstants.somethingWentWrong,
+                      _appColors.errorLightColor);
+                }
+              },
+            );
+          } else {
+            _createBranchDialogBlocImpl.addBranch((statusCode) {
+              if (statusCode == 200 || statusCode == 201) {
+                _isLoading(false);
+                Navigator.pop(context);
+                AppWidgetUtils.buildToast(
+                    context,
+                    ToastificationType.success,
+                    AppConstants.branchCreated,
+                    Icon(
+                      Icons.check_circle_outline_rounded,
+                      color: _appColors.successColor,
+                    ),
+                    AppConstants.branchCreatedSuccessFully,
+                    _appColors.successLightColor);
+              } else {
+                _isLoading(false);
+                AppWidgetUtils.buildToast(
+                    context,
+                    ToastificationType.error,
+                    AppConstants.branchCreated,
+                    Icon(
+                      Icons.error_outline_outlined,
+                      color: _appColors.errorColor,
+                    ),
+                    AppConstants.somethingWentWrong,
+                    _appColors.errorLightColor);
+              }
+            });
+          }
         }
       },
     );
@@ -119,7 +166,9 @@ class _CreateBranchDialogState extends State<CreateBranchDialog> {
     return Form(
       key: _createBranchDialogBlocImpl.branchFormKey,
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
+          _buildSelectBranchRadioButton(),
           AppWidgetUtils.buildSizedBox(custHeight: 10),
           _buildBranchNameAndCityFields(),
           AppWidgetUtils.buildSizedBox(custHeight: 13),
@@ -146,17 +195,23 @@ class _CreateBranchDialogState extends State<CreateBranchDialog> {
         ),
         AppWidgetUtils.buildSizedBox(custWidth: 14),
         Expanded(
-          child: CustomDropDownButtonFormField(
-            // height: 72,
-            requiredLabelText:
-                AppWidgetUtils.labelTextWithRequired(AppConstants.city),
-            dropDownItems: _city,
-            hintText: AppConstants.exSelect,
-            validator: (value) {
-              return InputValidations.nameValidation(value ?? '');
-            },
-            onChange: (String? newValue) {
-              _createBranchDialogBlocImpl.selectedCity = newValue ?? '';
+          child: FutureBuilder(
+            future: _createBranchDialogBlocImpl.getCities(),
+            builder: (context, snapshot) {
+              return CustomDropDownButtonFormField(
+                // height: 72,
+                requiredLabelText:
+                    AppWidgetUtils.labelTextWithRequired(AppConstants.city),
+                dropDownItems: snapshot.data ?? [],
+                hintText: AppConstants.exSelect,
+                dropDownValue: _createBranchDialogBlocImpl.selectedCity,
+                validator: (value) {
+                  return InputValidations.nameValidation(value ?? '');
+                },
+                onChange: (String? newValue) {
+                  _createBranchDialogBlocImpl.selectedCity = newValue ?? '';
+                },
+              );
             },
           ),
         ),
@@ -211,74 +266,117 @@ class _CreateBranchDialogState extends State<CreateBranchDialog> {
   }
 
   _buildSelectBranchMainBranchFields() {
-    return Row(
-      children: [
-        _buildSelectBranchRadioButton(),
-        AppWidgetUtils.buildSizedBox(custWidth: 14),
-        Expanded(
-          child: CustomDropDownButtonFormField(
-            // height: 72,
-            requiredLabelText:
-                AppWidgetUtils.labelTextWithRequired(AppConstants.mainBranch),
-            dropDownItems: _mainBranch,
-            hintText: AppConstants.exSelect,
-            validator: (value) {
-              return InputValidations.branchValidation(value ?? '');
-            },
-            onChange: (String? newValue) {
-              _createBranchDialogBlocImpl.selectedBranch = newValue ?? '';
-            },
-          ),
-        ),
-      ],
+    return StreamBuilder(
+      stream: _createBranchDialogBlocImpl.radioButtonStreamController,
+      builder: (context, snapshot) {
+        return Row(
+          children: [
+            Visibility(
+                visible: _createBranchDialogBlocImpl.selectedBranchId ==
+                    AppConstants.subBranch,
+                child: Expanded(
+                  child: FutureBuilder(
+                    future: _createBranchDialogBlocImpl.getBranchList(),
+                    builder: (context, snapshot) {
+                      List<GetAllBranchList>? getAllBranchList =
+                          snapshot.data?.result?.getAllBranchList;
+                      // This list only return the mainBranches
+                      List<String>? branchNameList = getAllBranchList
+                              ?.where((element) => element.mainBranch == true)
+                              .map((e) => e.branchName ?? '')
+                              .toList() ??
+                          [];
+                      return CustomDropDownButtonFormField(
+                        // height: 72,
+                        requiredLabelText: AppWidgetUtils.labelTextWithRequired(
+                            AppConstants.mainBranch),
+                        dropDownItems: branchNameList,
+                        hintText: AppConstants.exSelect,
+                        validator: (value) {
+                          return InputValidations.branchValidation(value ?? '');
+                        },
+                        onChange: (String? newValue) {
+                          _createBranchDialogBlocImpl.selectedBranchId =
+                              getAllBranchList
+                                  ?.firstWhere((element) =>
+                                      element.branchName == newValue)
+                                  .branchId;
+                        },
+                      );
+                    },
+                  ),
+                )),
+          ],
+        );
+      },
     );
   }
 
   _buildSelectBranchRadioButton() {
-    return Expanded(
-      child: Row(
-        children: [
-          Expanded(
-            child: Row(
-              children: [
-                Radio(
-                    value: AppConstants.mainBranch,
-                    groupValue: _createBranchDialogBlocImpl.selectedBranch,
-                    onChanged: (String? value) {
-                      setState(() {
-                        _createBranchDialogBlocImpl.selectedBranch = value;
-                        _createBranchDialogBlocImpl.selectedBranch ==
-                                'Main Branch'
+    return StreamBuilder(
+      stream: _createBranchDialogBlocImpl.radioButtonStreamController,
+      builder: (context, snapshot) {
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            Expanded(
+              child: Row(
+                children: [
+                  Radio(
+                      value: AppConstants.mainBranch,
+                      groupValue: _createBranchDialogBlocImpl.selectedBranchId,
+                      onChanged: (String? value) {
+                        _createBranchDialogBlocImpl.selectedBranchId = value;
+                        _createBranchDialogBlocImpl.selectedBranchId ==
+                                AppConstants.mainBranch
                             ? _createBranchDialogBlocImpl.isMainBranch = true
                             : false;
-                      });
-                    }),
-                Text(AppConstants.mainBranch,
-                    style:
-                        TextStyle(fontSize: 13, color: _appColors.blackColor))
-              ],
+                        _createBranchDialogBlocImpl.radioButtonStream(true);
+                      }),
+                  Text(AppConstants.mainBranch,
+                      style:
+                          TextStyle(fontSize: 13, color: _appColors.blackColor))
+                ],
+              ),
             ),
-          ),
-          Expanded(
-            child: Row(
-              children: [
-                Radio(
-                    value: AppConstants.subBranch,
-                    groupValue: _createBranchDialogBlocImpl.selectedBranch,
-                    onChanged: (String? value) {
-                      setState(() {
-                        _createBranchDialogBlocImpl.selectedBranch = value;
-                      });
-                    }),
-                Text(AppConstants.subBranch,
-                    style:
-                        TextStyle(fontSize: 13, color: _appColors.blackColor))
-              ],
+            Expanded(
+              child: Row(
+                children: [
+                  Radio(
+                      value: AppConstants.subBranch,
+                      groupValue: _createBranchDialogBlocImpl.selectedBranchId,
+                      onChanged: (String? value) {
+                        _createBranchDialogBlocImpl.selectedBranchId = value;
+                        _createBranchDialogBlocImpl.radioButtonStream(true);
+                      }),
+                  Text(AppConstants.subBranch,
+                      style:
+                          TextStyle(fontSize: 13, color: _appColors.blackColor))
+                ],
+              ),
             ),
-          ),
-        ],
-      ),
+          ],
+        );
+      },
     );
+  }
+
+  Future<void> _getEditBranchDetails(
+      GetAllBranchList? editableValueData) async {
+    _createBranchDialogBlocImpl.isMainBranch = editableValueData?.mainBranch;
+    editableValueData?.mainBranch == true
+        ? _createBranchDialogBlocImpl.selectedBranchId = AppConstants.mainBranch
+        : _createBranchDialogBlocImpl.selectedBranchId = AppConstants.subBranch;
+    _createBranchDialogBlocImpl.radioButtonStream(true);
+    _createBranchDialogBlocImpl.branchNameController.text =
+        editableValueData?.branchName ?? '';
+    _createBranchDialogBlocImpl.pinCodeController.text =
+        editableValueData?.pinCode ?? '';
+    _createBranchDialogBlocImpl.mobileNoController.text =
+        editableValueData?.mobileNo ?? '';
+    _createBranchDialogBlocImpl.selectedCity = editableValueData?.city ?? '';
+    _createBranchDialogBlocImpl.addressController.text =
+        editableValueData?.address ?? '';
   }
 
   _isLoading(bool? isLoadingState) {

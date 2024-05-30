@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:tlbilling/models/get_model/get_all_branch_model.dart';
+import 'package:tlbilling/models/get_model/get_all_branches_by_pagination.dart';
 import 'package:tlbilling/models/get_model/get_all_customer_by_pagination_model.dart';
 import 'package:tlbilling/models/get_model/get_all_customers_model.dart';
 
@@ -54,7 +55,9 @@ class ResultObj {
   ConfigModel? getConfigModel;
   List<EmployeeListModel>? employeeListModel;
   GetEmployeeById? employeeById;
-  List<GatAllBranchList>? getAllBranchList;
+  List<GetAllBranchList>? getAllBranchList;
+  GetAllBranchesByPaginationModel? getAllBranchesByPaginationModel;
+  GetAllBranchList? getBranchById;
 
   ResultObj(
       {this.getAllCustomersByPaginationModel,
@@ -64,7 +67,9 @@ class ResultObj {
       this.employeeListModel,
       this.employeeById,
       this.getAllEmployeesByPaginationModel,
-      this.getAllBranchList});
+      this.getAllBranchList,
+      this.getAllBranchesByPaginationModel,
+      this.getBranchById});
 
   factory ResultObj.fromJson(Map<String, dynamic> json) => ResultObj(
         getAllCustomersByPaginationModel: json['customersWithPage'] != null
@@ -91,8 +96,14 @@ class ResultObj {
                 json['employeesWithPage'])
             : null,
         getAllBranchList: json['branchResponseList'] != null
-            ? List<GatAllBranchList>.from(json['branchResponseList']
-                .map((x) => GatAllBranchList.fromJson(x)))
+            ? List<GetAllBranchList>.from(json['branchResponseList']
+                .map((x) => GetAllBranchList.fromJson(x)))
+            : null,
+        getAllBranchesByPaginationModel: json['branchWithPage'] != null
+            ? GetAllBranchesByPaginationModel.fromJson(json['branchWithPage'])
+            : null,
+        getBranchById: json['branchResponse'] != null
+            ? GetAllBranchList.fromJson(json['branchResponse'])
             : null,
       );
 

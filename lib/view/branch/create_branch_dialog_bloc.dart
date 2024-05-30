@@ -1,6 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:tlbilling/api_service/app_service_utils.dart';
+import 'package:tlbilling/models/get_model/get_all_branch_model.dart';
+import 'package:tlbilling/models/parent_response_model.dart';
 import 'package:tlbilling/models/post_model/add_branch_model.dart';
+import 'package:tlbilling/models/update/update_branch_model.dart';
+import 'package:tlbilling/utils/app_constants.dart';
 
 abstract class CreateBranchDialogBloc {
   TextEditingController get branchNameController;
@@ -15,7 +21,7 @@ abstract class CreateBranchDialogBloc {
 
   String? get selectedMainBranch;
 
-  String? get selectedBranch;
+  String? get selectedBranchId;
 
   String? get selectedCity;
 
@@ -25,7 +31,18 @@ abstract class CreateBranchDialogBloc {
 
   GlobalKey<FormState> get branchFormKey;
 
+  Stream get radioButtonStreamController;
+
   Future<void> addBranch(Function(int? statusCode) onSuccessCallBack);
+
+  Future<void> updateBranch(
+      String? branchId, Function(int statusCode) successCallBack);
+
+  Future<ParentResponseModel> getBranchList();
+
+  Future<GetAllBranchList?> getBranchDetailsById(String? branchId);
+
+  Future<List<String>> getCities();
 }
 
 class CreateBranchDialogBlocImpl extends CreateBranchDialogBloc {
@@ -34,6 +51,7 @@ class CreateBranchDialogBlocImpl extends CreateBranchDialogBloc {
   final _addressController = TextEditingController();
   final _mobileNoController = TextEditingController();
   final _pinCodeController = TextEditingController();
+  final _radioButtonStreamController = StreamController.broadcast();
   String? _selectedMainBranch;
   String? _selectedBranch;
   String? _selectCity;
@@ -65,7 +83,7 @@ class CreateBranchDialogBlocImpl extends CreateBranchDialogBloc {
   }
 
   @override
-  String? get selectedBranch => _selectedBranch;
+  String? get selectedBranchId => _selectedBranch;
 
   @override
   GlobalKey<FormState> get branchFormKey => _branchFormKey;
@@ -77,7 +95,7 @@ class CreateBranchDialogBlocImpl extends CreateBranchDialogBloc {
     _selectCity = newValue;
   }
 
-  set selectedBranch(String? newValue) {
+  set selectedBranchId(String? newValue) {
     _selectedBranch = newValue;
   }
 
@@ -90,7 +108,8 @@ class CreateBranchDialogBlocImpl extends CreateBranchDialogBloc {
             city: selectedCity,
             mobileNo: mobileNoController.text,
             pinCode: pinCodeController.text,
-            mainBranch: isMainBranch),
+            mainBranch: isMainBranch,
+            mainBranchId: selectedBranchId),
         onSuccessCallBack);
   }
 
@@ -106,5 +125,43 @@ class CreateBranchDialogBlocImpl extends CreateBranchDialogBloc {
 
   set isAsyncCall(bool? newValue) {
     _isAsyncCall = newValue;
+  }
+
+  @override
+  Stream get radioButtonStreamController => _radioButtonStreamController.stream;
+
+  radioButtonStream(bool? streamValue) {
+    _radioButtonStreamController.add(streamValue);
+  }
+
+  @override
+  Future<ParentResponseModel> getBranchList() async {
+    return _appService.getBranchName();
+  }
+
+  @override
+  Future<GetAllBranchList?> getBranchDetailsById(String? branchId) async {
+    return _appService.getBranchDetailsById(branchId);
+  }
+
+  @override
+  Future<List<String>> getCities() async {
+    return await _appService.getConfigByIdModel(configId: AppConstants.cities);
+  }
+
+  @override
+  Future<void> updateBranch(
+      String? branchId, Function(int statusCode) successCallBack) async {
+    return _appService.updateBranch(
+        UpdateBranchModel(
+            address: addressController.text,
+            branchName: branchNameController.text,
+            city: selectedCity,
+            mobileNo: mobileNoController.text,
+            mainBranch: isMainBranch,
+            pinCode: pinCodeController.text,
+            mainBranchId: branchId),
+        branchId,
+        successCallBack);
   }
 }
