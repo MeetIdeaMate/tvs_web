@@ -244,7 +244,7 @@ class _CreateEmployeeDialogState extends State<CreateEmployeeDialog> {
               },
             );
           } else {
-            return const Text('No data available');
+            return const Text(AppConstants.noData);
           }
         },
       ),
@@ -286,7 +286,7 @@ class _CreateEmployeeDialogState extends State<CreateEmployeeDialog> {
               },
             );
           } else {
-            return const Text('No data available');
+            return const Text(AppConstants.noData);
           }
         },
       ),
@@ -353,7 +353,7 @@ class _CreateEmployeeDialogState extends State<CreateEmployeeDialog> {
               },
             );
           } else {
-            return const Text('No data available');
+            return const Text(AppConstants.noData);
           }
         },
       ),

@@ -6,21 +6,21 @@ import 'package:tlbilling/models/post_model/add_customer_model.dart';
 abstract class CreateCustomerDialogBloc {
   TextEditingController get customerNameTextController;
 
-  TextEditingController get custMobileNoTextController;
+  TextEditingController get customerMobileNoTextController;
 
-  TextEditingController get custMailIdTextController;
+  TextEditingController get customerMailIdTextController;
 
-  TextEditingController get custAccNoTextController;
+  TextEditingController get customerAccNoTextController;
 
-  TextEditingController get custAadharNoTextController;
+  TextEditingController get customerAadharNoTextController;
 
-  TextEditingController get custCitytextcontroller;
+  TextEditingController get customerCitytextcontroller;
 
-  TextEditingController get custAddressTextController;
+  TextEditingController get customerAddressTextController;
 
-  TextEditingController get custIFSCTextController;
+  TextEditingController get customerIFSCTextController;
 
-  GlobalKey<FormState> get custFormKey;
+  GlobalKey<FormState> get customerFormKey;
 
   bool? get isAsyncCall;
 
@@ -33,15 +33,15 @@ abstract class CreateCustomerDialogBloc {
 }
 
 class CreateCustomerDialogBlocImpl extends CreateCustomerDialogBloc {
-  final _custFormKey = GlobalKey<FormState>();
+  final _customerFormKey = GlobalKey<FormState>();
   final _customerNameTextController = TextEditingController();
-  final _custMobileNoTextController = TextEditingController();
-  final _custMailIdTextController = TextEditingController();
-  final _custAccNoTextController = TextEditingController();
-  final _custAadharNoTextController = TextEditingController();
-  final _custCityTextController = TextEditingController();
-  final _custAddressTextController = TextEditingController();
-  final _custIFSCTextController = TextEditingController();
+  final _customerMobileNoTextController = TextEditingController();
+  final _customerMailIdTextController = TextEditingController();
+  final _customerAccNoTextController = TextEditingController();
+  final _customerAadharNoTextController = TextEditingController();
+  final _customerCityTextController = TextEditingController();
+  final _customerAddressTextController = TextEditingController();
+  final _customerIFSCTextController = TextEditingController();
   final _apiCalls = AppServiceUtilImpl();
   bool? _isAsyncCall = false;
 
@@ -50,47 +50,50 @@ class CreateCustomerDialogBlocImpl extends CreateCustomerDialogBloc {
       _customerNameTextController;
 
   @override
-  TextEditingController get custMobileNoTextController =>
-      _custMobileNoTextController;
+  TextEditingController get customerMobileNoTextController =>
+      _customerMobileNoTextController;
 
   @override
-  TextEditingController get custMailIdTextController =>
-      _custMailIdTextController;
+  TextEditingController get customerMailIdTextController =>
+      _customerMailIdTextController;
 
   @override
-  TextEditingController get custAccNoTextController => _custAccNoTextController;
+  TextEditingController get customerAccNoTextController =>
+      _customerAccNoTextController;
 
   @override
-  TextEditingController get custAadharNoTextController =>
-      _custAadharNoTextController;
+  TextEditingController get customerAadharNoTextController =>
+      _customerAadharNoTextController;
 
   @override
-  TextEditingController get custCitytextcontroller => _custCityTextController;
+  TextEditingController get customerCitytextcontroller =>
+      _customerCityTextController;
 
   @override
-  TextEditingController get custAddressTextController =>
-      _custAddressTextController;
+  TextEditingController get customerAddressTextController =>
+      _customerAddressTextController;
 
   @override
-  GlobalKey<FormState> get custFormKey => _custFormKey;
+  GlobalKey<FormState> get customerFormKey => _customerFormKey;
 
   @override
   Future<void> addCustomer(Function(int? statusCode) onSuccessCallBack) async {
     return await _apiCalls.addCustomer(
         onSuccessCallBack,
         AddCustomerModel(
-            aadharNo: custAadharNoTextController.text,
-            address: custAddressTextController.text,
-            mobileNo: custMobileNoTextController.text,
-            accountNo: custAccNoTextController.text,
-            city: custCitytextcontroller.text,
-            emailId: custMailIdTextController.text,
+            aadharNo: customerAadharNoTextController.text,
+            address: customerAddressTextController.text,
+            mobileNo: customerMobileNoTextController.text,
+            accountNo: customerAccNoTextController.text,
+            city: customerCitytextcontroller.text,
+            emailId: customerMailIdTextController.text,
             customerName: customerNameTextController.text,
-            ifsc: custIFSCTextController.text));
+            ifsc: customerIFSCTextController.text));
   }
 
   @override
-  TextEditingController get custIFSCTextController => _custIFSCTextController;
+  TextEditingController get customerIFSCTextController =>
+      _customerIFSCTextController;
 
   @override
   Future<GetAllCustomersModel?> getCustomerDetails(String customerId) async {
@@ -103,14 +106,14 @@ class CreateCustomerDialogBlocImpl extends CreateCustomerDialogBloc {
     return await _apiCalls.updateCustomer(
         customerId,
         AddCustomerModel(
-            aadharNo: custAadharNoTextController.text,
-            address: custAddressTextController.text,
-            mobileNo: custMobileNoTextController.text,
-            accountNo: custAccNoTextController.text,
-            city: custCitytextcontroller.text,
-            emailId: custMailIdTextController.text,
+            aadharNo: customerAadharNoTextController.text,
+            address: customerAddressTextController.text,
+            mobileNo: customerMobileNoTextController.text,
+            accountNo: customerAccNoTextController.text,
+            city: customerCitytextcontroller.text,
+            emailId: customerMailIdTextController.text,
             customerName: customerNameTextController.text,
-            ifsc: custIFSCTextController.text),
+            ifsc: customerIFSCTextController.text),
         onSuccessCallBack);
   }
 

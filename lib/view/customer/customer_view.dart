@@ -61,7 +61,7 @@ class _CustomerViewState extends State<CustomerView> {
           stream: _customerScreenBlocImpl.customerNameStreamController,
           builder: (context, snapshot) {
             return _buildFormField(
-                _customerScreenBlocImpl.custNameFilterController,
+                _customerScreenBlocImpl.customerNameFilterController,
                 AppConstants.customerName);
           },
         ),
@@ -70,7 +70,7 @@ class _CustomerViewState extends State<CustomerView> {
           stream: _customerScreenBlocImpl.customerMobileNumberStreamController,
           builder: (context, snapshot) {
             return _buildFormField(
-              _customerScreenBlocImpl.custMobileNoController,
+              _customerScreenBlocImpl.customerMobileNoController,
               AppConstants.mobileNumber,
               inputFormatters: [FilteringTextInputFormatter.digitsOnly],
             );
@@ -81,7 +81,7 @@ class _CustomerViewState extends State<CustomerView> {
           stream: _customerScreenBlocImpl.customerCityStreamController,
           builder: (context, snapshot) {
             return _buildFormField(
-                _customerScreenBlocImpl.custCityTextController,
+                _customerScreenBlocImpl.customerCityTextController,
                 AppConstants.city);
           },
         ),

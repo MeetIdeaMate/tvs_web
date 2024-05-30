@@ -89,7 +89,7 @@ class _CreateCustomerDialogState extends State<CreateCustomerDialog> {
   _buildCustomerCreateForm() {
     return SingleChildScrollView(
       child: Form(
-        key: _createCustomerDialogBlocImpl.custFormKey,
+        key: _createCustomerDialogBlocImpl.customerFormKey,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
@@ -124,7 +124,7 @@ class _CreateCustomerDialogState extends State<CreateCustomerDialog> {
       // validator: (value) {
       //   return InputValidations.addressValidation(value ?? '');
       // },
-      controller: _createCustomerDialogBlocImpl.custAddressTextController,
+      controller: _createCustomerDialogBlocImpl.customerAddressTextController,
       hintText: AppConstants.hintAddress,
       labelText: AppConstants.address,
     );
@@ -151,7 +151,8 @@ class _CreateCustomerDialogState extends State<CreateCustomerDialog> {
           },
           inputFormatters: [FilteringTextInputFormatter.digitsOnly],
           hintText: AppConstants.hintMobileNo,
-          controller: _createCustomerDialogBlocImpl.custMobileNoTextController),
+          controller:
+              _createCustomerDialogBlocImpl.customerMobileNoTextController),
     );
   }
 
@@ -185,7 +186,7 @@ class _CreateCustomerDialogState extends State<CreateCustomerDialog> {
               hintText: AppConstants.hintMail,
               labelText: AppConstants.mailid,
               controller:
-                  _createCustomerDialogBlocImpl.custMailIdTextController),
+                  _createCustomerDialogBlocImpl.customerMailIdTextController),
         ),
         AppWidgetUtils.buildSizedBox(custWidth: 14),
         Expanded(
@@ -199,7 +200,8 @@ class _CreateCustomerDialogState extends State<CreateCustomerDialog> {
                 FilteringTextInputFormatter.allow(RegExp("[a-z A-Z ]")),
               ],
               hintText: AppConstants.hintCity,
-              controller: _createCustomerDialogBlocImpl.custCitytextcontroller),
+              controller:
+                  _createCustomerDialogBlocImpl.customerCitytextcontroller),
         )
       ],
     );
@@ -218,7 +220,7 @@ class _CreateCustomerDialogState extends State<CreateCustomerDialog> {
               hintText: AppConstants.hintAatharNo,
               labelText: AppConstants.aadharNo,
               controller:
-                  _createCustomerDialogBlocImpl.custAadharNoTextController),
+                  _createCustomerDialogBlocImpl.customerAadharNoTextController),
         ),
         AppWidgetUtils.buildSizedBox(custWidth: 14),
         Expanded(
@@ -226,8 +228,8 @@ class _CreateCustomerDialogState extends State<CreateCustomerDialog> {
               onChanged: (String value) {
                 AppUtils.toUppercase(
                     value: value,
-                    textEditingController:
-                        _createCustomerDialogBlocImpl.custAccNoTextController);
+                    textEditingController: _createCustomerDialogBlocImpl
+                        .customerAccNoTextController);
               },
               maxLength: 10,
               hintText: AppConstants.hintPanNo,
@@ -239,7 +241,7 @@ class _CreateCustomerDialogState extends State<CreateCustomerDialog> {
                 return InputValidations.panValidation(value!);
               },
               controller:
-                  _createCustomerDialogBlocImpl.custAccNoTextController),
+                  _createCustomerDialogBlocImpl.customerAccNoTextController),
         )
       ],
     );
@@ -249,7 +251,7 @@ class _CreateCustomerDialogState extends State<CreateCustomerDialog> {
     return CustomActionButtons(
       buttonText: AppConstants.addCustomer,
       onPressed: () {
-        if (_createCustomerDialogBlocImpl.custFormKey.currentState!
+        if (_createCustomerDialogBlocImpl.customerFormKey.currentState!
             .validate()) {
           _isLoading(true);
           if (widget.customerId != null) {
@@ -331,17 +333,17 @@ class _CreateCustomerDialogState extends State<CreateCustomerDialog> {
         .then((customerData) {
       _createCustomerDialogBlocImpl.customerNameTextController.text =
           customerData?.customerName ?? '';
-      _createCustomerDialogBlocImpl.custMailIdTextController.text =
+      _createCustomerDialogBlocImpl.customerMailIdTextController.text =
           customerData?.emailId ?? '';
-      _createCustomerDialogBlocImpl.custCitytextcontroller.text =
+      _createCustomerDialogBlocImpl.customerCitytextcontroller.text =
           customerData?.city ?? '';
-      _createCustomerDialogBlocImpl.custMobileNoTextController.text =
+      _createCustomerDialogBlocImpl.customerMobileNoTextController.text =
           customerData?.mobileNo ?? '';
-      _createCustomerDialogBlocImpl.custAadharNoTextController.text =
+      _createCustomerDialogBlocImpl.customerAadharNoTextController.text =
           customerData?.aadharNo ?? '';
-      _createCustomerDialogBlocImpl.custAddressTextController.text =
+      _createCustomerDialogBlocImpl.customerAddressTextController.text =
           customerData?.address ?? '';
-      _createCustomerDialogBlocImpl.custAccNoTextController.text =
+      _createCustomerDialogBlocImpl.customerAccNoTextController.text =
           customerData?.accountNo ?? '';
     });
   }

@@ -5,11 +5,11 @@ import 'package:tlbilling/api_service/app_service_utils.dart';
 import 'package:tlbilling/models/get_model/get_all_customer_by_pagination_model.dart';
 
 abstract class CustomerViewBloc {
-  TextEditingController get custNameFilterController;
+  TextEditingController get customerNameFilterController;
 
-  TextEditingController get custCityTextController;
+  TextEditingController get customerCityTextController;
 
-  TextEditingController get custMobileNoController;
+  TextEditingController get customerMobileNoController;
 
   Stream get customerTableStreamController;
 
@@ -26,9 +26,9 @@ abstract class CustomerViewBloc {
 }
 
 class CustomerViewBlocImpl extends CustomerViewBloc {
-  final _custMobileNoController = TextEditingController();
-  final _custNameTextController = TextEditingController();
-  final _custCityTextController = TextEditingController();
+  final _customerMobileNoController = TextEditingController();
+  final _customerNameTextController = TextEditingController();
+  final _customerCityTextController = TextEditingController();
   final _customerTableStreamController = StreamController.broadcast();
   final _customerNameStreamController = StreamController.broadcast();
   final _customerMobileNumberStreamController = StreamController.broadcast();
@@ -39,21 +39,24 @@ class CustomerViewBlocImpl extends CustomerViewBloc {
   final _pageNumberStreamController = StreamController<int>.broadcast();
 
   @override
-  TextEditingController get custMobileNoController => _custNameTextController;
+  TextEditingController get customerMobileNoController =>
+      _customerNameTextController;
 
   @override
-  TextEditingController get custNameFilterController => _custMobileNoController;
+  TextEditingController get customerNameFilterController =>
+      _customerMobileNoController;
 
   @override
-  TextEditingController get custCityTextController => _custCityTextController;
+  TextEditingController get customerCityTextController =>
+      _customerCityTextController;
 
   @override
   Future<GetAllCustomersByPaginationModel?>
       getAllCustomersByPagination() async {
     return _appServices.getAllCustomersByPagination(
-        custCityTextController.text,
-        custMobileNoController.text,
-        custNameFilterController.text,
+        customerCityTextController.text,
+        customerMobileNoController.text,
+        customerNameFilterController.text,
         currentPage);
   }
 
