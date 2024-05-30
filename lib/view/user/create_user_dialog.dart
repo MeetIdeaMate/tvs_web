@@ -263,7 +263,7 @@ class _CreateUserDialogState extends State<CreateUserDialog> {
                       child: CustomDropDownButtonFormField(
                           requiredLabelText:
                               AppWidgetUtils.labelTextWithRequired(
-                                  AppConstants.designation),
+                                  AppConstants.designationText),
                           dropDownItems: (snapshot.hasData &&
                                   (snapshot.data?.isNotEmpty == true))
                               ? snapshot.data!
@@ -274,10 +274,10 @@ class _CreateUserDialogState extends State<CreateUserDialog> {
                           },
                           hintText: (snapshot.connectionState ==
                                   ConnectionState.waiting)
-                              ? 'Loading'
+                              ? AppConstants.loading
                               : (snapshot.hasError || snapshot.data == null)
-                                  ? 'Error Loading'
-                                  : 'Select Designation',
+                                  ? AppConstants.errorLoading
+                                  : AppConstants.selectDesignation,
                           dropDownValue:
                               _createUserDialogBlocImpl.selectedDesignation,
                           onChange: null),

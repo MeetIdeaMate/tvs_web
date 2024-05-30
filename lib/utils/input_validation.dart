@@ -13,9 +13,10 @@ class InputValidations {
   static gstNumberValidation(String errorText) {
     if (errorText.isEmpty) {
       return AppConstants.gstNumberErrorText;
-    } else if (errorText.length != 15) {
-      return AppConstants.gstDigitErrorText;
     }
+    // } else if (errorText.length != 15) {
+    //   return AppConstants.gstDigitErrorText;
+    // }
     return null;
   }
 

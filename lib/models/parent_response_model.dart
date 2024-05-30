@@ -8,6 +8,8 @@ import 'package:tlbilling/models/get_all_employee_model.dart';
 import 'package:tlbilling/models/get_cofig_model.dart';
 import 'package:tlbilling/models/get_employee_by_id.dart';
 import 'package:tlbilling/models/get_model/get_all_employee_by_pagination.dart';
+import 'package:tlbilling/models/get_model/get_all_vendor_by_pagination_model.dart';
+import 'package:tlbilling/models/get_model/get_vendor_by_id_model.dart';
 import 'package:tlbilling/models/user_model.dart';
 
 ParentResponseModel parentResponseModelFromJson(String str) =>
@@ -47,6 +49,7 @@ class ParentResponseModel {
 }
 
 class ResultObj {
+  GetAllVendorByPagination? getAllVendorByPagination;
   GetAllCustomersByPaginationModel? getAllCustomersByPaginationModel;
   GetAllCustomersModel? getAllCustomersModel;
   GetAllEmployeesByPaginationModel? getAllEmployeesByPaginationModel;
@@ -54,17 +57,20 @@ class ResultObj {
   ConfigModel? getConfigModel;
   List<EmployeeListModel>? employeeListModel;
   GetEmployeeById? employeeById;
+  GetVendorById? vendorById;
   List<GatAllBranchList>? getAllBranchList;
 
   ResultObj(
-      {this.getAllCustomersByPaginationModel,
+      {this.getAllVendorByPagination,
+      this.getAllCustomersByPaginationModel,
       this.getAllCustomersModel,
       this.usersListModel,
       this.getConfigModel,
       this.employeeListModel,
       this.employeeById,
       this.getAllEmployeesByPaginationModel,
-      this.getAllBranchList});
+      this.getAllBranchList,
+      this.vendorById});
 
   factory ResultObj.fromJson(Map<String, dynamic> json) => ResultObj(
         getAllCustomersByPaginationModel: json['customersWithPage'] != null
@@ -93,6 +99,12 @@ class ResultObj {
         getAllBranchList: json['branchResponseList'] != null
             ? List<GatAllBranchList>.from(json['branchResponseList']
                 .map((x) => GatAllBranchList.fromJson(x)))
+            : null,
+        getAllVendorByPagination: json['vendorsWithPage'] != null
+            ? GetAllVendorByPagination.fromJson(json['vendorsWithPage'])
+            : null,
+        vendorById: json["employee"] != null
+            ? GetVendorById.fromJson(json["employee"])
             : null,
       );
 

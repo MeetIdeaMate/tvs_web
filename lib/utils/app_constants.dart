@@ -154,6 +154,7 @@ class AppConstants {
 
   //vendor
   static const addVendor = 'Add Vendor';
+  static const updateVendor = 'Update Vendor';
   static const gstNo = 'GST IN';
   static const hintGst = 'Enter GST';
   static const fax = 'Fax Number';
@@ -276,13 +277,14 @@ class AppConstants {
 //user
   static const username = 'User Name';
 
-  // static const designation = 'Designation';
+  static const designationText = 'Designation';
   static const userFilterHint = 'User Name / Mobile Number';
   static const addUser = 'Add User';
   static const newuser = 'New user';
   static const hintPinCode = 'Enter pin Code';
   static const hintbranch = 'Enter Branch name';
   static const hintAge = 'Enter Age';
+  static const selectDesignation = 'Select designation';
 
   //branch
   static const addBranch = 'Add branch';
@@ -307,6 +309,10 @@ class AppConstants {
   static const employeeCreate = 'Employee Create';
   static const employeeUpdateSuccessfully = 'Employee updated successFully';
   static const employeeCreatedSuccessfully = 'Employee created successFully';
+  static const vendorUpdate = 'Vendor Update';
+  static const vendorCreate = 'Vendor created';
+  static const vendorUpdateSuccessfully = 'Vendor Update  successfully';
+  static const vendorCreatedSuccessfully = 'Vendor Create successfully';
 
   static const selectDiffrentUser =
       'Please select different name to create user.';

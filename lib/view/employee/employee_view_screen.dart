@@ -44,7 +44,7 @@ class _EmployeeViewState extends State<EmployeeView> {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
-        _buildEmpNameOrSearchFilter(),
+        _buildEmpNameSearchFilter(),
         _buildEmpCityDropdown(),
         _buildEmpWorkTypeDropdown(),
         _buildEmpBranchDropdown(),
@@ -54,7 +54,7 @@ class _EmployeeViewState extends State<EmployeeView> {
     );
   }
 
-  _buildEmpNameOrSearchFilter() {
+  _buildEmpNameSearchFilter() {
     return StreamBuilder(
       stream: _employeeViewBloc.employeeTableStream,
       builder: (context, snapshot) {

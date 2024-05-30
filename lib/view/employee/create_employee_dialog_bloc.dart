@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -25,6 +27,9 @@ abstract class CreateEmployeeDialogBloc {
       String employeeId, Function(int? statusCode) statusCode);
   Future<ParentResponseModel> getBranchName();
   Future<GetEmployeeById?> getEmployeeById(String employeeId);
+  Stream<bool> get selectGenderStream;
+  Stream<bool> get selectDesignationStream;
+  Stream<bool> get selectBranchStream;
 }
 
 class CreateEmployeeDialogBlocImpl extends CreateEmployeeDialogBloc {
@@ -41,6 +46,9 @@ class CreateEmployeeDialogBlocImpl extends CreateEmployeeDialogBloc {
   String? _selectEmpBranchId;
   final _empFprmKey = GlobalKey<FormState>();
   final _appServices = AppServiceUtilImpl();
+  final _selectGenderStream = StreamController<bool>.broadcast();
+  final _selectDesignationStream = StreamController<bool>.broadcast();
+  final _selectBranchStream = StreamController<bool>.broadcast();
 
   @override
   TextEditingController get empNameController => _empNameController;
@@ -141,5 +149,26 @@ class CreateEmployeeDialogBlocImpl extends CreateEmployeeDialogBloc {
   @override
   Future<GetEmployeeById?> getEmployeeById(String employeeId) {
     return _appServices.getEmployeeById(employeeId);
+  }
+
+  @override
+  Stream<bool> get selectGenderStream => _selectGenderStream.stream;
+
+  @override
+  Stream<bool> get selectBranchStream => _selectDesignationStream.stream;
+
+  @override
+  Stream<bool> get selectDesignationStream => _selectBranchStream.stream;
+
+  selectGenderStreamController(bool newValue) {
+    _selectGenderStream.add(newValue);
+  }
+
+  selectDesiganationStreamController(bool newValue) {
+    _selectDesignationStream.add(newValue);
+  }
+
+  selectBranchStreamController(bool newValue) {
+    _selectBranchStream.add(newValue);
   }
 }

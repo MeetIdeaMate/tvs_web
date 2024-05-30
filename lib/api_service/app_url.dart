@@ -12,4 +12,6 @@ class AppUrl {
   static const employee = '${baseUrl}employee';
   static const employeeByPagination = '${baseUrl}employee/getByPagination?';
   static const updateUserStatus = '${baseUrl}user/status/';
+  static const vendorByPagination = '${baseUrl}vendor/page?';
+  static const addVendor = '${baseUrl}vendor';
 }

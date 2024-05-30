@@ -64,7 +64,10 @@ class _CreateEmployeeDialogState extends State<CreateEmployeeDialog> {
       _createEmployeeDialogBlocImpl.selectedEmpBranch = value?.branchName ?? '';
       _createEmployeeDialogBlocImpl.selectEmpGender = value?.gender ?? '';
       _createEmployeeDialogBlocImpl.selectedEmpType = value?.designation ?? '';
-      setState(() {});
+
+      _createEmployeeDialogBlocImpl.selectGenderStreamController(true);
+      _createEmployeeDialogBlocImpl.selectBranchStreamController(true);
+      _createEmployeeDialogBlocImpl.selectDesiganationStreamController(true);
     });
   }
 
@@ -203,93 +206,103 @@ class _CreateEmployeeDialogState extends State<CreateEmployeeDialog> {
 
   Widget _buildEmployeeBranch() {
     return Expanded(
-      child: FutureBuilder(
-        future: _createEmployeeDialogBlocImpl.getBranchName(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Text(AppConstants.loading);
-          } else if (snapshot.hasError) {
-            return Text('Error: ${snapshot.error}');
-          } else if (snapshot.hasData) {
-            List<String>? branchNameList = snapshot
-                .data?.result?.getAllBranchList
-                ?.map((e) => e.branchName)
-                .where((branchName) => branchName != null)
-                .cast<String>()
-                .toList();
+      child: StreamBuilder<bool>(
+          stream: _createEmployeeDialogBlocImpl.selectBranchStream,
+          builder: (context, snapshot) {
+            return FutureBuilder(
+              future: _createEmployeeDialogBlocImpl.getBranchName(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Text(AppConstants.loading);
+                } else if (snapshot.hasError) {
+                  return Text('Error: ${snapshot.error}');
+                } else if (snapshot.hasData) {
+                  List<String>? branchNameList = snapshot
+                      .data?.result?.getAllBranchList
+                      ?.map((e) => e.branchName)
+                      .where((branchName) => branchName != null)
+                      .cast<String>()
+                      .toList();
 
-            // Ensure the selected branch is in the list
-            final selectedBranch = branchNameList!
-                    .contains(_createEmployeeDialogBlocImpl.selectedEmpBranch)
-                ? _createEmployeeDialogBlocImpl.selectedEmpBranch
-                : null;
+                  // Ensure the selected branch is in the list
+                  final selectedBranch = branchNameList!.contains(
+                          _createEmployeeDialogBlocImpl.selectedEmpBranch)
+                      ? _createEmployeeDialogBlocImpl.selectedEmpBranch
+                      : null;
 
-            return CustomDropDownButtonFormField(
-              height: 70,
-              requiredLabelText:
-                  AppWidgetUtils.labelTextWithRequired(AppConstants.branch),
-              dropDownItems: branchNameList,
-              hintText: AppConstants.exSelect,
-              dropDownValue: selectedBranch,
-              validator: (value) {
-                return InputValidations.branchValidation(value ?? '');
-              },
-              onChange: (String? newValue) {
-                var employeeValue = snapshot.data?.result?.getAllBranchList
-                    ?.firstWhere((element) => element.branchName == newValue);
-                _createEmployeeDialogBlocImpl.selectEmpBranchId =
-                    employeeValue?.branchId;
-                _createEmployeeDialogBlocImpl.selectedEmpBranch =
-                    newValue ?? '';
+                  return CustomDropDownButtonFormField(
+                    height: 70,
+                    requiredLabelText: AppWidgetUtils.labelTextWithRequired(
+                        AppConstants.branch),
+                    dropDownItems: branchNameList,
+                    hintText: AppConstants.exSelect,
+                    dropDownValue: selectedBranch,
+                    validator: (value) {
+                      return InputValidations.branchValidation(value ?? '');
+                    },
+                    onChange: (String? newValue) {
+                      var employeeValue =
+                          snapshot.data?.result?.getAllBranchList?.firstWhere(
+                              (element) => element.branchName == newValue);
+                      _createEmployeeDialogBlocImpl.selectEmpBranchId =
+                          employeeValue?.branchId;
+                      _createEmployeeDialogBlocImpl.selectedEmpBranch =
+                          newValue ?? '';
+                    },
+                  );
+                } else {
+                  return const Text(AppConstants.noData);
+                }
               },
             );
-          } else {
-            return const Text(AppConstants.noData);
-          }
-        },
-      ),
+          }),
     );
   }
 
   Widget _buildEmployeeDesignation() {
     return Expanded(
-      child: FutureBuilder(
-        future: _createEmployeeDialogBlocImpl.getConfigByIdModel(
-            configId: AppConstants.designation),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Text(AppConstants.loading);
-          } else if (snapshot.hasError) {
-            return Text('Error: ${snapshot.error}');
-          } else if (snapshot.hasData) {
-            List<String>? designationList =
-                snapshot.data?.map((e) => e).cast<String>().toList();
+      child: StreamBuilder<bool>(
+          stream: _createEmployeeDialogBlocImpl.selectDesignationStream,
+          builder: (context, snapshot) {
+            return FutureBuilder(
+              future: _createEmployeeDialogBlocImpl.getConfigByIdModel(
+                  configId: AppConstants.designation),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Text(AppConstants.loading);
+                } else if (snapshot.hasError) {
+                  return Text('Error: ${snapshot.error}');
+                } else if (snapshot.hasData) {
+                  List<String>? designationList =
+                      snapshot.data?.map((e) => e).cast<String>().toList();
 
-            // Ensure the selected type is in the list
-            final selectedType = designationList!
-                    .contains(_createEmployeeDialogBlocImpl.selectedEmpType)
-                ? _createEmployeeDialogBlocImpl.selectedEmpType
-                : null;
+                  // Ensure the selected type is in the list
+                  final selectedType = designationList!.contains(
+                          _createEmployeeDialogBlocImpl.selectedEmpType)
+                      ? _createEmployeeDialogBlocImpl.selectedEmpType
+                      : null;
 
-            return CustomDropDownButtonFormField(
-              height: 70,
-              requiredLabelText:
-                  AppWidgetUtils.labelTextWithRequired(AppConstants.empType),
-              dropDownItems: designationList,
-              dropDownValue: selectedType,
-              validator: (value) {
-                return InputValidations.empTypeValidation(value ?? '');
-              },
-              hintText: AppConstants.exSelect,
-              onChange: (String? newValue) {
-                _createEmployeeDialogBlocImpl.selectedEmpType = newValue ?? '';
+                  return CustomDropDownButtonFormField(
+                    height: 70,
+                    requiredLabelText: AppWidgetUtils.labelTextWithRequired(
+                        AppConstants.empType),
+                    dropDownItems: designationList,
+                    dropDownValue: selectedType,
+                    validator: (value) {
+                      return InputValidations.empTypeValidation(value ?? '');
+                    },
+                    hintText: AppConstants.exSelect,
+                    onChange: (String? newValue) {
+                      _createEmployeeDialogBlocImpl.selectedEmpType =
+                          newValue ?? '';
+                    },
+                  );
+                } else {
+                  return const Text(AppConstants.noData);
+                }
               },
             );
-          } else {
-            return const Text(AppConstants.noData);
-          }
-        },
-      ),
+          }),
     );
   }
 
@@ -321,42 +334,47 @@ class _CreateEmployeeDialogState extends State<CreateEmployeeDialog> {
 
   Widget _buildEmpGenderDropdown() {
     return Expanded(
-      child: FutureBuilder(
-        future: _createEmployeeDialogBlocImpl.getConfigByIdModel(
-            configId: AppConstants.gender),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Text(AppConstants.loading);
-          } else if (snapshot.hasError) {
-            return Text('Error: ${snapshot.error}');
-          } else if (snapshot.hasData) {
-            List<String>? genderList =
-                snapshot.data?.map((e) => e).cast<String>().toList();
+      child: StreamBuilder<bool>(
+          stream: _createEmployeeDialogBlocImpl.selectGenderStream,
+          builder: (context, snapshot) {
+            return FutureBuilder(
+              future: _createEmployeeDialogBlocImpl.getConfigByIdModel(
+                  configId: AppConstants.gender),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Text(AppConstants.loading);
+                } else if (snapshot.hasError) {
+                  return Text('Error: ${snapshot.error}');
+                } else if (snapshot.hasData) {
+                  List<String>? genderList =
+                      snapshot.data?.map((e) => e).cast<String>().toList();
 
-            // Ensure the selected gender is in the list
-            final selectedGender = genderList!
-                    .contains(_createEmployeeDialogBlocImpl.selectEmpGender)
-                ? _createEmployeeDialogBlocImpl.selectEmpGender
-                : null;
+                  // Ensure the selected gender is in the list
+                  final selectedGender = genderList!.contains(
+                          _createEmployeeDialogBlocImpl.selectEmpGender)
+                      ? _createEmployeeDialogBlocImpl.selectEmpGender
+                      : null;
 
-            return CustomDropDownButtonFormField(
-              requiredLabelText:
-                  AppWidgetUtils.labelTextWithRequired(AppConstants.gender),
-              dropDownItems: genderList,
-              dropDownValue: selectedGender,
-              hintText: AppConstants.exSelect,
-              validator: (value) {
-                return InputValidations.genderValidation(value ?? '');
-              },
-              onChange: (String? newValue) {
-                _createEmployeeDialogBlocImpl.selectEmpGender = newValue ?? '';
+                  return CustomDropDownButtonFormField(
+                    requiredLabelText: AppWidgetUtils.labelTextWithRequired(
+                        AppConstants.gender),
+                    dropDownItems: genderList,
+                    dropDownValue: selectedGender,
+                    hintText: AppConstants.exSelect,
+                    validator: (value) {
+                      return InputValidations.genderValidation(value ?? '');
+                    },
+                    onChange: (String? newValue) {
+                      _createEmployeeDialogBlocImpl.selectEmpGender =
+                          newValue ?? '';
+                    },
+                  );
+                } else {
+                  return const Text(AppConstants.noData);
+                }
               },
             );
-          } else {
-            return const Text(AppConstants.noData);
-          }
-        },
-      ),
+          }),
     );
   }
 
