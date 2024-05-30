@@ -5,11 +5,11 @@ import 'package:tlbilling/api_service/app_service_utils.dart';
 import 'package:tlbilling/models/get_model/get_all_customer_by_pagination_model.dart';
 
 abstract class CustomerViewBloc {
-  TextEditingController get custNameFilterController;
+  TextEditingController get customerNameFilterController;
 
-  TextEditingController get custCityTextController;
+  TextEditingController get customerCityTextController;
 
-  TextEditingController get custMobileNoController;
+  TextEditingController get customerMobileNoController;
 
   Stream get customerTableStreamController;
 
@@ -20,35 +20,44 @@ abstract class CustomerViewBloc {
   Stream get customerCityStreamController;
 
   Future<GetAllCustomersByPaginationModel?> getAllCustomersByPagination();
+
+  int get currentPage;
+  Stream<int> get pageNumberStream;
 }
 
 class CustomerViewBlocImpl extends CustomerViewBloc {
-  final _custMobileNoController = TextEditingController();
-  final _custNameTextController = TextEditingController();
-  final _custCityTextController = TextEditingController();
+  final _customerMobileNoController = TextEditingController();
+  final _customerNameTextController = TextEditingController();
+  final _customerCityTextController = TextEditingController();
   final _customerTableStreamController = StreamController.broadcast();
   final _customerNameStreamController = StreamController.broadcast();
   final _customerMobileNumberStreamController = StreamController.broadcast();
   final _customerCityStreamController = StreamController.broadcast();
   final _appServices = AppServiceUtilImpl();
 
-  @override
-  TextEditingController get custMobileNoController => _custNameTextController;
+  int _currentPage = 0;
+  final _pageNumberStreamController = StreamController<int>.broadcast();
 
   @override
-  TextEditingController get custNameFilterController => _custMobileNoController;
+  TextEditingController get customerMobileNoController =>
+      _customerNameTextController;
 
   @override
-  TextEditingController get custCityTextController => _custCityTextController;
+  TextEditingController get customerNameFilterController =>
+      _customerMobileNoController;
+
+  @override
+  TextEditingController get customerCityTextController =>
+      _customerCityTextController;
 
   @override
   Future<GetAllCustomersByPaginationModel?>
       getAllCustomersByPagination() async {
     return _appServices.getAllCustomersByPagination(
-      custCityTextController.text,
-      custMobileNoController.text,
-      custNameFilterController.text,
-    );
+        customerCityTextController.text,
+        customerMobileNoController.text,
+        customerNameFilterController.text,
+        currentPage);
   }
 
   @override
@@ -81,5 +90,18 @@ class CustomerViewBlocImpl extends CustomerViewBloc {
 
   customerMobileNumberStream(bool streamValue) {
     _customerMobileNumberStreamController.add(streamValue);
+  }
+
+  @override
+  int get currentPage => _currentPage;
+  set currentPage(int pageValue) {
+    _currentPage = pageValue;
+  }
+
+  @override
+  Stream<int> get pageNumberStream => _pageNumberStreamController.stream;
+
+  pageNumberUpdateStreamController(int streamValue) {
+    _pageNumberStreamController.add(streamValue);
   }
 }

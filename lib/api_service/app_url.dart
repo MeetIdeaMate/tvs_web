@@ -5,12 +5,11 @@ class AppUrl {
   static const addBranch = '${baseUrl}branch';
   static const customer = '${baseUrl}customer';
   static const addCustomer = '${baseUrl}customer';
-  static const user = '${baseUrl}user/getByPagination?page=0&pageSize=10';
+  static const user = '${baseUrl}user/getByPagination?';
   static const config = '${baseUrl}config/';
   static const newUserOnboard = '${baseUrl}user';
   static const newEmployeeOnBoard = '${baseUrl}employee';
   static const employee = '${baseUrl}employee';
-  static const employeeByPagination =
-      '${baseUrl}employee/getByPagination?page=0&pageSize=10';
+  static const employeeByPagination = '${baseUrl}employee/getByPagination?';
   static const updateUserStatus = '${baseUrl}user/status/';
 }

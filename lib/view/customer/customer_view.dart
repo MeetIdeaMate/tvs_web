@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:tlbilling/components/custom_pagenation.dart';
+import 'package:tlbilling/models/get_model/get_all_customer_by_pagination_model.dart';
 import 'package:tlbilling/models/get_model/get_all_customers_model.dart';
 import 'package:tlbilling/utils/app_colors.dart';
 import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/utils/app_util_widgets.dart';
-import 'package:tlbilling/utils/app_utils.dart';
 import 'package:tlbilling/view/customer/create_customer_dialog.dart';
 import 'package:tlbilling/view/customer/customer_view_bloc.dart';
 import 'package:tlds_flutter/components/tlds_input_form_field.dart';
@@ -60,7 +61,7 @@ class _CustomerViewState extends State<CustomerView> {
           stream: _customerScreenBlocImpl.customerNameStreamController,
           builder: (context, snapshot) {
             return _buildFormField(
-                _customerScreenBlocImpl.custNameFilterController,
+                _customerScreenBlocImpl.customerNameFilterController,
                 AppConstants.customerName);
           },
         ),
@@ -69,7 +70,7 @@ class _CustomerViewState extends State<CustomerView> {
           stream: _customerScreenBlocImpl.customerMobileNumberStreamController,
           builder: (context, snapshot) {
             return _buildFormField(
-              _customerScreenBlocImpl.custMobileNoController,
+              _customerScreenBlocImpl.customerMobileNoController,
               AppConstants.mobileNumber,
               inputFormatters: [FilteringTextInputFormatter.digitsOnly],
             );
@@ -80,7 +81,7 @@ class _CustomerViewState extends State<CustomerView> {
           stream: _customerScreenBlocImpl.customerCityStreamController,
           builder: (context, snapshot) {
             return _buildFormField(
-                _customerScreenBlocImpl.custCityTextController,
+                _customerScreenBlocImpl.customerCityTextController,
                 AppConstants.city);
           },
         ),
@@ -127,6 +128,7 @@ class _CustomerViewState extends State<CustomerView> {
   void _searchData() {
     _customerScreenBlocImpl.getAllCustomersByPagination();
     _customerScreenBlocImpl.customerTableStream(true);
+    _customerScreenBlocImpl.pageNumberUpdateStreamController(0);
   }
 
   void _checkController(String hintText) {
@@ -146,7 +148,10 @@ class _CustomerViewState extends State<CustomerView> {
         builder: (context) {
           return const CreateCustomerDialog();
         },
-      ).then((value) => _customerScreenBlocImpl.customerTableStream(true));
+      ).then((value) => {
+            _customerScreenBlocImpl.customerTableStream(true),
+            _customerScreenBlocImpl.pageNumberUpdateStreamController(0)
+          });
     }, text: AppConstants.addCustomer, flex: 2);
   }
 
@@ -154,12 +159,16 @@ class _CustomerViewState extends State<CustomerView> {
     return Expanded(
       child: SizedBox(
         width: MediaQuery.of(context).size.width,
-        child: StreamBuilder(
-          stream: _customerScreenBlocImpl.customerTableStreamController,
-          builder: (context, snapshot) {
+        child: StreamBuilder<int>(
+          stream: _customerScreenBlocImpl.pageNumberStream,
+          builder: (context, streamSnapshot) {
+            int currentPage = streamSnapshot.data ?? 0;
+            if (currentPage < 0) currentPage = 0;
+            _customerScreenBlocImpl.currentPage = currentPage;
             return FutureBuilder(
               future: _customerScreenBlocImpl.getAllCustomersByPagination(),
               builder: (context, snapshot) {
+                GetAllCustomersByPaginationModel? customerList = snapshot.data;
                 List<GetAllCustomersModel>? customerDetails =
                     snapshot.data?.getAllCustomersModel;
                 if (snapshot.connectionState == ConnectionState.waiting) {
@@ -172,76 +181,107 @@ class _CustomerViewState extends State<CustomerView> {
                       child: SvgPicture.asset(AppConstants.imgNoData),
                     );
                   } else {
-                    return DataTable(
-                      dividerThickness: 0.01,
-                      columns: [
-                        _buildTableHeader(
-                          AppConstants.sno,
+                    return Column(
+                      children: [
+                        Expanded(
+                          child: SizedBox(
+                            width: MediaQuery.of(context).size.width,
+                            child: SingleChildScrollView(
+                              child: DataTable(
+                                dividerThickness: 0.01,
+                                columns: [
+                                  _buildTableHeader(
+                                    AppConstants.sno,
+                                  ),
+                                  _buildTableHeader(
+                                    AppConstants.customerName,
+                                  ),
+                                  _buildTableHeader(
+                                    AppConstants.mobileNumber,
+                                  ),
+                                  _buildTableHeader(
+                                    AppConstants.panNo,
+                                  ),
+                                  _buildTableHeader(
+                                    AppConstants.city,
+                                  ),
+                                  _buildTableHeader(
+                                    AppConstants.action,
+                                  ),
+                                ],
+                                rows: customerDetails
+                                        ?.asMap()
+                                        .entries
+                                        .map((entry) => DataRow(
+                                                color: MaterialStateProperty
+                                                    .resolveWith((states) {
+                                                  if (entry.key % 2 == 0) {
+                                                    return _appColors
+                                                        .whiteColor;
+                                                  } else {
+                                                    return _appColors
+                                                        .transparentBlueColor;
+                                                  }
+                                                }),
+                                                cells: [
+                                                  DataCell(
+                                                      Text('${entry.key + 1}')),
+                                                  DataCell(Text(entry
+                                                          .value.customerName ??
+                                                      '')),
+                                                  DataCell(Text(
+                                                      entry.value.mobileNo ??
+                                                          '')),
+                                                  DataCell(Text(
+                                                      entry.value.accountNo ??
+                                                          '')),
+                                                  DataCell(Text(
+                                                      entry.value.city ?? '')),
+                                                  DataCell(
+                                                    IconButton(
+                                                      icon: SvgPicture.asset(
+                                                          AppConstants.icEdit),
+                                                      onPressed: () {
+                                                        showDialog(
+                                                          context: context,
+                                                          builder: (context) {
+                                                            return CreateCustomerDialog(
+                                                                customerId: entry
+                                                                    .value
+                                                                    .customerId);
+                                                          },
+                                                        ).then((value) {
+                                                          if (entry.value
+                                                                  .customerId !=
+                                                              null) {
+                                                            _customerScreenBlocImpl
+                                                                .customerTableStream(
+                                                                    true);
+                                                            _customerScreenBlocImpl
+                                                                .pageNumberUpdateStreamController(
+                                                                    0);
+                                                          }
+                                                        });
+                                                      },
+                                                    ),
+                                                  ),
+                                                ]))
+                                        .toList() ??
+                                    [],
+                              ),
+                            ),
+                          ),
                         ),
-                        _buildTableHeader(
-                          AppConstants.customerName,
-                        ),
-                        _buildTableHeader(
-                          AppConstants.mobileNumber,
-                        ),
-                        _buildTableHeader(
-                          AppConstants.panNo,
-                        ),
-                        _buildTableHeader(
-                          AppConstants.city,
-                        ),
-                        _buildTableHeader(
-                          AppConstants.action,
+                        CustomPagination(
+                          itemsOnLastPage: customerList?.totalElements ?? 0,
+                          currentPage: currentPage,
+                          totalPages: customerList?.totalPages ?? 0,
+                          onPageChanged: (pageValue) {
+                            _customerScreenBlocImpl
+                                .pageNumberUpdateStreamController(pageValue);
+                          },
                         ),
                       ],
-                      rows: customerDetails
-                              ?.asMap()
-                              .entries
-                              .map((entry) => DataRow(
-                                      color: MaterialStateProperty.resolveWith(
-                                          (states) {
-                                        if (entry.key % 2 == 0) {
-                                          return _appColors.whiteColor;
-                                        } else {
-                                          return _appColors
-                                              .transparentBlueColor;
-                                        }
-                                      }),
-                                      cells: [
-                                        DataCell(Text('${entry.key + 1}')),
-                                        DataCell(Text(
-                                            entry.value.customerName ?? '')),
-                                        DataCell(
-                                            Text(entry.value.mobileNo ?? '')),
-                                        DataCell(
-                                            Text(entry.value.accountNo ?? '')),
-                                        DataCell(Text(entry.value.city ?? '')),
-                                        DataCell(
-                                          IconButton(
-                                            icon: SvgPicture.asset(
-                                                AppConstants.icEdit),
-                                            onPressed: () {
-                                              showDialog(
-                                                context: context,
-                                                builder: (context) {
-                                                  return CreateCustomerDialog(
-                                                      customerId: entry
-                                                          .value.customerId);
-                                                },
-                                              ).then((value) {
-                                                if (entry.value.customerId !=
-                                                    null) {
-                                                  _customerScreenBlocImpl
-                                                      .customerTableStream(
-                                                          true);
-                                                }
-                                              });
-                                            },
-                                          ),
-                                        ),
-                                      ]))
-                              .toList() ??
-                          [],
                     );
                   }
                 } else {

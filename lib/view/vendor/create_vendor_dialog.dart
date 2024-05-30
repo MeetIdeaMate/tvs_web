@@ -78,7 +78,7 @@ class _CreateVendorDialogState extends State<CreateVendorDialog> {
             AppWidgetUtils.buildSizedBox(custHeight: 13),
             _gstNoAndFaxNoFields(),
             AppWidgetUtils.buildSizedBox(custHeight: 13),
-            _buildTelePhNoFields(),
+            _accNoAndIFSCNoFields(),
             AppWidgetUtils.buildSizedBox(custHeight: 13),
             _buildAddressFields(),
             AppWidgetUtils.buildSizedBox(custHeight: 13),
@@ -126,18 +126,7 @@ class _CreateVendorDialogState extends State<CreateVendorDialog> {
   _panNoAndCityFeilds() {
     return Row(
       children: [
-        Expanded(
-          child: CustomFormField(
-              inputFormatters: [
-                FilteringTextInputFormatter.allow(RegExp("[A-Z 0-9]")),
-              ],
-              labelText: AppConstants.panNo,
-              validator: (value) {
-                return InputValidations.panValidation(value ?? '');
-              },
-              hintText: AppConstants.hintPanNo,
-              controller: _createVendorDialogBlocImpl.vendorPanNoController),
-        ),
+        _buildTelePhNoFields(),
         AppWidgetUtils.buildSizedBox(custWidth: 14),
         Expanded(
           child: CustomFormField(
@@ -189,16 +178,18 @@ class _CreateVendorDialogState extends State<CreateVendorDialog> {
   }
 
   _buildTelePhNoFields() {
-    return CustomFormField(
-        labelText: AppConstants.telephoneNumber,
-        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-        // requiredLabelText: AppWidgetUtils.labelTextWithRequired(
-        //     AppConstants.mobileNumber),
-        // validator: (value) {
-        //   return InputValidations.mobileNumberValidation(value ?? '');
-        // },
-        hintText: AppConstants.hintTelephoneNumber,
-        controller: _createVendorDialogBlocImpl.vendorTelephoneNoController);
+    return Expanded(
+      child: CustomFormField(
+          labelText: AppConstants.telephoneNumber,
+          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+          // requiredLabelText: AppWidgetUtils.labelTextWithRequired(
+          //     AppConstants.mobileNumber),
+          // validator: (value) {
+          //   return InputValidations.mobileNumberValidation(value ?? '');
+          // },
+          hintText: AppConstants.hintTelephoneNumber,
+          controller: _createVendorDialogBlocImpl.vendorTelephoneNoController),
+    );
   }
 
   _buildAddressFields() {
@@ -220,6 +211,33 @@ class _CreateVendorDialogState extends State<CreateVendorDialog> {
         if (_createVendorDialogBlocImpl.vendorFormKey.currentState!
             .validate()) {}
       },
+    );
+  }
+
+  _accNoAndIFSCNoFields() {
+    return Row(
+      children: [
+        Expanded(
+          child: CustomFormField(
+              inputFormatters: [
+                FilteringTextInputFormatter.allow(RegExp("[0-9]")),
+              ],
+              labelText: AppConstants.accNo,
+              hintText: AppConstants.hintAccNo,
+              controller: _createVendorDialogBlocImpl.vendorAccNoController),
+        ),
+        AppWidgetUtils.buildSizedBox(custWidth: 14),
+        Expanded(
+          child: CustomFormField(
+              //  maxLength: 12,
+              inputFormatters: [
+                FilteringTextInputFormatter.allow(RegExp("[0-9 A-Z ]")),
+              ],
+              labelText: AppConstants.ifscNo,
+              hintText: AppConstants.enterIfscCode,
+              controller: _createVendorDialogBlocImpl.vendorIFSCCodeController),
+        ),
+      ],
     );
   }
 }
