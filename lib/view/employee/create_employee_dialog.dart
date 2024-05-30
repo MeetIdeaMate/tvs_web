@@ -11,14 +11,19 @@ import 'package:tlbilling/utils/app_util_widgets.dart';
 import 'package:tlbilling/utils/input_validation.dart';
 import 'package:tlbilling/view/employee/create_employee_dialog_bloc.dart';
 import 'package:tlbilling/view/employee/employee_view_bloc.dart';
+import 'package:tlbilling/view/user/create_user_dialog_bloc.dart';
 import 'package:toastification/toastification.dart';
 
 class CreateEmployeeDialog extends StatefulWidget {
-  final EmployeeViewBlocImpl employeeViewBloc;
+  final EmployeeViewBlocImpl? employeeViewBloc;
   final String? employeeId;
+  final CreateUserDialogBlocImpl? createUserDialogBlocImpl;
 
   const CreateEmployeeDialog(
-      {super.key, required this.employeeViewBloc, this.employeeId});
+      {super.key,
+      this.employeeViewBloc,
+      this.employeeId,
+      this.createUserDialogBlocImpl});
 
   @override
   State<CreateEmployeeDialog> createState() => _CreateEmployeeDialogState();
@@ -446,7 +451,8 @@ class _CreateEmployeeDialogState extends State<CreateEmployeeDialog> {
           ),
           AppConstants.employeeCreatedSuccessfully,
           _appColors.successLightColor);
-      widget.employeeViewBloc.employeeTableViewStream(true);
+      widget.employeeViewBloc?.employeeTableViewStream(true);
+      widget.createUserDialogBlocImpl?.employeeNameSelectStream(true);
     } else if (statusCode == 409) {
       AppWidgetUtils.buildToast(
           context,
@@ -486,7 +492,7 @@ class _CreateEmployeeDialogState extends State<CreateEmployeeDialog> {
             ),
             AppConstants.employeeUpdateSuccessfully,
             _appColors.successLightColor);
-        widget.employeeViewBloc.pageNumberUpdateStreamController(0);
+        widget.employeeViewBloc?.pageNumberUpdateStreamController(0);
       } else {
         _isLoadingState(state: false);
         AppWidgetUtils.buildToast(

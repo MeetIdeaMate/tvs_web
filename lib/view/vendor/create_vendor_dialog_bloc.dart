@@ -10,6 +10,8 @@ abstract class CreateVendorDialogBloc {
   TextEditingController get vendorPanNoController;
   TextEditingController get vendorTelephoneNoController;
   TextEditingController get vendorFaxController;
+  TextEditingController get vendorAccNoController;
+  TextEditingController get vendorIFSCCodeController;
   GlobalKey<FormState> get vendorFormKey;
 }
 
@@ -23,6 +25,8 @@ class CreateVendorDialogBlocImpl extends CreateVendorDialogBloc {
   final _vendorPanNoController = TextEditingController();
   final _vendorTelephoneNoController = TextEditingController();
   final _vendorFaxController = TextEditingController();
+  final _vendorAccNoController = TextEditingController();
+  final _vendorIFSCCodeController = TextEditingController();
 
   @override
   TextEditingController get vendorAddressController =>
@@ -52,4 +56,11 @@ class CreateVendorDialogBlocImpl extends CreateVendorDialogBloc {
 
   @override
   GlobalKey<FormState> get vendorFormKey => _vendorFormKey;
+
+  @override
+  TextEditingController get vendorAccNoController => _vendorAccNoController;
+
+  @override
+  TextEditingController get vendorIFSCCodeController =>
+      _vendorIFSCCodeController;
 }

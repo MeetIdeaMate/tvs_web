@@ -110,7 +110,7 @@ class _UserViewState extends State<UserView> {
             Color iconColor =
                 isTextEmpty ? _appColors.primaryColor : _appColors.red;
             return CustomFormField(
-              hintText: AppConstants.userFilterHint,
+              hintText: AppConstants.userName,
               controller: _userViewBlocImpl.searchUserNameAndMobNoController,
               height: 40,
               width: MediaQuery.of(context).size.width * 0.19,

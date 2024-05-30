@@ -169,6 +169,10 @@ class AppConstants {
   static const hintTelephoneNumber = 'Enter Telephone Number';
 
   static const dashboard = 'Dashboard';
+  static const accNo = 'Account Number';
+  static const hintAccNo = 'Enter Account Number';
+  static const ifscNo = ' IFSC Code';
+  static const enterIfscCode = 'Enter IFSC Code';
 
   //transport
 

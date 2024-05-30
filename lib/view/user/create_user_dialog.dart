@@ -12,6 +12,7 @@ import 'package:tlbilling/utils/app_colors.dart';
 import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/utils/app_util_widgets.dart';
 import 'package:tlbilling/utils/input_validation.dart';
+import 'package:tlbilling/view/employee/create_employee_dialog.dart';
 import 'package:tlbilling/view/user/create_user_dialog_bloc.dart';
 import 'package:tlbilling/view/user/user_view_bloc.dart';
 import 'package:tlds_flutter/components/tlds_input_form_field.dart';
@@ -110,111 +111,138 @@ class _CreateUserDialogState extends State<CreateUserDialog> {
       Expanded(
           child: Row(mainAxisAlignment: MainAxisAlignment.start, children: [
         Expanded(
-          child: FutureBuilder<ParentResponseModel>(
-            future: _createUserDialogBlocImpl.getEmployeeName(),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: Text(AppConstants.loading));
-              } else if (snapshot.hasError) {
-                return Center(child: Text('Error: ${snapshot.error}'));
-              } else if (!snapshot.hasData ||
-                  snapshot.data!.result == null ||
-                  snapshot.data!.result!.employeeListModel == null) {
-                return const Center(child: Text('No data available'));
-              }
-              final employeesList = snapshot.data!.result!.employeeListModel;
-              final employeeNamesSet = employeesList!
-                  .map((result) => result.employeeName ?? "")
-                  .toSet();
-              List<String> employeeNamesList = employeeNamesSet.toList();
+          child: StreamBuilder<bool>(
+              stream: _createUserDialogBlocImpl.employeeSelectStream,
+              builder: (context, snapshot) {
+                return FutureBuilder<ParentResponseModel>(
+                  future: _createUserDialogBlocImpl.getEmployeeName(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: Text(AppConstants.loading));
+                    } else if (snapshot.hasError) {
+                      return Center(child: Text('Error: ${snapshot.error}'));
+                    } else if (!snapshot.hasData ||
+                        snapshot.data!.result == null ||
+                        snapshot.data!.result!.employeeListModel == null) {
+                      return const Center(child: Text('No data available'));
+                    }
+                    final employeesList =
+                        snapshot.data!.result!.employeeListModel;
+                    final employeeNamesSet = employeesList!
+                        .map((result) => result.employeeName ?? "")
+                        .toSet();
+                    List<String> employeeNamesList = employeeNamesSet.toList();
 
-              return TypeAheadField<String>(
-                controller: _createUserDialogBlocImpl.employeeNameEditText,
-                suggestionsCallback: (search) => employeeNamesList
-                    .where((name) =>
-                        name.toLowerCase().contains(search.toLowerCase()))
-                    .toList(),
-                itemBuilder: (context, suggestion) {
-                  var selectedemployee = employeesList.firstWhere(
-                    (employee) => employee.employeeName == suggestion,
-                  );
-                  return ListTile(
-                    title: Text(suggestion),
-                    subtitle: Text(
-                      ' ${selectedemployee.mobileNumber}',
-                    ),
-                    trailing: Text('${selectedemployee.city}'),
-                  );
-                },
-                onSelected: (String? value) {
-                  if (value != null) {
-                    var selectedemployee = employeesList.firstWhere(
-                      (employee) => employee.employeeName == value,
+                    return TypeAheadField<String>(
+                      controller:
+                          _createUserDialogBlocImpl.employeeNameEditText,
+                      suggestionsCallback: (search) => employeeNamesList
+                          .where((name) =>
+                              name.toLowerCase().contains(search.toLowerCase()))
+                          .toList(),
+                      itemBuilder: (context, suggestion) {
+                        var selectedemployee = employeesList.firstWhere(
+                          (employee) => employee.employeeName == suggestion,
+                        );
+                        return ListTile(
+                          title: Text(suggestion),
+                          subtitle: Text(
+                            ' ${selectedemployee.mobileNumber}',
+                          ),
+                          trailing: Text('${selectedemployee.city}'),
+                        );
+                      },
+                      onSelected: (String? value) {
+                        if (value != null) {
+                          var selectedemployee = employeesList.firstWhere(
+                            (employee) => employee.employeeName == value,
+                          );
+                          _createUserDialogBlocImpl.selectedEmpId =
+                              selectedemployee.employeeId;
+                          _createUserDialogBlocImpl.employeeNameEditText.text =
+                              selectedemployee.employeeName.toString();
+
+                          _buildEmployeeNameOnchange(
+                              employeeName: selectedemployee.employeeName,
+                              titles: employeesList);
+                        }
+                      },
+                      builder: (context, controller, focusNode) {
+                        return TldsInputFormField(
+                          controller: controller,
+
+                          focusNode: focusNode,
+                          requiredLabelText:
+                              AppWidgetUtils.labelTextWithRequired(
+                                  AppConstants.username),
+                          //prefixIcon: AppConstants.icSelectPaitent,
+                          hintText: (snapshot.connectionState ==
+                                  ConnectionState.waiting)
+                              ? AppConstants.loading
+                              : (snapshot.hasError || snapshot.data == null)
+                                  ? AppConstants.errorLoading
+                                  : AppConstants.exSelect,
+                          validator: (String? value) {
+                            if (value!.isEmpty) {
+                              return 'select employee name';
+                            }
+                            return null;
+                          },
+                        );
+                      },
                     );
-                    _createUserDialogBlocImpl.selectedEmpId =
-                        selectedemployee.employeeId;
-                    _createUserDialogBlocImpl.employeeNameEditText.text =
-                        selectedemployee.employeeName.toString();
-
-                    _buildEmployeeNameOnchange(
-                        employeeName: selectedemployee.employeeName,
-                        titles: employeesList);
-                  }
-                },
-                builder: (context, controller, focusNode) {
-                  return TldsInputFormField(
-                    controller: controller,
-
-                    focusNode: focusNode,
-                    requiredLabelText: AppWidgetUtils.labelTextWithRequired(
-                        AppConstants.username),
-                    //prefixIcon: AppConstants.icSelectPaitent,
-                    hintText:
-                        (snapshot.connectionState == ConnectionState.waiting)
-                            ? AppConstants.loading
-                            : (snapshot.hasError || snapshot.data == null)
-                                ? AppConstants.errorLoading
-                                : AppConstants.exSelect,
-                    validator: (String? value) {
-                      if (value!.isEmpty) {
-                        return 'select employee name';
-                      }
-                      return null;
-                    },
-                  );
-                },
-              );
-            },
-          ),
+                  },
+                );
+              }),
         ),
-        AppWidgetUtils.buildSizedBox(custWidth: 14),
-        _buildMobNoTextField(),
-      ]))
+        AppWidgetUtils.buildSizedBox(custWidth: 6),
+        Padding(
+          padding: const EdgeInsets.only(top: 20),
+          child: IconButton(
+              style: ButtonStyle(
+                shape: MaterialStateProperty.all(
+                  RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(5),
+                  ),
+                ),
+                backgroundColor:
+                    MaterialStateProperty.all(_appColors.primaryColor),
+              ),
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (context) => CreateEmployeeDialog(
+                      createUserDialogBlocImpl: _createUserDialogBlocImpl),
+                );
+              },
+              icon: SvgPicture.asset(
+                AppConstants.icaddUser,
+              )),
+        ),
+      ])),
+      AppWidgetUtils.buildSizedBox(custWidth: 14),
+      _buildMobNoTextField()
     ]);
   }
 
   Expanded _buildMobNoTextField() {
     return Expanded(
-      child: StreamBuilder<bool>(
-          stream: _createUserDialogBlocImpl.employeeSelectStream,
-          builder: (context, snapshot) {
-            return CustomFormField(
-                inputFormat: [FilteringTextInputFormatter.digitsOnly],
-                maxLength: 10,
-                suffixIcon: SvgPicture.asset(
-                  colorFilter: ColorFilter.mode(
-                      _appColors.primaryColor, BlendMode.srcIn),
-                  AppConstants.icCall,
-                  fit: BoxFit.none,
-                ),
-                requiredLabelText: AppWidgetUtils.labelTextWithRequired(
-                    AppConstants.mobileNumber),
-                validator: (value) {
-                  return InputValidations.mobileNumberValidation(value ?? '');
-                },
-                hintText: AppConstants.hintMobileNo,
-                controller: _createUserDialogBlocImpl.mobileNoTextController);
-          }),
+      child: CustomFormField(
+          inputFormat: [FilteringTextInputFormatter.digitsOnly],
+          maxLength: 10,
+          suffixIcon: SvgPicture.asset(
+            colorFilter:
+                ColorFilter.mode(_appColors.primaryColor, BlendMode.srcIn),
+            AppConstants.icCall,
+            fit: BoxFit.none,
+          ),
+          requiredLabelText:
+              AppWidgetUtils.labelTextWithRequired(AppConstants.mobileNumber),
+          validator: (value) {
+            return InputValidations.mobileNumberValidation(value ?? '');
+          },
+          hintText: AppConstants.hintMobileNo,
+          controller: _createUserDialogBlocImpl.mobileNoTextController),
     );
   }
 
@@ -326,6 +354,7 @@ class _CreateUserDialogState extends State<CreateUserDialog> {
               Icon(Icons.error_outline, color: AppColor().errorColor),
               AppConstants.selectDiffrentUser,
               AppColor().errorLightColor);
+          _isLoadingState(state: false);
         }
       });
     }

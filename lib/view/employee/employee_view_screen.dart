@@ -158,33 +158,33 @@ class _EmployeeViewState extends State<EmployeeView> {
     return FutureBuilder(
         future: _employeeViewBloc.getBranchName(),
         builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Text(AppConstants.loading);
-          } else if (snapshot.hasError) {
-            return Text('Error: ${snapshot.error}');
-          } else if (snapshot.hasData) {
-            List<String>? branchNameList = snapshot
-                .data?.result?.getAllBranchList
-                ?.map((e) => e.branchName)
-                .where((branchName) => branchName != null)
-                .cast<String>()
-                .toList();
-            branchNameList?.insert(0, AppConstants.all);
-            _employeeViewBloc.employeeBranch = AppConstants.all;
+          List<String>? branchNameList = snapshot.data?.result?.getAllBranchList
+              ?.map((e) => e.branchName)
+              .where((branchName) => branchName != null)
+              .cast<String>()
+              .toList();
+          branchNameList?.insert(0, AppConstants.all);
+          _employeeViewBloc.employeeBranch = AppConstants.all;
 
-            return _buildDropDown(
-              dropDownItems: branchNameList,
-              hintText: AppConstants.branchName,
-              selectedvalue: _employeeViewBloc.employeeBranch,
-              onChange: (value) {
-                _employeeViewBloc.employeeBranch = value;
-                _employeeViewBloc.employeeTableViewStream(true);
-                _employeeViewBloc.getEmployeesList();
-                _employeeViewBloc.pageNumberUpdateStreamController(0);
-              },
-            );
-          }
-          return const Text(AppConstants.noData);
+          return _buildDropDown(
+            dropDownItems: (snapshot.hasData &&
+                    (snapshot.data?.result?.getAllBranchList?.isNotEmpty ==
+                        true))
+                ? branchNameList
+                : List.empty(),
+            hintText: (snapshot.connectionState == ConnectionState.waiting)
+                ? AppConstants.loading
+                : (snapshot.hasError || snapshot.data == null)
+                    ? AppConstants.errorLoading
+                    : AppConstants.branchName,
+            selectedvalue: _employeeViewBloc.employeeBranch,
+            onChange: (value) {
+              _employeeViewBloc.employeeBranch = value;
+              _employeeViewBloc.employeeTableViewStream(true);
+              _employeeViewBloc.getEmployeesList();
+              _employeeViewBloc.pageNumberUpdateStreamController(0);
+            },
+          );
         });
   }
 

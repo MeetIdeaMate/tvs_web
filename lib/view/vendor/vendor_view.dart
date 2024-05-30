@@ -19,7 +19,6 @@ class _VendorViewState extends State<VendorView> {
       AppConstants.sno: '1',
       AppConstants.customerName: 'MuthuLakshmi',
       AppConstants.mobileNumber: '1234567890',
-      AppConstants.panNo: 'ABCD1234E',
       AppConstants.gstNo: 'ABCD1234E',
       AppConstants.city: 'Chennai',
     },
@@ -27,7 +26,6 @@ class _VendorViewState extends State<VendorView> {
       AppConstants.sno: '2',
       AppConstants.customerName: 'Lakshu',
       AppConstants.mobileNumber: '9876543210',
-      AppConstants.panNo: 'WXYZ5678F',
       AppConstants.gstNo: 'ABCD1234E',
       AppConstants.city: 'kovilpatti',
     },
@@ -111,9 +109,6 @@ class _VendorViewState extends State<VendorView> {
               AppConstants.mobileNumber,
             ),
             _buildVendorTableHeader(
-              AppConstants.panNo,
-            ),
-            _buildVendorTableHeader(
               AppConstants.gstNo,
             ),
             _buildVendorTableHeader(
@@ -135,7 +130,6 @@ class _VendorViewState extends State<VendorView> {
                 DataCell(Text(data[AppConstants.sno]!)),
                 DataCell(Text(data[AppConstants.customerName]!)),
                 DataCell(Text(data[AppConstants.mobileNumber]!)),
-                DataCell(Text(data[AppConstants.panNo]!)),
                 DataCell(Text(data[AppConstants.gstNo]!)),
                 DataCell(Text(data[AppConstants.city]!)),
                 DataCell(
