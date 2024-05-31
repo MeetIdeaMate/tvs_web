@@ -1,3 +1,4 @@
+import 'package:blurry_modal_progress_hud/blurry_modal_progress_hud.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:tlbilling/components/custom_action_button.dart';
@@ -7,9 +8,12 @@ import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/utils/app_util_widgets.dart';
 import 'package:tlbilling/utils/input_validation.dart';
 import 'package:tlbilling/view/transport/create_transport_dialog_bloc.dart';
+import 'package:toastification/toastification.dart';
 
 class CreateTransportDialog extends StatefulWidget {
-  const CreateTransportDialog({super.key});
+  final String? transportId;
+
+  const CreateTransportDialog({super.key, this.transportId});
 
   @override
   State<CreateTransportDialog> createState() =>
@@ -19,22 +23,42 @@ class CreateTransportDialog extends StatefulWidget {
 class _CreateTransportDialogDialogState extends State<CreateTransportDialog> {
   final _appColors = AppColors();
   final _createTransportBlocImpl = CreateTransportBlocImpl();
+
+  @override
+  void initState() {
+    super.initState();
+    _createTransportBlocImpl
+        .getTransportDetailById(widget.transportId ?? '')
+        .then((value) {
+      _createTransportBlocImpl.transportNameController.text =
+          value?.transportName ?? '';
+      _createTransportBlocImpl.transportMobNoController.text =
+          value?.mobileNo ?? '';
+      _createTransportBlocImpl.transportCityController.text = value?.city ?? '';
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      backgroundColor: _appColors.whiteColor,
-      surfaceTintColor: _appColors.whiteColor,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      contentPadding: const EdgeInsets.all(10),
-      title: _buildTransportFormTitle(),
-      actions: [
-        _buildSaveButton(),
-      ],
-      content: SizedBox(
-        width: MediaQuery.sizeOf(context).width * 0.4,
-        child: Padding(
-          padding: const EdgeInsets.all(10),
-          child: _buildTransportCreateForm(),
+    return BlurryModalProgressHUD(
+      inAsyncCall: _createTransportBlocImpl.isAsyncCall,
+      progressIndicator: AppWidgetUtils.buildLoading(),
+      color: _appColors.whiteColor,
+      child: AlertDialog(
+        backgroundColor: _appColors.whiteColor,
+        surfaceTintColor: _appColors.whiteColor,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        contentPadding: const EdgeInsets.all(10),
+        title: _buildTransportFormTitle(),
+        actions: [
+          _buildSaveButton(),
+        ],
+        content: SizedBox(
+          width: MediaQuery.sizeOf(context).width * 0.4,
+          child: Padding(
+            padding: const EdgeInsets.all(10),
+            child: _buildTransportCreateForm(),
+          ),
         ),
       ),
     );
@@ -87,8 +111,73 @@ class _CreateTransportDialogDialogState extends State<CreateTransportDialog> {
     return CustomActionButtons(
       buttonText: AppConstants.addTransport,
       onPressed: () {
+        _isLoading(true);
         if (_createTransportBlocImpl.transportFormKey.currentState!
-            .validate()) {}
+            .validate()) {
+          if(widget.transportId != null){
+            _createTransportBlocImpl.editTransport(widget.transportId ?? '',
+            (statusCode) {
+              if(statusCode == 200 || statusCode == 201){
+                _isLoading(false);
+                Navigator.pop(context);
+                AppWidgetUtils.buildToast(
+                    context,
+                    ToastificationType.success,
+                    AppConstants.transportUpdate,
+                    Icon(
+                      Icons.check_circle_outline_rounded,
+                      color: _appColors.successColor,
+                    ),
+                    AppConstants.transportUpdatedSuccessFully,
+                    _appColors.successLightColor);
+              }else{
+                _isLoading(false);
+                AppWidgetUtils.buildToast(
+                    context,
+                    ToastificationType.error,
+                    AppConstants.transportUpdate,
+                    Icon(
+                      Icons.error_outline_outlined,
+                      color: _appColors.errorColor,
+                    ),
+                    AppConstants.somethingWentWrong,
+                    _appColors.errorLightColor);
+              }
+            },);
+
+          }else{
+            _createTransportBlocImpl.addTransport(
+                  (statusCode) {
+                if (statusCode == 200 || statusCode == 201) {
+                  _isLoading(false);
+                  Navigator.pop(context);
+                  AppWidgetUtils.buildToast(
+                      context,
+                      ToastificationType.success,
+                      AppConstants.transportCreated,
+                      Icon(
+                        Icons.check_circle_outline_rounded,
+                        color: _appColors.successColor,
+                      ),
+                      AppConstants.transportCreatedSuccessFully,
+                      _appColors.successLightColor);
+                }else{
+                  _isLoading(false);
+                  AppWidgetUtils.buildToast(
+                      context,
+                      ToastificationType.error,
+                      AppConstants.transportCreated,
+                      Icon(
+                        Icons.error_outline_outlined,
+                        color: _appColors.errorColor,
+                      ),
+                      AppConstants.somethingWentWrong,
+                      _appColors.errorLightColor);
+                }
+              },
+            );
+          }
+        }
       },
     );
   }
@@ -140,5 +229,11 @@ class _CreateTransportDialogDialogState extends State<CreateTransportDialog> {
         ),
       ],
     );
+  }
+
+  _isLoading(bool state){
+    setState(() {
+      _createTransportBlocImpl.isAsyncCall = state;
+    });
   }
 }

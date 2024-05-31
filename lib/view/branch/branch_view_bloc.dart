@@ -15,9 +15,16 @@ abstract class BranchViewBloc {
 
   Stream get pinCodeStreamController;
 
-  Stream get branchTableStreamController;
+  Stream get branchTablePageStreamController;
 
   Future<GetAllBranchesByPaginationModel?> getBranchList();
+
+  int get currentPage;
+
+  Future<void> deleteBranch(
+      Function(int statusCode) successCallBack, String branchId);
+
+  bool get isAsyncCall;
 }
 
 class BranchViewBlocImpl extends BranchViewBloc {
@@ -25,9 +32,11 @@ class BranchViewBlocImpl extends BranchViewBloc {
   final _filterpinCodeController = TextEditingController();
   final _branchNameStreamController = StreamController.broadcast();
   final _pinCodeStreamController = StreamController.broadcast();
-  final _branchTableStreamController = StreamController.broadcast();
+  final _branchTablePageStreamController = StreamController.broadcast();
   String? _selectedCity;
   final _apiCalls = AppServiceUtilImpl();
+  int _currentPage = 0;
+  bool _isAsyncCall = false;
 
   @override
   TextEditingController get filterBranchnameController =>
@@ -59,13 +68,36 @@ class BranchViewBlocImpl extends BranchViewBloc {
 
   @override
   Future<GetAllBranchesByPaginationModel?> getBranchList() async {
-    return _apiCalls.getBranchList();
+    return _apiCalls.getBranchList(currentPage, filterpinCodeController.text,
+        filterBranchnameController.text,
+        selectedCity);
   }
 
   @override
-  Stream get branchTableStreamController => _branchTableStreamController.stream;
+  Stream get branchTablePageStreamController =>
+      _branchTablePageStreamController.stream;
 
-  branchTableStream(bool? streamValue) {
-    _branchTableStreamController.add(streamValue);
+  branchTablePageStream(int? streamValue) {
+    _branchTablePageStreamController.add(streamValue);
+  }
+
+  @override
+  int get currentPage => _currentPage;
+
+  set currentPage(int newValue) {
+    _currentPage = newValue;
+  }
+
+  @override
+  Future<void> deleteBranch(
+      Function(int statusCode) successCallBack, String branchId) async {
+    return _apiCalls.deleteBranch(successCallBack, branchId);
+  }
+
+  @override
+  bool get isAsyncCall => _isAsyncCall;
+
+  set isAsyncCall(bool value) {
+    _isAsyncCall = value;
   }
 }

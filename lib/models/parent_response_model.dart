@@ -9,6 +9,9 @@ import 'package:tlbilling/models/get_all_employee_model.dart';
 import 'package:tlbilling/models/get_cofig_model.dart';
 import 'package:tlbilling/models/get_employee_by_id.dart';
 import 'package:tlbilling/models/get_model/get_all_employee_by_pagination.dart';
+import 'package:tlbilling/models/get_model/get_configuration_list_model.dart';
+import 'package:tlbilling/models/get_model/get_configuration_model.dart';
+import 'package:tlbilling/models/get_model/get_transport_by_pagination.dart';
 import 'package:tlbilling/models/user_model.dart';
 
 ParentResponseModel parentResponseModelFromJson(String str) =>
@@ -58,6 +61,11 @@ class ResultObj {
   List<GetAllBranchList>? getAllBranchList;
   GetAllBranchesByPaginationModel? getAllBranchesByPaginationModel;
   GetAllBranchList? getBranchById;
+  GetTransportByPaginationModel? getTransportByPaginationModel;
+  List<GetAllConfigurationListModel>? getAllConfigurationListModel;
+  GetConfigurationModel? getConfigurationModel;
+  TransportDetails? transportDetails;
+  List<BranchDetail>? branchDetails;
 
   ResultObj(
       {this.getAllCustomersByPaginationModel,
@@ -69,7 +77,12 @@ class ResultObj {
       this.getAllEmployeesByPaginationModel,
       this.getAllBranchList,
       this.getAllBranchesByPaginationModel,
-      this.getBranchById});
+      this.getBranchById,
+      this.getTransportByPaginationModel,
+      this.getAllConfigurationListModel,
+      this.getConfigurationModel,
+      this.transportDetails,
+      this.branchDetails});
 
   factory ResultObj.fromJson(Map<String, dynamic> json) => ResultObj(
         getAllCustomersByPaginationModel: json['customersWithPage'] != null
@@ -104,6 +117,23 @@ class ResultObj {
             : null,
         getBranchById: json['branchResponse'] != null
             ? GetAllBranchList.fromJson(json['branchResponse'])
+            : null,
+        getTransportByPaginationModel: json['transportsWithPage'] != null
+            ? GetTransportByPaginationModel.fromJson(json['transportsWithPage'])
+            : null,
+        getAllConfigurationListModel: json['configList'] != null
+            ? List<GetAllConfigurationListModel>.from(json['configList']
+                .map((x) => GetAllConfigurationListModel.fromJson(x)))
+            : null,
+        getConfigurationModel: json['config'] != null
+            ? GetConfigurationModel.fromJson(json['config'])
+            : null,
+        transportDetails: json['transport'] != null
+            ? TransportDetails.fromJson(json['transport'])
+            : null,
+        branchDetails: json['branchResponseList'] != null
+            ? List<BranchDetail>.from(
+                json['branchResponseList'].map((x) => BranchDetail.fromJson(x)))
             : null,
       );
 

@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:tlbilling/api_service/app_service_utils.dart';
+import 'package:tlbilling/models/get_model/get_all_branches_by_pagination.dart';
 
 abstract class NewTransferBloc {
   Stream get selectedVehicleAndAccessoriesStream;
@@ -24,6 +26,8 @@ abstract class NewTransferBloc {
   String? get selectedVehicleAndAccessories;
 
   String? get selectedBranch;
+
+  Future<List<BranchDetail>?> getBranches();
 }
 
 class NewTransferBlocImpl extends NewTransferBloc {
@@ -42,6 +46,7 @@ class NewTransferBlocImpl extends NewTransferBloc {
   String? _selectedVehicleAndAccessories;
   String? _selectedBranch;
   int initialValue = 0;
+  final _appServices = AppServiceUtilImpl();
 
   @override
   String? get selectedVehicleAndAccessories => _selectedVehicleAndAccessories;
@@ -119,4 +124,9 @@ class NewTransferBlocImpl extends NewTransferBloc {
   @override
   TextEditingController get transporterVehicleNumberController =>
       _transporterVehicleNumberController;
+
+  @override
+  Future<List<BranchDetail>?> getBranches() async{
+    return _appServices.getAllBranchListWithoutPagination();
+  }
 }

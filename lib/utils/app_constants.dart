@@ -123,6 +123,7 @@ class AppConstants {
   static const vendor = 'Vendor';
   static const transport = 'Transport';
   static const reports = 'Reports';
+  static const configuration = 'Configuration';
   static const user = 'user';
   static const voucherReceipt = 'Voc / Rec';
   static const receipt = 'Receipt';
@@ -303,6 +304,13 @@ class AppConstants {
   static const branchCreatedSuccessFully = 'Branch created successFully';
   static const branchUpdated = 'Branch Updated';
   static const branchUpdatedSuccessFully = 'Branch updated successFully';
+  static const branchDeleted = 'Branch Delete';
+  static const branchDeletedSuccessFully = 'Branch deleted successFully';
+  static const transportCreated = 'Transport Create';
+  static const transportCreatedSuccessFully = 'Branch created successFully';
+  static const transportUpdate = 'Transport Update';
+  static const transportUpdatedSuccessFully = 'Branch updated successFully';
+
 
   static const somethingWentWrong = 'Something went wrong try again...!';
   static const customerUpdate = 'Customer Update';

@@ -64,29 +64,37 @@ class _TransferDetailsState extends State<TransferDetails> {
   }
 
   Widget _buildFromBranchAndToBranch() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        TldsDropDownButtonFormField(
-          height: 40,
-          width: MediaQuery.sizeOf(context).width * 0.15,
-          hintText: AppConstants.fromBranch,
-          dropDownItems: _transferBloc.branch,
-          onChange: (String? newValue) {
-            _transferBloc.selectedBranch = newValue ?? '';
-          },
-        ),
-        SvgPicture.asset(AppConstants.icSwapArrow),
-        TldsDropDownButtonFormField(
-          height: 40,
-          width: MediaQuery.sizeOf(context).width * 0.15,
-          hintText: AppConstants.toBranch,
-          dropDownItems: _transferBloc.branch,
-          onChange: (String? newValue) {
-            _transferBloc.selectedBranch = newValue ?? '';
-          },
-        ),
-      ],
+    return FutureBuilder(
+      future: _transferBloc.getBranches(),
+      builder: (context, snapshot) {
+        List<String> branchNameList =
+            snapshot.data?.map((e) => e.branchName ?? '').toList() ?? [];
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            TldsDropDownButtonFormField(
+              height: 40,
+              width: MediaQuery.sizeOf(context).width * 0.15,
+              hintText: AppConstants.fromBranch,
+              dropDownItems: branchNameList,
+              dropDownValue: _transferBloc.selectedBranch,
+              onChange: (String? newValue) {
+                _transferBloc.selectedBranch = newValue ?? '';
+              },
+            ),
+            SvgPicture.asset(AppConstants.icSwapArrow),
+            TldsDropDownButtonFormField(
+              height: 40,
+              width: MediaQuery.sizeOf(context).width * 0.15,
+              hintText: AppConstants.toBranch,
+              dropDownItems: branchNameList,
+              dropDownValue: _transferBloc.selectedBranch,
+              onChange: (String? newValue) {
+                _transferBloc.selectedBranch = newValue ?? '';
+              },
+            ),
+          ],);
+      },
     );
   }
 

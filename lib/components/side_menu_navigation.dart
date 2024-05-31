@@ -6,6 +6,7 @@ import 'package:tlbilling/utils/app_colors.dart';
 import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/utils/app_util_widgets.dart';
 import 'package:tlbilling/view/branch/branch_view.dart';
+import 'package:tlbilling/view/configuration/configuration_view.dart';
 import 'package:tlbilling/view/customer/customer_view.dart';
 import 'package:tlbilling/view/employee/employee_view_screen.dart';
 import 'package:tlbilling/view/login/login_page.dart';
@@ -225,6 +226,13 @@ class _SideMenuNavigationState extends State<SideMenuNavigation> {
                   _onMenuItemSelected(AppConstants.reports);
                 },
               ),
+              _buildDrawerMenuItem(
+                AppConstants.icReport,
+                AppConstants.configuration,
+                    () {
+                  _onMenuItemSelected(AppConstants.configuration);
+                },
+              ),
               AppWidgetUtils.buildSizedBox(custHeight: 30),
               _buildLogoutMenuItem(),
               AppWidgetUtils.buildSizedBox(custHeight: 20),
@@ -307,6 +315,8 @@ class _SideMenuNavigationState extends State<SideMenuNavigation> {
         return const ReportScreen();
       case AppConstants.voucherReceipt:
         return const VoucherReceiptList();
+      case AppConstants.configuration:
+        return const ConfigurationView();
 
       case AppConstants.logOut:
         return Container();

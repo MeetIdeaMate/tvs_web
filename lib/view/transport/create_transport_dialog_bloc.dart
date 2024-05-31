@@ -1,10 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:tlbilling/api_service/app_service_utils.dart';
+import 'package:tlbilling/models/get_model/get_transport_by_pagination.dart';
+import 'package:tlbilling/models/post_model/add_transport_model.dart';
+import 'package:tlbilling/view/transfer/new_transfer/tranfer_details.dart';
 
 abstract class CreateTransportBloc {
   TextEditingController get transportNameController;
+
   TextEditingController get transportMobNoController;
+
   TextEditingController get transportCityController;
+
   GlobalKey<FormState> get transportFormKey;
+
+  Future<void> addTransport(Function(int statusCode) successCallBack);
+
+  Future<TransportDetails?> getTransportDetailById(String transportId);
+
+  Future<void> editTransport(
+      String transportId, Function(int statusCode) successCallBack);
+
+  bool get isAsyncCall;
 }
 
 class CreateTransportBlocImpl extends CreateTransportBloc {
@@ -12,6 +28,8 @@ class CreateTransportBlocImpl extends CreateTransportBloc {
   final _transportNameController = TextEditingController();
   final _transportMobNoController = TextEditingController();
   final _transportCityController = TextEditingController();
+  final _apiServices = AppServiceUtilImpl();
+  bool _isAsyncCall = false;
 
   @override
   TextEditingController get transportCityController => _transportCityController;
@@ -25,4 +43,38 @@ class CreateTransportBlocImpl extends CreateTransportBloc {
 
   @override
   GlobalKey<FormState> get transportFormKey => _transportFormKey;
+
+  @override
+  Future<void> addTransport(Function(int statusCode) successCallBack) async {
+    return _apiServices.addTransport(
+        AddTransportModel(
+            mobileNo: transportMobNoController.text,
+            city: transportCityController.text,
+            transportName: transportNameController.text),
+        successCallBack);
+  }
+
+  @override
+  Future<TransportDetails?> getTransportDetailById(String transportId) async {
+    return _apiServices.getTransportDetailsById(transportId);
+  }
+
+  @override
+  Future<void> editTransport(
+      String transportId, Function(int statusCode) successCallBack) async {
+    return _apiServices.editTransport(
+        transportId,
+        AddTransportModel(
+            mobileNo: transportMobNoController.text,
+            city: transportCityController.text,
+            transportName: transportNameController.text),
+        successCallBack);
+  }
+
+  @override
+  bool get isAsyncCall => _isAsyncCall;
+
+  set isAsyncCall(bool newValue) {
+    _isAsyncCall = newValue;
+  }
 }
