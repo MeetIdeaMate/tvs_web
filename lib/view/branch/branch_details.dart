@@ -1,10 +1,15 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:tlbilling/models/get_model/get_all_branches_by_pagination.dart';
 import 'package:tlbilling/utils/app_colors.dart';
 import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/utils/app_util_widgets.dart';
 
 class BranchDetails extends StatefulWidget {
-  const BranchDetails({super.key});
+  final List<SubBranch>? subBranches;
+  final String? mainBranchName;
+
+  const BranchDetails({super.key, this.subBranches, this.mainBranchName});
 
   @override
   State<BranchDetails> createState() => _BranchDetailsState();
@@ -58,11 +63,11 @@ class _BranchDetailsState extends State<BranchDetails> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           AppWidgetUtils.buildText(
-              text: AppConstants.branchName,
+              text: widget.mainBranchName,
               color: _appColors.grey,
               fontSize: 12),
           AppWidgetUtils.buildText(
-              text: AppConstants.hasiniMotor,
+              text: widget.mainBranchName,
               color: _appColors.blackColor,
               fontSize: 16),
           const Divider(),
@@ -71,90 +76,46 @@ class _BranchDetailsState extends State<BranchDetails> {
               color: _appColors.primaryColor,
               fontWeight: FontWeight.w500,
               fontSize: 14),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Container(
-              height: 60,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(5),
-                border: Border.all(
-                  color: _appColors.grey,
-                ),
-              ),
-              child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 8, horizontal: 17),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    AppWidgetUtils.buildText(
-                        text: 'SK motors',
-                        color: _appColors.blackColor,
-                        fontSize: 17),
-                    AppWidgetUtils.buildText(
-                        text: 'satur', color: _appColors.grey, fontSize: 11),
-                  ],
-                ),
-              ),
+          SizedBox(
+            height: 300,
+            width: 300,
+            child: ListView.builder(
+              itemCount: widget.subBranches?.length ?? 0,
+              itemBuilder: (context, index) {
+                final subBranch = widget.subBranches![index];
+                return Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Container(
+                    height: 60,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(5),
+                      border: Border.all(
+                        color: _appColors.grey,
+                      ),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 8, horizontal: 17),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          AppWidgetUtils.buildText(
+                              text: subBranch.branchName,
+                              color: _appColors.blackColor,
+                              fontSize: 17),
+                          AppWidgetUtils.buildText(
+                              text: subBranch.city,
+                              color: _appColors.grey,
+                              fontSize: 11),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              },
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Container(
-              height: 60,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(5),
-                border: Border.all(
-                  color: _appColors.grey,
-                ),
-              ),
-              child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 8, horizontal: 17),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    AppWidgetUtils.buildText(
-                        text: 'SK motors',
-                        color: _appColors.blackColor,
-                        fontSize: 17),
-                    AppWidgetUtils.buildText(
-                        text: 'satur', color: _appColors.grey, fontSize: 11),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Container(
-              height: 60,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(5),
-                border: Border.all(
-                  color: _appColors.grey,
-                ),
-              ),
-              child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 8, horizontal: 17),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    AppWidgetUtils.buildText(
-                        text: 'SK motors',
-                        color: _appColors.blackColor,
-                        fontSize: 17),
-                    AppWidgetUtils.buildText(
-                        text: 'satur', color: _appColors.grey, fontSize: 11),
-                  ],
-                ),
-              ),
-            ),
-          )
         ],
       ),
     );

@@ -62,9 +62,9 @@ class _CreateEmployeeDialogState extends State<CreateEmployeeDialog> {
       _createEmployeeDialogBlocImpl.empaddressController.text =
           value?.address ?? '';
       _createEmployeeDialogBlocImpl.selectedEmpBranch = value?.branchName ?? '';
+
       _createEmployeeDialogBlocImpl.selectEmpGender = value?.gender ?? '';
       _createEmployeeDialogBlocImpl.selectedEmpType = value?.designation ?? '';
-      setState(() {});
     });
   }
 
@@ -127,6 +127,7 @@ class _CreateEmployeeDialogState extends State<CreateEmployeeDialog> {
         children: [
           AppWidgetUtils.buildSizedBox(custHeight: 10),
           _buildEmpNameAndEmailFields(),
+          //AppWidgetUtils.buildSizedBox(custHeight: 13),
           _empTypeAndBranchFields(),
           AppWidgetUtils.buildSizedBox(custHeight: 13),
           _buildAgeGenderAndCityFields(),

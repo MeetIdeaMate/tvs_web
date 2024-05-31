@@ -8,6 +8,7 @@ import 'package:tlbilling/utils/app_colors.dart';
 import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/utils/app_util_widgets.dart';
 import 'package:tlbilling/utils/app_utils.dart';
+import 'package:tlbilling/view/employee/create_employee_dialog.dart';
 import 'package:tlbilling/view/voucher_receipt/new_voucher/new_voucher_bloc.dart';
 import 'package:tlbilling/view/voucher_receipt/vouecher_receipt_list_bloc.dart';
 import 'package:tlds_flutter/components/tlds_input_form_field.dart';
@@ -108,7 +109,12 @@ class _NewVoucherState extends State<NewVoucher> {
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 6)),
                   backgroundColor:
                       MaterialStateProperty.all(_appColors.primaryColor)),
-              onPressed: () {},
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (context) => const CreateEmployeeDialog(),
+                );
+              },
               icon: SvgPicture.asset(AppConstants.icaddUser),
               color: _appColors.whiteColor,
             ),
