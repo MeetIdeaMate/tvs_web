@@ -195,27 +195,31 @@ class _CreateBranchDialogState extends State<CreateBranchDialog> {
         ),
         AppWidgetUtils.buildSizedBox(custWidth: 14),
         Expanded(
-          child: FutureBuilder(
-            future: _createBranchDialogBlocImpl.getCities(),
-            builder: (context, snapshot) {
-              return CustomDropDownButtonFormField(
-                // height: 72,
-                requiredLabelText:
-                    AppWidgetUtils.labelTextWithRequired(AppConstants.city),
-                dropDownItems: snapshot.data ?? [],
-                hintText: AppConstants.exSelect,
-                dropDownValue: _createBranchDialogBlocImpl.selectedCity,
-                validator: (value) {
-                  return InputValidations.nameValidation(value ?? '');
-                },
-                onChange: (String? newValue) {
-                  _createBranchDialogBlocImpl.selectedCity = newValue ?? '';
-                },
-              );
-            },
-          ),
+          child: _buildCityField(),
         ),
       ],
+    );
+  }
+
+  Widget _buildCityField() {
+    return FutureBuilder(
+      future: _createBranchDialogBlocImpl.getCities(),
+      builder: (context, snapshot) {
+        return CustomDropDownButtonFormField(
+          // height: 72,
+          requiredLabelText:
+              AppWidgetUtils.labelTextWithRequired(AppConstants.city),
+          dropDownItems: snapshot.data ?? [],
+          hintText: AppConstants.exSelect,
+          dropDownValue: _createBranchDialogBlocImpl.selectedCity,
+          validator: (value) {
+            return InputValidations.nameValidation(value ?? '');
+          },
+          onChange: (String? newValue) {
+            _createBranchDialogBlocImpl.selectedCity = newValue ?? '';
+          },
+        );
+      },
     );
   }
 
