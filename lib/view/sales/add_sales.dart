@@ -18,6 +18,12 @@ class AddSales extends StatefulWidget {
 class _AddSalesState extends State<AddSales> {
   final _appColors = AppColors();
   final _addSalesBloc = AddSalesBlocImpl();
+  @override
+  void initState() {
+    super.initState();
+    _addSalesBloc.selectedVehicleAndAccessories = 'Vehicle';
+    _addSalesBloc.selectedVehicleAndAccessoriesStreamController(true);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -74,6 +80,7 @@ class _AddSalesState extends State<AddSales> {
         child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 10),
             decoration: BoxDecoration(
+              border: Border.all(color: _appColors.hightlightColor),
               borderRadius: const BorderRadius.all(Radius.circular(8)),
               color: _appColors.lightBgColor,
             ),

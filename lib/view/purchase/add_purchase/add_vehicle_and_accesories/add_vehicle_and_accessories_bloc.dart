@@ -1,9 +1,11 @@
 import 'dart:async';
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:tlbilling/api_service/app_service_utils.dart';
+import 'package:tlbilling/models/purchase_bill_data.dart';
 
 abstract class AddVehicleAndAccessoriesBloc {
+  GlobalKey<FormState> get purchaseFormKey;
+
   TextEditingController get invoiceNumberController;
 
   TextEditingController get purchaseRefController;
@@ -39,6 +41,27 @@ abstract class AddVehicleAndAccessoriesBloc {
   String? get vendorDropDownValue;
 
   String? get selectedPurchaseType;
+  List<Map<String, String>> get engineDetailsList;
+
+  Stream get updateEngineDetailsStream;
+  Stream get refreshEngineListStream;
+  FocusNode get engineNoFocusNode;
+  FocusNode get frameNumberFocusNode;
+  FocusNode get inVoiceDateFocusNode;
+  FocusNode get purchaseRefFocusNode;
+  FocusNode get carrierNameFocusNode;
+  FocusNode get carrierNoFocusNode;
+
+  FocusNode get varientFocusNode;
+  FocusNode get colorFocusNode;
+  FocusNode get hsnCodeFocusNode;
+  FocusNode get unitRateFocusNode;
+  FocusNode get partNoFocusNode;
+  List<PurchaseBillData> get purchaseBillDataList;
+
+  Future<List<String>> getAllVendorNameList();
+  List<String> get vendorNamesList;
+  ScrollController get engineListScrollController;
 }
 
 class AddVehicleAndAccessoriesBlocImpl extends AddVehicleAndAccessoriesBloc {
@@ -58,10 +81,29 @@ class AddVehicleAndAccessoriesBlocImpl extends AddVehicleAndAccessoriesBloc {
   final _colorController = TextEditingController();
   final _invoiceDateController = TextEditingController();
   final _selectedPurchaseTypeStream = StreamController.broadcast();
+  final _engineDetailsStreamController = StreamController.broadcast();
   String? _vendorDropDownValue;
   String? _selectedPurchaseType;
   List<String> selectVendor = ['Ajithkumar', 'Peter', 'Prasath'];
   late Set<String> optionsSet = {selectedPurchaseType ?? ''};
+  final List<Map<String, String>> _engineDetailsList = [];
+  final _refreshEngineDetailsListStream = StreamController.broadcast();
+  final _frameNumberFocusNode = FocusNode();
+  final _inVoiceDateFocusNode = FocusNode();
+  final _purchaseRefFocusNode = FocusNode();
+  final _carrierNameFocusNode = FocusNode();
+  final _carrierNoFocusNode = FocusNode();
+  final _engineNoFocusNode = FocusNode();
+  final _varientFocusNode = FocusNode();
+  final _colorFocusNode = FocusNode();
+  final _hsnCodeFocusNode = FocusNode();
+  final _unitRateFocusNode = FocusNode();
+  final _partNoFocusNode = FocusNode();
+  final _purchaseFormKey = GlobalKey<FormState>();
+  final List<PurchaseBillData> _purchaseBillDataList = [];
+  final _apiServices = AppServiceUtilImpl();
+  List<String> _vendorNamesList = [];
+  var _engineListScrollController = ScrollController();
 
   @override
   String? get vendorDropDownValue => _vendorDropDownValue;
@@ -138,4 +180,78 @@ class AddVehicleAndAccessoriesBlocImpl extends AddVehicleAndAccessoriesBloc {
 
   @override
   TextEditingController get invoiceDateController => _invoiceDateController;
+
+  @override
+  List<Map<String, String>> get engineDetailsList => _engineDetailsList;
+
+  @override
+  Stream get updateEngineDetailsStream => _engineDetailsStreamController.stream;
+
+  engineDetailsStreamController(bool streamValue) {
+    _engineDetailsStreamController.add(streamValue);
+  }
+
+  @override
+  Stream get refreshEngineListStream => _refreshEngineDetailsListStream.stream;
+  refreshEngineDetailsListStramController(bool streamValue) {
+    _refreshEngineDetailsListStream.add(streamValue);
+  }
+
+  @override
+  FocusNode get frameNumberFocusNode => _frameNumberFocusNode;
+
+  @override
+  FocusNode get carrierNameFocusNode => _carrierNameFocusNode;
+
+  @override
+  FocusNode get carrierNoFocusNode => _carrierNoFocusNode;
+
+  @override
+  FocusNode get inVoiceDateFocusNode => _inVoiceDateFocusNode;
+
+  @override
+  FocusNode get purchaseRefFocusNode => _purchaseRefFocusNode;
+
+  @override
+  FocusNode get colorFocusNode => _colorFocusNode;
+
+  @override
+  FocusNode get hsnCodeFocusNode => _hsnCodeFocusNode;
+
+  @override
+  FocusNode get unitRateFocusNode => _unitRateFocusNode;
+
+  @override
+  FocusNode get varientFocusNode => _varientFocusNode;
+
+  @override
+  FocusNode get engineNoFocusNode => _engineNoFocusNode;
+
+  @override
+  FocusNode get partNoFocusNode => _partNoFocusNode;
+
+  @override
+  GlobalKey<FormState> get purchaseFormKey => _purchaseFormKey;
+
+  @override
+  List<PurchaseBillData> get purchaseBillDataList => _purchaseBillDataList;
+
+  @override
+  Future<List<String>> getAllVendorNameList() async {
+    return await _apiServices.getAllVendorNameList();
+  }
+
+  @override
+  List<String> get vendorNamesList => _vendorNamesList;
+
+  set vendorNamesList(List<String> value) {
+    _vendorNamesList = value;
+  }
+
+  @override
+  ScrollController get engineListScrollController =>
+      _engineListScrollController;
+  set engineListScrollController(ScrollController scrollController) {
+    _engineListScrollController = scrollController;
+  }
 }

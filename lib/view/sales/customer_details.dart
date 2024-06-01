@@ -6,6 +6,7 @@ import 'package:tlbilling/components/custom_elevated_button.dart';
 import 'package:tlbilling/utils/app_colors.dart';
 import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/utils/app_util_widgets.dart';
+import 'package:tlbilling/view/customer/create_customer_dialog.dart';
 import 'package:tlbilling/view/sales/add_sales_bloc.dart';
 import 'package:tlds_flutter/components/tlds_dropdown_button_form_field.dart';
 
@@ -50,7 +51,12 @@ class _CustomerDetailsState extends State<CustomerDetails> {
         AppWidgetUtils.buildSizedBox(custHeight: 10),
         _buildPaymentMethodSelection(context),
         const Spacer(),
-        CustomActionButtons(onPressed: () {}, buttonText: AppConstants.save)
+        CustomActionButtons(
+            onPressed: () {
+              if (widget.addSalesBloc.selectedPaymentOption != null ||
+                  widget.addSalesBloc.selectedCustomer != null) {}
+            },
+            buttonText: AppConstants.save)
       ],
     );
   }
@@ -154,14 +160,22 @@ class _CustomerDetailsState extends State<CustomerDetails> {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Expanded(
-          child: TldsDropDownButtonFormField(
-            height: 40,
-            width: MediaQuery.sizeOf(context).width * 0.21,
-            hintText: AppConstants.selectCustomer,
-            dropDownItems: const [],
-            onChange: (String? newValue) {},
-          ),
+        FutureBuilder(
+          future: widget.addSalesBloc.getAllCustomerList(),
+          builder: (context, snapshot) {
+            return Expanded(
+              child: TldsDropDownButtonFormField(
+                dropDownValue: widget.addSalesBloc.selectedCustomer,
+                height: 40,
+                width: MediaQuery.sizeOf(context).width * 0.21,
+                hintText: AppConstants.selectCustomer,
+                dropDownItems: const [],
+                onChange: (String? newValue) {
+                  widget.addSalesBloc.selectedCustomer = newValue;
+                },
+              ),
+            );
+          },
         ),
         AppWidgetUtils.buildSizedBox(custWidth: 10),
         CustomElevatedButton(
@@ -172,6 +186,14 @@ class _CustomerDetailsState extends State<CustomerDetails> {
           buttonBackgroundColor: _appColors.primaryColor,
           fontColor: _appColors.whiteColor,
           suffixIcon: SvgPicture.asset(AppConstants.icHumanAdd),
+          onPressed: () {
+            showDialog(
+              context: context,
+              builder: (context) {
+                return const CreateCustomerDialog();
+              },
+            );
+          },
         )
       ],
     );
@@ -236,44 +258,41 @@ class _CustomerDetailsState extends State<CustomerDetails> {
   }
 
   Widget _buildPaymentOptions() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-        _buildCustomRadioTile(
-          value: AppConstants.credit,
-          groupValue: widget.addSalesBloc.selectedPaymentOption,
-          onChanged: (value) {
-            setState(() {
-              widget.addSalesBloc.selectedPaymentOption = value!;
-            });
-          },
-          icon: Icons.credit_card,
-          label: AppConstants.credit.toUpperCase(),
-        ),
-        _buildCustomRadioTile(
-          value: AppConstants.loan,
-          groupValue: widget.addSalesBloc.selectedPaymentOption,
-          onChanged: (value) {
-            setState(() {
-              widget.addSalesBloc.selectedPaymentOption = value!;
-            });
-          },
-          icon: Icons.monetization_on,
-          label: AppConstants.loan.toUpperCase(),
-        ),
-        _buildCustomRadioTile(
-          value: AppConstants.partPayment,
-          groupValue: widget.addSalesBloc.selectedPaymentOption,
-          onChanged: (value) {
-            setState(() {
-              widget.addSalesBloc.selectedPaymentOption = value!;
-            });
-          },
-          icon: Icons.payment,
-          label: AppConstants.partPayment.toUpperCase(),
-        ),
-      ],
+    return FutureBuilder(
+      future: widget.addSalesBloc.getPaymentmethods(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        } else if (snapshot.hasData) {
+          return SizedBox(
+            height: 200,
+            width: 180,
+            child: ListView.separated(
+              itemCount: snapshot.data?.length ?? 0,
+              itemBuilder: (context, index) => _buildCustomRadioTile(
+                value: snapshot.data?[index].toString() ?? '',
+                groupValue: widget.addSalesBloc.selectedPaymentOption,
+                onChanged: (value) {
+                  setState(() {
+                    widget.addSalesBloc.selectedPaymentOption = value!;
+                  });
+                },
+                icon: Icons.payment,
+                label: snapshot.data?[index].toUpperCase() ?? '',
+              ),
+              separatorBuilder: (BuildContext context, int index) {
+                return AppWidgetUtils.buildSizedBox(custHeight: 8);
+              },
+            ),
+          );
+        } else {
+          return const Center(
+            child: Text('No Payment Methods Available'),
+          );
+        }
+      },
     );
   }
 }

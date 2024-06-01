@@ -49,6 +49,90 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
                 );
               }),
         ),
+        _buildGSTType(),
+        AppWidgetUtils.buildSizedBox(custHeight: 10),
+        _buildDiscount(context),
+        const Divider(),
+        AppWidgetUtils.buildSizedBox(custHeight: 10),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            const Text(
+              'Taxable Amount : ₹ 10,0000',
+              style: TextStyle(fontSize: 14),
+            ),
+            AppWidgetUtils.buildSizedBox(custHeight: 6),
+            const Text('CGST (14%)  : ₹ 14,000',
+                style: TextStyle(fontSize: 14)),
+            AppWidgetUtils.buildSizedBox(custHeight: 6),
+            const Text('SGST(14%) :  ₹ 14,000', style: TextStyle(fontSize: 14)),
+            AppWidgetUtils.buildSizedBox(custHeight: 6),
+            const Text('Disc :  10%', style: TextStyle(fontSize: 14)),
+            AppWidgetUtils.buildSizedBox(custHeight: 10),
+            Container(
+              padding: const EdgeInsets.all(15),
+              decoration: BoxDecoration(
+                  color: _appColors.bgHighlightColor,
+                  borderRadius: const BorderRadius.all(Radius.circular(8))),
+              child: const Text('Total Inv Amount : ₹ 12,8000',
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+            ),
+            AppWidgetUtils.buildSizedBox(custHeight: 10),
+            Row(
+              children: [
+                Checkbox(
+                  value: widget.addSalesBloc.isInsurenceChecked,
+                  onChanged: (value) {
+                    setState(() {
+                      widget.addSalesBloc.isInsurenceChecked = value!;
+                    });
+                  },
+                ),
+                AppWidgetUtils.buildSizedBox(custWidth: 5),
+                const Text('Insurance for the vehicle YES / NO'),
+              ],
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDiscount(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Row(
+          children: [
+            Checkbox(
+              value: widget.addSalesBloc.isDiscountChecked,
+              onChanged: (value) {
+                setState(() {
+                  widget.addSalesBloc.isDiscountChecked = value ?? false;
+                });
+              },
+            ),
+            AppWidgetUtils.buildSizedBox(custWidth: 5),
+            const Text(AppConstants.discount),
+          ],
+        ),
+        AppWidgetUtils.buildSizedBox(custHeight: 10),
+        if (widget.addSalesBloc.isDiscountChecked)
+          TldsInputFormField(
+            controller: widget.addSalesBloc.discountTextController,
+            width: 150,
+            hintText: AppConstants.discount,
+          ),
+      ],
+    );
+  }
+
+  Widget _buildGSTType() {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
         Text(
           AppConstants.gstType,
           style: TextStyle(
@@ -86,70 +170,6 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
                   },
                 ),
                 const Text('IGST(%)'),
-              ],
-            ),
-          ],
-        ),
-        AppWidgetUtils.buildSizedBox(custHeight: 10),
-        Row(
-          children: [
-            Checkbox(
-              value: widget.addSalesBloc.isDiscountChecked,
-              onChanged: (value) {
-                setState(() {
-                  widget.addSalesBloc.isDiscountChecked = value ?? false;
-                });
-              },
-            ),
-            AppWidgetUtils.buildSizedBox(custWidth: 5),
-            const Text(AppConstants.discount),
-          ],
-        ),
-        AppWidgetUtils.buildSizedBox(custHeight: 10),
-        if (widget.addSalesBloc.isDiscountChecked)
-          TldsInputFormField(
-            controller: widget.addSalesBloc.discountTextController,
-            width: MediaQuery.sizeOf(context).width,
-            hintText: AppConstants.discount,
-          ),
-        const Divider(),
-        AppWidgetUtils.buildSizedBox(custHeight: 10),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            const Text(
-              'Taxable Amount : ₹ 10,0000',
-              style: TextStyle(fontSize: 17),
-            ),
-            AppWidgetUtils.buildSizedBox(custHeight: 6),
-            const Text('CGST (14%)  : ₹ 14,000',
-                style: TextStyle(fontSize: 17)),
-            AppWidgetUtils.buildSizedBox(custHeight: 6),
-            const Text('SGST(14%) :  ₹ 14,000', style: TextStyle(fontSize: 17)),
-            AppWidgetUtils.buildSizedBox(custHeight: 6),
-            const Text('Disc :  10%', style: TextStyle(fontSize: 17)),
-            AppWidgetUtils.buildSizedBox(custHeight: 10),
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                  color: _appColors.bgHighlightColor,
-                  borderRadius: const BorderRadius.all(Radius.circular(8))),
-              child: const Text('Total Inv Amount : ₹ 12,8000',
-                  style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold)),
-            ),
-            AppWidgetUtils.buildSizedBox(custHeight: 10),
-            Row(
-              children: [
-                Checkbox(
-                  value: widget.addSalesBloc.isInsurenceChecked,
-                  onChanged: (value) {
-                    setState(() {
-                      widget.addSalesBloc.isInsurenceChecked = value!;
-                    });
-                  },
-                ),
-                AppWidgetUtils.buildSizedBox(custWidth: 5),
-                const Text('Insurance for the vehicle YES / NO'),
               ],
             ),
           ],

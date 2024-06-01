@@ -1,10 +1,13 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:tlbilling/components/custom_elevated_button.dart';
 import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/utils/app_util_widgets.dart';
+import 'package:tlbilling/utils/input_formates.dart';
+
 import 'package:tlbilling/view/purchase/add_purchase/add_purchase.dart';
 import 'package:tlbilling/view/purchase/purchase_view_bloc.dart';
 import 'package:tlds_flutter/components/tlds_input_form_field.dart';
@@ -83,8 +86,10 @@ class _PurchaseViewState extends State<PurchaseView>
               stream: _purchaseViewBloc.invoiceSearchFieldControllerStream,
               builder: (context, snapshot) {
                 return _buildFormField(
-                    _purchaseViewBloc.invoiceSearchFieldController,
-                    AppConstants.invoiceNo);
+                  _purchaseViewBloc.invoiceSearchFieldController,
+                  AppConstants.invoiceNo,
+                  TlInputFormatters.onlyAllowAlphabetAndNumber,
+                );
               },
             ),
             AppWidgetUtils.buildSizedBox(
@@ -94,8 +99,10 @@ class _PurchaseViewState extends State<PurchaseView>
               stream: _purchaseViewBloc.partNoSearchFieldControllerStream,
               builder: (context, snapshot) {
                 return _buildFormField(
-                    _purchaseViewBloc.partNoSearchFieldController,
-                    AppConstants.partNo);
+                  _purchaseViewBloc.partNoSearchFieldController,
+                  AppConstants.partNo,
+                  TlInputFormatters.onlyAllowNumbers,
+                );
               },
             ),
             AppWidgetUtils.buildSizedBox(
@@ -105,8 +112,10 @@ class _PurchaseViewState extends State<PurchaseView>
               stream: _purchaseViewBloc.vehicleSearchFieldControllerStream,
               builder: (context, snapshot) {
                 return _buildFormField(
-                    _purchaseViewBloc.vehicleSearchFieldController,
-                    AppConstants.vehicleNumber);
+                  _purchaseViewBloc.vehicleSearchFieldController,
+                  AppConstants.vehicleNumber,
+                  TlInputFormatters.onlyAllowAlphabetAndNumber,
+                );
               },
             ),
             AppWidgetUtils.buildSizedBox(
@@ -116,8 +125,10 @@ class _PurchaseViewState extends State<PurchaseView>
               stream: _purchaseViewBloc.hsnCodeSearchFieldControllerStream,
               builder: (context, snapshot) {
                 return _buildFormField(
-                    _purchaseViewBloc.hsnCodeSearchFieldController,
-                    AppConstants.hsnCode);
+                  _purchaseViewBloc.hsnCodeSearchFieldController,
+                  AppConstants.hsnCode,
+                  TlInputFormatters.onlyAllowNumbers,
+                );
               },
             ),
           ],
@@ -146,12 +157,13 @@ class _PurchaseViewState extends State<PurchaseView>
     );
   }
 
-  Widget _buildFormField(
-      TextEditingController textController, String hintText) {
+  Widget _buildFormField(TextEditingController textController, String hintText,
+      List<TextInputFormatter>? inputFormatters) {
     final bool isTextEmpty = textController.text.isEmpty;
     final IconData iconData = isTextEmpty ? Icons.search : Icons.close;
     final Color iconColor = isTextEmpty ? _appColors.primaryColor : Colors.red;
     return TldsInputFormField(
+      inputFormatters: inputFormatters,
       width: 203,
       height: 40,
       controller: textController,
