@@ -64,6 +64,6 @@ class SaledReportBlocImpl extends SalesReportBloc {
 
   @override
   Future<ParentResponseModel> getConfigById({String? configId}) {
-    return _apiServiceBlocImpl.getConfigById(configId: configId);
+    return _apiServiceBlocImpl.getConfigurationById(configId: configId);
   }
 }

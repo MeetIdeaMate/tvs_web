@@ -29,7 +29,6 @@ class _NewVoucherState extends State<NewVoucher> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      backgroundColor: _appColors.whiteColor,
       content: SizedBox(
         width: MediaQuery.sizeOf(context).width * 0.4,
         child: Column(
