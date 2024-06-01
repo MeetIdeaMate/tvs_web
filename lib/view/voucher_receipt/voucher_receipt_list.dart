@@ -86,14 +86,34 @@ class _VoucherReceiptListState extends State<VoucherReceiptList>
               },
             ),
             AppWidgetUtils.buildSizedBox(custWidth: 15),
-            TldsDropDownButtonFormField(
-              height: 40,
-              width: MediaQuery.sizeOf(context).width * 0.15,
-              dropDownItems: _voucherReceiptBloc.employeeList,
-              dropDownValue: _voucherReceiptBloc.selectedEmployee,
-              hintText: AppConstants.employee,
-              onChange: (String? value) {
-                _voucherReceiptBloc.selectedEmployee = value;
+            FutureBuilder(
+              future: _voucherReceiptBloc.getEmployeeName(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: Text(AppConstants.loading));
+                } else if (snapshot.hasError) {
+                  return const Center(child: Text(AppConstants.errorLoading));
+                } else if (!snapshot.hasData ||
+                    snapshot.data!.result == null ||
+                    snapshot.data!.result!.employeeListModel == null) {
+                  return const Center(child: Text(AppConstants.noData));
+                }
+
+                final employeesList = snapshot.data!.result!.employeeListModel;
+                final employeeNamesSet = employeesList!
+                    .map((result) => result.employeeName ?? "")
+                    .toSet();
+                List<String> employeeNamesList = employeeNamesSet.toList();
+                return TldsDropDownButtonFormField(
+                  height: 40,
+                  width: MediaQuery.sizeOf(context).width * 0.15,
+                  dropDownItems: employeeNamesList,
+                  dropDownValue: _voucherReceiptBloc.selectedEmployee,
+                  hintText: AppConstants.employee,
+                  onChange: (String? value) {
+                    _voucherReceiptBloc.selectedEmployee = value;
+                  },
+                );
               },
             ),
           ],

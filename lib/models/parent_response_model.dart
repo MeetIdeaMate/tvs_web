@@ -103,8 +103,8 @@ class ResultObj {
         getAllVendorByPagination: json['vendorsWithPage'] != null
             ? GetAllVendorByPagination.fromJson(json['vendorsWithPage'])
             : null,
-        vendorById: json["employee"] != null
-            ? GetVendorById.fromJson(json["employee"])
+        vendorById: json["vendor"] != null
+            ? GetVendorById.fromJson(json["vendor"])
             : null,
       );
 

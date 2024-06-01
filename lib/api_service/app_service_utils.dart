@@ -43,6 +43,7 @@ abstract class AppServiceUtil {
 
   Future<List<String>> getConfigByIdModel({String? configId});
   Future<ParentResponseModel> getEmployeesName();
+  Future<ParentResponseModel> getConfigById({String? configId});
 
   Future<GetAllEmployeesByPaginationModel> getAllEmployeesByPaginationModel(
       int currentPage,
@@ -230,6 +231,22 @@ class AppServiceUtilImpl extends AppServiceUtil {
               ?.getConfigModel
               ?.configuration ??
           [];
+    } else {
+      throw Exception('Failed to load employee data: ${response.statusCode}');
+    }
+  }
+
+  @override
+  Future<ParentResponseModel> getConfigById({String? configId}) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var token = prefs.getString('token');
+    dio.options.headers['Authorization'] = 'Bearer $token';
+    String configUrl = '${AppUrl.config}$configId';
+
+    final response = await dio.get(configUrl);
+
+    if (response.statusCode == 200) {
+      return parentResponseModelFromJson(jsonEncode(response.data));
     } else {
       throw Exception('Failed to load employee data: ${response.statusCode}');
     }
@@ -453,7 +470,7 @@ class AppServiceUtilImpl extends AppServiceUtil {
     var token = prefs.getString('token');
     dio.options.headers['Authorization'] = 'Bearer $token';
     var response = await dio.get(vendorUrl);
-
+    print(vendorUrl);
     var vendorDetails = parentResponseModelFromJson(jsonEncode(response.data))
         .result
         ?.vendorById;

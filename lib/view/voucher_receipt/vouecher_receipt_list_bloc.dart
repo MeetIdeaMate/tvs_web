@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:tlbilling/api_service/app_service_utils.dart';
+import 'package:tlbilling/models/parent_response_model.dart';
 import 'package:tlbilling/utils/app_constants.dart';
 
 abstract class VoucherReceiptListBloc {
@@ -13,6 +15,8 @@ abstract class VoucherReceiptListBloc {
   Stream get receiptIdStream;
 
   String? get selectedEmployee;
+
+  Future<ParentResponseModel> getEmployeeName();
 }
 
 class VoucherReceiptListBlocImpl extends VoucherReceiptListBloc {
@@ -20,6 +24,8 @@ class VoucherReceiptListBlocImpl extends VoucherReceiptListBloc {
   final _receiptIdStream = StreamController.broadcast();
   final _receiptIdTextController = TextEditingController();
   List<String> employeeList = ['Ajith', 'Karthik', 'Senthil'];
+  final __appServiceUtilsImpl = AppServiceUtilImpl();
+
   List<Map<String, String>> rowData = [
     {
       AppConstants.sno: '1',
@@ -82,5 +88,10 @@ class VoucherReceiptListBlocImpl extends VoucherReceiptListBloc {
   String? get selectedEmployee => _selectedEmployee;
   set selectedEmployee(String? value) {
     _selectedEmployee = value;
+  }
+
+  @override
+  Future<ParentResponseModel> getEmployeeName() {
+    return __appServiceUtilsImpl.getEmployeesName();
   }
 }

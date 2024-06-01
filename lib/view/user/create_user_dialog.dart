@@ -120,11 +120,11 @@ class _CreateUserDialogState extends State<CreateUserDialog> {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return const Center(child: Text(AppConstants.loading));
                     } else if (snapshot.hasError) {
-                      return Center(child: Text('Error: ${snapshot.error}'));
+                      return Center(child: Text(AppConstants.errorLoading));
                     } else if (!snapshot.hasData ||
                         snapshot.data!.result == null ||
                         snapshot.data!.result!.employeeListModel == null) {
-                      return const Center(child: Text('No data available'));
+                      return const Center(child: Text(AppConstants.noData));
                     }
                     final employeesList =
                         snapshot.data!.result!.employeeListModel;
@@ -184,7 +184,7 @@ class _CreateUserDialogState extends State<CreateUserDialog> {
                                   : AppConstants.exSelect,
                           validator: (String? value) {
                             if (value!.isEmpty) {
-                              return 'select employee name';
+                              return AppConstants.aadharDigitErrorText;
                             }
                             return null;
                           },

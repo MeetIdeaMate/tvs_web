@@ -12,15 +12,18 @@ import 'package:tlbilling/utils/input_validation.dart';
 import 'package:tlbilling/view/employee/create_employee_dialog_bloc.dart';
 import 'package:tlbilling/view/employee/employee_view_bloc.dart';
 import 'package:tlbilling/view/user/create_user_dialog_bloc.dart';
+import 'package:tlbilling/view/voucher_receipt/new_voucher/new_voucher_bloc.dart';
 import 'package:toastification/toastification.dart';
 
 class CreateEmployeeDialog extends StatefulWidget {
   final EmployeeViewBlocImpl? employeeViewBloc;
   final String? employeeId;
   final CreateUserDialogBlocImpl? createUserDialogBlocImpl;
+  final NewVoucherBlocImpl? newVoucherBloc;
 
   const CreateEmployeeDialog(
       {super.key,
+      this.newVoucherBloc,
       this.employeeViewBloc,
       this.employeeId,
       this.createUserDialogBlocImpl});
@@ -471,6 +474,8 @@ class _CreateEmployeeDialogState extends State<CreateEmployeeDialog> {
           _appColors.successLightColor);
       widget.employeeViewBloc?.employeeTableViewStream(true);
       widget.createUserDialogBlocImpl?.employeeNameSelectStream(true);
+      widget.newVoucherBloc?.payToTextStreamController(true);
+      widget.newVoucherBloc?.giverTextStreamController(true);
     } else if (statusCode == 409) {
       AppWidgetUtils.buildToast(
           context,

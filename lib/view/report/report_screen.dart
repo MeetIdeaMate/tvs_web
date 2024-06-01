@@ -31,35 +31,41 @@ class _ReportScreenState extends State<ReportScreen> {
           child: StreamBuilder<bool>(
               stream: _reportScreenBlocImpl.dropDownChangeStream,
               builder: (context, snapshot) {
-                return DropdownButtonHideUnderline(
-                  child: DropdownButton<String>(
-                    value: selectedReport,
-                    items: <DropdownMenuItem<String>>[
-                      DropdownMenuItem(
-                        value: 'one',
-                        child: AppWidgetUtils.buildHeaderText(
-                            AppConstants.purchaseReport,
-                            fontSize: 18),
+                return Row(
+                  children: [
+                    DropdownButtonHideUnderline(
+                      child: DropdownButton<String>(
+                        value: selectedReport,
+                        items: <DropdownMenuItem<String>>[
+                          DropdownMenuItem(
+                            value: 'one',
+                            child: AppWidgetUtils.buildHeaderText(
+                                AppConstants.purchaseReport,
+                                fontSize: 18),
+                          ),
+                          DropdownMenuItem(
+                            value: 'two',
+                            child: AppWidgetUtils.buildHeaderText(
+                                AppConstants.salesReport,
+                                fontSize: 18),
+                          ),
+                          DropdownMenuItem(
+                            value: 'three',
+                            child: AppWidgetUtils.buildHeaderText(
+                                AppConstants.stocksReport,
+                                fontSize: 18),
+                          ),
+                        ],
+                        onChanged: (String? value) {
+                          selectedReport = value;
+                          _reportScreenBlocImpl
+                              .dropDownChangeStreamController(true);
+                        },
                       ),
-                      DropdownMenuItem(
-                        value: 'two',
-                        child: AppWidgetUtils.buildHeaderText(
-                            AppConstants.salesReport,
-                            fontSize: 18),
-                      ),
-                      DropdownMenuItem(
-                        value: 'three',
-                        child: AppWidgetUtils.buildHeaderText(
-                            AppConstants.stocksReport,
-                            fontSize: 18),
-                      ),
-                    ],
-                    onChanged: (String? value) {
-                      selectedReport = value;
-                      _reportScreenBlocImpl
-                          .dropDownChangeStreamController(true);
-                    },
-                  ),
+                    ),
+                    const Spacer(),
+                    _buildAppBarTitle()
+                  ],
                 );
               }),
         ),
@@ -82,6 +88,26 @@ class _ReportScreenState extends State<ReportScreen> {
         return const StockReport();
       default:
         return Container();
+    }
+  }
+
+  Widget _buildAppBarTitle() {
+    switch (selectedReport) {
+      case 'one':
+        return Expanded(
+            flex: 3,
+            child: AppWidgetUtils.buildHeaderText(
+                'Over All purchase amount: 10000',
+                fontSize: 18));
+      case 'two':
+        return Expanded(
+            flex: 3,
+            child: AppWidgetUtils.buildHeaderText(
+                'Over All sales amount: 10000',
+                fontSize: 18));
+
+      default:
+        return const Text('');
     }
   }
 }

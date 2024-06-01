@@ -101,6 +101,10 @@ class AppConstants {
   static const icPrint = 'assets/icons/ic_print.svg';
   static const icClaneder = 'assets/icons/ic_calender.svg';
   static const icPdfPrint = 'assets/icons/ic_pdf_print.svg';
+  static const icFirstPage = 'assets/icons/ic_first_page.svg';
+  static const icLastPage = 'assets/icons/ic_last_page.svg';
+  static const icNextPage = 'assets/icons/ic_next_page.svg';
+  static const icPrevPage = 'assets/icons/ic_prev_page.svg';
 
   //json
   static const jsonLoader = 'assets/json/json_loading_animation.json';
@@ -186,6 +190,7 @@ class AppConstants {
   static const workType = 'Work Type';
   static const branchName = 'Branch Name';
   static const empFilterHint = 'Employee Name / Mobile Number';
+  static const selectEmployee = 'Select Employee Name';
 
   static const empType = 'Employee Type';
   static const branch = 'Branch';
@@ -331,6 +336,8 @@ class AppConstants {
 
   static const billType = 'BillType';
   static const fromDate = 'From Date';
+  static const selectFromDate = 'Select from date';
+  static const selectToDate = 'Select To Date';
   static const toDate = 'To Date';
   static const pdfGeneration = 'Generate Pdf / Print';
   static const accessoriesType = 'Accessories Type';
@@ -338,6 +345,7 @@ class AppConstants {
   static const purchaseReport = 'Purchase Report';
   static const salesReport = 'Sales Report';
   static const stocksReport = 'Stocks report';
+  static const overAllSalesReport = 'Over All sales Report';
 
   // purchaseReport Table header
 
@@ -352,11 +360,6 @@ class AppConstants {
   static const String sgstAmount = 'SGST ₹';
 
   //Pagenation
-
-  static const icFirstPage = 'assets/icons/ic_first_page.svg';
-  static const icLastPage = 'assets/icons/ic_last_page.svg';
-  static const icNextPage = 'assets/icons/ic_next_page.svg';
-  static const icPrevPage = 'assets/icons/ic_prev_page.svg';
 
   static const gstType = 'GST Type';
 

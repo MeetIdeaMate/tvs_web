@@ -139,7 +139,6 @@ class _PurchaseReportState extends State<PurchaseReport>
 
   _buildTabBar() {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Expanded(
           child: TabBar(
@@ -150,25 +149,25 @@ class _PurchaseReportState extends State<PurchaseReport>
             ],
           ),
         ),
-        AppWidgetUtils.buildSizedBox(custWidth: 20),
         StreamBuilder<bool>(
             stream: _purchaseReportBlocImpl.tabChangeStreamController,
             builder: (context, snapshot) {
-              return AppWidgetUtils.buildHeaderText(_getHeaderText(),
-                  fontSize: 18);
+              return Expanded(
+                child: Center(
+                  child: AppWidgetUtils.buildHeaderText(
+                    _getHeaderText(),
+                    fontSize: 18,
+                  ),
+                ),
+              );
             }),
-        AppWidgetUtils.buildSizedBox(custWidth: 20),
-        Expanded(
-            child: AppWidgetUtils.buildHeaderText(
-                'Over All purchase amount: 10000',
-                fontSize: 18))
       ],
     );
   }
 
   String _getHeaderText() {
     if (_purchaseReportBlocImpl.purchaseReportTabController.index == 0) {
-      return 'Over All vehicle purchase amount: 10000000';
+      return 'Over All vehicle purchase amount: 10000';
     } else {
       return 'Over All accessories purchase amount: 10000';
     }
@@ -181,22 +180,32 @@ class _PurchaseReportState extends State<PurchaseReport>
         controller: _purchaseReportBlocImpl.purchaseReportTabController,
         children: [
           //vehicles
-          searchAndTableView(
-              dropDownHintText: AppConstants.vehicleType,
-              dropDownItems: vehicles,
-              fromDateController: _purchaseVechicleBlocImpl.fromDateTextEdit,
-              toDateControler: _purchaseVechicleBlocImpl.toDateTextEdit,
-              buttonOnPressed: () {},
-              dropDownOnChange: (value) {
-                _purchaseVechicleBlocImpl.selectedVehiclesType = value;
-              },
-              dropDownValue: _purchaseVechicleBlocImpl.selectedVehiclesType,
-              columnHeaders: columnHeaders,
-              rowData: rowData),
+          _buildVehicleReportView(),
           // accessaries
-          searchAndTableView(
+          _buildAccessoriesReportView()
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAccessoriesReportView() {
+    return FutureBuilder(
+      future: _purchaseReportBlocImpl.getBranchName(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        } else if (!snapshot.hasData) {
+          return const Center(child: Text(AppConstants.noData));
+        } else {
+          final vehicleTypes = snapshot.data!.result!.getAllBranchList!
+              .map((item) => item.branchName ?? '')
+              .toList();
+
+          return searchAndTableView(
               dropDownHintText: AppConstants.accessories,
-              dropDownItems: vehicles,
+              dropDownItems: vehicleTypes,
               fromDateController: _purchaseAccessoriesBlocImpl.fromDateTextEdit,
               toDateControler: _purchaseAccessoriesBlocImpl.toDateTextEdit,
               buttonOnPressed: () {},
@@ -206,9 +215,41 @@ class _PurchaseReportState extends State<PurchaseReport>
               dropDownValue:
                   _purchaseAccessoriesBlocImpl.selectedAccessoriesType,
               columnHeaders: columnHeaders,
-              rowData: rowData)
-        ],
-      ),
+              rowData: rowData);
+        }
+      },
+    );
+  }
+
+  Widget _buildVehicleReportView() {
+    return FutureBuilder(
+      future: _purchaseReportBlocImpl.getBranchName(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        } else if (!snapshot.hasData) {
+          return const Center(child: Text(AppConstants.noData));
+        } else {
+          final vehicleTypes = snapshot.data!.result!.getAllBranchList!
+              .map((item) => item.branchName ?? '')
+              .toList();
+
+          return searchAndTableView(
+              dropDownHintText: AppConstants.vehicleType,
+              dropDownItems: vehicleTypes,
+              fromDateController: _purchaseVechicleBlocImpl.fromDateTextEdit,
+              toDateControler: _purchaseVechicleBlocImpl.toDateTextEdit,
+              buttonOnPressed: () {},
+              dropDownOnChange: (value) {
+                _purchaseVechicleBlocImpl.selectedVehiclesType = value;
+              },
+              dropDownValue: _purchaseVechicleBlocImpl.selectedVehiclesType,
+              columnHeaders: columnHeaders,
+              rowData: rowData);
+        }
+      },
     );
   }
 

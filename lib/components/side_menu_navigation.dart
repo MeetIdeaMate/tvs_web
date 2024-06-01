@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tlbilling/components/responsive.dart';
 import 'package:tlbilling/components/side_menu_navigation_bloc.dart';
 import 'package:tlbilling/utils/app_colors.dart';
@@ -14,7 +15,6 @@ import 'package:tlbilling/view/report/report_screen.dart';
 import 'package:tlbilling/view/sales/sales_view.dart';
 import 'package:tlbilling/view/stocks/stocks_view.dart';
 import 'package:tlbilling/view/transfer/transfer_view.dart';
-
 import 'package:tlbilling/view/transport/transport_view.dart';
 import 'package:tlbilling/view/user/user_view.dart';
 import 'package:tlbilling/view/vendor/vendor_view.dart';
@@ -31,11 +31,21 @@ class _SideMenuNavigationState extends State<SideMenuNavigation> {
   final _appcolors = AppColors();
   final sideMenuBloc = SideMenuNavigationBlocImpl();
   String selectedMenuItem = AppConstants.purchase;
+  String? userName;
+  String? designation;
 
   @override
   void initState() {
     super.initState();
+    getUserNameAndDesignation();
 
+    sideMenuBloc.sideMenuStreamController(true);
+  }
+
+  Future<void> getUserNameAndDesignation() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    designation = prefs.getString('designation') ?? '';
+    userName = prefs.getString('userName') ?? '';
     sideMenuBloc.sideMenuStreamController(true);
   }
 
@@ -319,28 +329,19 @@ class _SideMenuNavigationState extends State<SideMenuNavigation> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10),
       child: SizedBox(
-        child: InkWell(
-          onTap: () {
-            Navigator.pushReplacement(context, MaterialPageRoute(
-              builder: (context) {
-                return const LoginPage();
-              },
-            ));
-          },
-          child: Container(
-            decoration: const BoxDecoration(
-              borderRadius: BorderRadius.all(Radius.circular(5)),
-              color: AppColors.white12,
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(14),
-              child: Column(
-                children: [
-                  _buildName(),
-                  const Divider(),
-                  _buildBranch(),
-                ],
-              ),
+        child: Container(
+          decoration: const BoxDecoration(
+            borderRadius: BorderRadius.all(Radius.circular(5)),
+            color: AppColors.white12,
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(14),
+            child: Column(
+              children: [
+                _buildName(),
+                const Divider(),
+                _buildBranch(),
+              ],
             ),
           ),
         ),
@@ -363,16 +364,25 @@ class _SideMenuNavigationState extends State<SideMenuNavigation> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Ajithkumar',
+              userName ?? '',
               style: TextStyle(color: _appcolors.whiteColor, fontSize: 14),
             ),
             Text(
-              'admin',
+              designation ?? '',
               style: TextStyle(color: _appcolors.grey, fontSize: 9),
-            )
+            ),
           ],
         ),
-        SvgPicture.asset(AppConstants.icLogout)
+        InkWell(
+          onTap: () {
+            Navigator.pushReplacement(context, MaterialPageRoute(
+              builder: (context) {
+                return const LoginPage();
+              },
+            ));
+          },
+          child: SvgPicture.asset(AppConstants.icLogout),
+        ),
       ],
     );
   }
