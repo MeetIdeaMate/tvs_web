@@ -12,8 +12,10 @@ import 'package:tlbilling/utils/app_colors.dart';
 import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/utils/app_util_widgets.dart';
 import 'package:tlbilling/utils/app_utils.dart';
+import 'package:tlbilling/utils/input_formates.dart';
 import 'package:tlbilling/utils/input_validation.dart';
 import 'package:tlbilling/view/customer/create_customer_dialog_bloc.dart';
+import 'package:tlds_flutter/export.dart' as tlds;
 import 'package:toastification/toastification.dart';
 
 class CreateCustomerDialog extends StatefulWidget {
@@ -149,7 +151,7 @@ class _CreateCustomerDialogState extends State<CreateCustomerDialog> {
           validator: (value) {
             return InputValidations.mobileNumberValidation(value ?? '');
           },
-          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+          inputFormatters: tlds.TldsInputFormatters.onlyAllowNumbers,
           hintText: AppConstants.hintMobileNo,
           controller:
               _createCustomerDialogBlocImpl.customerMobileNoTextController),
@@ -159,9 +161,7 @@ class _CreateCustomerDialogState extends State<CreateCustomerDialog> {
   _buildNameField() {
     return Expanded(
       child: CustomFormField(
-          inputFormatters: [
-            FilteringTextInputFormatter.allow(RegExp("[a-z A-Z  ]")),
-          ],
+          inputFormatters: tlds.TldsInputFormatters.allowAlphabetsAndSpaces,
           requiredLabelText:
               AppWidgetUtils.labelTextWithRequired(AppConstants.name),
           validator: (value) {
@@ -212,7 +212,7 @@ class _CreateCustomerDialogState extends State<CreateCustomerDialog> {
       children: [
         Expanded(
           child: CustomFormField(
-              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              inputFormatters: TlInputFormatters.onlyAllowNumbers,
               validator: (value) {
                 return InputValidations.aadharValidation(value!);
               },
@@ -234,9 +234,7 @@ class _CreateCustomerDialogState extends State<CreateCustomerDialog> {
               maxLength: 10,
               hintText: AppConstants.hintPanNo,
               labelText: AppConstants.panNo,
-              inputFormatters: [
-                FilteringTextInputFormatter.allow(RegExp("[A-Z a-z 0-9]")),
-              ],
+              inputFormatters: TlInputFormatters.onlyAllowAlphabetAndNumber,
               validator: (value) {
                 return InputValidations.panValidation(value!);
               },

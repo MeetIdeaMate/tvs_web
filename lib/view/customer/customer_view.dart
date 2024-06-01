@@ -7,6 +7,7 @@ import 'package:tlbilling/models/get_model/get_all_customers_model.dart';
 import 'package:tlbilling/utils/app_colors.dart';
 import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/utils/app_util_widgets.dart';
+import 'package:tlbilling/utils/input_formates.dart';
 import 'package:tlbilling/view/customer/create_customer_dialog.dart';
 import 'package:tlbilling/view/customer/customer_view_bloc.dart';
 import 'package:tlds_flutter/components/tlds_input_form_field.dart';
@@ -72,7 +73,7 @@ class _CustomerViewState extends State<CustomerView> {
             return _buildFormField(
               _customerScreenBlocImpl.customerMobileNoController,
               AppConstants.mobileNumber,
-              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              inputFormatters: TlInputFormatters.onlyAllowNumbers,
             );
           },
         ),

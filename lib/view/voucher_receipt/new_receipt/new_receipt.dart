@@ -23,6 +23,8 @@ class _NewReceiptState extends State<NewReceipt> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
+      surfaceTintColor: _appColors.whiteColor,
+      backgroundColor: _appColors.whiteColor,
       content: SizedBox(
         width: MediaQuery.sizeOf(context).width * 0.4,
         child: Column(

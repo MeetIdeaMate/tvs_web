@@ -133,6 +133,7 @@ class AppConstants {
   static const receipt = 'Receipt';
   static const employee = 'Employee';
   static const pinCode = 'Pin Code';
+  static const insurance = 'Insurance';
 
   //Customer
   static const addCustomer = 'Add Customer';
@@ -318,7 +319,6 @@ class AppConstants {
   static const transportUpdate = 'Transport Update';
   static const transportUpdatedSuccessFully = 'Branch updated successFully';
 
-
   static const somethingWentWrong = 'Something went wrong try again...!';
   static const customerUpdate = 'Customer Update';
   static const customerCreate = 'Customer Create';
@@ -400,7 +400,14 @@ class AppConstants {
   static const enterPartNo = 'Please Enter Part No';
   static const selectVehiceName = 'Please Select Vehicle Name';
   static const enterVarient = 'Please Enter Varient';
-    static const enterColor = 'Please Enter Color';
-    static const enterHsnCode = 'Please Enter HSN Code';
-    static const enterUnitRate = 'Please Enter Unit Rate';
+  static const enterColor = 'Please Enter Color';
+  static const enterHsnCode = 'Please Enter HSN Code';
+  static const enterUnitRate = 'Please Enter Unit Rate';
+
+  //insurnse
+
+  static const String vehicleNo = 'Vehicle No';
+  static const String customerID = 'Customer ID';
+
+  static const String mobileNo = 'Mobile No';
 }

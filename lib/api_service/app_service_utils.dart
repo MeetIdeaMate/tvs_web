@@ -24,7 +24,6 @@ import 'package:tlbilling/models/post_model/add_transport_model.dart';
 import 'package:tlbilling/models/update/update_branch_model.dart';
 import 'package:tlbilling/models/user_model.dart';
 import 'package:tlbilling/utils/app_constants.dart';
-
 import '../models/post_model/add_vendor_model.dart';
 
 abstract class AppServiceUtil {
