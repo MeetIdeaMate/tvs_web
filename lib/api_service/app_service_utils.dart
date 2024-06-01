@@ -1,4 +1,5 @@
 import 'dart:convert';
+
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tlbilling/api_service/app_url.dart';
@@ -8,10 +9,10 @@ import 'package:tlbilling/models/get_model/get_all_branches_by_pagination.dart';
 import 'package:tlbilling/models/get_model/get_all_customer_by_pagination_model.dart';
 import 'package:tlbilling/models/get_model/get_all_customers_model.dart';
 import 'package:tlbilling/models/get_model/get_all_employee_by_pagination.dart';
+import 'package:tlbilling/models/get_model/get_all_vendor_by_pagination_model.dart';
 import 'package:tlbilling/models/get_model/get_configuration_list_model.dart';
 import 'package:tlbilling/models/get_model/get_configuration_model.dart';
 import 'package:tlbilling/models/get_model/get_transport_by_pagination.dart';
-import 'package:tlbilling/models/get_model/get_all_vendor_by_pagination_model.dart';
 import 'package:tlbilling/models/get_model/get_vendor_by_id_model.dart';
 import 'package:tlbilling/models/parent_response_model.dart';
 import 'package:tlbilling/models/post_model/add_branch_model.dart';
@@ -19,9 +20,10 @@ import 'package:tlbilling/models/post_model/add_customer_model.dart';
 import 'package:tlbilling/models/post_model/add_employee_model.dart';
 import 'package:tlbilling/models/post_model/add_transport_model.dart';
 import 'package:tlbilling/models/update/update_branch_model.dart';
-import 'package:tlbilling/models/post_model/add_vendor_model.dart';
 import 'package:tlbilling/models/user_model.dart';
 import 'package:tlbilling/utils/app_constants.dart';
+
+import '../models/post_model/add_vendor_model.dart';
 
 abstract class AppServiceUtil {
   Future<void> login(
@@ -44,15 +46,16 @@ abstract class AppServiceUtil {
       String customerId,
       AddCustomerModel addCustomerModel,
       Function(int statusCode) onSuccessCallBack);
-
   //Future<UserList>? getAllUserList();
   Future<UsersListModel?> getUserList(
       String userName, String selectedDesignation, int currentPage);
 
   Future<List<String>> getConfigByIdModel({String? configId});
-
   Future<ParentResponseModel> getEmployeesName();
   Future<ParentResponseModel> getConfigurationById({String? configId});
+
+  // Future<List<Content>?> getAllEmployeesByPaginationModel(
+  //     String employeeName, String city, String designation, String branchName);
 
   Future<GetAllEmployeesByPaginationModel> getAllEmployeesByPaginationModel(
       int currentPage,
@@ -63,8 +66,8 @@ abstract class AppServiceUtil {
 
   Future<GetAllVendorByPagination> getAllVendorByPagination(
       int currentPage, String vendorName, String city, String mobileNumber);
-  Future<GetEmployeeById?> getEmployeeById(String employeeId);
 
+  Future<GetEmployeeById?> getEmployeeById(String employeeId);
   Future<void> updateUserStatus(String? userId, String? userUpdateStatus,
       Function(int statusCode) onSuccessCallBack);
 
@@ -227,7 +230,7 @@ class AppServiceUtilImpl extends AppServiceUtil {
       if (mobileNumber.isNotEmpty) {
         url += '&mobileNo=$mobileNumber';
       }
-      var response = await dio.get(url);
+      var response = await dio.get('${url}');
       return parentResponseModelFromJson(jsonEncode(response.data))
           .result
           ?.getAllCustomersByPaginationModel;
@@ -274,7 +277,9 @@ class AppServiceUtilImpl extends AppServiceUtil {
     var token = prefs.getString('token');
     dio.options.headers['Authorization'] = 'Bearer $token';
     String configUrl = '${AppUrl.config}$configId';
+
     final response = await dio.get(configUrl);
+
     if (response.statusCode == 200) {
       return parentResponseModelFromJson(jsonEncode(response.data))
               .result
@@ -351,6 +356,7 @@ class AppServiceUtilImpl extends AppServiceUtil {
     var token = prefs.getString('token');
     dio.options.headers['Authorization'] = 'Bearer $token';
     String branchListUrl = AppUrl.branch;
+
     var response = await dio.get(branchListUrl);
     final responseList = parentResponseModelFromJson(jsonEncode(response.data));
 
