@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:tlbilling/components/custom_pagenation.dart';
+import 'package:tlbilling/models/get_model/get_all_vendor_by_pagination_model.dart';
 import 'package:tlbilling/utils/app_colors.dart';
 import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/utils/app_util_widgets.dart';
@@ -14,24 +16,8 @@ class VendorView extends StatefulWidget {
 }
 
 class _VendorViewState extends State<VendorView> {
-  List<Map<String, String>> rowData = [
-    {
-      AppConstants.sno: '1',
-      AppConstants.customerName: 'MuthuLakshmi',
-      AppConstants.mobileNumber: '1234567890',
-      AppConstants.gstNo: 'ABCD1234E',
-      AppConstants.city: 'Chennai',
-    },
-    {
-      AppConstants.sno: '2',
-      AppConstants.customerName: 'Lakshu',
-      AppConstants.mobileNumber: '9876543210',
-      AppConstants.gstNo: 'ABCD1234E',
-      AppConstants.city: 'kovilpatti',
-    },
-  ];
   final _appColors = AppColors();
-  final _vendarViewBlocImpl = VendarViewBlocImpl();
+  final _vendorViewBlocImpl = VendorViewBlocImpl();
 
   @override
   Widget build(BuildContext context) {
@@ -69,12 +55,9 @@ class _VendorViewState extends State<VendorView> {
   _buildSearchFilterAddButton(BuildContext context) {
     return Row(
       children: [
-        AppWidgetUtils.buildSearchField(AppConstants.vendorName,
-            _vendarViewBlocImpl.vendorNameSearchController, context),
-        AppWidgetUtils.buildSearchField(AppConstants.mobileNumber,
-            _vendarViewBlocImpl.vendorMobNoSearchController, context),
-        AppWidgetUtils.buildSearchField(AppConstants.city,
-            _vendarViewBlocImpl.vendorCitySearchController, context),
+        _buildVendorNameSearch(),
+        _buildMobileNoSearch(),
+        _buildCitySearch(),
         const Spacer(),
         AppWidgetUtils.buildAddbutton(
           context,
@@ -83,7 +66,8 @@ class _VendorViewState extends State<VendorView> {
             showDialog(
               context: context,
               builder: (context) {
-                return const CreateVendorDialog();
+                return CreateVendorDialog(
+                    vendorViewBlocImpl: _vendorViewBlocImpl);
               },
             );
           },
@@ -92,61 +76,191 @@ class _VendorViewState extends State<VendorView> {
     );
   }
 
+  StreamBuilder<bool> _buildCitySearch() {
+    return buildSearchField(
+        hintText: AppConstants.city,
+        searchController: _vendorViewBlocImpl.vendorCitySearchController,
+        searchStream: _vendorViewBlocImpl.vendorCitySearchStream,
+        searchStreamController:
+            _vendorViewBlocImpl.vendorCitySearchStreamController);
+  }
+
+  StreamBuilder<bool> _buildMobileNoSearch() {
+    return buildSearchField(
+        hintText: AppConstants.mobileNumber,
+        searchController: _vendorViewBlocImpl.vendorMobNoSearchController,
+        searchStream: _vendorViewBlocImpl.vendorMobileNoSearchStream,
+        searchStreamController:
+            _vendorViewBlocImpl.vendorMobileNoSearchStreamController);
+  }
+
+  StreamBuilder<bool> _buildVendorNameSearch() {
+    return buildSearchField(
+        hintText: AppConstants.vendorName,
+        searchController: _vendorViewBlocImpl.vendorNameSearchController,
+        searchStream: _vendorViewBlocImpl.vendorNameStream,
+        searchStreamController: _vendorViewBlocImpl.vendorNameStreamController);
+  }
+
+  StreamBuilder<bool> buildSearchField({
+    Stream<bool>? searchStream,
+    TextEditingController? searchController,
+    Function(bool)? searchStreamController,
+    String? hintText,
+  }) {
+    return StreamBuilder(
+      stream: searchStream,
+      builder: (context, snapshot) {
+        bool isTextEmpty = searchController!.text.isEmpty;
+        IconData iconPath = isTextEmpty ? Icons.search : Icons.close;
+        Color iconColor =
+            isTextEmpty ? _appColors.primaryColor : _appColors.red;
+
+        return AppWidgetUtils.buildSearchField(
+          hintText,
+          searchController,
+          context,
+          suffixIcon: IconButton(
+            onPressed: () {
+              if (iconPath == Icons.search) {
+                if (searchController.text.isNotEmpty) {
+                  searchStreamController!(true);
+                  _vendorViewBlocImpl.pageNumberUpdateStreamController(0);
+
+                  _vendorViewBlocImpl.getAllVendorByPagination();
+                }
+              } else {
+                searchController.clear();
+                searchStreamController!(false);
+                _vendorViewBlocImpl.pageNumberUpdateStreamController(0);
+              }
+            },
+            icon: Icon(
+              iconPath,
+              color: iconColor,
+            ),
+          ),
+          onSubmit: (value) {
+            if (value.isNotEmpty) {
+              searchStreamController!(true);
+              _vendorViewBlocImpl.pageNumberUpdateStreamController(0);
+              _vendorViewBlocImpl.getAllVendorByPagination();
+            }
+          },
+        );
+      },
+    );
+  }
+
   _buildVendorTableView(BuildContext context) {
     return Expanded(
-      child: SizedBox(
-        width: MediaQuery.of(context).size.width,
-        child: DataTable(
-          dividerThickness: 0.01,
-          columns: [
-            _buildVendorTableHeader(
-              AppConstants.sno,
-            ),
-            _buildVendorTableHeader(
-              AppConstants.vendorName,
-            ),
-            _buildVendorTableHeader(
-              AppConstants.mobileNumber,
-            ),
-            _buildVendorTableHeader(
-              AppConstants.gstNo,
-            ),
-            _buildVendorTableHeader(
-              AppConstants.city,
-            ),
-            _buildVendorTableHeader(
-              AppConstants.action,
-            ),
-          ],
-          rows: List.generate(rowData.length, (index) {
-            final data = rowData[index];
+      child: StreamBuilder<int>(
+          stream: _vendorViewBlocImpl.pageNumberStream,
+          initialData: _vendorViewBlocImpl.currentPage,
+          builder: (context, streamSnapshot) {
+            int currentPage = streamSnapshot.data ?? 0;
+            if (currentPage < 0) currentPage = 0;
+            _vendorViewBlocImpl.currentPage = currentPage;
 
-            final color = index.isEven
-                ? _appColors.whiteColor
-                : _appColors.transparentBlueColor;
-            return DataRow(
-              color: MaterialStateColor.resolveWith((states) => color),
-              cells: [
-                DataCell(Text(data[AppConstants.sno]!)),
-                DataCell(Text(data[AppConstants.customerName]!)),
-                DataCell(Text(data[AppConstants.mobileNumber]!)),
-                DataCell(Text(data[AppConstants.gstNo]!)),
-                DataCell(Text(data[AppConstants.city]!)),
-                DataCell(
-                  Row(
-                    children: [
-                      IconButton(
-                        icon: SvgPicture.asset(AppConstants.icEdit),
-                        onPressed: () {},
+            return FutureBuilder<GetAllVendorByPagination>(
+              future: _vendorViewBlocImpl.getAllVendorByPagination(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(child: AppWidgetUtils.buildLoading());
+                } else if (snapshot.hasError) {
+                  return const Center(
+                      child: Text(AppConstants.somethingWentWrong));
+                } else if (!snapshot.hasData) {
+                  return Center(
+                      child: SvgPicture.asset(AppConstants.imgNoData));
+                }
+                GetAllVendorByPagination vendorListModel = snapshot.data!;
+
+                List<Content> vendorData = snapshot.data?.content ?? [];
+                // print(vendorData);
+
+                return Column(
+                  children: [
+                    Expanded(
+                      child: SizedBox(
+                        width: MediaQuery.of(context).size.width,
+                        child: DataTable(
+                            dividerThickness: 0.01,
+                            columns: [
+                              _buildVendorTableHeader(
+                                AppConstants.sno,
+                              ),
+                              _buildVendorTableHeader(
+                                AppConstants.vendorName,
+                              ),
+                              _buildVendorTableHeader(
+                                AppConstants.mobileNumber,
+                              ),
+                              _buildVendorTableHeader(
+                                AppConstants.gstNo,
+                              ),
+                              _buildVendorTableHeader(
+                                AppConstants.city,
+                              ),
+                              _buildVendorTableHeader(
+                                AppConstants.action,
+                              ),
+                            ],
+                            rows: vendorData.asMap().entries.map((entry) {
+                              return DataRow(
+                                color: MaterialStateColor.resolveWith((states) {
+                                  return entry.key % 2 == 0
+                                      ? Colors.white
+                                      : _appColors.transparentBlueColor;
+                                }),
+                                cells: [
+                                  DataCell(Text('${entry.key + 1}')),
+                                  DataCell(Text(entry.value.vendorName ?? '')),
+                                  DataCell(Text(entry.value.mobileNo ?? '')),
+                                  DataCell(Text(entry.value.gstNumber ?? '')),
+                                  DataCell(Text(entry.value.city ?? '')),
+                                  DataCell(
+                                    Row(
+                                      children: [
+                                        IconButton(
+                                          icon: SvgPicture.asset(
+                                              AppConstants.icEdit),
+                                          onPressed: () {
+                                            showDialog(
+                                              context: context,
+                                              builder: (context) {
+                                                return CreateVendorDialog(
+                                                  vendorViewBlocImpl:
+                                                      _vendorViewBlocImpl,
+                                                  vendorId:
+                                                      entry.value.vendorId,
+                                                );
+                                              },
+                                            );
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              );
+                            }).toList()),
                       ),
-                    ],
-                  ),
-                ),
-              ],
+                    ),
+                    CustomPagination(
+                      itemsOnLastPage: vendorListModel.totalElements ?? 0,
+                      currentPage: currentPage,
+                      totalPages: vendorListModel.totalPages ?? 0,
+                      onPageChanged: (pageValue) {
+                        _vendorViewBlocImpl
+                            .pageNumberUpdateStreamController(pageValue);
+                      },
+                    ),
+                  ],
+                );
+              },
             );
           }),
-        ),
-      ),
     );
   }
 

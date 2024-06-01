@@ -75,7 +75,7 @@ class _StockReportState extends State<StockReport>
   @override
   Widget build(BuildContext context) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start, // Align column to start
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildTabBar(),
         tlbilling_widget.AppWidgetUtils.buildSizedBox(custHeight: 16),
@@ -100,7 +100,6 @@ class _StockReportState extends State<StockReport>
             ),
           ),
         ),
-        tlbilling_widget.AppWidgetUtils.buildSizedBox(custWidth: 20),
       ],
     );
   }
@@ -112,38 +111,47 @@ class _StockReportState extends State<StockReport>
         controller: _stocksReportBlocImpl.stockReportTabController,
         children: [
           // Vehicles
-          searchAndTableView(
-            vehicleOrAccessoriesHintName: AppConstants.vehicleType,
-            vehicleOrAccessoriesDropDownValue:
-                _stocksVehiclesReportBlocImpl.vehicleType,
-            vehicleOrAccessoriesDropDownItems: vehicles,
-            vehicleOrAccessoriesOnChange: (value) {
-              _stocksVehiclesReportBlocImpl.vehicleType = value;
-            },
-            selectedBranchName: _stocksVehiclesReportBlocImpl.selectedBranch,
-            branchList: vehicles,
-            branchOnChange: (value) {
-              _stocksVehiclesReportBlocImpl.selectedBranch = value;
-            },
-            fromDateController: _stocksVehiclesReportBlocImpl.fromDateTextEdit,
-            fromDateonSuccessCallBack: () {},
-            toDateController: _stocksVehiclesReportBlocImpl.toDateTextEdit,
-            buttonOnPressed: () {},
-            toDateonSuccessCallBack: () {},
-            columnHeaders: columnHeaders,
-            rowData: rowData,
-          ),
+          _buildVehicleReportView(),
           // Accessories
-          searchAndTableView(
+
+          _buildAccessoriesReportView()
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAccessoriesReportView() {
+    return FutureBuilder(
+      future: Future.wait([
+        _stocksReportBlocImpl.getBranchName(),
+        _stocksReportBlocImpl.getBranchName()
+      ]),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return const Center(child: Text(AppConstants.noData));
+        } else {
+          final branchList = snapshot.data![0].result!.getAllBranchList!
+              .map((item) => item.branchName ?? '')
+              .toList();
+
+          final vehicleTypes = snapshot.data![0].result!.getAllBranchList!
+              .map((item) => item.branchName ?? '')
+              .toList();
+
+          return searchAndTableView(
             vehicleOrAccessoriesHintName: AppConstants.accessoriesType,
             vehicleOrAccessoriesDropDownValue:
                 _stocksAccessoriesReportBlocImpl.selectedAccessories,
-            vehicleOrAccessoriesDropDownItems: vehicles,
+            vehicleOrAccessoriesDropDownItems: vehicleTypes,
             vehicleOrAccessoriesOnChange: (value) {
               _stocksAccessoriesReportBlocImpl.selectedAccessories = value;
             },
             selectedBranchName: _stocksAccessoriesReportBlocImpl.selectedBranch,
-            branchList: vehicles,
+            branchList: branchList,
             branchOnChange: (value) {
               _stocksAccessoriesReportBlocImpl.selectedBranch = value;
             },
@@ -155,9 +163,57 @@ class _StockReportState extends State<StockReport>
             toDateonSuccessCallBack: () {},
             columnHeaders: columnHeaders,
             rowData: rowData,
-          )
-        ],
-      ),
+          );
+        }
+      },
+    );
+  }
+
+  Widget _buildVehicleReportView() {
+    return FutureBuilder(
+      future: Future.wait([
+        _stocksReportBlocImpl.getBranchName(),
+        _stocksReportBlocImpl.getBranchName(),
+      ]),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return const Center(child: Text(AppConstants.noData));
+        } else {
+          final branchList = snapshot.data![0].result!.getAllBranchList!
+              .map((item) => item.branchName ?? '')
+              .toList();
+
+          final vehicleTypes = snapshot.data![0].result!.getAllBranchList!
+              .map((item) => item.branchName ?? '')
+              .toList();
+
+          return searchAndTableView(
+            vehicleOrAccessoriesHintName: AppConstants.vehicleType,
+            vehicleOrAccessoriesDropDownValue:
+                _stocksVehiclesReportBlocImpl.vehicleType,
+            vehicleOrAccessoriesDropDownItems: vehicleTypes,
+            vehicleOrAccessoriesOnChange: (value) {
+              _stocksVehiclesReportBlocImpl.vehicleType = value;
+            },
+            selectedBranchName: _stocksVehiclesReportBlocImpl.selectedBranch,
+            branchList: branchList,
+            branchOnChange: (value) {
+              _stocksVehiclesReportBlocImpl.selectedBranch = value;
+            },
+            fromDateController: _stocksVehiclesReportBlocImpl.fromDateTextEdit,
+            fromDateonSuccessCallBack: () {},
+            toDateController: _stocksVehiclesReportBlocImpl.toDateTextEdit,
+            buttonOnPressed: () {},
+            toDateonSuccessCallBack: () {},
+            columnHeaders: columnHeaders,
+            rowData: rowData,
+          );
+        }
+      },
     );
   }
 

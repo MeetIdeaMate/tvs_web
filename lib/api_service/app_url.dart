@@ -14,4 +14,6 @@ class AppUrl {
   static const updateUserStatus = '${baseUrl}user/status/';
   static const transport = '${baseUrl}transport/';
   static String getAllConfigList = '${baseUrl}config/getAll';
+  static const vendorByPagination = '${baseUrl}vendor/page?';
+  static const addVendor = '${baseUrl}vendor';
 }

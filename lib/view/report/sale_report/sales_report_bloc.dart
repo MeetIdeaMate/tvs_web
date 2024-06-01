@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:tlbilling/api_service/app_service_utils.dart';
+import 'package:tlbilling/models/parent_response_model.dart';
 
 abstract class SalesReportBloc {
   TextEditingController get selectedVehicleName;
@@ -10,12 +12,15 @@ abstract class SalesReportBloc {
   String? get selectedPayementType;
   TabController get salesScreenTabController;
   Stream<bool> get tabChangeStreamController;
+  Future<ParentResponseModel> getBranchName();
+  Future<ParentResponseModel> getConfigById({String? configId});
 }
 
 class SaledReportBlocImpl extends SalesReportBloc {
   final _selectedVehicleName = TextEditingController();
   final _fromDateTextFeild = TextEditingController();
   final _toDateEditText = TextEditingController();
+  final _apiServiceBlocImpl = AppServiceUtilImpl();
 
   final _customerNameEditText = TextEditingController();
   final _tabChangeStreamController = StreamController<bool>.broadcast();
@@ -50,5 +55,15 @@ class SaledReportBlocImpl extends SalesReportBloc {
 
   tabChangeStreamControll(bool newValue) {
     _tabChangeStreamController.add(newValue);
+  }
+
+  @override
+  Future<ParentResponseModel> getBranchName() {
+    return _apiServiceBlocImpl.getBranchName();
+  }
+
+  @override
+  Future<ParentResponseModel> getConfigById({String? configId}) {
+    return _apiServiceBlocImpl.getConfigurationById(configId: configId);
   }
 }

@@ -63,11 +63,8 @@ class ConfigurationDialogBlocImpl extends ConfigurationDialogBloc {
   @override
   Future<void> updateConfigValues(
       Function(int statusCode) onSuccessCallBack) async {
-    return await _appServices.updateConfigModel(
-        configIdTextController.text,
-        defaultValueTextController.text,
-        configValues,
-        onSuccessCallBack);
+    return await _appServices.updateConfigModel(configIdTextController.text,
+        defaultValueTextController.text, configValues, onSuccessCallBack);
   }
 
   @override

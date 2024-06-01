@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:tlbilling/models/get_model/get_all_branch_model.dart';
 import 'package:tlbilling/models/get_model/get_all_branches_by_pagination.dart';
+import 'package:tlbilling/models/get_model/get_all_branches_by_pagination.dart';
 import 'package:tlbilling/models/get_model/get_all_customer_by_pagination_model.dart';
 import 'package:tlbilling/models/get_model/get_all_customers_model.dart';
 
@@ -12,6 +13,11 @@ import 'package:tlbilling/models/get_model/get_all_employee_by_pagination.dart';
 import 'package:tlbilling/models/get_model/get_configuration_list_model.dart';
 import 'package:tlbilling/models/get_model/get_configuration_model.dart';
 import 'package:tlbilling/models/get_model/get_transport_by_pagination.dart';
+import 'package:tlbilling/models/get_model/get_configuration_list_model.dart';
+import 'package:tlbilling/models/get_model/get_configuration_model.dart';
+import 'package:tlbilling/models/get_model/get_transport_by_pagination.dart';
+import 'package:tlbilling/models/get_model/get_all_vendor_by_pagination_model.dart';
+import 'package:tlbilling/models/get_model/get_vendor_by_id_model.dart';
 import 'package:tlbilling/models/user_model.dart';
 
 ParentResponseModel parentResponseModelFromJson(String str) =>
@@ -51,6 +57,7 @@ class ParentResponseModel {
 }
 
 class ResultObj {
+  GetAllVendorByPagination? getAllVendorByPagination;
   GetAllCustomersByPaginationModel? getAllCustomersByPaginationModel;
   GetAllCustomersModel? getAllCustomersModel;
   GetAllEmployeesByPaginationModel? getAllEmployeesByPaginationModel;
@@ -58,6 +65,7 @@ class ResultObj {
   ConfigModel? getConfigModel;
   List<EmployeeListModel>? employeeListModel;
   GetEmployeeById? employeeById;
+  GetVendorById? vendorById;
   List<GetAllBranchList>? getAllBranchList;
   GetAllBranchesByPaginationModel? getAllBranchesByPaginationModel;
   GetAllBranchList? getBranchById;
@@ -68,7 +76,8 @@ class ResultObj {
   List<BranchDetail>? branchDetails;
 
   ResultObj(
-      {this.getAllCustomersByPaginationModel,
+      {this.getAllVendorByPagination,
+      this.getAllCustomersByPaginationModel,
       this.getAllCustomersModel,
       this.usersListModel,
       this.getConfigModel,
@@ -76,6 +85,7 @@ class ResultObj {
       this.employeeById,
       this.getAllEmployeesByPaginationModel,
       this.getAllBranchList,
+      this.vendorById,
       this.getAllBranchesByPaginationModel,
       this.getBranchById,
       this.getTransportByPaginationModel,
@@ -134,6 +144,12 @@ class ResultObj {
         branchDetails: json['branchResponseList'] != null
             ? List<BranchDetail>.from(
                 json['branchResponseList'].map((x) => BranchDetail.fromJson(x)))
+            : null,
+        getAllVendorByPagination: json['vendorsWithPage'] != null
+            ? GetAllVendorByPagination.fromJson(json['vendorsWithPage'])
+            : null,
+        vendorById: json["vendor"] != null
+            ? GetVendorById.fromJson(json["vendor"])
             : null,
       );
 

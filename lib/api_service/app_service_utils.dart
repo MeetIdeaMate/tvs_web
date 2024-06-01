@@ -9,9 +9,11 @@ import 'package:tlbilling/models/get_model/get_all_branches_by_pagination.dart';
 import 'package:tlbilling/models/get_model/get_all_customer_by_pagination_model.dart';
 import 'package:tlbilling/models/get_model/get_all_customers_model.dart';
 import 'package:tlbilling/models/get_model/get_all_employee_by_pagination.dart';
+import 'package:tlbilling/models/get_model/get_all_vendor_by_pagination_model.dart';
 import 'package:tlbilling/models/get_model/get_configuration_list_model.dart';
 import 'package:tlbilling/models/get_model/get_configuration_model.dart';
 import 'package:tlbilling/models/get_model/get_transport_by_pagination.dart';
+import 'package:tlbilling/models/get_model/get_vendor_by_id_model.dart';
 import 'package:tlbilling/models/parent_response_model.dart';
 import 'package:tlbilling/models/post_model/add_branch_model.dart';
 import 'package:tlbilling/models/post_model/add_customer_model.dart';
@@ -20,6 +22,8 @@ import 'package:tlbilling/models/post_model/add_transport_model.dart';
 import 'package:tlbilling/models/update/update_branch_model.dart';
 import 'package:tlbilling/models/user_model.dart';
 import 'package:tlbilling/utils/app_constants.dart';
+
+import '../models/post_model/add_vendor_model.dart';
 
 abstract class AppServiceUtil {
   Future<void> login(
@@ -35,19 +39,20 @@ abstract class AppServiceUtil {
       String city, String mobileNumber, String customerName, int currentPage);
 
   Future<GetAllCustomersModel?> getCustomerDetails(String customerId);
+  Future<void> updateVendor(String vendorId, AddVendorModel vendorObj,
+      Function(int? statusCode) statusCode);
 
   Future<void> updateCustomer(
       String customerId,
       AddCustomerModel addCustomerModel,
       Function(int statusCode) onSuccessCallBack);
-
   //Future<UserList>? getAllUserList();
   Future<UsersListModel?> getUserList(
       String userName, String selectedDesignation, int currentPage);
 
   Future<List<String>> getConfigByIdModel({String? configId});
-
   Future<ParentResponseModel> getEmployeesName();
+  Future<ParentResponseModel> getConfigurationById({String? configId});
 
   // Future<List<Content>?> getAllEmployeesByPaginationModel(
   //     String employeeName, String city, String designation, String branchName);
@@ -59,8 +64,10 @@ abstract class AppServiceUtil {
       String designation,
       String branchName);
 
-  Future<GetEmployeeById?> getEmployeeById(String employeeId);
+  Future<GetAllVendorByPagination> getAllVendorByPagination(
+      int currentPage, String vendorName, String city, String mobileNumber);
 
+  Future<GetEmployeeById?> getEmployeeById(String employeeId);
   Future<void> updateUserStatus(String? userId, String? userUpdateStatus,
       Function(int statusCode) onSuccessCallBack);
 
@@ -75,6 +82,8 @@ abstract class AppServiceUtil {
 
   Future<void> onboardNewEmployee(
       AddEmployeeModel empObj, Function(int? statusCode) statusCode);
+  Future<void> addVendor(
+      AddVendorModel vendorObj, Function(int? statusCode) statusCode);
 
   Future<void> updateEmployee(String employeeId, AddEmployeeModel empObj,
       Function(int? statusCode) statusCode);
@@ -117,6 +126,8 @@ abstract class AppServiceUtil {
   );
 
   Future<List<BranchDetail>?> getAllBranchListWithoutPagination();
+
+  Future<GetVendorById?> getVendorById(String vendorId);
 }
 
 class AppServiceUtilImpl extends AppServiceUtil {
@@ -219,7 +230,7 @@ class AppServiceUtilImpl extends AppServiceUtil {
       if (mobileNumber.isNotEmpty) {
         url += '&mobileNo=$mobileNumber';
       }
-      var response = await dio.get(url);
+      var response = await dio.get('${url}');
       return parentResponseModelFromJson(jsonEncode(response.data))
           .result
           ?.getAllCustomersByPaginationModel;
@@ -266,13 +277,31 @@ class AppServiceUtilImpl extends AppServiceUtil {
     var token = prefs.getString('token');
     dio.options.headers['Authorization'] = 'Bearer $token';
     String configUrl = '${AppUrl.config}$configId';
+
     final response = await dio.get(configUrl);
+
     if (response.statusCode == 200) {
       return parentResponseModelFromJson(jsonEncode(response.data))
               .result
               ?.getConfigModel
               ?.configuration ??
           [];
+    } else {
+      throw Exception('Failed to load employee data: ${response.statusCode}');
+    }
+  }
+
+  @override
+  Future<ParentResponseModel> getConfigurationById({String? configId}) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var token = prefs.getString('token');
+    dio.options.headers['Authorization'] = 'Bearer $token';
+    String configUrl = '${AppUrl.config}$configId';
+
+    final response = await dio.get(configUrl);
+
+    if (response.statusCode == 200) {
+      return parentResponseModelFromJson(jsonEncode(response.data));
     } else {
       throw Exception('Failed to load employee data: ${response.statusCode}');
     }
@@ -327,6 +356,7 @@ class AppServiceUtilImpl extends AppServiceUtil {
     var token = prefs.getString('token');
     dio.options.headers['Authorization'] = 'Bearer $token';
     String branchListUrl = AppUrl.branch;
+
     var response = await dio.get(branchListUrl);
     final responseList = parentResponseModelFromJson(jsonEncode(response.data));
 
@@ -335,7 +365,6 @@ class AppServiceUtilImpl extends AppServiceUtil {
 
   @override
   Future<GetEmployeeById?> getEmployeeById(String employeeId) async {
-    final dio = Dio();
     String employeeUrl = '${AppUrl.employee}/$employeeId';
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var token = prefs.getString('token');
@@ -688,5 +717,79 @@ class AppServiceUtilImpl extends AppServiceUtil {
       exception.response?.statusCode ?? 0;
     }
     return null;
+  }
+
+  @override
+  Future<GetAllVendorByPagination> getAllVendorByPagination(int currentPage,
+      String vendorName, String city, String mobileNumber) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var token = prefs.getString('token');
+    dio.options.headers['Authorization'] = 'Bearer $token';
+
+    String vendorListUrl =
+        '${AppUrl.vendorByPagination}page=$currentPage&pageSize=10';
+
+    if (vendorName.isNotEmpty) {
+      vendorListUrl += '&vendorName=$vendorName';
+    }
+    if (mobileNumber.isNotEmpty) {
+      vendorListUrl += '&mobileNo=$mobileNumber';
+    }
+    if (city.isNotEmpty) {
+      vendorListUrl += '&city=$city';
+    }
+    //  print(vendorListUrl);
+
+    var response = await dio.get(vendorListUrl);
+
+    final responseList = parentResponseModelFromJson(jsonEncode(response.data));
+
+    return responseList.result!.getAllVendorByPagination!;
+  }
+
+  @override
+  Future<void> addVendor(
+      AddVendorModel vendorObj, Function(int? statusCode) statusCode) async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      var token = prefs.getString('token');
+      dio.options.headers['Authorization'] = 'Bearer $token';
+      var response =
+          await dio.post(AppUrl.addVendor, data: jsonEncode(vendorObj));
+
+      statusCode(response.statusCode);
+    } on DioException catch (e) {
+      statusCode(e.response?.statusCode);
+    }
+  }
+
+  @override
+  Future<void> updateVendor(String vendorId, AddVendorModel vendorObj,
+      Function(int? statusCode) statusCode) async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      var token = prefs.getString('token');
+      dio.options.headers['Authorization'] = 'Bearer $token';
+      var response = await dio.put('${AppUrl.addVendor}/$vendorId',
+          data: jsonEncode(vendorObj));
+      statusCode(response.statusCode ?? 0);
+    } on DioException catch (e) {
+      statusCode(e.response?.statusCode ?? 0);
+    }
+  }
+
+  @override
+  Future<GetVendorById?> getVendorById(String vendorId) async {
+    String vendorUrl = '${AppUrl.addVendor}/$vendorId';
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var token = prefs.getString('token');
+    dio.options.headers['Authorization'] = 'Bearer $token';
+    var response = await dio.get(vendorUrl);
+    print(vendorUrl);
+    var vendorDetails = parentResponseModelFromJson(jsonEncode(response.data))
+        .result
+        ?.vendorById;
+
+    return vendorDetails;
   }
 }

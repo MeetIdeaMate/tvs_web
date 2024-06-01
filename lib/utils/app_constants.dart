@@ -101,6 +101,10 @@ class AppConstants {
   static const icPrint = 'assets/icons/ic_print.svg';
   static const icClaneder = 'assets/icons/ic_calender.svg';
   static const icPdfPrint = 'assets/icons/ic_pdf_print.svg';
+  static const icFirstPage = 'assets/icons/ic_first_page.svg';
+  static const icLastPage = 'assets/icons/ic_last_page.svg';
+  static const icNextPage = 'assets/icons/ic_next_page.svg';
+  static const icPrevPage = 'assets/icons/ic_prev_page.svg';
 
   //json
   static const jsonLoader = 'assets/json/json_loading_animation.json';
@@ -156,6 +160,7 @@ class AppConstants {
 
   //vendor
   static const addVendor = 'Add Vendor';
+  static const updateVendor = 'Update Vendor';
   static const gstNo = 'GST IN';
   static const hintGst = 'Enter GST';
   static const fax = 'Fax Number';
@@ -187,6 +192,7 @@ class AppConstants {
   static const workType = 'Work Type';
   static const branchName = 'Branch Name';
   static const empFilterHint = 'Employee Name / Mobile Number';
+  static const selectEmployee = 'Select Employee Name';
 
   static const empType = 'Employee Type';
   static const branch = 'Branch';
@@ -280,13 +286,14 @@ class AppConstants {
 //user
   static const username = 'User Name';
 
-  // static const designation = 'Designation';
+  static const designationText = 'Designation';
   static const userFilterHint = 'User Name / Mobile Number';
   static const addUser = 'Add User';
   static const newuser = 'New user';
   static const hintPinCode = 'Enter pin Code';
   static const hintbranch = 'Enter Branch name';
   static const hintAge = 'Enter Age';
+  static const selectDesignation = 'Select designation';
 
   //branch
   static const addBranch = 'Add branch';
@@ -321,6 +328,10 @@ class AppConstants {
   static const employeeCreate = 'Employee Create';
   static const employeeUpdateSuccessfully = 'Employee updated successFully';
   static const employeeCreatedSuccessfully = 'Employee created successFully';
+  static const vendorUpdate = 'Vendor Update';
+  static const vendorCreate = 'Vendor created';
+  static const vendorUpdateSuccessfully = 'Vendor Update  successfully';
+  static const vendorCreatedSuccessfully = 'Vendor Create successfully';
 
   static const selectDiffrentUser =
       'Please select different name to create user.';
@@ -340,6 +351,8 @@ class AppConstants {
   static const billType = 'BillType';
   static const date = 'Date';
   static const fromDate = 'From Date';
+  static const selectFromDate = 'Select from date';
+  static const selectToDate = 'Select To Date';
   static const toDate = 'To Date';
   static const pdfGeneration = 'Generate Pdf / Print';
   static const accessoriesType = 'Accessories Type';
@@ -347,6 +360,7 @@ class AppConstants {
   static const purchaseReport = 'Purchase Report';
   static const salesReport = 'Sales Report';
   static const stocksReport = 'Stocks report';
+  static const overAllSalesReport = 'Over All sales Report';
 
   // purchaseReport Table header
 
@@ -361,11 +375,6 @@ class AppConstants {
   static const String sgstAmount = 'SGST ₹';
 
   //Pagenation
-
-  static const icFirstPage = 'assets/icons/ic_first_page.svg';
-  static const icLastPage = 'assets/icons/ic_last_page.svg';
-  static const icNextPage = 'assets/icons/ic_next_page.svg';
-  static const icPrevPage = 'assets/icons/ic_prev_page.svg';
 
   static const gstType = 'GST Type';
 

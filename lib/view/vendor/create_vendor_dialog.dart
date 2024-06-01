@@ -1,3 +1,4 @@
+import 'package:blurry_modal_progress_hud/blurry_modal_progress_hud.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:tlbilling/components/custom_action_button.dart';
@@ -7,9 +8,14 @@ import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/utils/app_util_widgets.dart';
 import 'package:tlbilling/utils/input_validation.dart';
 import 'package:tlbilling/view/vendor/create_vendor_dialog_bloc.dart';
+import 'package:tlbilling/view/vendor/vendor_view_bloc.dart';
+import 'package:toastification/toastification.dart';
 
 class CreateVendorDialog extends StatefulWidget {
-  const CreateVendorDialog({super.key});
+  final String? vendorId;
+  final VendorViewBlocImpl? vendorViewBlocImpl;
+
+  const CreateVendorDialog({super.key, this.vendorViewBlocImpl, this.vendorId});
 
   @override
   State<CreateVendorDialog> createState() => _CreateVendorDialogState();
@@ -18,22 +24,62 @@ class CreateVendorDialog extends StatefulWidget {
 class _CreateVendorDialogState extends State<CreateVendorDialog> {
   final _appColors = AppColors();
   final _createVendorDialogBlocImpl = CreateVendorDialogBlocImpl();
+  bool _isLoading = false;
+
+  void _isLoadingState({required bool state}) {
+    setState(() {
+      _isLoading = state;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _buildGetVendorDetailsById();
+  }
+
+  void _buildGetVendorDetailsById() {
+    _createVendorDialogBlocImpl
+        .getVendorById(widget.vendorId ?? '')
+        .then((value) {
+      _createVendorDialogBlocImpl.vendorAccNoController.text =
+          value?.accountNo ?? '';
+      _createVendorDialogBlocImpl.vendorAddressController.text =
+          value?.address ?? '';
+      _createVendorDialogBlocImpl.vendorCityController.text = value?.city ?? '';
+      _createVendorDialogBlocImpl.vendorEmailIdcontroller.text =
+          value?.emailId ?? '';
+      _createVendorDialogBlocImpl.vendorMobNoController.text =
+          value?.mobileNo ?? '';
+      _createVendorDialogBlocImpl.vendorGstNoController.text =
+          value?.gstNumber ?? '';
+      _createVendorDialogBlocImpl.vendorIFSCCodeController.text =
+          value?.ifscCode ?? '';
+      _createVendorDialogBlocImpl.vendorNameTextController.text =
+          value?.vendorName ?? '';
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      backgroundColor: _appColors.whiteColor,
-      surfaceTintColor: _appColors.whiteColor,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      contentPadding: const EdgeInsets.all(10),
-      title: _buildVendorFormTitle(),
-      actions: [
-        _buildSaveButton(),
-      ],
-      content: SizedBox(
-        width: MediaQuery.sizeOf(context).width * 0.4,
-        child: Padding(
-          padding: const EdgeInsets.all(10),
-          child: _buildVendorCreateForm(),
+    return BlurryModalProgressHUD(
+      inAsyncCall: _isLoading,
+      progressIndicator: AppWidgetUtils.buildLoading(),
+      child: AlertDialog(
+        backgroundColor: _appColors.whiteColor,
+        surfaceTintColor: _appColors.whiteColor,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        contentPadding: const EdgeInsets.all(10),
+        title: _buildVendorFormTitle(),
+        actions: [
+          _buildSaveButton(),
+        ],
+        content: SizedBox(
+          width: MediaQuery.sizeOf(context).width * 0.4,
+          child: Padding(
+            padding: const EdgeInsets.all(10),
+            child: _buildVendorCreateForm(),
+          ),
         ),
       ),
     );
@@ -45,7 +91,10 @@ class _CreateVendorDialogState extends State<CreateVendorDialog> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(AppConstants.addVendor,
+            Text(
+                widget.vendorId == null
+                    ? AppConstants.addVendor
+                    : AppConstants.updateVendor,
                 style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
@@ -76,7 +125,7 @@ class _CreateVendorDialogState extends State<CreateVendorDialog> {
             AppWidgetUtils.buildSizedBox(custHeight: 13),
             _panNoAndCityFeilds(),
             AppWidgetUtils.buildSizedBox(custHeight: 13),
-            _gstNoAndFaxNoFields(),
+            _gstNoAndNoFields(),
             AppWidgetUtils.buildSizedBox(custHeight: 13),
             _accNoAndIFSCNoFields(),
             AppWidgetUtils.buildSizedBox(custHeight: 13),
@@ -126,7 +175,7 @@ class _CreateVendorDialogState extends State<CreateVendorDialog> {
   _panNoAndCityFeilds() {
     return Row(
       children: [
-        _buildTelePhNoFields(),
+        _buildEmailFields(),
         AppWidgetUtils.buildSizedBox(custWidth: 14),
         Expanded(
           child: CustomFormField(
@@ -145,14 +194,14 @@ class _CreateVendorDialogState extends State<CreateVendorDialog> {
     );
   }
 
-  _gstNoAndFaxNoFields() {
+  _gstNoAndNoFields() {
     return Row(
       children: [
         Expanded(
           child: CustomFormField(
-              maxLength: 15,
+              // maxLength: 15,
               inputFormatters: [
-                FilteringTextInputFormatter.allow(RegExp("[0-9A-Z]")),
+                FilteringTextInputFormatter.allow(RegExp("[0-9 A-Z a-z]")),
               ],
               requiredLabelText:
                   AppWidgetUtils.labelTextWithRequired(AppConstants.gstNo),
@@ -162,33 +211,16 @@ class _CreateVendorDialogState extends State<CreateVendorDialog> {
               hintText: AppConstants.hintGst,
               controller: _createVendorDialogBlocImpl.vendorGstNoController),
         ),
-        AppWidgetUtils.buildSizedBox(custWidth: 14),
-        Expanded(
-          child: CustomFormField(
-              maxLength: 12,
-              inputFormatters: [
-                FilteringTextInputFormatter.allow(RegExp("[0-9 - ]")),
-              ],
-              labelText: AppConstants.fax,
-              hintText: AppConstants.hintPanNo,
-              controller: _createVendorDialogBlocImpl.vendorFaxController),
-        ),
       ],
     );
   }
 
-  _buildTelePhNoFields() {
+  _buildEmailFields() {
     return Expanded(
       child: CustomFormField(
-          labelText: AppConstants.telephoneNumber,
-          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-          // requiredLabelText: AppWidgetUtils.labelTextWithRequired(
-          //     AppConstants.mobileNumber),
-          // validator: (value) {
-          //   return InputValidations.mobileNumberValidation(value ?? '');
-          // },
-          hintText: AppConstants.hintTelephoneNumber,
-          controller: _createVendorDialogBlocImpl.vendorTelephoneNoController),
+          labelText: AppConstants.emailAddress,
+          hintText: AppConstants.hintMail,
+          controller: _createVendorDialogBlocImpl.vendorEmailIdcontroller),
     );
   }
 
@@ -206,12 +238,89 @@ class _CreateVendorDialogState extends State<CreateVendorDialog> {
 
   _buildSaveButton() {
     return CustomActionButtons(
-      buttonText: AppConstants.addVendor,
+      buttonText: widget.vendorId != null
+          ? AppConstants.updateVendor
+          : AppConstants.addVendor,
       onPressed: () {
         if (_createVendorDialogBlocImpl.vendorFormKey.currentState!
-            .validate()) {}
+            .validate()) {
+          if (widget.vendorId != null) {
+            _buildUpdateVendor();
+          } else {
+            _buildCreateVendor();
+          }
+        }
       },
     );
+  }
+
+  void _buildUpdateVendor() {
+    _createVendorDialogBlocImpl.updateVendor(widget.vendorId ?? '',
+        (statusCode) {
+      if (statusCode == 200 || statusCode == 201) {
+        _isLoadingState(state: false);
+
+        Navigator.pop(context);
+        AppWidgetUtils.buildToast(
+            context,
+            ToastificationType.success,
+            AppConstants.vendorUpdate,
+            Icon(
+              Icons.check_circle_outline_rounded,
+              color: _appColors.successColor,
+            ),
+            AppConstants.vendorUpdateSuccessfully,
+            _appColors.successLightColor);
+        widget.vendorViewBlocImpl?.pageNumberUpdateStreamController(0);
+      } else {
+        _isLoadingState(state: false);
+        AppWidgetUtils.buildToast(
+            context,
+            ToastificationType.error,
+            AppConstants.vendorUpdate,
+            Icon(
+              Icons.error_outline_outlined,
+              color: _appColors.errorColor,
+            ),
+            AppConstants.somethingWentWrong,
+            _appColors.errorLightColor);
+      }
+    });
+  }
+
+  void _buildCreateVendor() {
+    _createVendorDialogBlocImpl.addVendor((statusCode) {
+      _isLoadingState(state: true);
+
+      if (statusCode == 200 || statusCode == 201) {
+        _isLoadingState(state: false);
+
+        Navigator.pop(context);
+        AppWidgetUtils.buildToast(
+            context,
+            ToastificationType.success,
+            AppConstants.vendorCreate,
+            Icon(
+              Icons.check_circle_outline_rounded,
+              color: _appColors.successColor,
+            ),
+            AppConstants.vendorCreatedSuccessfully,
+            _appColors.successLightColor);
+        widget.vendorViewBlocImpl?.pageNumberUpdateStreamController(0);
+      } else {
+        _isLoadingState(state: false);
+        AppWidgetUtils.buildToast(
+            context,
+            ToastificationType.error,
+            AppConstants.employeeCreate,
+            Icon(
+              Icons.error_outline_outlined,
+              color: _appColors.errorColor,
+            ),
+            AppConstants.somethingWentWrong,
+            _appColors.errorLightColor);
+      }
+    });
   }
 
   _accNoAndIFSCNoFields() {
@@ -231,7 +340,7 @@ class _CreateVendorDialogState extends State<CreateVendorDialog> {
           child: CustomFormField(
               //  maxLength: 12,
               inputFormatters: [
-                FilteringTextInputFormatter.allow(RegExp("[0-9 A-Z ]")),
+                FilteringTextInputFormatter.allow(RegExp("[0-9 A-Z a-z ]")),
               ],
               labelText: AppConstants.ifscNo,
               hintText: AppConstants.enterIfscCode,

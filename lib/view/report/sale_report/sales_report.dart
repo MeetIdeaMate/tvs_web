@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:tlbilling/components/custom_elevated_button.dart';
 import 'package:tlbilling/components/custom_table_view.dart';
+import 'package:tlbilling/models/parent_response_model.dart';
 import 'package:tlbilling/utils/app_colors.dart';
 import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/utils/app_util_widgets.dart' as tlbilling_widget;
 import 'package:tlbilling/utils/app_util_widgets.dart';
+import 'package:tlbilling/view/report/report_generate_pdf_dialog.dart';
 import 'package:tlbilling/view/report/sale_report/sales_accessories_report_bloc.dart';
 import 'package:tlbilling/view/report/sale_report/sales_report_bloc.dart';
 import 'package:tlbilling/view/report/sale_report/sales_vehicles_report_bloc.dart';
@@ -112,7 +114,6 @@ class _SalesreportState extends State<Salesreport>
 
   _buildTabBar() {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Expanded(
           child: TabBar(
@@ -123,20 +124,18 @@ class _SalesreportState extends State<Salesreport>
             ],
           ),
         ),
-        AppWidgetUtils.buildSizedBox(custWidth: 20),
         StreamBuilder<bool>(
             stream: _saledReportBlocImpl.tabChangeStreamController,
             builder: (context, snapshot) {
               return Expanded(
-                child: AppWidgetUtils.buildHeaderText(_totalAmountText(),
-                    fontSize: 18),
+                child: Center(
+                  child: AppWidgetUtils.buildHeaderText(
+                    _totalAmountText(),
+                    fontSize: 18,
+                  ),
+                ),
               );
             }),
-        AppWidgetUtils.buildSizedBox(custWidth: 10),
-        Expanded(
-            child: AppWidgetUtils.buildHeaderText(
-                'Over All sales amount: 10000',
-                fontSize: 18))
       ],
     );
   }
@@ -154,22 +153,50 @@ class _SalesreportState extends State<Salesreport>
       child: TabBarView(
         physics: const NeverScrollableScrollPhysics(),
         controller: _saledReportBlocImpl.salesScreenTabController,
-        children: [
-          //vehicles
-          searchAndTableView(
+        children: [_buildVehiclesReportView(), _buildAccessoriesReportView()],
+      ),
+    );
+  }
+
+  Widget _buildVehiclesReportView() {
+    return FutureBuilder<List<ParentResponseModel>>(
+      future: Future.wait([
+        _saledReportBlocImpl.getBranchName(),
+        _saledReportBlocImpl.getBranchName(),
+        _saledReportBlocImpl.getConfigById(configId: 'Payments'),
+      ]),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return const Center(child: Text(AppConstants.noData));
+        } else {
+          final branchList = snapshot.data![0].result!.getAllBranchList!
+              .map((item) => item.branchName ?? '')
+              .toList();
+          final paymentTypes =
+              snapshot.data![2].result!.getConfigModel!.configuration ?? [];
+
+          final vehicleTypes = snapshot.data![0].result!.getAllBranchList!
+              .map((item) => item.branchName ?? '')
+              .toList();
+
+          return searchAndTableView(
               vehicleOrAccessoriesHintName: AppConstants.vehicle,
               vehicleOrAccessoriesDropDownValues:
                   _salesVehicleReportBlocImpl.vehicleType,
               vehicleOrAccessoriesDropDownOnChange: (value) {
                 _salesVehicleReportBlocImpl.vehicleType = value;
               },
-              vehicleOrAccessoriesList: vehicles,
-              branchDropdownList: vehicles,
+              vehicleOrAccessoriesList: vehicleTypes,
+              branchDropdownList: branchList,
               selectedBranchName: _salesVehicleReportBlocImpl.selectedBranch,
               branchOnChange: (value) {
                 _salesVehicleReportBlocImpl.selectedBranch = value;
               },
-              paymentTypeDropDownList: vehicles,
+              paymentTypeDropDownList: paymentTypes,
               paymentdropDownValue:
                   _salesVehicleReportBlocImpl.selectedPaymentType,
               paymentOnChange: (value) {
@@ -179,38 +206,81 @@ class _SalesreportState extends State<Salesreport>
               fromDateonSuccessCallBack: () {},
               toDateController: _salesVehicleReportBlocImpl.toDateTextEdit,
               toDateonSuccessCallBack: () {},
-              buttonOnPressed: () {},
+              buttonOnPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return const GeneratePdfDialog();
+                  },
+                );
+              },
               columnHeaders: columnHeaders,
-              rowData: rowData),
-          // accessaries
-          searchAndTableView(
-              vehicleOrAccessoriesHintName: AppConstants.accessories,
-              vehicleOrAccessoriesDropDownValues:
-                  _salesAccessoriesBlocImpl.accessoriesType,
-              vehicleOrAccessoriesDropDownOnChange: (value) {
-                _salesAccessoriesBlocImpl.accessoriesType = value;
-              },
-              vehicleOrAccessoriesList: vehicles,
-              branchDropdownList: vehicles,
-              selectedBranchName: _salesAccessoriesBlocImpl.selectedBranch,
-              branchOnChange: (value) {
-                _salesAccessoriesBlocImpl.selectedBranch = value;
-              },
-              paymentTypeDropDownList: vehicles,
-              paymentdropDownValue:
-                  _salesAccessoriesBlocImpl.selectedPaymentType,
-              paymentOnChange: (value) {
-                _salesAccessoriesBlocImpl.selectedPaymentType = value;
-              },
-              fromDateController: _salesAccessoriesBlocImpl.fromDateTextEdit,
-              fromDateonSuccessCallBack: () {},
-              toDateController: _salesAccessoriesBlocImpl.toDateTextEdit,
-              toDateonSuccessCallBack: () {},
-              buttonOnPressed: () {},
-              columnHeaders: columnHeaders,
-              rowData: rowData)
-        ],
-      ),
+              rowData: rowData);
+        }
+      },
+    );
+  }
+
+  Widget _buildAccessoriesReportView() {
+    return FutureBuilder<List<ParentResponseModel>>(
+      future: Future.wait([
+        _saledReportBlocImpl.getBranchName(),
+        _saledReportBlocImpl.getBranchName(),
+        _saledReportBlocImpl.getConfigById(configId: 'Payments'),
+      ]),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return const Center(child: Text(AppConstants.noData));
+        } else {
+          final branchList = snapshot.data![0].result!.getAllBranchList!
+              .map((item) => item.branchName ?? '')
+              .toList();
+          final paymentTypes =
+              snapshot.data![2].result!.getConfigModel!.configuration ?? [];
+
+          final vehicleTypes = snapshot.data![0].result!.getAllBranchList!
+              .map((item) => item.branchName ?? '')
+              .toList();
+
+          return searchAndTableView(
+            vehicleOrAccessoriesHintName: AppConstants.accessories,
+            vehicleOrAccessoriesDropDownValues:
+                _salesAccessoriesBlocImpl.accessoriesType,
+            vehicleOrAccessoriesDropDownOnChange: (value) {
+              _salesAccessoriesBlocImpl.accessoriesType = value;
+            },
+            vehicleOrAccessoriesList: vehicleTypes,
+            branchDropdownList: branchList,
+            selectedBranchName: _salesAccessoriesBlocImpl.selectedBranch,
+            branchOnChange: (value) {
+              _salesAccessoriesBlocImpl.selectedBranch = value;
+            },
+            paymentTypeDropDownList: paymentTypes,
+            paymentdropDownValue: _salesAccessoriesBlocImpl.selectedPaymentType,
+            paymentOnChange: (value) {
+              _salesAccessoriesBlocImpl.selectedPaymentType = value;
+            },
+            fromDateController: _salesAccessoriesBlocImpl.fromDateTextEdit,
+            fromDateonSuccessCallBack: () {},
+            toDateController: _salesAccessoriesBlocImpl.toDateTextEdit,
+            toDateonSuccessCallBack: () {},
+            buttonOnPressed: () {
+              showDialog(
+                context: context,
+                builder: (context) {
+                  return const GeneratePdfDialog();
+                },
+              );
+            },
+            columnHeaders: columnHeaders,
+            rowData: rowData,
+          );
+        }
+      },
     );
   }
 
