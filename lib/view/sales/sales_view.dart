@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:tlbilling/components/custom_elevated_button.dart';
 import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/utils/app_util_widgets.dart';
+import 'package:tlbilling/utils/input_formates.dart';
 import 'package:tlbilling/view/sales/add_sales.dart';
 import 'package:tlbilling/view/sales/sales_view_bloc.dart';
 import 'package:tlds_flutter/components/tlds_input_form_field.dart';
@@ -89,8 +91,11 @@ class _SalesViewScreenState extends State<SalesViewScreen>
             StreamBuilder(
               stream: _salesViewBloc.invoiceNoStream,
               builder: (context, snapshot) {
-                return _buildFormField(_salesViewBloc.invoiceNoTextController,
-                    AppConstants.invoiceNo);
+                return _buildFormField(
+                  _salesViewBloc.invoiceNoTextController,
+                  AppConstants.invoiceNo,
+                  TlInputFormatters.onlyAllowAlphabetAndNumber,
+                );
               },
             ),
             AppWidgetUtils.buildSizedBox(
@@ -99,8 +104,11 @@ class _SalesViewScreenState extends State<SalesViewScreen>
             StreamBuilder(
               stream: _salesViewBloc.paymentTypeStream,
               builder: (context, snapshot) {
-                return _buildFormField(_salesViewBloc.paymentTypeTextController,
-                    AppConstants.paymentType);
+                return _buildFormField(
+                  _salesViewBloc.paymentTypeTextController,
+                  AppConstants.paymentType,
+                  TlInputFormatters.onlyAllowAlphabets,
+                );
               },
             ),
             AppWidgetUtils.buildSizedBox(
@@ -110,8 +118,10 @@ class _SalesViewScreenState extends State<SalesViewScreen>
               stream: _salesViewBloc.customerNameStream,
               builder: (context, snapshot) {
                 return _buildFormField(
-                    _salesViewBloc.customerNameTextController,
-                    AppConstants.customerName);
+                  _salesViewBloc.customerNameTextController,
+                  AppConstants.customerName,
+                  TlInputFormatters.onlyAllowAlphabets,
+                );
               },
             ),
           ],
@@ -140,14 +150,15 @@ class _SalesViewScreenState extends State<SalesViewScreen>
     );
   }
 
-  Widget _buildFormField(
-      TextEditingController textController, String hintText) {
+  Widget _buildFormField(TextEditingController textController, String hintText,
+      List<TextInputFormatter>? inputFormatters) {
     final bool isTextEmpty = textController.text.isEmpty;
     final IconData iconData = isTextEmpty ? Icons.search : Icons.close;
     final Color iconColor = isTextEmpty ? _appColors.primaryColor : Colors.red;
     return TldsInputFormField(
       width: 203,
       height: 40,
+      inputFormatters: inputFormatters,
       controller: textController,
       hintText: hintText,
       suffixIcon: IconButton(

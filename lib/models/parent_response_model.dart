@@ -1,8 +1,9 @@
 import 'dart:convert';
 
+import 'package:tlbilling/models/get_model/get_All_vendorName_List.dart';
 import 'package:tlbilling/models/get_model/get_all_branch_model.dart';
 import 'package:tlbilling/models/get_model/get_all_branches_by_pagination.dart';
-import 'package:tlbilling/models/get_model/get_all_branches_by_pagination.dart';
+import 'package:tlbilling/models/get_model/get_all_customerName_List.dart';
 import 'package:tlbilling/models/get_model/get_all_customer_by_pagination_model.dart';
 import 'package:tlbilling/models/get_model/get_all_customers_model.dart';
 
@@ -10,13 +11,11 @@ import 'package:tlbilling/models/get_all_employee_model.dart';
 import 'package:tlbilling/models/get_cofig_model.dart';
 import 'package:tlbilling/models/get_employee_by_id.dart';
 import 'package:tlbilling/models/get_model/get_all_employee_by_pagination.dart';
-import 'package:tlbilling/models/get_model/get_configuration_list_model.dart';
-import 'package:tlbilling/models/get_model/get_configuration_model.dart';
-import 'package:tlbilling/models/get_model/get_transport_by_pagination.dart';
-import 'package:tlbilling/models/get_model/get_configuration_list_model.dart';
-import 'package:tlbilling/models/get_model/get_configuration_model.dart';
-import 'package:tlbilling/models/get_model/get_transport_by_pagination.dart';
+import 'package:tlbilling/models/get_model/get_all_purchase_model.dart';
 import 'package:tlbilling/models/get_model/get_all_vendor_by_pagination_model.dart';
+import 'package:tlbilling/models/get_model/get_configuration_list_model.dart';
+import 'package:tlbilling/models/get_model/get_configuration_model.dart';
+import 'package:tlbilling/models/get_model/get_transport_by_pagination.dart';
 import 'package:tlbilling/models/get_model/get_vendor_by_id_model.dart';
 import 'package:tlbilling/models/user_model.dart';
 
@@ -30,7 +29,7 @@ class ParentResponseModel {
   ResultObj? result;
   dynamic error;
   String? status;
-  int? statusCode;
+  int? statusCode;  
 
   ParentResponseModel({
     this.result,
@@ -67,7 +66,9 @@ class ResultObj {
   GetEmployeeById? employeeById;
   GetVendorById? vendorById;
   List<GetAllBranchList>? getAllBranchList;
-  GetAllBranchesByPaginationModel? getAllBranchesByPaginationModel;
+  GetAllPurchaseByPageNation? getAllPurchaseList;
+  List<GetAllVendorNameList>? getAllVendorNameList;
+List<GetAllCustomerNameList>? getAllCustomerNameList;  GetAllBranchesByPaginationModel? getAllBranchesByPaginationModel;
   GetAllBranchList? getBranchById;
   GetTransportByPaginationModel? getTransportByPaginationModel;
   List<GetAllConfigurationListModel>? getAllConfigurationListModel;
@@ -85,6 +86,8 @@ class ResultObj {
       this.employeeById,
       this.getAllEmployeesByPaginationModel,
       this.getAllBranchList,
+      this.getAllPurchaseList,
+      this.getAllVendorNameList, this.getAllCustomerNameList,
       this.vendorById,
       this.getAllBranchesByPaginationModel,
       this.getBranchById,
@@ -150,6 +153,17 @@ class ResultObj {
             : null,
         vendorById: json["vendor"] != null
             ? GetVendorById.fromJson(json["vendor"])
+            : null,
+        getAllPurchaseList: json['purchaseWithPage'] != null
+            ? GetAllPurchaseByPageNation.fromJson(json['purchaseWithPage'])
+            : null,
+             getAllVendorNameList: json['vendors'] != null
+            ? List<GetAllVendorNameList>.from(json['vendors']
+                .map((x) => GetAllVendorNameList.fromJson(x)))
+            : null,
+       getAllCustomerNameList: json['customers'] != null
+            ? List<GetAllCustomerNameList>.from(json['customers']
+                .map((x) => GetAllCustomerNameList.fromJson(x)))
             : null,
       );
 

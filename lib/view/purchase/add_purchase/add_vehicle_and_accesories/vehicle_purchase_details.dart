@@ -1,13 +1,19 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:tlbilling/utils/input_formates.dart';
+import 'package:tlds_flutter/export.dart';
+
 import 'package:tlbilling/utils/app_colors.dart';
 import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/view/purchase/add_purchase/add_vehicle_and_accesories/add_vehicle_and_accessories_bloc.dart';
-import 'package:tlds_flutter/export.dart';
 
 class VehiclePurchaseDetails extends StatefulWidget {
-  const VehiclePurchaseDetails({super.key});
+  AddVehicleAndAccessoriesBlocImpl addVehicleAndAccessoriesBloc;
+  VehiclePurchaseDetails({
+    super.key,
+    required this.addVehicleAndAccessoriesBloc,
+  });
 
   @override
   State<VehiclePurchaseDetails> createState() => _VehiclePurchaseDetailsState();
@@ -15,8 +21,30 @@ class VehiclePurchaseDetails extends StatefulWidget {
 
 class _VehiclePurchaseDetailsState extends State<VehiclePurchaseDetails> {
   final _appColors = AppColors();
-  final _addVehicleAndAccessoriesBloc = AddVehicleAndAccessoriesBlocImpl();
   final List<String> vehicleAndAccessories = ['Vehicle', 'Accessories'];
+
+  @override
+  void initState() {
+    super.initState();
+    widget.addVehicleAndAccessoriesBloc.updateEngineDetailsStream.listen((_) {
+      _scrollToBottom();
+    });
+  }
+
+  void _scrollToBottom() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (widget
+          .addVehicleAndAccessoriesBloc.engineListScrollController.hasClients) {
+        widget.addVehicleAndAccessoriesBloc.engineListScrollController
+            .animateTo(
+          widget.addVehicleAndAccessoriesBloc.engineListScrollController
+              .position.maxScrollExtent,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -55,11 +83,18 @@ class _VehiclePurchaseDetailsState extends State<VehiclePurchaseDetails> {
       children: [
         Expanded(
             child: TldsInputFormField(
-                height: 40,
+                validator: (String? value) {
+                  if (value == null || value.isEmpty) {
+                    return AppConstants.enterPartNo;
+                  }
+                  return null;
+                },
+                inputFormatters:  TlInputFormatters.onlyAllowNumbers,
+                focusNode: widget.addVehicleAndAccessoriesBloc.partNoFocusNode,
                 labelText: AppConstants.partNo,
                 hintText: AppConstants.partNo,
                 controller:
-                    _addVehicleAndAccessoriesBloc.partNumberController)),
+                    widget.addVehicleAndAccessoriesBloc.partNumberController)),
         _buildDefaultWidth(),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -68,12 +103,17 @@ class _VehiclePurchaseDetailsState extends State<VehiclePurchaseDetails> {
             AppWidgetUtils.buildSizedBox(
                 custHeight: MediaQuery.sizeOf(context).height * 0.01),
             TldsDropDownButtonFormField(
-              height: 40,
+              validator: (String? value) {
+                if (value == null || value.isEmpty) {
+                  return AppConstants.selectVehiceName;
+                }
+                return null;
+              },
               width: MediaQuery.sizeOf(context).width * 0.165,
               hintText: AppConstants.vehicleName,
-              dropDownItems: _addVehicleAndAccessoriesBloc.selectVendor,
+              dropDownItems: widget.addVehicleAndAccessoriesBloc.selectVendor,
               onChange: (String? newValue) {
-                _addVehicleAndAccessoriesBloc.vendorDropDownValue =
+                widget.addVehicleAndAccessoriesBloc.vendorDropDownValue =
                     newValue ?? '';
               },
             )
@@ -88,17 +128,41 @@ class _VehiclePurchaseDetailsState extends State<VehiclePurchaseDetails> {
       children: [
         Expanded(
             child: TldsInputFormField(
-                height: 40,
-                labelText: AppConstants.variant,
-                hintText: AppConstants.variant,
-                controller: _addVehicleAndAccessoriesBloc.variantController)),
+          validator: (String? value) {
+            if (value == null || value.isEmpty) {
+              return AppConstants.enterVarient;
+            }
+            return null;
+          },
+          inputFormatters: TlInputFormatters.onlyAllowAlphabetAndNumber,
+          focusNode: widget.addVehicleAndAccessoriesBloc.varientFocusNode,
+          labelText: AppConstants.variant,
+          hintText: AppConstants.variant,
+          controller: widget.addVehicleAndAccessoriesBloc.variantController,
+          onSubmit: (p0) {
+            FocusScope.of(context).requestFocus(
+                widget.addVehicleAndAccessoriesBloc.colorFocusNode);
+          },
+        )),
         _buildDefaultWidth(),
         Expanded(
             child: TldsInputFormField(
-                height: 40,
-                labelText: AppConstants.color,
-                hintText: AppConstants.color,
-                controller: _addVehicleAndAccessoriesBloc.colorController)),
+          validator: (String? value) {
+            if (value == null || value.isEmpty) {
+              return AppConstants.enterColor;
+            }
+            return null;
+          },
+          focusNode: widget.addVehicleAndAccessoriesBloc.colorFocusNode,
+          inputFormatters: TlInputFormatters.onlyAllowAlphabets,
+          labelText: AppConstants.color,
+          hintText: AppConstants.color,
+          controller: widget.addVehicleAndAccessoriesBloc.colorController,
+          onSubmit: (p0) {
+            FocusScope.of(context).requestFocus(
+                widget.addVehicleAndAccessoriesBloc.hsnCodeFocusNode);
+          },
+        )),
       ],
     );
   }
@@ -108,20 +172,41 @@ class _VehiclePurchaseDetailsState extends State<VehiclePurchaseDetails> {
       children: [
         Expanded(
             child: TldsInputFormField(
-                inputFormatters: [
-              FilteringTextInputFormatter.allow(RegExp(r'^\d{0,8}'))
-            ],
-                height: 40,
-                labelText: AppConstants.hsnCode,
-                hintText: AppConstants.hsnCode,
-                controller: _addVehicleAndAccessoriesBloc.hsnCodeController)),
+          validator: (String? value) {
+            if (value == null || value.isEmpty) {
+              return AppConstants.enterHsnCode;
+            }
+            return null;
+          },
+          focusNode: widget.addVehicleAndAccessoriesBloc.hsnCodeFocusNode,
+          inputFormatters: TlInputFormatters.onlyAllowNumbers,
+          labelText: AppConstants.hsnCode,
+          hintText: AppConstants.hsnCode,
+          controller: widget.addVehicleAndAccessoriesBloc.hsnCodeController,
+          onSubmit: (p0) {
+            FocusScope.of(context).requestFocus(
+                widget.addVehicleAndAccessoriesBloc.unitRateFocusNode);
+          },
+        )),
         _buildDefaultWidth(),
         Expanded(
             child: TldsInputFormField(
-                height: 40,
-                labelText: AppConstants.unitRate,
-                hintText: AppConstants.unitRate,
-                controller: _addVehicleAndAccessoriesBloc.unitRateController)),
+          validator: (String? value) {
+            if (value == null || value.isEmpty) {
+              return AppConstants.enterUnitRate;
+            }
+            return null;
+          },
+          inputFormatters: TlInputFormatters.onlyAllowDecimalNumbers,
+          focusNode: widget.addVehicleAndAccessoriesBloc.unitRateFocusNode,
+          labelText: AppConstants.unitRate,
+          hintText: AppConstants.unitRate,
+          controller: widget.addVehicleAndAccessoriesBloc.unitRateController,
+          onSubmit: (p0) {
+            FocusScope.of(context).requestFocus(
+                widget.addVehicleAndAccessoriesBloc.engineNoFocusNode);
+          },
+        )),
       ],
     );
   }
@@ -139,8 +224,7 @@ class _VehiclePurchaseDetailsState extends State<VehiclePurchaseDetails> {
               children: [
                 _buildTextWidget(AppConstants.engineDetails,
                     color: _appColors.primaryColor, fontSize: 20),
-                _buildTextWidget('QTY : 02',
-                    color: _appColors.primaryColor, fontSize: 20),
+                _buildQtyData(),
               ],
             ),
             _buildDefaultHeight(),
@@ -154,59 +238,107 @@ class _VehiclePurchaseDetailsState extends State<VehiclePurchaseDetails> {
     );
   }
 
+  Widget _buildQtyData() {
+    return StreamBuilder(
+        stream: widget.addVehicleAndAccessoriesBloc.refreshEngineListStream,
+        builder: (context, snapshot) {
+          return _buildTextWidget(
+              'QTY : ${widget.addVehicleAndAccessoriesBloc.engineDetailsList.length}',
+              color: _appColors.primaryColor,
+              fontSize: 20);
+        });
+  }
+
   Widget _buildEngineNumberAndFrameNumber() {
     return Row(
       children: [
         Expanded(
             child: TldsInputFormField(
-                inputFormatters: [],
-                height: 40,
-                labelText: AppConstants.engineNumber,
-                hintText: AppConstants.engineNumber,
-                controller:
-                    _addVehicleAndAccessoriesBloc.engineNumberController)),
+          inputFormatters: TlInputFormatters.onlyAllowAlphabetAndNumber,
+          focusNode: widget.addVehicleAndAccessoriesBloc.engineNoFocusNode,
+          labelText: AppConstants.engineNumber,
+          hintText: AppConstants.engineNumber,
+          controller:
+              widget.addVehicleAndAccessoriesBloc.engineNumberController,
+          onSubmit: (p0) {
+            FocusScope.of(context).requestFocus(
+                widget.addVehicleAndAccessoriesBloc.frameNumberFocusNode);
+          },
+        )),
         _buildDefaultWidth(),
         Expanded(
             child: TldsInputFormField(
-                height: 40,
+                inputFormatters: TlInputFormatters.onlyAllowAlphabetAndNumber,
+                focusNode:
+                    widget.addVehicleAndAccessoriesBloc.frameNumberFocusNode,
+                onSubmit: (p0) {
+                  _engineNumberAndFrameNumberOnSubmit();
+                },
                 labelText: AppConstants.frameNumber,
                 hintText: AppConstants.frameNumber,
                 controller:
-                    _addVehicleAndAccessoriesBloc.frameNumberController)),
+                    widget.addVehicleAndAccessoriesBloc.frameNumberController)),
       ],
     );
   }
 
   Widget _buildEngineDetailsList() {
-    return SizedBox(
-      width: MediaQuery.sizeOf(context).width,
-      height: MediaQuery.sizeOf(context).height * 0.2,
-      child: ListView.builder(
-        itemCount: 2,
-        itemBuilder: (context, index) {
-          return Card(
-              elevation: 0,
-              shape: OutlineInputBorder(
-                  borderSide: BorderSide(color: _appColors.cardBorderColor)),
-              child: Padding(
-                padding: const EdgeInsets.all(8),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    _buildTextWidget('EngineNumber'),
-                    _buildTextWidget('FrameNumber'),
-                    IconButton(
-                        onPressed: () {},
-                        icon: Icon(
-                          Icons.cancel,
-                          color: _appColors.errorColor,
-                        )),
-                  ],
-                ),
-              ));
-        },
-      ),
-    );
+    return StreamBuilder(
+        stream: widget.addVehicleAndAccessoriesBloc.updateEngineDetailsStream,
+        builder: (context, snapshot) {
+          return SizedBox(
+            width: MediaQuery.sizeOf(context).width,
+            height: MediaQuery.sizeOf(context).height * 0.2,
+            child: ListView.builder(
+              controller: widget
+                  .addVehicleAndAccessoriesBloc.engineListScrollController,
+              itemCount:
+                  widget.addVehicleAndAccessoriesBloc.engineDetailsList.length,
+              itemBuilder: (context, index) {
+                final engineDetails = widget
+                    .addVehicleAndAccessoriesBloc.engineDetailsList[index];
+                final engineNo = engineDetails['engineNo'] ?? '';
+                final frameNo = engineDetails['frameNo'] ?? '';
+                return Card(
+                    elevation: 0,
+                    shape: OutlineInputBorder(
+                        borderSide:
+                            BorderSide(color: _appColors.cardBorderColor)),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          _buildTextWidget(engineNo),
+                          _buildTextWidget(frameNo),
+                          IconButton(
+                              onPressed: () {
+                                widget.addVehicleAndAccessoriesBloc
+                                    .engineDetailsList
+                                    .removeAt(index);
+                                widget.addVehicleAndAccessoriesBloc
+                                    .engineDetailsStreamController(true);
+                                widget.addVehicleAndAccessoriesBloc
+                                    .frameNumberController
+                                    .clear();
+                                widget.addVehicleAndAccessoriesBloc
+                                    .engineNumberController
+                                    .clear();
+                                widget.addVehicleAndAccessoriesBloc
+                                    .refreshEngineDetailsListStramController(
+                                        true);
+                              },
+                              icon: Icon(
+                                Icons.cancel,
+                                color: _appColors.errorColor,
+                              )),
+                        ],
+                      ),
+                    ));
+              },
+            ),
+          );
+        });
   }
 
   Widget _buildDefaultWidth() {
@@ -226,5 +358,22 @@ class _VehiclePurchaseDetailsState extends State<VehiclePurchaseDetails> {
       style: GoogleFonts.poppins(
           color: color, fontWeight: fontWeight, fontSize: fontSize),
     );
+  }
+
+  _engineNumberAndFrameNumberOnSubmit() {
+    final engineAndFrameNoMap = {
+      "engineNo":
+          widget.addVehicleAndAccessoriesBloc.engineNumberController.text,
+      "frameNo": widget.addVehicleAndAccessoriesBloc.frameNumberController.text
+    };
+    widget.addVehicleAndAccessoriesBloc.engineDetailsList
+        .add(engineAndFrameNoMap);
+    widget.addVehicleAndAccessoriesBloc.engineDetailsStreamController(true);
+    widget.addVehicleAndAccessoriesBloc
+        .refreshEngineDetailsListStramController(true);
+    widget.addVehicleAndAccessoriesBloc.frameNumberController.clear();
+    widget.addVehicleAndAccessoriesBloc.engineNumberController.clear();
+    FocusScope.of(context)
+        .requestFocus(widget.addVehicleAndAccessoriesBloc.engineNoFocusNode);
   }
 }

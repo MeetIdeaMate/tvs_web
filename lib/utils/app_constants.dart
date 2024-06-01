@@ -391,4 +391,16 @@ class AppConstants {
   static const credit = 'credit';
   static const loan = 'loan';
   static const partPayment = 'part payment';
+
+  //Purchase Validation ErrorMessage
+  static const selectVendorName = 'Please Select Vendor Name';
+  static const enterInvoiceNo = 'Please Enter Invoice No';
+  static const selectInvoiceDate = 'Please Select Invoice Date';
+  static const enterPurchaseRefNo = 'Please Enter Purchase Ref No';
+  static const enterPartNo = 'Please Enter Part No';
+  static const selectVehiceName = 'Please Select Vehicle Name';
+  static const enterVarient = 'Please Enter Varient';
+    static const enterColor = 'Please Enter Color';
+    static const enterHsnCode = 'Please Enter HSN Code';
+    static const enterUnitRate = 'Please Enter Unit Rate';
 }

@@ -22,6 +22,13 @@ class VehicleAccessoriesList extends StatefulWidget {
 
 class _VehicleAccessoriesListState extends State<VehicleAccessoriesList> {
   final _appColors = AppColors();
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -267,6 +274,7 @@ class _VehicleAccessoriesListState extends State<VehicleAccessoriesList> {
             stream: widget.addSalesBloc.selectedVehicleAndAccessoriesStream,
             builder: (context, snapshot) {
               return SegmentedButton(
+                selected: widget.addSalesBloc.optionsSet,
                 multiSelectionEnabled: false,
                 segments: List.generate(
                     widget.addSalesBloc.vehicleAndAccessoriesList.length,
@@ -276,7 +284,6 @@ class _VehicleAccessoriesListState extends State<VehicleAccessoriesList> {
                         label: Text(
                           widget.addSalesBloc.vehicleAndAccessoriesList[index],
                         ))),
-                selected: widget.addSalesBloc.optionsSet,
                 onSelectionChanged: (Set<String> newValue) {
                   widget.addSalesBloc.optionsSet = newValue;
                   widget.addSalesBloc.selectedVehicleAndAccessories =
@@ -318,7 +325,8 @@ class _VehicleAccessoriesListState extends State<VehicleAccessoriesList> {
           return Expanded(
             child: TldsInputFormField(
               height: 40,
-              controller: widget.addSalesBloc.discountTextController,
+              controller:
+                  widget.addSalesBloc.vehicleNoAndEngineNoSearchController,
               hintText: AppConstants.vehicleNameAndEngineNumber,
               suffixIcon: IconButton(
                 onPressed: () {

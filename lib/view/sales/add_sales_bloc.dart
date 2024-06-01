@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:tlbilling/api_service/app_service_utils.dart';
+import 'package:tlbilling/models/get_model/get_all_customerName_List.dart';
 
 abstract class AddSalesBloc {
   Stream get selectedVehicleAndAccessoriesStream;
@@ -12,9 +14,11 @@ abstract class AddSalesBloc {
 
   TextEditingController get discountTextController;
   TextEditingController get transporterVehicleNumberController;
+  TextEditingController get vehicleNoAndEngineNoSearchController;
 
   String? get selectedVehicleAndAccessories;
   String? get selectedBranch;
+  String? get selectedCustomer;
 
   List<Widget> get selectedItems;
 
@@ -26,9 +30,14 @@ abstract class AddSalesBloc {
   bool get isDiscountChecked;
   bool get isInsurenceChecked;
   String? get selectedPaymentOption;
+
+  Future<List<GetAllCustomerNameList>> getAllCustomerList();
+
+  Future<List<String>> getPaymentmethods();
 }
 
 class AddSalesBlocImpl extends AddSalesBloc {
+  final _apiServices = AppServiceUtilImpl();
   final _selectedVehicleAndAccessoriesStream = StreamController.broadcast();
   final _changeVehicleAndAccessoriesListStream = StreamController.broadcast();
   final _vehicleAndEngineNumberStream = StreamController.broadcast();
@@ -38,12 +47,14 @@ class AddSalesBlocImpl extends AddSalesBloc {
   final _selectedSalesStreamController = StreamController<bool>.broadcast();
   final _discountTextController = TextEditingController();
   final _transporterVehicleNumberController = TextEditingController();
+  final _vehicleNoAndEngineNoSearchController = TextEditingController();
   List<String> vehicleAndAccessoriesList = ['Vehicle', 'Accessories'];
   List<String> selectedVehicleList = [];
   List<String> branch = ['Kovilpatti', 'Sattur', 'Sivakasi'];
   late Set<String> optionsSet = {selectedVehicleAndAccessories ?? ''};
   String? _selectedVehicleAndAccessories;
   String? _selectedBranch;
+  String? _selectedCustomer;
   int initialValue = 0;
   final List<Widget> _selectedItems = [];
   int? _salesIndex = 0;
@@ -51,6 +62,7 @@ class AddSalesBlocImpl extends AddSalesBloc {
   bool _isDiscountChecked = false;
   bool _isInsurenceChecked = false;
   String? _selectedPaymentOption;
+  List<String> _customerNameList = [];
   @override
   String? get selectedVehicleAndAccessories => _selectedVehicleAndAccessories;
 
@@ -170,5 +182,26 @@ class AddSalesBlocImpl extends AddSalesBloc {
 
   set selectedPaymentOption(String? paymentOption) {
     _selectedPaymentOption = paymentOption;
+  }
+
+  @override
+  TextEditingController get vehicleNoAndEngineNoSearchController =>
+      _vehicleNoAndEngineNoSearchController;
+
+  @override
+  Future<List<GetAllCustomerNameList>> getAllCustomerList() async {
+    return await _apiServices.getAllCustomerList();
+  }
+
+  @override
+  Future<List<String>> getPaymentmethods() async {
+    return await _apiServices.getConfigByIdModel(configId: 'paymentMethod');
+  }
+
+  @override
+  String? get selectedCustomer => _selectedCustomer;
+
+  set selectedCustomer(String? selectedValue) {
+    _selectedCustomer = selectedValue;
   }
 }

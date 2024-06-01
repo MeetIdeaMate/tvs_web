@@ -6,9 +6,11 @@ import 'package:tlbilling/api_service/app_url.dart';
 import 'package:tlbilling/models/get_employee_by_id.dart';
 import 'package:tlbilling/models/get_model/get_all_branch_model.dart';
 import 'package:tlbilling/models/get_model/get_all_branches_by_pagination.dart';
+import 'package:tlbilling/models/get_model/get_all_customerName_List.dart';
 import 'package:tlbilling/models/get_model/get_all_customer_by_pagination_model.dart';
 import 'package:tlbilling/models/get_model/get_all_customers_model.dart';
 import 'package:tlbilling/models/get_model/get_all_employee_by_pagination.dart';
+import 'package:tlbilling/models/get_model/get_all_purchase_model.dart';
 import 'package:tlbilling/models/get_model/get_all_vendor_by_pagination_model.dart';
 import 'package:tlbilling/models/get_model/get_configuration_list_model.dart';
 import 'package:tlbilling/models/get_model/get_configuration_model.dart';
@@ -89,6 +91,11 @@ abstract class AppServiceUtil {
       Function(int? statusCode) statusCode);
 
   Future<ParentResponseModel> getBranchName();
+  Future<List<String>> getAllVendorNameList();
+  Future<List<GetAllCustomerNameList>> getAllCustomerList();
+
+  Future<GetAllPurchaseByPageNation> getAllPurchaseList(int currentPage,
+      String employeeName, String city, String designation, String branchName);
 
   Future<GetAllBranchesByPaginationModel?> getBranchList(
       int currentPage, String pinCode, String branchName, String? selectedCity);
@@ -277,9 +284,7 @@ class AppServiceUtilImpl extends AppServiceUtil {
     var token = prefs.getString('token');
     dio.options.headers['Authorization'] = 'Bearer $token';
     String configUrl = '${AppUrl.config}$configId';
-
     final response = await dio.get(configUrl);
-
     if (response.statusCode == 200) {
       return parentResponseModelFromJson(jsonEncode(response.data))
               .result
@@ -456,6 +461,77 @@ class AppServiceUtilImpl extends AppServiceUtil {
       statusCode(response.statusCode ?? 0);
     } on DioException catch (e) {
       statusCode(e.response?.statusCode ?? 0);
+    }
+  }
+
+  @override
+  Future<GetAllPurchaseByPageNation> getAllPurchaseList(
+      int currentPage,
+      String employeeName,
+      String city,
+      String designation,
+      String branchName) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var token = prefs.getString('token');
+    dio.options.headers['Authorization'] = 'Bearer $token';
+
+    String employeeListUrl =
+        '${AppUrl.employeeByPagination}page=$currentPage&pageSize=10';
+
+    if (employeeName.isNotEmpty) {
+      employeeListUrl += '&employeeName=$employeeName';
+    }
+    if (designation.isNotEmpty && designation != 'All') {
+      employeeListUrl += '&designation=$designation';
+    }
+    if (branchName.isNotEmpty && branchName != 'All') {
+      employeeListUrl += '&branchName=$branchName';
+    }
+
+    var response = await dio.get(employeeListUrl);
+    final responseList = parentResponseModelFromJson(jsonEncode(response.data));
+
+    return responseList.result!.getAllPurchaseList!;
+  }
+
+  @override
+  Future<List<String>> getAllVendorNameList() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var token = prefs.getString('token');
+    dio.options.headers['Authorization'] = 'Bearer $token';
+    String vendorUrl = AppUrl.vendorNameList;
+    final response = await dio.get(vendorUrl);
+    if (response.statusCode == 200) {
+      ParentResponseModel model =
+          parentResponseModelFromJson(jsonEncode(response.data));
+      List<String> vendorNameList = [];
+      if (model.result != null && model.result!.getAllVendorNameList != null) {
+        var vendor = model.result!.getAllVendorNameList!;
+        for (var vendorNames in vendor) {
+          vendorNameList.add(vendorNames.vendorName ?? '');
+        }
+        return vendorNameList;
+      } else {
+        return [];
+      }
+    } else {
+      throw Exception('Failed to load vendor data: ${response.statusCode}');
+    }
+  }
+
+  @override
+  Future<List<GetAllCustomerNameList>> getAllCustomerList() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var token = prefs.getString('token');
+    dio.options.headers['Authorization'] = 'Bearer $token';
+    String customerUrl = AppUrl.vendorNameList;
+    final response = await dio.get(customerUrl);
+    if (response.statusCode == 200) {
+      ParentResponseModel model =
+          parentResponseModelFromJson(jsonEncode(response.data));
+      return model.result?.getAllCustomerNameList ?? [];
+    } else {
+      throw Exception('Failed to load vendor data: ${response.statusCode}');
     }
   }
 
