@@ -239,7 +239,7 @@ class _SideMenuNavigationState extends State<SideMenuNavigation> {
               _buildDrawerMenuItem(
                 AppConstants.icReport,
                 AppConstants.configuration,
-                    () {
+                () {
                   _onMenuItemSelected(AppConstants.configuration);
                 },
               ),
@@ -267,27 +267,33 @@ class _SideMenuNavigationState extends State<SideMenuNavigation> {
           borderRadius: const BorderRadius.all(Radius.circular(50)),
           color: isSelected ? _appcolors.whiteColor : null,
         ),
-        child: ListTile(
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
-          leading: SvgPicture.asset(
-            svgIconPath,
-            colorFilter: ColorFilter.mode(
-                isSelected ? _appcolors.primaryColor : _appcolors.whiteColor,
-                BlendMode.srcIn),
+        child: Center(
+          child: ListTile(
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
+            leading: SvgPicture.asset(
+              svgIconPath,
+              colorFilter: ColorFilter.mode(
+                  isSelected ? _appcolors.primaryColor : _appcolors.whiteColor,
+                  BlendMode.srcIn),
+            ),
+            title: Padding(
+              padding: const EdgeInsets.only(bottom: 5),
+              child: Text(titleText,
+                  style: TextStyle(
+                      color: isSelected
+                          ? _appcolors.primaryColor
+                          : _appcolors.whiteColor,
+                      fontSize: 14)),
+            ),
+            onTap: () {
+              onTapFunction();
+              if (Responsive.isMobile(context) ||
+                  Responsive.isTablet(context)) {
+                Navigator.pop(context);
+              }
+            },
           ),
-          title: Text(titleText,
-              style: TextStyle(
-                  color: isSelected
-                      ? _appcolors.primaryColor
-                      : _appcolors.whiteColor,
-                  fontSize: 14)),
-          onTap: () {
-            onTapFunction();
-            if (Responsive.isMobile(context) || Responsive.isTablet(context)) {
-              Navigator.pop(context);
-            }
-          },
         ),
       ),
     );
