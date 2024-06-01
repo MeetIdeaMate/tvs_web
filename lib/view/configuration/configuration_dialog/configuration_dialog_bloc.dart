@@ -57,7 +57,7 @@ class ConfigurationDialogBlocImpl extends ConfigurationDialogBloc {
 
   @override
   Future<GetConfigurationModel?> getConfigById(String configId) async {
-    return await _appServices.getConfigurationById(configId);
+    return await _appServices.getConfigById(configId);
   }
 
   @override
