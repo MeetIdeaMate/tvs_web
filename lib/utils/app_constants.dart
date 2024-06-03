@@ -128,7 +128,7 @@ class AppConstants {
   static const transport = 'Transport';
   static const reports = 'Reports';
   static const configuration = 'Configuration';
-  static const user = 'user';
+  static const user = 'User';
   static const voucherReceipt = 'Voc / Rec';
   static const receipt = 'Receipt';
   static const employee = 'Employee';

@@ -11,6 +11,7 @@ import 'package:tlbilling/utils/input_formates.dart';
 import 'package:tlbilling/view/customer/create_customer_dialog.dart';
 import 'package:tlbilling/view/customer/customer_view_bloc.dart';
 import 'package:tlds_flutter/components/tlds_input_form_field.dart';
+import 'package:tlds_flutter/components/tlds_input_formaters.dart';
 
 class CustomerView extends StatefulWidget {
   const CustomerView({super.key});
@@ -32,8 +33,7 @@ class _CustomerViewState extends State<CustomerView> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             AppWidgetUtils.buildHeaderText(AppConstants.customer),
-
-            AppWidgetUtils.buildSizedBox(custHeight: 28),
+            AppWidgetUtils.buildSizedBox(custHeight: 26),
             _buildsearchAndAddButton(context),
             // Center(
             //   child: Column(
@@ -62,6 +62,7 @@ class _CustomerViewState extends State<CustomerView> {
           stream: _customerScreenBlocImpl.customerNameStreamController,
           builder: (context, snapshot) {
             return _buildFormField(
+                inputFormatters: TldsInputFormatters.allowAlphabetsAndSpaces,
                 _customerScreenBlocImpl.customerNameFilterController,
                 AppConstants.customerName);
           },
@@ -82,6 +83,7 @@ class _CustomerViewState extends State<CustomerView> {
           stream: _customerScreenBlocImpl.customerCityStreamController,
           builder: (context, snapshot) {
             return _buildFormField(
+                inputFormatters: TldsInputFormatters.allowAlphabetsAndSpaces,
                 _customerScreenBlocImpl.customerCityTextController,
                 AppConstants.city);
           },
@@ -103,6 +105,7 @@ class _CustomerViewState extends State<CustomerView> {
       height: 40,
       controller: textController,
       hintText: hintText,
+      isSearch: true,
       suffixIcon: IconButton(
         onPressed: iconData == Icons.search
             ? () {
@@ -120,8 +123,10 @@ class _CustomerViewState extends State<CustomerView> {
         ),
       ),
       onSubmit: (p0) {
-        _searchData();
-        _checkController(hintText);
+        if (p0.isNotEmpty) {
+          _searchData();
+          _checkController(hintText);
+        }
       },
     );
   }

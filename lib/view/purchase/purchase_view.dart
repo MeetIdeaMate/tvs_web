@@ -64,6 +64,7 @@ class _PurchaseViewState extends State<PurchaseView>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             AppWidgetUtils.buildHeaderText(AppConstants.purchase),
+            AppWidgetUtils.buildSizedBox(custHeight: 26),
             _buildSearchFilters(),
             AppWidgetUtils.buildSizedBox(
                 custHeight: MediaQuery.sizeOf(context).height * 0.02),
@@ -168,6 +169,7 @@ class _PurchaseViewState extends State<PurchaseView>
       height: 40,
       controller: textController,
       hintText: hintText,
+      isSearch: true,
       suffixIcon: IconButton(
         onPressed: iconData == Icons.search
             ? () {

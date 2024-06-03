@@ -15,6 +15,8 @@ import 'package:tlbilling/utils/app_utils.dart';
 import 'package:tlbilling/utils/input_formates.dart';
 import 'package:tlbilling/utils/input_validation.dart';
 import 'package:tlbilling/view/customer/create_customer_dialog_bloc.dart';
+import 'package:tlds_flutter/components/tlds_input_form_field.dart';
+import 'package:tlds_flutter/components/tlds_input_formaters.dart';
 import 'package:tlds_flutter/export.dart' as tlds;
 import 'package:toastification/toastification.dart';
 
@@ -120,7 +122,7 @@ class _CreateCustomerDialogState extends State<CreateCustomerDialog> {
   }
 
   _buildAddressFields() {
-    return CustomFormField(
+    return TldsInputFormField(
       maxLine: 100,
       height: 92,
       // validator: (value) {
@@ -144,8 +146,9 @@ class _CreateCustomerDialogState extends State<CreateCustomerDialog> {
 
   _buildMobileNofield() {
     return Expanded(
-      child: CustomFormField(
+      child: TldsInputFormField(
           maxLength: 10,
+          counterText: '',
           requiredLabelText:
               AppWidgetUtils.labelTextWithRequired(AppConstants.mobileNumber),
           validator: (value) {
@@ -160,7 +163,7 @@ class _CreateCustomerDialogState extends State<CreateCustomerDialog> {
 
   _buildNameField() {
     return Expanded(
-      child: CustomFormField(
+      child: TldsInputFormField(
           inputFormatters: tlds.TldsInputFormatters.allowAlphabetsAndSpaces,
           requiredLabelText:
               AppWidgetUtils.labelTextWithRequired(AppConstants.name),
@@ -176,7 +179,7 @@ class _CreateCustomerDialogState extends State<CreateCustomerDialog> {
     return Row(
       children: [
         Expanded(
-          child: CustomFormField(
+          child: TldsInputFormField(
               validator: (value) {
                 return InputValidations.mailValidation(value ?? '');
               },
@@ -190,15 +193,13 @@ class _CreateCustomerDialogState extends State<CreateCustomerDialog> {
         ),
         AppWidgetUtils.buildSizedBox(custWidth: 14),
         Expanded(
-          child: CustomFormField(
+          child: TldsInputFormField(
               requiredLabelText:
                   AppWidgetUtils.labelTextWithRequired(AppConstants.city),
               validator: (value) {
                 return InputValidations.cityValidation(value ?? '');
               },
-              inputFormatters: [
-                FilteringTextInputFormatter.allow(RegExp("[a-z A-Z ]")),
-              ],
+              inputFormatters: TldsInputFormatters.allowAlphabetsAndSpaces,
               hintText: AppConstants.hintCity,
               controller:
                   _createCustomerDialogBlocImpl.customerCitytextcontroller),
@@ -211,12 +212,13 @@ class _CreateCustomerDialogState extends State<CreateCustomerDialog> {
     return Row(
       children: [
         Expanded(
-          child: CustomFormField(
+          child: TldsInputFormField(
               inputFormatters: TlInputFormatters.onlyAllowNumbers,
               validator: (value) {
                 return InputValidations.aadharValidation(value!);
               },
               maxLength: 12,
+              counterText: '',
               hintText: AppConstants.hintAatharNo,
               labelText: AppConstants.aadharNo,
               controller:
@@ -224,7 +226,7 @@ class _CreateCustomerDialogState extends State<CreateCustomerDialog> {
         ),
         AppWidgetUtils.buildSizedBox(custWidth: 14),
         Expanded(
-          child: CustomFormField(
+          child: TldsInputFormField(
               onChanged: (String value) {
                 AppUtils.toUppercase(
                     value: value,
@@ -232,6 +234,7 @@ class _CreateCustomerDialogState extends State<CreateCustomerDialog> {
                         .customerAccNoTextController);
               },
               maxLength: 10,
+              counterText: '',
               hintText: AppConstants.hintPanNo,
               labelText: AppConstants.panNo,
               inputFormatters: TlInputFormatters.onlyAllowAlphabetAndNumber,

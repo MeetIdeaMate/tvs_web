@@ -28,7 +28,7 @@ class _VendorViewState extends State<VendorView> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             AppWidgetUtils.buildHeaderText(AppConstants.vendor),
-            AppWidgetUtils.buildSizedBox(custHeight: 28),
+            AppWidgetUtils.buildSizedBox(custHeight: 26),
 
             _buildSearchFilterAddButton(context),
             // Center(

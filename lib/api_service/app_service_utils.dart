@@ -236,7 +236,7 @@ class AppServiceUtilImpl extends AppServiceUtil {
       if (mobileNumber.isNotEmpty) {
         url += '&mobileNo=$mobileNumber';
       }
-      var response = await dio.get('${url}');
+      var response = await dio.get(url);
       return parentResponseModelFromJson(jsonEncode(response.data))
           .result
           ?.getAllCustomersByPaginationModel;
@@ -860,7 +860,7 @@ class AppServiceUtilImpl extends AppServiceUtil {
     var token = prefs.getString('token');
     dio.options.headers['Authorization'] = 'Bearer $token';
     var response = await dio.get(vendorUrl);
-    print(vendorUrl);
+
     var vendorDetails = parentResponseModelFromJson(jsonEncode(response.data))
         .result
         ?.vendorById;

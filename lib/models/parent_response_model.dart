@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:tlbilling/models/get_model/get_All_vendorName_List.dart';
+import 'package:tlbilling/models/get_model/get_all_vendorName_List.dart';
 import 'package:tlbilling/models/get_model/get_all_branch_model.dart';
 import 'package:tlbilling/models/get_model/get_all_branches_by_pagination.dart';
 import 'package:tlbilling/models/get_model/get_all_customerName_List.dart';
@@ -29,7 +29,7 @@ class ParentResponseModel {
   ResultObj? result;
   dynamic error;
   String? status;
-  int? statusCode;  
+  int? statusCode;
 
   ParentResponseModel({
     this.result,
@@ -68,7 +68,8 @@ class ResultObj {
   List<GetAllBranchList>? getAllBranchList;
   GetAllPurchaseByPageNation? getAllPurchaseList;
   List<GetAllVendorNameList>? getAllVendorNameList;
-List<GetAllCustomerNameList>? getAllCustomerNameList;  GetAllBranchesByPaginationModel? getAllBranchesByPaginationModel;
+  List<GetAllCustomerNameList>? getAllCustomerNameList;
+  GetAllBranchesByPaginationModel? getAllBranchesByPaginationModel;
   GetAllBranchList? getBranchById;
   GetTransportByPaginationModel? getTransportByPaginationModel;
   List<GetAllConfigurationListModel>? getAllConfigurationListModel;
@@ -87,7 +88,8 @@ List<GetAllCustomerNameList>? getAllCustomerNameList;  GetAllBranchesByPaginatio
       this.getAllEmployeesByPaginationModel,
       this.getAllBranchList,
       this.getAllPurchaseList,
-      this.getAllVendorNameList, this.getAllCustomerNameList,
+      this.getAllVendorNameList,
+      this.getAllCustomerNameList,
       this.vendorById,
       this.getAllBranchesByPaginationModel,
       this.getBranchById,
@@ -157,11 +159,11 @@ List<GetAllCustomerNameList>? getAllCustomerNameList;  GetAllBranchesByPaginatio
         getAllPurchaseList: json['purchaseWithPage'] != null
             ? GetAllPurchaseByPageNation.fromJson(json['purchaseWithPage'])
             : null,
-             getAllVendorNameList: json['vendors'] != null
-            ? List<GetAllVendorNameList>.from(json['vendors']
-                .map((x) => GetAllVendorNameList.fromJson(x)))
+        getAllVendorNameList: json['vendors'] != null
+            ? List<GetAllVendorNameList>.from(
+                json['vendors'].map((x) => GetAllVendorNameList.fromJson(x)))
             : null,
-       getAllCustomerNameList: json['customers'] != null
+        getAllCustomerNameList: json['customers'] != null
             ? List<GetAllCustomerNameList>.from(json['customers']
                 .map((x) => GetAllCustomerNameList.fromJson(x)))
             : null,

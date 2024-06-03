@@ -65,11 +65,11 @@ class _InsuranseViewState extends State<InsuranseView>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             AppWidgetUtils.buildHeaderText(AppConstants.insurance),
-            AppWidgetUtils.buildSizedBox(custHeight: 28),
+            AppWidgetUtils.buildSizedBox(custHeight: 26),
             _buildSearchFilter(context),
             AppWidgetUtils.buildSizedBox(custHeight: 28),
             _buildTabBar(context),
-            AppWidgetUtils.buildSizedBox(custHeight: 28),
+            AppWidgetUtils.buildSizedBox(custHeight: 15),
             _buildTabBarView(context),
           ],
         ),
@@ -187,58 +187,56 @@ class _InsuranseViewState extends State<InsuranseView>
   }
 
   Widget _buildInsuranceTableView(BuildContext context) {
-    return Expanded(
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: DataTable(
-          dividerThickness: 0.01,
-          columns: [
-            _buildinsuranseTableHeader(AppConstants.invoiceNo),
-            _buildinsuranseTableHeader(AppConstants.invoiceDate),
-            _buildinsuranseTableHeader(AppConstants.vehicleNo),
-            _buildinsuranseTableHeader(AppConstants.customerID),
-            _buildinsuranseTableHeader(AppConstants.customerName),
-            _buildinsuranseTableHeader(AppConstants.mobileNo),
-            _buildinsuranseTableHeader(AppConstants.status),
-            _buildinsuranseTableHeader(AppConstants.createdBy),
-            _buildinsuranseTableHeader(AppConstants.action),
-          ],
-          rows: _insuranceList.map((rowData) {
-            final bool isEven = _insuranceList.indexOf(rowData).isEven;
-            return DataRow(
-              color: MaterialStateColor.resolveWith((states) {
-                return isEven ? Colors.white : _appColors.transparentBlueColor;
-              }),
-              cells: [
-                DataCell(Text(rowData[AppConstants.invoiceNo] ?? '')),
-                DataCell(Text(rowData[AppConstants.invoiceDate] ?? '')),
-                DataCell(Text(rowData[AppConstants.vehicleNo] ?? '')),
-                DataCell(Text(rowData[AppConstants.customerID] ?? '')),
-                DataCell(Text(rowData[AppConstants.customerName] ?? '')),
-                DataCell(Text(rowData[AppConstants.mobileNo] ?? '')),
-                DataCell(
-                  Chip(
-                    label: const Text(
-                      'Pending',
-                      style: TextStyle(
-                        color: Colors.yellow,
-                      ),
-                    ),
-                    backgroundColor: Colors.transparent,
-                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    padding: EdgeInsets.zero,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                      side: const BorderSide(color: Colors.yellow, width: 1),
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: DataTable(
+        dividerThickness: 0.01,
+        columns: [
+          _buildinsuranseTableHeader(AppConstants.invoiceNo),
+          _buildinsuranseTableHeader(AppConstants.invoiceDate),
+          _buildinsuranseTableHeader(AppConstants.vehicleNo),
+          _buildinsuranseTableHeader(AppConstants.customerID),
+          _buildinsuranseTableHeader(AppConstants.customerName),
+          _buildinsuranseTableHeader(AppConstants.mobileNo),
+          _buildinsuranseTableHeader(AppConstants.status),
+          _buildinsuranseTableHeader(AppConstants.createdBy),
+          _buildinsuranseTableHeader(AppConstants.action),
+        ],
+        rows: _insuranceList.map((rowData) {
+          final bool isEven = _insuranceList.indexOf(rowData).isEven;
+          return DataRow(
+            color: MaterialStateColor.resolveWith((states) {
+              return isEven ? Colors.white : _appColors.transparentBlueColor;
+            }),
+            cells: [
+              DataCell(Text(rowData[AppConstants.invoiceNo] ?? '')),
+              DataCell(Text(rowData[AppConstants.invoiceDate] ?? '')),
+              DataCell(Text(rowData[AppConstants.vehicleNo] ?? '')),
+              DataCell(Text(rowData[AppConstants.customerID] ?? '')),
+              DataCell(Text(rowData[AppConstants.customerName] ?? '')),
+              DataCell(Text(rowData[AppConstants.mobileNo] ?? '')),
+              DataCell(
+                Chip(
+                  label: const Text(
+                    'Pending',
+                    style: TextStyle(
+                      color: Colors.yellow,
                     ),
                   ),
+                  backgroundColor: Colors.transparent,
+                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  padding: EdgeInsets.zero,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                    side: const BorderSide(color: Colors.yellow, width: 1),
+                  ),
                 ),
-                DataCell(Text(rowData[AppConstants.createdBy] ?? '')),
-                DataCell(SvgPicture.asset(AppConstants.icEdit)),
-              ],
-            );
-          }).toList(),
-        ),
+              ),
+              DataCell(Text(rowData[AppConstants.createdBy] ?? '')),
+              DataCell(SvgPicture.asset(AppConstants.icEdit)),
+            ],
+          );
+        }).toList(),
       ),
     );
   }

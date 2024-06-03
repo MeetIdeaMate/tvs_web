@@ -144,7 +144,7 @@ class _NewReceiptState extends State<NewReceipt> {
       children: [
         _buildCustomTyAhead(
             width: MediaQuery.sizeOf(context).width * 0.19,
-            labelText: AppConstants.paymentType,
+            labelText: AppConstants.receivedFrom,
             textEditingController: _newReceiptBloc.receivedFromController,
             hintText: AppConstants.select,
             errorText: 'Select Received From',
@@ -223,6 +223,7 @@ class _NewReceiptState extends State<NewReceipt> {
     }
   }
 
+  // ignore: unused_element
   Widget? _buildDefaultWidth({double? width}) {
     return AppWidgetUtils.buildSizedBox(
         custWidth: width ?? MediaQuery.sizeOf(context).width * 0.01);

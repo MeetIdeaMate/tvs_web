@@ -1,6 +1,4 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:tlbilling/components/custom_action_button.dart';
@@ -280,6 +278,7 @@ class _NewVoucherState extends State<NewVoucher> {
     }
   }
 
+  // ignore: unused_element
   Widget? _buildDefaultWidth({double? width}) {
     return AppWidgetUtils.buildSizedBox(
         custWidth: width ?? MediaQuery.sizeOf(context).width * 0.01);

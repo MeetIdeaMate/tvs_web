@@ -6,9 +6,12 @@ import 'package:tlbilling/components/custom_form_field.dart';
 import 'package:tlbilling/utils/app_colors.dart';
 import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/utils/app_util_widgets.dart';
+import 'package:tlbilling/utils/input_formates.dart';
 import 'package:tlbilling/utils/input_validation.dart';
 import 'package:tlbilling/view/vendor/create_vendor_dialog_bloc.dart';
 import 'package:tlbilling/view/vendor/vendor_view_bloc.dart';
+import 'package:tlds_flutter/components/tlds_input_form_field.dart';
+import 'package:tlds_flutter/export.dart' as tlds;
 import 'package:toastification/toastification.dart';
 
 class CreateVendorDialog extends StatefulWidget {
@@ -141,10 +144,8 @@ class _CreateVendorDialogState extends State<CreateVendorDialog> {
     return Row(
       children: [
         Expanded(
-          child: CustomFormField(
-              inputFormatters: [
-                FilteringTextInputFormatter.allow(RegExp("[a-z A-Z @]")),
-              ],
+          child: TldsInputFormField(
+              inputFormatters: tlds.TldsInputFormatters.onlyAllowAlphabets,
               requiredLabelText:
                   AppWidgetUtils.labelTextWithRequired(AppConstants.name),
               validator: (value) {
@@ -155,8 +156,9 @@ class _CreateVendorDialogState extends State<CreateVendorDialog> {
         ),
         AppWidgetUtils.buildSizedBox(custWidth: 14),
         Expanded(
-          child: CustomFormField(
+          child: TldsInputFormField(
               maxLength: 10,
+              counterText: '',
               inputFormatters: [
                 FilteringTextInputFormatter.digitsOnly,
               ],
@@ -178,7 +180,7 @@ class _CreateVendorDialogState extends State<CreateVendorDialog> {
         _buildEmailFields(),
         AppWidgetUtils.buildSizedBox(custWidth: 14),
         Expanded(
-          child: CustomFormField(
+          child: TldsInputFormField(
               inputFormatters: [
                 FilteringTextInputFormatter.allow(RegExp("[a-z A-Z ]")),
               ],
@@ -198,8 +200,9 @@ class _CreateVendorDialogState extends State<CreateVendorDialog> {
     return Row(
       children: [
         Expanded(
-          child: CustomFormField(
-              // maxLength: 15,
+          child: TldsInputFormField(
+              maxLength: 15,
+              counterText: '',
               inputFormatters: [
                 FilteringTextInputFormatter.allow(RegExp("[0-9 A-Z a-z]")),
               ],
@@ -217,7 +220,8 @@ class _CreateVendorDialogState extends State<CreateVendorDialog> {
 
   _buildEmailFields() {
     return Expanded(
-      child: CustomFormField(
+      child: TldsInputFormField(
+          inputFormatters: TlInputFormatters.emailFormat,
           labelText: AppConstants.emailAddress,
           hintText: AppConstants.hintMail,
           controller: _createVendorDialogBlocImpl.vendorEmailIdcontroller),
@@ -225,7 +229,7 @@ class _CreateVendorDialogState extends State<CreateVendorDialog> {
   }
 
   _buildAddressFields() {
-    return CustomFormField(
+    return TldsInputFormField(
         maxLine: 100,
         height: 80,
         labelText: AppConstants.address,
@@ -327,21 +331,21 @@ class _CreateVendorDialogState extends State<CreateVendorDialog> {
     return Row(
       children: [
         Expanded(
-          child: CustomFormField(
-              inputFormatters: [
-                FilteringTextInputFormatter.allow(RegExp("[0-9]")),
-              ],
+          child: TldsInputFormField(
+              inputFormatters: TlInputFormatters.onlyAllowNumbers,
+              maxLength: 18,
+              counterText: '',
+              //   minLength : 7,
               labelText: AppConstants.accNo,
               hintText: AppConstants.hintAccNo,
               controller: _createVendorDialogBlocImpl.vendorAccNoController),
         ),
         AppWidgetUtils.buildSizedBox(custWidth: 14),
         Expanded(
-          child: CustomFormField(
-              //  maxLength: 12,
-              inputFormatters: [
-                FilteringTextInputFormatter.allow(RegExp("[0-9 A-Z a-z ]")),
-              ],
+          child: TldsInputFormField(
+              maxLength: 11,
+              counterText: '',
+              inputFormatters: TlInputFormatters.onlyAllowAlphabetAndNumber,
               labelText: AppConstants.ifscNo,
               hintText: AppConstants.enterIfscCode,
               controller: _createVendorDialogBlocImpl.vendorIFSCCodeController),

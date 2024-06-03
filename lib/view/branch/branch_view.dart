@@ -1,7 +1,7 @@
 import 'package:blurry_modal_progress_hud/blurry_modal_progress_hud.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:tlbilling/components/custom_dropdown_button_form_field.dart';
 import 'package:tlbilling/components/custom_pagenation.dart';
 import 'package:tlbilling/models/get_model/get_all_branches_by_pagination.dart';
 import 'package:tlbilling/utils/app_colors.dart';
@@ -15,6 +15,7 @@ import 'package:tlbilling/view/branch/branch_view_bloc.dart';
 import 'package:tlbilling/view/branch/create_branch_dialog.dart';
 import 'package:tlds_flutter/components/tlds_dropdown_button_form_field.dart';
 import 'package:tlds_flutter/components/tlds_input_form_field.dart';
+import 'package:tlds_flutter/components/tlds_input_formaters.dart';
 import 'package:toastification/toastification.dart';
 
 class BranchView extends StatefulWidget {
@@ -46,7 +47,7 @@ class _MyWidgetState extends State<BranchView> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               AppWidgetUtils.buildHeaderText(AppConstants.branch),
-              AppWidgetUtils.buildSizedBox(custHeight: 28),
+              AppWidgetUtils.buildSizedBox(custHeight: 26),
               _buildsearchFiltersAndAddButton(context),
               AppWidgetUtils.buildSizedBox(custHeight: 28),
               _buildBranchTableView(context)
@@ -89,8 +90,11 @@ class _MyWidgetState extends State<BranchView> {
     return StreamBuilder(
       stream: _branchViewBlocImpl.branchNameStreamController,
       builder: (context, snapshot) {
-        return _buildFormField(_branchViewBlocImpl.filterBranchnameController,
-            AppConstants.branchName);
+        return _buildFormField(
+          _branchViewBlocImpl.filterBranchnameController,
+          AppConstants.branchName,
+          TldsInputFormatters.onlyAllowAlphabets,
+        );
       },
     );
   }
@@ -100,7 +104,10 @@ class _MyWidgetState extends State<BranchView> {
       stream: _branchViewBlocImpl.pinCodeStreamController,
       builder: (context, snapshot) {
         return _buildFormField(
-            _branchViewBlocImpl.filterpinCodeController, AppConstants.pinCode);
+          _branchViewBlocImpl.filterpinCodeController,
+          AppConstants.pinCode,
+          TldsInputFormatters.onlyAllowNumbers,
+        );
       },
     );
   }
@@ -112,6 +119,7 @@ class _MyWidgetState extends State<BranchView> {
         return TldsDropDownButtonFormField(
           width: MediaQuery.of(context).size.width * 0.1,
           height: 40,
+          dropDownValue: AppConstants.all,
           dropDownItems: city!,
           hintText: AppConstants.exSelect,
           onChange: (String? newValue) {
@@ -123,16 +131,18 @@ class _MyWidgetState extends State<BranchView> {
     );
   }
 
-  Widget _buildFormField(
-      TextEditingController textController, String hintText) {
+  Widget _buildFormField(TextEditingController textController, String hintText,
+      List<TextInputFormatter>? inputFormatters) {
     final bool isTextEmpty = textController.text.isEmpty;
     final IconData iconData = isTextEmpty ? Icons.search : Icons.close;
     final Color iconColor = isTextEmpty ? _appColors.primaryColor : Colors.red;
     return TldsInputFormField(
       width: 203,
       height: 40,
+      inputFormatters: inputFormatters,
       controller: textController,
       hintText: hintText,
+      isSearch: true,
       suffixIcon: IconButton(
         onPressed: iconData == Icons.search
             ? () {

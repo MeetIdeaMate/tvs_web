@@ -24,6 +24,7 @@ class _UserActiveInActiveDialogState extends State<UserActiveInActiveDialog> {
   Widget build(BuildContext context) {
     return AlertDialog(
       backgroundColor: _appColor.whiteColor,
+      surfaceTintColor: _appColor.whiteColor,
       content: Column(mainAxisSize: MainAxisSize.min, children: [
         Text(
           'Are you sure! \n want to change the ${widget.userStatus ?? 'user'} status',

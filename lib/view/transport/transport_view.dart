@@ -11,6 +11,7 @@ import 'package:tlbilling/view/transport/create_transport_dialog.dart';
 
 import 'package:tlbilling/view/transport/transport_view_bloc.dart';
 import 'package:tlds_flutter/components/tlds_input_form_field.dart';
+import 'package:tlds_flutter/components/tlds_input_formaters.dart';
 
 class TransportView extends StatefulWidget {
   const TransportView({super.key});
@@ -47,7 +48,7 @@ class _TransportViewState extends State<TransportView> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             AppWidgetUtils.buildHeaderText(AppConstants.transport),
-            AppWidgetUtils.buildSizedBox(custHeight: 28),
+            AppWidgetUtils.buildSizedBox(custHeight: 26),
             _buildsearchFiltersAndAddButton(context),
             // Center(
             //   child: Column(
@@ -78,6 +79,7 @@ class _TransportViewState extends State<TransportView> {
           stream: _transportBlocImpl.transportNameStreamController,
           builder: (context, snapshot) {
             return _buildFormField(
+                inputFormatters: TldsInputFormatters.onlyAllowAlphabets,
                 _transportBlocImpl.transportNameSearchController,
                 AppConstants.transportName);
           },
@@ -87,6 +89,7 @@ class _TransportViewState extends State<TransportView> {
           stream: _transportBlocImpl.transportMobileNumberStreamController,
           builder: (context, snapshot) {
             return _buildFormField(
+                inputFormatters: TldsInputFormatters.onlyAllowNumbers,
                 _transportBlocImpl.transportMobNoSearchController,
                 AppConstants.mobileNumber);
           },
@@ -96,6 +99,7 @@ class _TransportViewState extends State<TransportView> {
           stream: _transportBlocImpl.transportCityStreamController,
           builder: (context, snapshot) {
             return _buildFormField(
+                inputFormatters: TldsInputFormatters.allowAlphabetsAndSpaces,
                 _transportBlocImpl.transportCitySearchController,
                 AppConstants.city);
           },
@@ -128,6 +132,7 @@ class _TransportViewState extends State<TransportView> {
       height: 40,
       controller: textController,
       hintText: hintText,
+      isSearch: true,
       suffixIcon: IconButton(
         onPressed: iconData == Icons.search
             ? () {

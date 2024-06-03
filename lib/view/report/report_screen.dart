@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:tlbilling/api_service/app_service_utils.dart';
 import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/utils/app_util_widgets.dart';
+import 'package:tlbilling/utils/app_utils.dart';
 import 'package:tlbilling/view/report/purchase_report/purchase_report.dart';
 import 'package:tlbilling/view/report/report_screen_bloc.dart';
 import 'package:tlbilling/view/report/sale_report/sales_report.dart';
@@ -31,41 +33,44 @@ class _ReportScreenState extends State<ReportScreen> {
           child: StreamBuilder<bool>(
               stream: _reportScreenBlocImpl.dropDownChangeStream,
               builder: (context, snapshot) {
-                return Row(
-                  children: [
-                    DropdownButtonHideUnderline(
-                      child: DropdownButton<String>(
-                        value: selectedReport,
-                        items: <DropdownMenuItem<String>>[
-                          DropdownMenuItem(
-                            value: 'one',
-                            child: AppWidgetUtils.buildHeaderText(
-                                AppConstants.purchaseReport,
-                                fontSize: 18),
-                          ),
-                          DropdownMenuItem(
-                            value: 'two',
-                            child: AppWidgetUtils.buildHeaderText(
-                                AppConstants.salesReport,
-                                fontSize: 18),
-                          ),
-                          DropdownMenuItem(
-                            value: 'three',
-                            child: AppWidgetUtils.buildHeaderText(
-                                AppConstants.stocksReport,
-                                fontSize: 18),
-                          ),
-                        ],
-                        onChanged: (String? value) {
-                          selectedReport = value;
-                          _reportScreenBlocImpl
-                              .dropDownChangeStreamController(true);
-                        },
+                return Padding(
+                  padding: const EdgeInsets.only(top: 10),
+                  child: Row(
+                    children: [
+                      DropdownButtonHideUnderline(
+                        child: DropdownButton<String>(
+                          value: selectedReport,
+                          items: <DropdownMenuItem<String>>[
+                            DropdownMenuItem(
+                              value: 'one',
+                              child: AppWidgetUtils.buildHeaderText(
+                                  AppConstants.purchaseReport,
+                                  fontSize: 18),
+                            ),
+                            DropdownMenuItem(
+                              value: 'two',
+                              child: AppWidgetUtils.buildHeaderText(
+                                  AppConstants.salesReport,
+                                  fontSize: 18),
+                            ),
+                            DropdownMenuItem(
+                              value: 'three',
+                              child: AppWidgetUtils.buildHeaderText(
+                                  AppConstants.stocksReport,
+                                  fontSize: 18),
+                            ),
+                          ],
+                          onChanged: (String? value) {
+                            selectedReport = value;
+                            _reportScreenBlocImpl
+                                .dropDownChangeStreamController(true);
+                          },
+                        ),
                       ),
-                    ),
-                    const Spacer(),
-                    _buildAppBarTitle()
-                  ],
+                      const Spacer(),
+                      _buildAppBarTitle()
+                    ],
+                  ),
                 );
               }),
         ),

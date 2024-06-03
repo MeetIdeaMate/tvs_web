@@ -1,6 +1,4 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:tlbilling/components/custom_action_button.dart';
@@ -93,7 +91,8 @@ class _TransferDetailsState extends State<TransferDetails> {
                 _transferBloc.selectedBranch = newValue ?? '';
               },
             ),
-          ],);
+          ],
+        );
       },
     );
   }

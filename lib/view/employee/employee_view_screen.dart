@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:tlbilling/components/custom_dropdown_button_form_field.dart';
 import 'package:tlbilling/components/custom_pagenation.dart';
 import 'package:tlbilling/models/get_model/get_all_employee_by_pagination.dart';
 import 'package:tlbilling/utils/app_colors.dart';
@@ -8,6 +7,7 @@ import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/utils/app_util_widgets.dart';
 import 'package:tlbilling/view/employee/create_employee_dialog.dart';
 import 'package:tlbilling/view/employee/employee_view_bloc.dart';
+import 'package:tlds_flutter/components/tlds_dropdown_button_form_field.dart';
 
 class EmployeeView extends StatefulWidget {
   const EmployeeView({super.key});
@@ -29,7 +29,7 @@ class _EmployeeViewState extends State<EmployeeView> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             AppWidgetUtils.buildHeaderText(AppConstants.employee),
-            AppWidgetUtils.buildSizedBox(custHeight: 28),
+            AppWidgetUtils.buildSizedBox(custHeight: 26),
             _buildFiltersAndAddEmpButton(context),
             AppWidgetUtils.buildSizedBox(custHeight: 28),
             _buildEmployeeTableView(context)
@@ -102,7 +102,7 @@ class _EmployeeViewState extends State<EmployeeView> {
       Function(String?)? onChange}) {
     return Padding(
       padding: const EdgeInsets.only(right: 5),
-      child: CustomDropDownButtonFormField(
+      child: TldsDropDownButtonFormField(
         width: MediaQuery.of(context).size.width * 0.1,
         height: 40,
         dropDownItems: dropDownItems!,

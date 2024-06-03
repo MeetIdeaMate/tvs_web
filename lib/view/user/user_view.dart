@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:tlbilling/components/custom_dropdown_button_form_field.dart';
-import 'package:tlbilling/components/custom_form_field.dart';
 import 'package:tlbilling/components/custom_pagenation.dart';
 import 'package:tlbilling/models/user_model.dart';
 import 'package:tlbilling/utils/app_colors.dart';
@@ -11,6 +9,8 @@ import 'package:tlbilling/utils/app_util_widgets.dart';
 import 'package:tlbilling/view/user/create_user_dialog.dart';
 import 'package:tlbilling/view/user/user_active_inactive_dialog.dart';
 import 'package:tlbilling/view/user/user_view_bloc.dart';
+import 'package:tlds_flutter/components/tlds_input_form_field.dart';
+import 'package:tlds_flutter/export.dart' as tlds;
 
 class UserView extends StatefulWidget {
   const UserView({super.key});
@@ -32,7 +32,7 @@ class _UserViewState extends State<UserView> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             AppWidgetUtils.buildHeaderText(AppConstants.user),
-            AppWidgetUtils.buildSizedBox(custHeight: 28),
+            AppWidgetUtils.buildSizedBox(custHeight: 26),
             _buildsearchFiltersAndAddButton(context),
             AppWidgetUtils.buildSizedBox(custHeight: 28),
             _buildUserTableView(context)
@@ -78,6 +78,7 @@ class _UserViewState extends State<UserView> {
         return CustomDropDownButtonFormField(
           width: MediaQuery.sizeOf(context).width * 0.15,
           height: 40,
+          dropDownValue: AppConstants.all,
           dropDownItems:
               (snapshot.hasData && (snapshot.data?.isNotEmpty == true))
                   ? designationList
@@ -109,15 +110,14 @@ class _UserViewState extends State<UserView> {
             IconData iconPath = isTextEmpty ? Icons.search : Icons.close;
             Color iconColor =
                 isTextEmpty ? _appColors.primaryColor : _appColors.red;
-            return CustomFormField(
+            return TldsInputFormField(
               hintText: AppConstants.userName,
               controller: _userViewBlocImpl.searchUserNameAndMobNoController,
               height: 40,
+              isSearch: true,
               width: MediaQuery.of(context).size.width * 0.19,
-              inputFormatters: [
-                FilteringTextInputFormatter.allow(RegExp("[a-z A-Z 0-9]")),
-              ],
-              hintColor: AppColors().hintColor,
+              inputFormatters: tlds.TldsInputFormatters.allowAlphabetsAndSpaces,
+              //   hintColor: AppColors().hintColor,
               suffixIcon: IconButton(
                 onPressed: () {
                   if (iconPath == Icons.search) {
