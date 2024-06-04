@@ -143,7 +143,7 @@ class _AddVehicleAndAccessoriesState extends State<AddVehicleAndAccessories> {
           labelText: AppConstants.invoiceNo,
           hintText: AppConstants.invoiceNo,
           controller: widget.purchaseBloc.invoiceNumberController,
-          onSubmit: (p0) {
+          onSubmit: (invoiceNo) {
             FocusScope.of(context)
                 .requestFocus(widget.purchaseBloc.inVoiceDateFocusNode);
             _selectDate(context, widget.purchaseBloc.invoiceDateController);
@@ -266,7 +266,7 @@ class _AddVehicleAndAccessoriesState extends State<AddVehicleAndAccessories> {
           labelText: AppConstants.carrier,
           hintText: AppConstants.name,
           controller: widget.purchaseBloc.carrierController,
-          onSubmit: (p0) {
+          onSubmit: (carrierName) {
             FocusScope.of(context)
                 .requestFocus(widget.purchaseBloc.carrierNoFocusNode);
           },
@@ -279,7 +279,7 @@ class _AddVehicleAndAccessoriesState extends State<AddVehicleAndAccessories> {
           labelText: AppConstants.carrierNumber,
           hintText: AppConstants.carrierNumber,
           controller: widget.purchaseBloc.carrierNumberController,
-          onSubmit: (p0) {
+          onSubmit: (carrierNo) {
             FocusScope.of(context)
                 .requestFocus(widget.purchaseBloc.partNoFocusNode);
           },
@@ -407,8 +407,6 @@ class _AddVehicleAndAccessoriesState extends State<AddVehicleAndAccessories> {
             purchaseRef: widget.purchaseBloc.purchaseRefController.text,
             vehicleDetails: [newVehicle],
           );
-          print(
-              '********new purchase details***********${newPurchase.toJson()}');
           widget.purchaseBloc.purchaseBillDataList.add(newPurchase);
           clearPurchaseDataValue();
           widget.purchaseBloc.refreshPurchaseDataTableList(true);
@@ -451,5 +449,6 @@ class _AddVehicleAndAccessoriesState extends State<AddVehicleAndAccessories> {
     widget.purchaseBloc.invoiceDateController.clear();
     widget.purchaseBloc.selectedGstType = null;
     widget.purchaseBloc.purchaseRefController.clear();
+    widget.purchaseBloc.refreshEngineDetailsListStramController(true);
   }
 }

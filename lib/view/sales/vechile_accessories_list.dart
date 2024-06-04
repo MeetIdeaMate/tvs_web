@@ -352,7 +352,7 @@ class _VehicleAccessoriesListState extends State<VehicleAccessoriesList> {
             hintText: AppConstants.vehicleNameAndEngineNumber,
             suffixIcon: IconButton(
               onPressed: () {
-                if (!isTextEmpty) {
+                if (isTextEmpty) {
                   widget.addSalesBloc.vehicleNoAndEngineNoSearchController
                       .clear();
                   updateFilteredVehicleList('');
