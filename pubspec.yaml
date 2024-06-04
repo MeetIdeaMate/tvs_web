@@ -41,15 +41,14 @@ dependencies:
   dio: ^5.4.3+1
   toastification: ^2.0.0
   blurry_modal_progress_hud: ^1.1.1
-  tlds_flutter:
-    git:
-      url: https://github.com/metIdeamate/tlds_flutter.git
-      ref: main
   google_fonts: ^6.1.0
   input_quantity: ^2.3.2
   flutter_typeahead: ^5.2.0
   lottie: ^3.1.2
-
+  tlds_flutter:
+    git:
+      url: https://github.com/metIdeamate/tlds_flutter.git
+      ref: main
 dev_dependencies:
   flutter_test:
     sdk: flutter

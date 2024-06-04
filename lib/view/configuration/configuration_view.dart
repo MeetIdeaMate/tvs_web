@@ -32,14 +32,14 @@ class _ConfigurationViewState extends State<ConfigurationView> {
 
   Widget _buildConfigurationView() {
     return Padding(
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 21),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildHeaderOfTheScreen(),
-          AppWidgetUtils.buildSizedBox(custHeight: 12),
+          AppWidgetUtils.buildSizedBox(custHeight: 26),
           _buildSearchAndAddConfigButton(),
-          AppWidgetUtils.buildSizedBox(custHeight: 12),
+          AppWidgetUtils.buildSizedBox(custHeight: 28),
           _buildConfigDataTable(),
         ],
       ),
@@ -82,6 +82,7 @@ class _ConfigurationViewState extends State<ConfigurationView> {
           },
           controller: _configurationViewBloc.configSearchTextController,
           hintText: 'Search Config',
+          isSearch: true,
           suffixIcon: IconButton(
             onPressed: () {
               isTextEmpty
@@ -131,9 +132,12 @@ class _ConfigurationViewState extends State<ConfigurationView> {
           future: _configurationViewBloc.getAllConfigList(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(child: AppWidgetUtils.buildLoading(),);
+              return Center(
+                child: AppWidgetUtils.buildLoading(),
+              );
             } else if (snapshot.hasData) {
-              List<GetAllConfigurationListModel>? configListModel = snapshot.data;
+              List<GetAllConfigurationListModel>? configListModel =
+                  snapshot.data;
               if (configListModel != null && configListModel.isNotEmpty) {
                 return Column(
                   children: [
@@ -175,7 +179,8 @@ class _ConfigurationViewState extends State<ConfigurationView> {
     );
   }
 
-  List<DataRow>? _buildDataTableRow(List<GetAllConfigurationListModel>? configListModel) {
+  List<DataRow>? _buildDataTableRow(
+      List<GetAllConfigurationListModel>? configListModel) {
     return configListModel
         ?.asMap()
         .entries

@@ -45,22 +45,22 @@ class _ConfigurationDialogState extends State<ConfigurationDialog> {
         inAsyncCall: _configurationDialogBloc.isAsyncCall,
         progressIndicator: AppWidgetUtils.buildLoading(),
         child: AlertDialog(
-          surfaceTintColor: _appColors.whiteColor,
+            surfaceTintColor: _appColors.whiteColor,
             content: SizedBox(
-          width: MediaQuery.sizeOf(context).width * 0.3,
-          child: Column(mainAxisSize: MainAxisSize.min, children: [
-            _buildHeaderOfTheDialogAndClose(),
-            const Divider(),
-            AppWidgetUtils.buildSizedBox(custHeight: 8),
-            _buildConfigIdAndAddConfigFields(),
-            AppWidgetUtils.buildSizedBox(custHeight: 8),
-            _buildConfigValesField(),
-            AppWidgetUtils.buildSizedBox(custHeight: 8),
-            _buildDefaultValueField(),
-            AppWidgetUtils.buildSizedBox(custHeight: 16),
-            _buildActionButtons(),
-          ]),
-        )));
+              width: MediaQuery.sizeOf(context).width * 0.3,
+              child: Column(mainAxisSize: MainAxisSize.min, children: [
+                _buildHeaderOfTheDialogAndClose(),
+                const Divider(),
+                AppWidgetUtils.buildSizedBox(custHeight: 8),
+                _buildConfigIdAndAddConfigFields(),
+                AppWidgetUtils.buildSizedBox(custHeight: 8),
+                _buildConfigValesField(),
+                AppWidgetUtils.buildSizedBox(custHeight: 8),
+                _buildDefaultValueField(),
+                AppWidgetUtils.buildSizedBox(custHeight: 16),
+                _buildActionButtons(),
+              ]),
+            )));
   }
 
   Widget _buildHeaderOfTheDialogAndClose() {

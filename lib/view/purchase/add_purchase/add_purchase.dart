@@ -25,10 +25,14 @@ class _AddPurchaseState extends State<AddPurchase> {
           style: GoogleFonts.poppins(color: _appColors.primaryColor),
         ),
       ),
-      body:  Row(
+      body: Row(
         children: [
-          PurchaseTable(purchaseBloc: _purchaseBloc,),
-          AddVehicleAndAccessories(purchaseBloc:  _purchaseBloc,),
+          PurchaseTable(
+            purchaseBloc: _purchaseBloc,
+          ),
+          AddVehicleAndAccessories(
+            purchaseBloc: _purchaseBloc,
+          ),
         ],
       ),
     );

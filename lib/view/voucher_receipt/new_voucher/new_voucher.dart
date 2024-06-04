@@ -1,6 +1,4 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:tlbilling/components/custom_action_button.dart';
@@ -29,6 +27,8 @@ class _NewVoucherState extends State<NewVoucher> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
+      backgroundColor: _appColors.whiteColor,
+      surfaceTintColor: _appColors.whiteColor,
       content: SizedBox(
         width: MediaQuery.sizeOf(context).width * 0.4,
         child: Column(
@@ -212,7 +212,16 @@ class _NewVoucherState extends State<NewVoucher> {
                         _newVoucherBloc.giverTextController.text = suggestion;
                       },
                       suggestionsCallback: (pattern) {
-                        return employeeNamesList
+                        List<String> filteredEmployeeNamesList =
+                            employeeNamesList;
+
+                        filteredEmployeeNamesList = employeeNamesList
+                            .where((employee) =>
+                                employee !=
+                                _newVoucherBloc.payToTextController.text)
+                            .toList();
+
+                        return filteredEmployeeNamesList
                             .where((employee) => employee
                                 .toLowerCase()
                                 .contains(pattern.toLowerCase()))
@@ -269,6 +278,7 @@ class _NewVoucherState extends State<NewVoucher> {
     }
   }
 
+  // ignore: unused_element
   Widget? _buildDefaultWidth({double? width}) {
     return AppWidgetUtils.buildSizedBox(
         custWidth: width ?? MediaQuery.sizeOf(context).width * 0.01);

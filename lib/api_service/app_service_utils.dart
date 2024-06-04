@@ -24,7 +24,6 @@ import 'package:tlbilling/models/post_model/add_transport_model.dart';
 import 'package:tlbilling/models/update/update_branch_model.dart';
 import 'package:tlbilling/models/user_model.dart';
 import 'package:tlbilling/utils/app_constants.dart';
-
 import '../models/post_model/add_vendor_model.dart';
 
 abstract class AppServiceUtil {
@@ -237,7 +236,7 @@ class AppServiceUtilImpl extends AppServiceUtil {
       if (mobileNumber.isNotEmpty) {
         url += '&mobileNo=$mobileNumber';
       }
-      var response = await dio.get('${url}');
+      var response = await dio.get(url);
       return parentResponseModelFromJson(jsonEncode(response.data))
           .result
           ?.getAllCustomersByPaginationModel;
@@ -292,7 +291,7 @@ class AppServiceUtilImpl extends AppServiceUtil {
               ?.configuration ??
           [];
     } else {
-      throw Exception('Failed to load employee data: ${response.statusCode}');
+      throw Exception('Failed to load  data: ${response.statusCode}');
     }
   }
 
@@ -861,7 +860,7 @@ class AppServiceUtilImpl extends AppServiceUtil {
     var token = prefs.getString('token');
     dio.options.headers['Authorization'] = 'Bearer $token';
     var response = await dio.get(vendorUrl);
-    print(vendorUrl);
+
     var vendorDetails = parentResponseModelFromJson(jsonEncode(response.data))
         .result
         ?.vendorById;

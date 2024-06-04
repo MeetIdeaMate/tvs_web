@@ -7,6 +7,8 @@ import 'package:tlbilling/components/custom_elevated_button.dart';
 import 'package:tlbilling/components/custom_form_field.dart';
 import 'package:tlbilling/utils/app_colors.dart';
 import 'package:tlbilling/utils/app_constants.dart';
+import 'package:tlds_flutter/components/tlds_input_formaters.dart';
+import 'package:tlds_flutter/export.dart';
 import 'package:toastification/toastification.dart';
 
 class AppWidgetUtils {
@@ -49,7 +51,7 @@ class AppWidgetUtils {
 
     return Padding(
       padding: const EdgeInsets.only(right: 5),
-      child: CustomFormField(
+      child: TldsInputFormField(
         hintText: name,
         controller: controller,
         height: 40,
@@ -58,13 +60,12 @@ class AppWidgetUtils {
             (name == AppConstants.mobileNumber || name == AppConstants.pinCode)
                 ? 10
                 : null,
+        counterText: '',
         inputFormatters:
             (name == AppConstants.mobileNumber || name == AppConstants.pinCode)
-                ? [FilteringTextInputFormatter.digitsOnly]
-                : [
-                    FilteringTextInputFormatter.allow(RegExp("[a-z A-Z]")),
-                  ],
-        hintColor: AppColors().hintColor,
+                ? TldsInputFormatters.onlyAllowNumbers
+                : TldsInputFormatters.allowAlphabetsAndSpaces,
+        isSearch: true,
         suffixIcon: suffixIcon ??
             IconButton(
               onPressed: () {},
@@ -140,5 +141,13 @@ class AppWidgetUtils {
       height: 200,
       width: 200,
     );
+  }
+
+  static OutlineInputBorder outlineInputBorder({Color? color}) {
+    return OutlineInputBorder(
+        borderRadius: BorderRadius.circular(5),
+        borderSide: BorderSide(
+          color: color ?? AppColors().primaryColor,
+        ));
   }
 }

@@ -140,7 +140,8 @@ class _PurchaseReportState extends State<PurchaseReport>
   _buildTabBar() {
     return Row(
       children: [
-        Expanded(
+        SizedBox(
+          width: MediaQuery.of(context).size.width * 0.2,
           child: TabBar(
             controller: _purchaseReportBlocImpl.purchaseReportTabController,
             tabs: const [
@@ -202,6 +203,7 @@ class _PurchaseReportState extends State<PurchaseReport>
           final vehicleTypes = snapshot.data!.result!.getAllBranchList!
               .map((item) => item.branchName ?? '')
               .toList();
+          vehicleTypes.insert(0, AppConstants.all);
 
           return searchAndTableView(
               dropDownHintText: AppConstants.accessories,
@@ -228,13 +230,14 @@ class _PurchaseReportState extends State<PurchaseReport>
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         } else if (snapshot.hasError) {
-          return Center(child: Text('Error: ${snapshot.error}'));
+          return Center(child: Text('${snapshot.error}'));
         } else if (!snapshot.hasData) {
           return const Center(child: Text(AppConstants.noData));
         } else {
           final vehicleTypes = snapshot.data!.result!.getAllBranchList!
               .map((item) => item.branchName ?? '')
               .toList();
+          vehicleTypes.insert(0, AppConstants.all);
 
           return searchAndTableView(
               dropDownHintText: AppConstants.vehicleType,
@@ -271,19 +274,17 @@ class _PurchaseReportState extends State<PurchaseReport>
         children: [
           Row(
             children: [
-              Padding(
-                padding: const EdgeInsets.only(top: 5),
-                child: TldsDropDownButtonFormField(
-                  height: 40,
-                  width: MediaQuery.of(context).size.width * 0.1,
-                  dropDownItems: dropDownItems ?? [],
-                  hintText: dropDownHintText,
-                  dropDownValue: dropDownValue,
-                  onChange: dropDownOnChange,
-                ),
+              TldsDropDownButtonFormField(
+                height: 40,
+                width: MediaQuery.of(context).size.width * 0.1,
+                dropDownItems: dropDownItems ?? [],
+                hintText: dropDownHintText,
+                dropDownValue: AppConstants.all,
+                onChange: dropDownOnChange,
               ),
               tlbilling_widget.AppWidgetUtils.buildSizedBox(custWidth: 5),
               TldsDatePicker(
+                  firstDate: DateTime(2000, 1, 1),
                   height: 40,
                   onSuccessCallBack: fromDateOnSuccessCallBack,
                   suffixIcon: SvgPicture.asset(
@@ -297,6 +298,7 @@ class _PurchaseReportState extends State<PurchaseReport>
                   controller: fromDateController),
               tlbilling_widget.AppWidgetUtils.buildSizedBox(custWidth: 5),
               TldsDatePicker(
+                  firstDate: DateTime(2000, 1, 1),
                   fontSize: 14,
                   height: 40,
                   suffixIcon: SvgPicture.asset(

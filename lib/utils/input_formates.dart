@@ -69,4 +69,8 @@ class TlInputFormatters {
       );
     }),
   ];
+
+  static final List<TextInputFormatter> emailFormat = [
+    FilteringTextInputFormatter.allow(RegExp(r"^[a-z0-9.@]+")),
+  ];
 }

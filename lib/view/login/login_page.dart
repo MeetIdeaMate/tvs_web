@@ -1,14 +1,14 @@
 import 'package:blurry_modal_progress_hud/blurry_modal_progress_hud.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:tlbilling/components/custom_elevated_button.dart';
-import 'package:tlbilling/components/custom_form_field.dart';
 import 'package:tlbilling/components/side_menu_navigation.dart';
 import 'package:tlbilling/utils/app_colors.dart';
 import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/utils/app_util_widgets.dart';
 import 'package:tlbilling/utils/input_validation.dart';
 import 'package:tlbilling/view/login/login_page_bloc.dart';
+import 'package:tlds_flutter/components/tlds_input_form_field.dart';
+import 'package:tlds_flutter/components/tlds_input_formaters.dart';
 import 'package:toastification/toastification.dart';
 
 class LoginPage extends StatefulWidget {
@@ -133,9 +133,10 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Widget _buildMobNoTextFeild() {
-    return CustomFormField(
+    return TldsInputFormField(
       maxLength: 10,
-      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+      counterText: '',
+      inputFormatters: TldsInputFormatters.onlyAllowNumbers,
       labelText: AppConstants.mobileNumberLable,
       controller: _loginPageBlocImpl.mobileNumberTextController,
       hintText: AppConstants.mobileNumberHint,
@@ -148,7 +149,7 @@ class _LoginPageState extends State<LoginPage> {
     return StreamBuilder(
       stream: _loginPageBlocImpl.passwordVisibleStream,
       builder: (context, snapshot) {
-        return CustomFormField(
+        return TldsInputFormField(
           labelText: AppConstants.passwordLable,
           controller: _loginPageBlocImpl.passwordTextController,
           hintText: AppConstants.passwordHint,
@@ -215,7 +216,7 @@ class _LoginPageState extends State<LoginPage> {
           AppWidgetUtils.buildToast(
               context,
               ToastificationType.error,
-              AppConstants.invalidUser,
+              AppConstants.somethingWentWrong,
               Icon(Icons.error_outline, color: _appColors.errorColor),
               AppConstants.loginFailed,
               _appColors.errorLightColor);

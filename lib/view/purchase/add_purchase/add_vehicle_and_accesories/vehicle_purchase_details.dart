@@ -89,7 +89,7 @@ class _VehiclePurchaseDetailsState extends State<VehiclePurchaseDetails> {
                   }
                   return null;
                 },
-                inputFormatters:  TlInputFormatters.onlyAllowNumbers,
+                inputFormatters: TlInputFormatters.onlyAllowNumbers,
                 focusNode: widget.addVehicleAndAccessoriesBloc.partNoFocusNode,
                 labelText: AppConstants.partNo,
                 hintText: AppConstants.partNo,
