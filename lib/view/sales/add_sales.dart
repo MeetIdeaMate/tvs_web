@@ -57,7 +57,7 @@ class _AddSalesState extends State<AddSales> {
 
   Widget _buildCustomerAndPaymentDetails() {
     return Expanded(
-      flex: 2,
+      flex: 1,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10),
         decoration: BoxDecoration(
@@ -74,9 +74,9 @@ class _AddSalesState extends State<AddSales> {
 
   Widget _buildInvoiceEntry() {
     return Expanded(
-      flex: 2,
+      flex: 1,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 15),
         child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 10),
             decoration: BoxDecoration(
@@ -91,9 +91,9 @@ class _AddSalesState extends State<AddSales> {
 
   Widget _buildVehicleAndAccessoriesList() {
     return Expanded(
-      flex: 2,
+      flex: 1,
       child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 30),
+          padding: const EdgeInsets.symmetric(horizontal: 10),
           decoration: BoxDecoration(
             color: _appColors.whiteColor,
           ),

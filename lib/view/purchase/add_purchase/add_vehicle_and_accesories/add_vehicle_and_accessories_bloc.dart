@@ -51,17 +51,18 @@ abstract class AddVehicleAndAccessoriesBloc {
   FocusNode get purchaseRefFocusNode;
   FocusNode get carrierNameFocusNode;
   FocusNode get carrierNoFocusNode;
-
   FocusNode get varientFocusNode;
   FocusNode get colorFocusNode;
   FocusNode get hsnCodeFocusNode;
   FocusNode get unitRateFocusNode;
   FocusNode get partNoFocusNode;
   List<PurchaseBillData> get purchaseBillDataList;
-
   Future<List<String>> getAllVendorNameList();
   List<String> get vendorNamesList;
   ScrollController get engineListScrollController;
+  String? get selectedGstType;
+
+  Stream<bool> get refreshPurchaseDataTable;
 }
 
 class AddVehicleAndAccessoriesBlocImpl extends AddVehicleAndAccessoriesBloc {
@@ -104,6 +105,8 @@ class AddVehicleAndAccessoriesBlocImpl extends AddVehicleAndAccessoriesBloc {
   final _apiServices = AppServiceUtilImpl();
   List<String> _vendorNamesList = [];
   var _engineListScrollController = ScrollController();
+  String? _selectedGstType;
+  final _purchaseDataTable = StreamController<bool>.broadcast();
 
   @override
   String? get vendorDropDownValue => _vendorDropDownValue;
@@ -253,5 +256,19 @@ class AddVehicleAndAccessoriesBlocImpl extends AddVehicleAndAccessoriesBloc {
       _engineListScrollController;
   set engineListScrollController(ScrollController scrollController) {
     _engineListScrollController = scrollController;
+  }
+
+  @override
+  String? get selectedGstType => _selectedGstType;
+
+  set selectedGstType(String? gstValue) {
+    _selectedGstType = gstValue;
+  }
+
+  @override
+  Stream<bool> get refreshPurchaseDataTable => _purchaseDataTable.stream;
+
+  refreshPurchaseDataTableList(bool streamValue) {
+    _purchaseDataTable.add(streamValue);
   }
 }

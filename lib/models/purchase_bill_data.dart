@@ -1,13 +1,34 @@
 class PurchaseBillData {
-  List<VehicleDetails> vehicleDetails;
+  String? vendorName;
+  String? invoiceNo;
+  String? invoiceDate;
+  String? purchaseRef;
+  String? gstType;
+  String? carrierName;
+  String? carrierNumber;
+  List<VehicleDetails>? vehicleDetails;
 
   PurchaseBillData({
-    required this.vehicleDetails,
+    this.vendorName,
+    this.invoiceNo,
+    this.invoiceDate,
+    this.purchaseRef,
+    this.gstType,
+    this.carrierName,
+    this.carrierNumber,
+    this.vehicleDetails,
   });
 
   Map<String, dynamic> toJson() {
     return {
-      "vehicleDetails": vehicleDetails.map((v) => v.toJson()).toList(),
+      "vendorName": vendorName,
+      "invoiceDate": invoiceDate,
+      "purchaseref": purchaseRef,
+      "gstType": gstType,
+      "carrierName" : carrierName,
+      "carrierNumber" : carrierNumber,
+      "invoiceNo": invoiceNo,
+      "vehicleDetails": vehicleDetails?.map((v) => v.toJson()).toList(),
     };
   }
 }
