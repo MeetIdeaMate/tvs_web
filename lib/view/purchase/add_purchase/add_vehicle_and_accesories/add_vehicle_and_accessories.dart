@@ -14,7 +14,8 @@ import 'package:tlbilling/view/vendor/create_vendor_dialog.dart';
 import 'package:tlds_flutter/export.dart';
 
 class AddVehicleAndAccessories extends StatefulWidget {
-  const AddVehicleAndAccessories({super.key});
+  AddVehicleAndAccessoriesBlocImpl purchaseBloc;
+  AddVehicleAndAccessories({super.key, required this.purchaseBloc});
 
   @override
   State<AddVehicleAndAccessories> createState() =>
@@ -23,16 +24,14 @@ class AddVehicleAndAccessories extends StatefulWidget {
 
 class _AddVehicleAndAccessoriesState extends State<AddVehicleAndAccessories> {
   final _appColors = AppColors();
-  final _addVehicleAndAccessoriesBloc = AddVehicleAndAccessoriesBlocImpl();
   final List<String> _options = ['GST %', 'ISGST %'];
   final List<String> vehicleAndAccessories = ['Vehicle', 'Accessories'];
-  String? _selectedOption;
 
   @override
   void initState() {
     super.initState();
-    _addVehicleAndAccessoriesBloc.selectedPurchaseType = 'Vehicle';
-    _addVehicleAndAccessoriesBloc.selectedPurchaseTypeStreamController(true);
+    widget.purchaseBloc.selectedPurchaseType = 'Vehicle';
+    widget.purchaseBloc.selectedPurchaseTypeStreamController(true);
   }
 
   @override
@@ -46,7 +45,7 @@ class _AddVehicleAndAccessoriesState extends State<AddVehicleAndAccessories> {
         child: SingleChildScrollView(
           scrollDirection: Axis.vertical,
           child: Form(
-            key: _addVehicleAndAccessoriesBloc.purchaseFormKey,
+            key: widget.purchaseBloc.purchaseFormKey,
             child: Column(
               children: [
                 _buildVendorDetails(),
@@ -90,7 +89,7 @@ class _AddVehicleAndAccessoriesState extends State<AddVehicleAndAccessories> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         FutureBuilder(
-          future: _addVehicleAndAccessoriesBloc.getAllVendorNameList(),
+          future: widget.purchaseBloc.getAllVendorNameList(),
           builder: (context, snapshot) => TldsDropDownButtonFormField(
             validator: (String? value) {
               if (value == null || value.isEmpty) {
@@ -102,8 +101,7 @@ class _AddVehicleAndAccessoriesState extends State<AddVehicleAndAccessories> {
             hintText: AppConstants.selectVendor,
             dropDownItems: snapshot.data ?? [],
             onChange: (String? newValue) {
-              _addVehicleAndAccessoriesBloc.vendorDropDownValue =
-                  newValue ?? '';
+              widget.purchaseBloc.vendorDropDownValue = newValue ?? '';
             },
           ),
         ),
@@ -144,25 +142,24 @@ class _AddVehicleAndAccessoriesState extends State<AddVehicleAndAccessories> {
           inputFormatters: TlInputFormatters.onlyAllowAlphabetAndNumber,
           labelText: AppConstants.invoiceNo,
           hintText: AppConstants.invoiceNo,
-          controller: _addVehicleAndAccessoriesBloc.invoiceNumberController,
+          controller: widget.purchaseBloc.invoiceNumberController,
           onSubmit: (p0) {
-            FocusScope.of(context).requestFocus(
-                _addVehicleAndAccessoriesBloc.inVoiceDateFocusNode);
-            _selectDate(
-                context, _addVehicleAndAccessoriesBloc.invoiceDateController);
+            FocusScope.of(context)
+                .requestFocus(widget.purchaseBloc.inVoiceDateFocusNode);
+            _selectDate(context, widget.purchaseBloc.invoiceDateController);
           },
         )),
         _buildDefaultWidth(),
         Expanded(
           child: TldsInputFormField(
-            focusNode: _addVehicleAndAccessoriesBloc.inVoiceDateFocusNode,
-            controller: _addVehicleAndAccessoriesBloc.invoiceDateController,
+            focusNode: widget.purchaseBloc.inVoiceDateFocusNode,
+            controller: widget.purchaseBloc.invoiceDateController,
             requiredLabelText: const Text(AppConstants.invoiceDate),
             inputFormatters: TlInputFormatters.onlyAllowDate,
             hintText: 'dd/mm/yyyy',
             suffixIcon: IconButton(
-                onPressed: () => _selectDate(context,
-                    _addVehicleAndAccessoriesBloc.invoiceDateController),
+                onPressed: () => _selectDate(
+                    context, widget.purchaseBloc.invoiceDateController),
                 icon: SvgPicture.asset(AppConstants.icDate)),
             validator: (value) {
               if (value == null || value.isEmpty) {
@@ -170,8 +167,8 @@ class _AddVehicleAndAccessoriesState extends State<AddVehicleAndAccessories> {
               }
               return null;
             },
-            onTap: () => _selectDate(
-                context, _addVehicleAndAccessoriesBloc.invoiceDateController),
+            onTap: () =>
+                _selectDate(context, widget.purchaseBloc.invoiceDateController),
           ),
         ),
       ],
@@ -190,9 +187,9 @@ class _AddVehicleAndAccessoriesState extends State<AddVehicleAndAccessories> {
     );
     if (picked != null) {
       final formattedDate = AppUtils.apiToAppDateFormat(picked.toString());
-      _addVehicleAndAccessoriesBloc.invoiceDateController.text = formattedDate;
+      widget.purchaseBloc.invoiceDateController.text = formattedDate;
       FocusScope.of(context)
-          .requestFocus(_addVehicleAndAccessoriesBloc.purchaseRefFocusNode);
+          .requestFocus(widget.purchaseBloc.purchaseRefFocusNode);
     }
   }
 
@@ -228,11 +225,10 @@ class _AddVehicleAndAccessoriesState extends State<AddVehicleAndAccessories> {
                   return null;
                 },
                 inputFormatters: TlInputFormatters.onlyAllowAlphabetAndNumber,
-                focusNode: _addVehicleAndAccessoriesBloc.purchaseRefFocusNode,
+                focusNode: widget.purchaseBloc.purchaseRefFocusNode,
                 labelText: AppConstants.purchaseRef,
                 hintText: AppConstants.purchaseOrderRef,
-                controller:
-                    _addVehicleAndAccessoriesBloc.purchaseRefController)),
+                controller: widget.purchaseBloc.purchaseRefController)),
         Row(
           children: _options.map((option) {
             return Padding(
@@ -241,12 +237,12 @@ class _AddVehicleAndAccessoriesState extends State<AddVehicleAndAccessories> {
                 children: [
                   Radio(
                     value: option,
-                    groupValue: _selectedOption,
+                    groupValue: widget.purchaseBloc.selectedGstType,
                     onChanged: (String? value) {
                       FocusScope.of(context).requestFocus(
-                          _addVehicleAndAccessoriesBloc.carrierNameFocusNode);
+                          widget.purchaseBloc.carrierNameFocusNode);
                       setState(() {
-                        _selectedOption = value;
+                        widget.purchaseBloc.selectedGstType = value;
                       });
                     },
                   ),
@@ -266,26 +262,26 @@ class _AddVehicleAndAccessoriesState extends State<AddVehicleAndAccessories> {
         Expanded(
             child: TldsInputFormField(
           inputFormatters: TlInputFormatters.onlyAllowAlphabets,
-          focusNode: _addVehicleAndAccessoriesBloc.carrierNameFocusNode,
+          focusNode: widget.purchaseBloc.carrierNameFocusNode,
           labelText: AppConstants.carrier,
           hintText: AppConstants.name,
-          controller: _addVehicleAndAccessoriesBloc.carrierController,
+          controller: widget.purchaseBloc.carrierController,
           onSubmit: (p0) {
             FocusScope.of(context)
-                .requestFocus(_addVehicleAndAccessoriesBloc.carrierNoFocusNode);
+                .requestFocus(widget.purchaseBloc.carrierNoFocusNode);
           },
         )),
         _buildDefaultWidth(),
         Expanded(
             child: TldsInputFormField(
           inputFormatters: TlInputFormatters.onlyAllowAlphabetAndNumber,
-          focusNode: _addVehicleAndAccessoriesBloc.carrierNoFocusNode,
+          focusNode: widget.purchaseBloc.carrierNoFocusNode,
           labelText: AppConstants.carrierNumber,
           hintText: AppConstants.carrierNumber,
-          controller: _addVehicleAndAccessoriesBloc.carrierNumberController,
+          controller: widget.purchaseBloc.carrierNumberController,
           onSubmit: (p0) {
             FocusScope.of(context)
-                .requestFocus(_addVehicleAndAccessoriesBloc.partNoFocusNode);
+                .requestFocus(widget.purchaseBloc.partNoFocusNode);
           },
         )),
       ],
@@ -305,11 +301,9 @@ class _AddVehicleAndAccessoriesState extends State<AddVehicleAndAccessories> {
                 children: [
                   _buildDefaultHeight(),
                   StreamBuilder(
-                    stream: _addVehicleAndAccessoriesBloc
-                        .selectedPurchaseTypeStream,
+                    stream: widget.purchaseBloc.selectedPurchaseTypeStream,
                     builder: (context, snapshot) {
-                      return _addVehicleAndAccessoriesBloc
-                                  .selectedPurchaseType ==
+                      return widget.purchaseBloc.selectedPurchaseType ==
                               'Vehicle'
                           ? _buildCustomTextWidget(
                               AppConstants.vehicleDetails,
@@ -330,14 +324,13 @@ class _AddVehicleAndAccessoriesState extends State<AddVehicleAndAccessories> {
             ),
             _buildDefaultHeight(),
             StreamBuilder(
-              stream: _addVehicleAndAccessoriesBloc.selectedPurchaseTypeStream,
+              stream: widget.purchaseBloc.selectedPurchaseTypeStream,
               builder: (context, snapshot) {
-                if (_addVehicleAndAccessoriesBloc.selectedPurchaseType ==
-                    'Vehicle') {
+                if (widget.purchaseBloc.selectedPurchaseType == 'Vehicle') {
                   return VehiclePurchaseDetails(
-                    addVehicleAndAccessoriesBloc: _addVehicleAndAccessoriesBloc,
+                    addVehicleAndAccessoriesBloc: widget.purchaseBloc,
                   );
-                } else if (_addVehicleAndAccessoriesBloc.selectedPurchaseType ==
+                } else if (widget.purchaseBloc.selectedPurchaseType ==
                     'Accessories') {
                   return const AccessoriesPurchaseDetails();
                 }
@@ -364,18 +357,17 @@ class _AddVehicleAndAccessoriesState extends State<AddVehicleAndAccessories> {
                 label: Text(
                   vehicleAndAccessories[index],
                 ))),
-        selected: _addVehicleAndAccessoriesBloc.optionsSet,
+        selected: widget.purchaseBloc.optionsSet,
         onSelectionChanged: (Set<String> newValue) {
           setState(() {
-            _addVehicleAndAccessoriesBloc.optionsSet = newValue;
-            _addVehicleAndAccessoriesBloc.selectedPurchaseType =
-                _addVehicleAndAccessoriesBloc.optionsSet.first;
-            _addVehicleAndAccessoriesBloc
-                .selectedPurchaseTypeStreamController(true);
+            widget.purchaseBloc.optionsSet = newValue;
+            widget.purchaseBloc.selectedPurchaseType =
+                widget.purchaseBloc.optionsSet.first;
+            widget.purchaseBloc.selectedPurchaseTypeStreamController(true);
           });
         },
         style: ButtonStyle(
-          backgroundColor: _addVehicleAndAccessoriesBloc
+          backgroundColor: widget.purchaseBloc
               .changeSegmentedColor(_appColors.segmentedButtonColor),
         ),
       ),
@@ -390,20 +382,15 @@ class _AddVehicleAndAccessoriesState extends State<AddVehicleAndAccessories> {
       text: AppConstants.addToTable,
       fontSize: 16,
       onPressed: () {
-        if (_addVehicleAndAccessoriesBloc.purchaseFormKey.currentState!
-            .validate()) {
+        if (widget.purchaseBloc.purchaseFormKey.currentState!.validate()) {
           final newVehicle = VehicleDetails(
-            partNo: int.parse(
-                _addVehicleAndAccessoriesBloc.partNumberController.text),
-            vehicleName:
-                _addVehicleAndAccessoriesBloc.materialNameController.text,
-            varient: _addVehicleAndAccessoriesBloc.variantController.text,
-            color: _addVehicleAndAccessoriesBloc.colorController.text,
-            hsnCode:
-                int.parse(_addVehicleAndAccessoriesBloc.hsnCodeController.text),
-            unitRate: int.parse(
-                _addVehicleAndAccessoriesBloc.unitRateController.text),
-            engineDetails: _addVehicleAndAccessoriesBloc.engineDetailsList
+            partNo: int.parse(widget.purchaseBloc.partNumberController.text),
+            vehicleName: widget.purchaseBloc.materialNameController.text,
+            varient: widget.purchaseBloc.variantController.text,
+            color: widget.purchaseBloc.colorController.text,
+            hsnCode: int.parse(widget.purchaseBloc.hsnCodeController.text),
+            unitRate: int.parse(widget.purchaseBloc.unitRateController.text),
+            engineDetails: widget.purchaseBloc.engineDetailsList
                 .map((map) => EngineDetails(
                       engineNo: int.parse(map['engineNo']!),
                       frameNo: int.parse(map['frameNo']!),
@@ -411,10 +398,20 @@ class _AddVehicleAndAccessoriesState extends State<AddVehicleAndAccessories> {
                 .toList(),
           );
           final newPurchase = PurchaseBillData(
+            vendorName: widget.purchaseBloc.vendorDropDownValue,
+            carrierName: widget.purchaseBloc.carrierController.text,
+            carrierNumber: widget.purchaseBloc.carrierNumberController.text,
+            invoiceNo: widget.purchaseBloc.invoiceNumberController.text,
+            invoiceDate: widget.purchaseBloc.invoiceDateController.text,
+            gstType: widget.purchaseBloc.selectedGstType ?? '',
+            purchaseRef: widget.purchaseBloc.purchaseRefController.text,
             vehicleDetails: [newVehicle],
           );
-
-          _addVehicleAndAccessoriesBloc.purchaseBillDataList.add(newPurchase);
+          print(
+              '********new purchase details***********${newPurchase.toJson()}');
+          widget.purchaseBloc.purchaseBillDataList.add(newPurchase);
+          clearPurchaseDataValue();
+          widget.purchaseBloc.refreshPurchaseDataTableList(true);
         } else {}
       },
     );
@@ -437,5 +434,22 @@ class _AddVehicleAndAccessoriesState extends State<AddVehicleAndAccessories> {
       style: GoogleFonts.poppins(
           color: color, fontWeight: fontWeight, fontSize: fontSize),
     );
+  }
+
+  clearPurchaseDataValue() {
+    widget.purchaseBloc.partNumberController.clear();
+    widget.purchaseBloc.materialNameController.clear();
+    widget.purchaseBloc.variantController.clear();
+    widget.purchaseBloc.colorController.clear();
+    widget.purchaseBloc.hsnCodeController.clear();
+    widget.purchaseBloc.unitRateController.clear();
+    widget.purchaseBloc.engineDetailsList.clear();
+    widget.purchaseBloc.vendorDropDownValue = null;
+    widget.purchaseBloc.carrierController.clear();
+    widget.purchaseBloc.carrierNumberController.clear();
+    widget.purchaseBloc.invoiceNumberController.clear();
+    widget.purchaseBloc.invoiceDateController.clear();
+    widget.purchaseBloc.selectedGstType = null;
+    widget.purchaseBloc.purchaseRefController.clear();
   }
 }

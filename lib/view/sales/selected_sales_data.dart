@@ -70,7 +70,7 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
             const Text('Disc :  10%', style: TextStyle(fontSize: 14)),
             AppWidgetUtils.buildSizedBox(custHeight: 10),
             Container(
-              padding: const EdgeInsets.all(15),
+              padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
                   color: _appColors.bgHighlightColor,
                   borderRadius: const BorderRadius.all(Radius.circular(8))),
@@ -120,8 +120,8 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
         AppWidgetUtils.buildSizedBox(custHeight: 10),
         if (widget.addSalesBloc.isDiscountChecked)
           TldsInputFormField(
+            width: 300,
             controller: widget.addSalesBloc.discountTextController,
-            width: 150,
             hintText: AppConstants.discount,
           ),
       ],

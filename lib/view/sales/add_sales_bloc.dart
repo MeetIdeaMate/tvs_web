@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:tlbilling/api_service/app_service_utils.dart';
 import 'package:tlbilling/models/get_model/get_all_customerName_List.dart';
+import 'package:tlbilling/utils/app_constants.dart';
 
 abstract class AddSalesBloc {
   Stream get selectedVehicleAndAccessoriesStream;
@@ -34,6 +35,9 @@ abstract class AddSalesBloc {
   Future<List<GetAllCustomerNameList>> getAllCustomerList();
 
   Future<List<String>> getPaymentmethods();
+  Stream<List<Map<String, String>>> get vehicleListStream;
+  List<Map<String, String>> get vehicleData;
+  List<Map<String, String>> get filteredVehicleData;
 }
 
 class AddSalesBlocImpl extends AddSalesBloc {
@@ -63,6 +67,85 @@ class AddSalesBlocImpl extends AddSalesBloc {
   bool _isInsurenceChecked = false;
   String? _selectedPaymentOption;
   List<String> _customerNameList = [];
+  final _vehicleListStreamController =
+      StreamController<List<Map<String, String>>>.broadcast();
+
+  final List<Map<String, String>> _vehicleData = [
+    {
+      AppConstants.partNo: 'K61916304K',
+      AppConstants.vehicleName: 'TVS JUPITER',
+      AppConstants.color: 'Red',
+      AppConstants.frameNumber: 'MDFJ1A1A1A1A1A1A1',
+      AppConstants.engineNumber: 'E1A1A1A1A1A1A1A1A1',
+    },
+    {
+      AppConstants.partNo: 'K61916305K',
+      AppConstants.vehicleName: 'HONDA ACTIVA',
+      AppConstants.color: 'Blue',
+      AppConstants.frameNumber: 'MDFJ2B2B2B2B2B2B2',
+      AppConstants.engineNumber: 'E2B2B2B2B2B2B2B2B2',
+    },
+    {
+      AppConstants.partNo: 'K61916306K',
+      AppConstants.vehicleName: 'BAJAJ PULSAR',
+      AppConstants.color: 'Black',
+      AppConstants.frameNumber: 'MDFJ3C3C3C3C3C3C3',
+      AppConstants.engineNumber: 'E3C3C3C3C3C3C3C3C',
+    },
+    {
+      AppConstants.partNo: 'K61916307K',
+      AppConstants.vehicleName: 'YAMAHA FZ',
+      AppConstants.color: 'Green',
+      AppConstants.frameNumber: 'MDFJ4D4D4D4D4D4D4',
+      AppConstants.engineNumber: 'E4D4D4D4D4D4D4D4D4',
+    },
+    {
+      AppConstants.partNo: 'K61916308K',
+      AppConstants.vehicleName: 'SUZUKI GIXXER',
+      AppConstants.color: 'Yellow',
+      AppConstants.vehicleNumber: 'TN01AB1238',
+      AppConstants.frameNumber: 'MDFJ5E5E5E5E5E5E5',
+      AppConstants.engineNumber: 'E5E5E5E5E5E5E5E5E5',
+    },
+    {
+      AppConstants.partNo: 'K61916309K',
+      AppConstants.vehicleName: 'ROYAL ENFIELD',
+      AppConstants.color: 'Black',
+      AppConstants.frameNumber: 'MDFJ6F6F6F6F6F6F6',
+      AppConstants.engineNumber: 'E6F6F6F6F6F6F6F6F6',
+    },
+    {
+      AppConstants.partNo: 'K61916310K',
+      AppConstants.vehicleName: 'HERO SPLENDOR',
+      AppConstants.color: 'Red',
+      AppConstants.vehicleNumber: 'TN01AB1240',
+      AppConstants.frameNumber: 'MDFJ7G7G7G7G7G7G7',
+      AppConstants.engineNumber: 'E7G7G7G7G7G7G7G7G7',
+    },
+    {
+      AppConstants.partNo: 'K61916311K',
+      AppConstants.vehicleName: 'TVS APACHE',
+      AppConstants.color: 'Blue',
+      AppConstants.frameNumber: 'MDFJ8H8H8H8H8H8H8',
+      AppConstants.engineNumber: 'E8H8H8H8H8H8H8H8H8',
+    },
+    {
+      AppConstants.partNo: 'K61916312K',
+      AppConstants.vehicleName: 'KTM DUKE',
+      AppConstants.color: 'Orange',
+      AppConstants.frameNumber: 'MDFJ9I9I9I9I9I9I9',
+      AppConstants.engineNumber: 'E9I9I9I9I9I9I9I9I9',
+    },
+    {
+      AppConstants.partNo: 'K61916313K',
+      AppConstants.vehicleName: 'BMW G310R',
+      AppConstants.color: 'White',
+      AppConstants.frameNumber: 'MDFJ0J0J0J0J0J0J0',
+      AppConstants.engineNumber: 'E0J0J0J0J0J0J0J0J0',
+    },
+  ];
+
+  List<Map<String, String>> _filteredVehicleData = [];
   @override
   String? get selectedVehicleAndAccessories => _selectedVehicleAndAccessories;
 
@@ -203,5 +286,23 @@ class AddSalesBlocImpl extends AddSalesBloc {
 
   set selectedCustomer(String? selectedValue) {
     _selectedCustomer = selectedValue;
+  }
+
+  @override
+  Stream<List<Map<String, String>>> get vehicleListStream =>
+      _vehicleListStreamController.stream;
+
+  vehicleListStreamController(List<Map<String, String>> streamValue) {
+    _vehicleListStreamController.add(streamValue);
+  }
+
+  @override
+  List<Map<String, String>> get vehicleData => _vehicleData;
+
+  @override
+  List<Map<String, String>> get filteredVehicleData => _filteredVehicleData;
+
+  set filteredVehicleData(List<Map<String, String>> vehicleData) {
+    _filteredVehicleData = vehicleData;
   }
 }

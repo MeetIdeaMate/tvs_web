@@ -24,7 +24,7 @@ class _AccessoriesPurchaseDetailsState
       padding: const EdgeInsets.all(12),
       child: Column(
         children: [
-          _buildMaterialNumberAndName(),
+          _buildVehicleDetails(),
           _buildDefaultHeight(),
           _buildHSNCodeAndQty(),
           _buildDefaultHeight(),
@@ -35,7 +35,7 @@ class _AccessoriesPurchaseDetailsState
     );
   }
 
-  Widget _buildMaterialNumberAndName() {
+  Widget _buildVehicleDetails() {
     return Row(
       children: [
         Expanded(

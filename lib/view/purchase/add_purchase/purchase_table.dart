@@ -4,10 +4,13 @@ import 'package:flutter_svg/svg.dart';
 import 'package:tlbilling/components/custom_action_button.dart';
 import 'package:tlbilling/components/custom_elevated_button.dart';
 import 'package:tlbilling/utils/app_constants.dart';
+import 'package:tlbilling/view/purchase/add_purchase/add_vehicle_and_accesories/add_vehicle_and_accessories_bloc.dart';
 import 'package:tlds_flutter/export.dart';
 
 class PurchaseTable extends StatefulWidget {
-  const PurchaseTable({super.key});
+  AddVehicleAndAccessoriesBlocImpl purchaseBloc;
+
+  PurchaseTable({super.key, required this.purchaseBloc});
 
   @override
   State<PurchaseTable> createState() => _PurchaseTableState();
@@ -15,26 +18,6 @@ class PurchaseTable extends StatefulWidget {
 
 class _PurchaseTableState extends State<PurchaseTable> {
   final _appColors = AppColor();
-  List<Map<String, String>> rowData = [
-    {
-      AppConstants.sno: '1',
-      AppConstants.invoiceNo: 'INV-1234',
-      AppConstants.partNo: 'K61916304K',
-      AppConstants.vehicleDescription: 'TVS JUPITER-OBDIIA WALN',
-      AppConstants.hsnCode: '87112019',
-      AppConstants.quantity: '2',
-      AppConstants.totalInvAmount: '₹ 1,000,00',
-    },
-    {
-      AppConstants.sno: '2',
-      AppConstants.invoiceNo: 'INV-1235',
-      AppConstants.partNo: 'K61916304K',
-      AppConstants.vehicleDescription: 'TVS JUPITER-OBDIIA WALN',
-      AppConstants.hsnCode: '87112019',
-      AppConstants.quantity: '1',
-      AppConstants.totalInvAmount: '₹ 1,000,00',
-    },
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -58,60 +41,67 @@ class _PurchaseTableState extends State<PurchaseTable> {
   }
 
   Widget _buildAddedVehicleAndAccessoriesTable() {
-    return Expanded(
-        child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: SingleChildScrollView(
-              scrollDirection: Axis.vertical,
-              child: SizedBox(
-                width: MediaQuery.of(context).size.width,
-                child: DataTable(
-                  key: UniqueKey(),
-                  dividerThickness: 0.01,
-                  columns: [
-                    _buildVehicleTableHeader(
-                      AppConstants.sno,
-                    ),
-                    _buildVehicleTableHeader(AppConstants.invoiceNo),
-                    _buildVehicleTableHeader(AppConstants.partNo),
-                    _buildVehicleTableHeader(AppConstants.vehicleDescription),
-                    _buildVehicleTableHeader(AppConstants.hsnCode),
-                    _buildVehicleTableHeader(AppConstants.quantity),
-                    _buildVehicleTableHeader(AppConstants.totalInvAmount),
-                    _buildVehicleTableHeader(AppConstants.action),
-                  ],
-                  rows: List.generate(rowData.length, (index) {
-                    final data = rowData[index];
+    return StreamBuilder<bool>(
+        stream: widget.purchaseBloc.refreshPurchaseDataTable,
+        builder: (context, snapshot) {
+          return Expanded(
+              child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.vertical,
+                    child: SizedBox(
+                      width: MediaQuery.of(context).size.width,
+                      child: DataTable(
+                        key: UniqueKey(),
+                        dividerThickness: 0.01,
+                        columns: [
+                          _buildVehicleTableHeader(AppConstants.invoiceNo),
+                          _buildVehicleTableHeader(AppConstants.invoiceDate),
+                          _buildVehicleTableHeader(AppConstants.vendorName),
+                          _buildVehicleTableHeader(AppConstants.purchaseRef),
+                          _buildVehicleTableHeader(AppConstants.gstType),
+                          _buildVehicleTableHeader(AppConstants.carrier),
+                          _buildVehicleTableHeader(AppConstants.carrierNumber),
+                          _buildVehicleTableHeader(AppConstants.action),
+                        ],
+                        rows: List.generate(
+                            widget.purchaseBloc.purchaseBillDataList.length,
+                            (index) {
+                          final data =
+                              widget.purchaseBloc.purchaseBillDataList[index];
 
-                    final color = index.isEven
-                        ? _appColors.whiteColor
-                        : _appColors.transparentBlueColor;
-                    return DataRow(
-                      color: MaterialStateColor.resolveWith((states) => color),
-                      cells: [
-                        DataCell(Text(data[AppConstants.sno]!)),
-                        DataCell(Text(data[AppConstants.invoiceNo]!)),
-                        DataCell(Text(data[AppConstants.partNo]!)),
-                        DataCell(Text(data[AppConstants.vehicleDescription]!)),
-                        DataCell(Text(data[AppConstants.hsnCode]!)),
-                        DataCell(Text(data[AppConstants.quantity]!)),
-                        DataCell(Text(data[AppConstants.totalInvAmount]!)),
-                        DataCell(
-                          Row(
-                            children: [
-                              IconButton(
-                                icon: SvgPicture.asset(AppConstants.icEdit),
-                                onPressed: () {},
+                          final color = index.isEven
+                              ? _appColors.whiteColor
+                              : _appColors.transparentBlueColor;
+                          return DataRow(
+                            color: MaterialStateColor.resolveWith(
+                                (states) => color),
+                            cells: [
+                              DataCell(Text(data.invoiceNo ?? '')),
+                              DataCell(Text(data.invoiceDate ?? '')),
+                              DataCell(Text(data.vendorName ?? '')),
+                              DataCell(Text(data.purchaseRef ?? '')),
+                              DataCell(Text(data.gstType ?? '')),
+                              DataCell(Text(data.carrierName ?? '')),
+                              DataCell(Text(data.carrierNumber ?? '')),
+                              DataCell(
+                                Row(
+                                  children: [
+                                    IconButton(
+                                      icon:
+                                          SvgPicture.asset(AppConstants.icEdit),
+                                      onPressed: () {},
+                                    ),
+                                  ],
+                                ),
                               ),
                             ],
-                          ),
-                        ),
-                      ],
-                    );
-                  }),
-                ),
-              ),
-            )));
+                          );
+                        }),
+                      ),
+                    ),
+                  )));
+        });
   }
 
   _buildVehicleTableHeader(String headerValue) => DataColumn(
