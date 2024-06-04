@@ -291,7 +291,7 @@ class AppServiceUtilImpl extends AppServiceUtil {
               ?.configuration ??
           [];
     } else {
-      throw Exception('Failed to load employee data: ${response.statusCode}');
+      throw Exception('Failed to load  data: ${response.statusCode}');
     }
   }
 

@@ -12,14 +12,14 @@ import 'package:tlbilling/view/report/sale_report/sales_report_bloc.dart';
 import 'package:tlbilling/view/report/sale_report/sales_vehicles_report_bloc.dart';
 import 'package:tlds_flutter/export.dart';
 
-class Salesreport extends StatefulWidget {
-  const Salesreport({super.key});
+class SalesReport extends StatefulWidget {
+  const SalesReport({super.key});
 
   @override
-  State<Salesreport> createState() => _SalesreportState();
+  State<SalesReport> createState() => _SalesReportState();
 }
 
-class _SalesreportState extends State<Salesreport>
+class _SalesReportState extends State<SalesReport>
     with SingleTickerProviderStateMixin {
   final _appColors = AppColors();
   final _saledReportBlocImpl = SaledReportBlocImpl();
@@ -168,7 +168,7 @@ class _SalesreportState extends State<Salesreport>
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         } else if (snapshot.hasError) {
-          return Center(child: Text('Error: ${snapshot.error}'));
+          return Center(child: Text(' ${snapshot.error}'));
         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
           return const Center(child: Text(AppConstants.noData));
         } else {

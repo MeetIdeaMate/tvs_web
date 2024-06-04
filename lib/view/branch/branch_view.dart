@@ -91,7 +91,7 @@ class _MyWidgetState extends State<BranchView> {
       stream: _branchViewBlocImpl.branchNameStreamController,
       builder: (context, snapshot) {
         return _buildFormField(
-          _branchViewBlocImpl.filterBranchnameController,
+          _branchViewBlocImpl.filterBranchNameController,
           AppConstants.branchName,
           TldsInputFormatters.onlyAllowAlphabets,
         );

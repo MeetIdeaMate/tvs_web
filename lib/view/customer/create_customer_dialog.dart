@@ -219,7 +219,7 @@ class _CreateCustomerDialogState extends State<CreateCustomerDialog> {
               },
               maxLength: 12,
               counterText: '',
-              hintText: AppConstants.hintAatharNo,
+              hintText: AppConstants.hintAadharNo,
               labelText: AppConstants.aadharNo,
               controller:
                   _createCustomerDialogBlocImpl.customerAadharNoTextController),

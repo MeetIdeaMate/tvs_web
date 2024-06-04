@@ -146,7 +146,7 @@ class AppConstants {
   static const hintMail = 'Enter Mail';
   static const panNo = 'Pan Number';
   static const hintPanNo = 'Enter Pan Number';
-  static const hintAatharNo = 'Enter Aadhar Number';
+  static const hintAadharNo = 'Enter Aadhar Number';
   static const aadharNo = 'Aadhar Number';
   static const city = 'City';
   static const cities = 'Cities';

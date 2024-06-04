@@ -25,8 +25,8 @@ class PurchaseBillData {
       "invoiceDate": invoiceDate,
       "purchaseref": purchaseRef,
       "gstType": gstType,
-      "carrierName" : carrierName,
-      "carrierNumber" : carrierNumber,
+      "carrierName": carrierName,
+      "carrierNumber": carrierNumber,
       "invoiceNo": invoiceNo,
       "vehicleDetails": vehicleDetails?.map((v) => v.toJson()).toList(),
     };

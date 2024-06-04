@@ -122,8 +122,8 @@ class _CustomerViewState extends State<CustomerView> {
           color: iconColor,
         ),
       ),
-      onSubmit: (p0) {
-        if (p0.isNotEmpty) {
+      onSubmit: (value) {
+        if (value.isNotEmpty) {
           _searchData();
           _checkController(hintText);
         }
