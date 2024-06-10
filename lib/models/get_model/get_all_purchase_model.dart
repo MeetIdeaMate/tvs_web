@@ -11,7 +11,7 @@ String getAllPurchaseByPageNationToJson(GetAllPurchaseByPageNation data) =>
     json.encode(data.toJson());
 
 class GetAllPurchaseByPageNation {
-  List<Content>? content;
+  List<PurchaseBill>? content;
   bool? empty;
   bool? first;
   bool? last;
@@ -41,8 +41,8 @@ class GetAllPurchaseByPageNation {
       GetAllPurchaseByPageNation(
         content: json["content"] == null
             ? []
-            : List<Content>.from(
-                json["content"]!.map((x) => Content.fromJson(x))),
+            : List<PurchaseBill>.from(
+                json["content"]!.map((x) => PurchaseBill.fromJson(x))),
         empty: json["empty"],
         first: json["first"],
         last: json["last"],
@@ -74,7 +74,7 @@ class GetAllPurchaseByPageNation {
       };
 }
 
-class Content {
+class PurchaseBill {
   String? branchId;
   String? createdBy;
   DateTime? createdDateTime;
@@ -95,8 +95,9 @@ class Content {
   String? updatedBy;
   DateTime? updatedDateTime;
   String? vendorId;
+  String? vendorName;
 
-  Content({
+  PurchaseBill({
     this.branchId,
     this.createdBy,
     this.createdDateTime,
@@ -117,9 +118,10 @@ class Content {
     this.updatedBy,
     this.updatedDateTime,
     this.vendorId,
+    this.vendorName
   });
 
-  factory Content.fromJson(Map<String, dynamic> json) => Content(
+  factory PurchaseBill.fromJson(Map<String, dynamic> json) => PurchaseBill(
         branchId: json["branchId"],
         createdBy: json["createdBy"],
         createdDateTime: json["createdDateTime"] == null
@@ -149,6 +151,7 @@ class Content {
             ? null
             : DateTime.parse(json["updatedDateTime"]),
         vendorId: json["vendorId"],
+         vendorName: json["vendorName"],
       );
 
   Map<String, dynamic> toJson() => {
@@ -175,6 +178,7 @@ class Content {
         "updatedBy": updatedBy,
         "updatedDateTime": updatedDateTime?.toIso8601String(),
         "vendorId": vendorId,
+         "vendorName": vendorName,
       };
 }
 

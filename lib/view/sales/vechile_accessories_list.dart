@@ -434,8 +434,7 @@ class _VehicleAccessoriesListState extends State<VehicleAccessoriesList> {
                   children: [
                     IconButton(
                         onPressed: () {
-                          widget.addSalesBloc.selectedItems
-                              .removeAt(widget.addSalesBloc.salesIndex);
+                          widget.addSalesBloc.selectedItems.removeAt(widget.addSalesBloc.salesIndex);
                           widget.addSalesBloc.filteredVehicleData.add(vehicle);
                           widget.addSalesBloc
                               .selectedSalesStreamController(true);

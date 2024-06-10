@@ -1,6 +1,9 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:tlbilling/api_service/app_service_utils.dart';
+import 'package:tlbilling/models/get_model/get_all_category_model.dart';
+import 'package:tlbilling/models/parent_response_model.dart';
+import 'package:tlbilling/models/post_model/add_purchase_model.dart';
 import 'package:tlbilling/models/purchase_bill_data.dart';
 
 abstract class AddVehicleAndAccessoriesBloc {
@@ -41,7 +44,7 @@ abstract class AddVehicleAndAccessoriesBloc {
   String? get vendorDropDownValue;
 
   String? get selectedPurchaseType;
-  List<Map<String, String>> get engineDetailsList;
+  List<EngineDetails > get engineDetailsList;
 
   Stream get updateEngineDetailsStream;
   Stream get refreshEngineListStream;
@@ -56,13 +59,53 @@ abstract class AddVehicleAndAccessoriesBloc {
   FocusNode get hsnCodeFocusNode;
   FocusNode get unitRateFocusNode;
   FocusNode get partNoFocusNode;
+  FocusNode get vehiceNameFocusNode;
   List<PurchaseBillData> get purchaseBillDataList;
-  Future<List<String>> getAllVendorNameList();
+  Future<ParentResponseModel> getAllVendorNameList();
   List<String> get vendorNamesList;
   ScrollController get engineListScrollController;
   String? get selectedGstType;
 
   Stream<bool> get refreshPurchaseDataTable;
+  Stream<bool> get gstRadioBtnRefreashStream;
+  Stream<bool> get incentiveCheckBoxStream;
+  Stream<bool> get taxValueCheckBoxStream;
+
+  TextEditingController get cgstPresentageTextController;
+  TextEditingController get sgstPresentageTextController;
+  TextEditingController get igstPresentageTextController;
+  TextEditingController get empsIncentiveTextController;
+  TextEditingController get stateIncentiveTextController;
+  TextEditingController get tcsvalueTextController;
+  TextEditingController get discountTextController;
+  TextEditingController get vehicleNameTextController;
+  bool get isEmpsIncChecked;
+  bool get isStateIncChecked;
+
+  bool get isTcsValueChecked;
+  bool get isDiscountChecked;
+  Future<ParentResponseModel> getPurchasePartNoDetails(
+      Function(int) statusCode);
+  Future<void> addNewPurchaseDetails(
+      AddPurchaseModel purchaseData, Function(int) onSuccessCallBack);
+
+  String? get selectedVendorId;
+  double? get totalValue;
+  double? get cgstAmount;
+  double? get sgstAmount;
+  double? get igstAmount;
+  double? get invAmount;
+  double? get taxableValue;
+  double? get totalInvAmount;
+  double? get discountValue;
+  String? get branchId;
+  String? get categoryId;
+  String? get categoryName;
+
+  bool get isAddPurchseBillLoading;
+  CategoryItems? get selectedCategory;
+  Future<GetAllCategoryListModel?> getAllCategoryList();
+  List<String> get gstTypeOptions;
 }
 
 class AddVehicleAndAccessoriesBlocImpl extends AddVehicleAndAccessoriesBloc {
@@ -81,13 +124,18 @@ class AddVehicleAndAccessoriesBlocImpl extends AddVehicleAndAccessoriesBloc {
   final _variantController = TextEditingController();
   final _colorController = TextEditingController();
   final _invoiceDateController = TextEditingController();
+  final _cgstPresentageTextController = TextEditingController();
+  final _sgstPresentageTextController = TextEditingController();
+  final _igstPresentageTextController = TextEditingController();
   final _selectedPurchaseTypeStream = StreamController.broadcast();
   final _engineDetailsStreamController = StreamController.broadcast();
+  final _gstRadioBtnRefreshStreamController =
+      StreamController<bool>.broadcast();
   String? _vendorDropDownValue;
   String? _selectedPurchaseType;
   List<String> selectVendor = ['Ajithkumar', 'Peter', 'Prasath'];
   late Set<String> optionsSet = {selectedPurchaseType ?? ''};
-  final List<Map<String, String>> _engineDetailsList = [];
+  final List<EngineDetails > _engineDetailsList = [];
   final _refreshEngineDetailsListStream = StreamController.broadcast();
   final _frameNumberFocusNode = FocusNode();
   final _inVoiceDateFocusNode = FocusNode();
@@ -99,6 +147,7 @@ class AddVehicleAndAccessoriesBlocImpl extends AddVehicleAndAccessoriesBloc {
   final _colorFocusNode = FocusNode();
   final _hsnCodeFocusNode = FocusNode();
   final _unitRateFocusNode = FocusNode();
+  final _vehicleNameFocusNode = FocusNode();
   final _partNoFocusNode = FocusNode();
   final _purchaseFormKey = GlobalKey<FormState>();
   final List<PurchaseBillData> _purchaseBillDataList = [];
@@ -107,6 +156,32 @@ class AddVehicleAndAccessoriesBlocImpl extends AddVehicleAndAccessoriesBloc {
   var _engineListScrollController = ScrollController();
   String? _selectedGstType;
   final _purchaseDataTable = StreamController<bool>.broadcast();
+  final _incentiveCheckBoxStreamController = StreamController<bool>.broadcast();
+  final _taxValueCheckboxStreamController = StreamController<bool>.broadcast();
+  bool _isEmpsIncChecked = false;
+  bool _isStateIncChecked = false;
+  bool _isTcsValueChecked = false;
+  bool _isDiscountChecked = false;
+  final _tcsValueTextController = TextEditingController();
+  final _discountTextController = TextEditingController();
+  final _empsIncentiveTextController = TextEditingController();
+  final _stateIncentiveTextController = TextEditingController();
+  final _vehicleNameTextController = TextEditingController();
+  CategoryItems? _selectedCategory;
+  String? _selectedVendorId;
+  double? _totalValue;
+  double? _cgstAmount;
+  double? _sgstAmount;
+  double? _igstAmount;
+  double? _invAmount;
+  double? _totalInvAmount;
+  double? _taxableValue;
+  double? _discountValue;
+  String? _branchId;
+  String? _categoryId;
+  String? _categoryName;
+  bool _isAddPurchaseBillLoading = false;
+  final List<String> _gstTypeOptions = ['GST %', 'IGST %'];
 
   @override
   String? get vendorDropDownValue => _vendorDropDownValue;
@@ -185,7 +260,7 @@ class AddVehicleAndAccessoriesBlocImpl extends AddVehicleAndAccessoriesBloc {
   TextEditingController get invoiceDateController => _invoiceDateController;
 
   @override
-  List<Map<String, String>> get engineDetailsList => _engineDetailsList;
+  List<EngineDetails> get engineDetailsList => _engineDetailsList;
 
   @override
   Stream get updateEngineDetailsStream => _engineDetailsStreamController.stream;
@@ -240,7 +315,7 @@ class AddVehicleAndAccessoriesBlocImpl extends AddVehicleAndAccessoriesBloc {
   List<PurchaseBillData> get purchaseBillDataList => _purchaseBillDataList;
 
   @override
-  Future<List<String>> getAllVendorNameList() async {
+  Future<ParentResponseModel> getAllVendorNameList() async {
     return await _apiServices.getAllVendorNameList();
   }
 
@@ -270,5 +345,209 @@ class AddVehicleAndAccessoriesBlocImpl extends AddVehicleAndAccessoriesBloc {
 
   refreshPurchaseDataTableList(bool streamValue) {
     _purchaseDataTable.add(streamValue);
+  }
+
+  @override
+  TextEditingController get cgstPresentageTextController =>
+      _cgstPresentageTextController;
+
+  @override
+  TextEditingController get igstPresentageTextController =>
+      _igstPresentageTextController;
+
+  @override
+  TextEditingController get sgstPresentageTextController =>
+      _sgstPresentageTextController;
+
+  @override
+  bool get isEmpsIncChecked => _isEmpsIncChecked;
+
+  set isEmpsIncChecked(bool checkBoxValue) {
+    _isEmpsIncChecked = checkBoxValue;
+  }
+
+  @override
+  bool get isStateIncChecked => _isStateIncChecked;
+
+  set isStateIncChecked(bool checkBoxValue) {
+    _isStateIncChecked = checkBoxValue;
+  }
+
+  @override
+  TextEditingController get empsIncentiveTextController =>
+      _empsIncentiveTextController;
+
+  @override
+  TextEditingController get stateIncentiveTextController =>
+      _stateIncentiveTextController;
+
+  @override
+  bool get isDiscountChecked => _isDiscountChecked;
+
+  set isDiscountChecked(bool checkBoxValue) {
+    _isDiscountChecked = checkBoxValue;
+  }
+
+  @override
+  bool get isTcsValueChecked => _isTcsValueChecked;
+
+  set isTcsValueChecked(bool checkBoxValue) {
+    _isTcsValueChecked = checkBoxValue;
+  }
+
+  @override
+  TextEditingController get discountTextController => _discountTextController;
+
+  @override
+  TextEditingController get tcsvalueTextController => _tcsValueTextController;
+
+  @override
+  Future<ParentResponseModel> getPurchasePartNoDetails(
+      Function(int) statusCode) async {
+    return await _apiServices.getPurchasePartNoDetails(
+        _partNumberController.text, statusCode);
+  }
+
+  @override
+  TextEditingController get vehicleNameTextController =>
+      _vehicleNameTextController;
+
+  @override
+  FocusNode get vehiceNameFocusNode => _vehicleNameFocusNode;
+
+  @override
+  Future<void> addNewPurchaseDetails(
+      AddPurchaseModel purchaseData, Function(int p1) onSuccessCallBack) async {
+    return await _apiServices.addNewPurchaseDetails(
+        purchaseData, onSuccessCallBack);
+  }
+
+  @override
+  String? get selectedVendorId => _selectedVendorId;
+  set selectedVendorId(String? value) {
+    _selectedVendorId = value;
+  }
+
+  @override
+  double? get cgstAmount => _cgstAmount;
+
+  set cgstAmount(double? value) {
+    _cgstAmount = value;
+  }
+
+  @override
+  double? get igstAmount => _igstAmount;
+
+  set igstAmount(double? value) {
+    _igstAmount = value;
+  }
+
+  @override
+  double? get invAmount => _invAmount;
+
+  set invAmount(double? value) {
+    _invAmount = value;
+  }
+
+  @override
+  double? get sgstAmount => _sgstAmount;
+
+  set sgstAmount(double? value) {
+    _sgstAmount = value;
+  }
+
+  @override
+  double? get totalInvAmount => _totalInvAmount;
+
+  set totalInvAmount(double? value) {
+    _totalInvAmount = value;
+  }
+
+  @override
+  double? get totalValue => _totalValue;
+
+  set totalValue(double? value) {
+    _totalValue = value;
+  }
+
+  @override
+  double? get taxableValue => _taxableValue;
+
+  set taxableValue(double? value) {
+    _taxableValue = value;
+  }
+
+  @override
+  double? get discountValue => _discountValue;
+
+  set discountValue(double? value) {
+    _discountValue = value;
+  }
+
+  @override
+  String? get branchId => _branchId;
+
+  set branchId(String? value) {
+    _branchId = value;
+  }
+
+  @override
+  bool get isAddPurchseBillLoading => _isAddPurchaseBillLoading;
+
+  set isAddPurchseBillLoading(bool value) {
+    _isAddPurchaseBillLoading = value;
+  }
+
+  @override
+  Future<GetAllCategoryListModel?> getAllCategoryList() async {
+    return _apiServices.getAllCategoryList();
+  }
+
+  @override
+  String? get categoryId => _categoryId;
+
+  set categoryId(String? value) {
+    _categoryId = value;
+  }
+
+  @override
+  String? get categoryName => _categoryName;
+
+  set categoryName(String? value) {
+    _categoryName = value;
+  }
+
+  @override
+  CategoryItems? get selectedCategory => _selectedCategory;
+
+  set selectedCategory(CategoryItems? category) {
+    _selectedCategory = category;
+  }
+
+  @override
+  List<String> get gstTypeOptions => _gstTypeOptions;
+
+  @override
+  Stream<bool> get gstRadioBtnRefreashStream =>
+      _gstRadioBtnRefreshStreamController.stream;
+
+  gstRadioBtnRefreshStreamController(bool streamValue) {
+    _gstRadioBtnRefreshStreamController.add(streamValue);
+  }
+
+  @override
+  Stream<bool> get incentiveCheckBoxStream =>
+      _incentiveCheckBoxStreamController.stream;
+
+  incentiveCheckBoxStreamController(bool streamValue) {
+    _incentiveCheckBoxStreamController.add(streamValue);
+  }
+
+  @override
+  Stream<bool> get taxValueCheckBoxStream =>
+      _taxValueCheckboxStreamController.stream;
+
+  taxValueCheckboxStreamController(bool streamValue) {
+    _taxValueCheckboxStreamController.add(streamValue);
   }
 }

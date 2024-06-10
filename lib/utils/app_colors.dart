@@ -43,4 +43,5 @@ class AppColors {
   Color tableTotalAmtRowColor = HexColor('#CBFFE3');
   Color lightBgColor = HexColor('#FAFAFA');
   Color bgHighlightColor = HexColor('#F2E9FF');
+  Color tableTotBtmColor = HexColor('#F2E9FF');
 }

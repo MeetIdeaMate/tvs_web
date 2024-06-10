@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:tlbilling/models/get_model/get_all_vendorName_List.dart';
 import 'package:tlbilling/models/get_model/get_all_branch_model.dart';
 import 'package:tlbilling/models/get_model/get_all_branches_by_pagination.dart';
+import 'package:tlbilling/models/get_model/get_all_category_model.dart';
 import 'package:tlbilling/models/get_model/get_all_customerName_List.dart';
 import 'package:tlbilling/models/get_model/get_all_customer_by_pagination_model.dart';
 import 'package:tlbilling/models/get_model/get_all_customers_model.dart';
@@ -17,6 +18,7 @@ import 'package:tlbilling/models/get_model/get_configuration_list_model.dart';
 import 'package:tlbilling/models/get_model/get_configuration_model.dart';
 import 'package:tlbilling/models/get_model/get_transport_by_pagination.dart';
 import 'package:tlbilling/models/get_model/get_vendor_by_id_model.dart';
+import 'package:tlbilling/models/get_model/purchase_by_partno_model.dart';
 import 'package:tlbilling/models/user_model.dart';
 
 ParentResponseModel parentResponseModelFromJson(String str) =>
@@ -66,7 +68,7 @@ class ResultObj {
   GetEmployeeById? employeeById;
   GetVendorById? vendorById;
   List<GetAllBranchList>? getAllBranchList;
-  GetAllPurchaseByPageNation? getAllPurchaseList;
+  GetAllPurchaseByPageNation? getAllPurchaseByPageNation;
   List<GetAllVendorNameList>? getAllVendorNameList;
   List<GetAllCustomerNameList>? getAllCustomerNameList;
   GetAllBranchesByPaginationModel? getAllBranchesByPaginationModel;
@@ -76,6 +78,8 @@ class ResultObj {
   GetConfigurationModel? getConfigurationModel;
   TransportDetails? transportDetails;
   List<BranchDetail>? branchDetails;
+  PurchaseByPartNoModel? purchaseByPartNo;
+  GetAllCategoryListModel? getAllcategoryList;
 
   ResultObj(
       {this.getAllVendorByPagination,
@@ -87,7 +91,7 @@ class ResultObj {
       this.employeeById,
       this.getAllEmployeesByPaginationModel,
       this.getAllBranchList,
-      this.getAllPurchaseList,
+      this.getAllPurchaseByPageNation,
       this.getAllVendorNameList,
       this.getAllCustomerNameList,
       this.vendorById,
@@ -97,7 +101,9 @@ class ResultObj {
       this.getAllConfigurationListModel,
       this.getConfigurationModel,
       this.transportDetails,
-      this.branchDetails});
+      this.branchDetails,
+      this.purchaseByPartNo,
+      this.getAllcategoryList});
 
   factory ResultObj.fromJson(Map<String, dynamic> json) => ResultObj(
         getAllCustomersByPaginationModel: json['customersWithPage'] != null
@@ -156,8 +162,9 @@ class ResultObj {
         vendorById: json["vendor"] != null
             ? GetVendorById.fromJson(json["vendor"])
             : null,
-        getAllPurchaseList: json['purchaseWithPage'] != null
-            ? GetAllPurchaseByPageNation.fromJson(json['purchaseWithPage'])
+          getAllPurchaseByPageNation: json['purchasesWithPage'] != null
+            ? GetAllPurchaseByPageNation.fromJson(
+                json['purchasesWithPage'])
             : null,
         getAllVendorNameList: json['vendors'] != null
             ? List<GetAllVendorNameList>.from(
@@ -166,6 +173,12 @@ class ResultObj {
         getAllCustomerNameList: json['customers'] != null
             ? List<GetAllCustomerNameList>.from(json['customers']
                 .map((x) => GetAllCustomerNameList.fromJson(x)))
+            : null,
+        purchaseByPartNo: json['ItemDetailByPartNo'] != null
+            ? PurchaseByPartNoModel.fromJson(json['ItemDetailByPartNo'])
+            : null,
+        getAllcategoryList: json['categorysWithPage'] != null
+            ? GetAllCategoryListModel.fromJson(json['categorysWithPage'])
             : null,
       );
 

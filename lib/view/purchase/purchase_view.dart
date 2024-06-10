@@ -1,13 +1,13 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:tlbilling/components/custom_elevated_button.dart';
+import 'package:tlbilling/components/custom_pagenation.dart';
+import 'package:tlbilling/models/get_model/get_all_purchase_model.dart';
 import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/utils/app_util_widgets.dart';
+import 'package:tlbilling/utils/app_utils.dart';
 import 'package:tlbilling/utils/input_formates.dart';
-
 import 'package:tlbilling/view/purchase/add_purchase/add_purchase.dart';
 import 'package:tlbilling/view/purchase/purchase_view_bloc.dart';
 import 'package:tlds_flutter/components/tlds_input_form_field.dart';
@@ -24,26 +24,6 @@ class _PurchaseViewState extends State<PurchaseView>
     with SingleTickerProviderStateMixin {
   final _appColors = AppColor();
   final _purchaseViewBloc = PurchaseViewBlocImpl();
-  List<Map<String, String>> rowData = [
-    {
-      AppConstants.sno: '1',
-      AppConstants.invoiceNo: 'INV-1234',
-      AppConstants.partNo: 'K61916304K',
-      AppConstants.vehicleDescription: 'TVS JUPITER-OBDIIA WALN',
-      AppConstants.hsnCode: '87112019',
-      AppConstants.quantity: '2',
-      AppConstants.totalInvAmount: '₹ 1,000,00',
-    },
-    {
-      AppConstants.sno: '2',
-      AppConstants.invoiceNo: 'INV-1235',
-      AppConstants.partNo: 'K61916304K',
-      AppConstants.vehicleDescription: 'TVS JUPITER-OBDIIA WALN',
-      AppConstants.hsnCode: '87112019',
-      AppConstants.quantity: '1',
-      AppConstants.totalInvAmount: '₹ 1,000,00',
-    },
-  ];
 
   @override
   void initState() {
@@ -123,10 +103,10 @@ class _PurchaseViewState extends State<PurchaseView>
               custWidth: MediaQuery.sizeOf(context).width * 0.01,
             ),
             StreamBuilder(
-              stream: _purchaseViewBloc.hsnCodeSearchFieldControllerStream,
+              stream: _purchaseViewBloc.purchaseRefSearchFieldControllerStream,
               builder: (context, snapshot) {
                 return _buildFormField(
-                  _purchaseViewBloc.hsnCodeSearchFieldController,
+                  _purchaseViewBloc.purchaseRefSearchFieldController,
                   AppConstants.hsnCode,
                   TlInputFormatters.onlyAllowNumbers,
                 );
@@ -194,12 +174,20 @@ class _PurchaseViewState extends State<PurchaseView>
 
   void _checkController(String hintText) {
     if (AppConstants.invoiceNo == hintText) {
+      _purchaseViewBloc.getAllPurchaseList();
+      _purchaseViewBloc.pageNumberUpdateStreamController(0);
       _purchaseViewBloc.invoiceSearchFieldStreamController(true);
     } else if (AppConstants.vehicleNumber == hintText) {
+      _purchaseViewBloc.getAllPurchaseList();
+      _purchaseViewBloc.pageNumberUpdateStreamController(0);
       _purchaseViewBloc.vehicleSearchFieldStreamController(true);
     } else if (AppConstants.partNo == hintText) {
+      _purchaseViewBloc.getAllPurchaseList();
+      _purchaseViewBloc.pageNumberUpdateStreamController(0);
       _purchaseViewBloc.partNoSearchFieldStreamController(true);
     } else if (AppConstants.hsnCode == hintText) {
+      _purchaseViewBloc.getAllPurchaseList();
+      _purchaseViewBloc.pageNumberUpdateStreamController(0);
       _purchaseViewBloc.hsnCodeSearchFieldStreamController(true);
     }
   }
@@ -223,68 +211,126 @@ class _PurchaseViewState extends State<PurchaseView>
         physics: const NeverScrollableScrollPhysics(),
         controller: _purchaseViewBloc.vehicleAndAccessoriesTabController,
         children: [
-          _buildCustomerTableView(context),
-          _buildCustomerTableView(context),
+          _buildPurchseBillTableView(context),
+          _buildPurchseBillTableView(context),
         ],
       ),
     );
   }
 
-  _buildCustomerTableView(BuildContext context) {
-    return SizedBox(
-      width: MediaQuery.of(context).size.width,
-      child: DataTable(
-        key: UniqueKey(),
-        dividerThickness: 0.01,
-        columns: [
-          _buildVehicleTableHeader(
-            AppConstants.sno,
-          ),
-          _buildVehicleTableHeader(AppConstants.invoiceNo),
-          _buildVehicleTableHeader(AppConstants.partNo),
-          _buildVehicleTableHeader(AppConstants.vehicleDescription),
-          _buildVehicleTableHeader(AppConstants.hsnCode),
-          _buildVehicleTableHeader(AppConstants.quantity),
-          _buildVehicleTableHeader(AppConstants.totalInvAmount),
-          _buildVehicleTableHeader(AppConstants.action),
-        ],
-        rows: List.generate(rowData.length, (index) {
-          final data = rowData[index];
-
-          final color = index.isEven
-              ? _appColors.whiteColor
-              : _appColors.transparentBlueColor;
-          return DataRow(
-            color: MaterialStateColor.resolveWith((states) => color),
-            cells: [
-              DataCell(Text(data[AppConstants.sno]!)),
-              DataCell(Text(data[AppConstants.invoiceNo]!)),
-              DataCell(Text(data[AppConstants.partNo]!)),
-              DataCell(Text(data[AppConstants.vehicleDescription]!)),
-              DataCell(Text(data[AppConstants.hsnCode]!)),
-              DataCell(Text(data[AppConstants.quantity]!)),
-              DataCell(Text(data[AppConstants.totalInvAmount]!)),
-              DataCell(
-                Row(
+  _buildPurchseBillTableView(BuildContext context) {
+    return StreamBuilder<int>(
+      stream: _purchaseViewBloc.pageNumberStream,
+      initialData: _purchaseViewBloc.currentPage,
+      builder: (context, streamSnapshot) {
+        int currentPage = streamSnapshot.data ?? 0;
+        if (currentPage < 0) currentPage = 0;
+        _purchaseViewBloc.currentPage = currentPage;
+        return FutureBuilder(
+          future: _purchaseViewBloc.getAllPurchaseList(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(child: AppWidgetUtils.buildLoading());
+            } else if (snapshot.hasData) {
+              GetAllPurchaseByPageNation employeeListmodel = snapshot.data!;
+              List<PurchaseBill> purchasedata = snapshot.data?.content ?? [];
+              return Expanded(
+                child: Column(
                   children: [
-                    IconButton(
-                      icon: SvgPicture.asset(AppConstants.icEdit),
-                      onPressed: () {},
+                    Expanded(
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: SingleChildScrollView(
+                          child: DataTable(
+                            dividerThickness: 0.01,
+                            columns: [
+                              _buildVehicleTableHeader(AppConstants.sno),
+                              _buildVehicleTableHeader(AppConstants.purchaseID),
+                              _buildVehicleTableHeader(
+                                  AppConstants.purchaseRef),
+                              _buildVehicleTableHeader(AppConstants.invoiceNo),
+                              _buildVehicleTableHeader(
+                                  AppConstants.invoiceDate),
+                              _buildVehicleTableHeader(AppConstants.vendorName),
+                              _buildVehicleTableHeader(AppConstants.quantity),
+                              _buildVehicleTableHeader(AppConstants.gstType),
+                              _buildVehicleTableHeader(
+                                  AppConstants.totalInvAmount),
+                              _buildVehicleTableHeader(AppConstants.action),
+                            ],
+                            rows: purchasedata.asMap().entries.map((entry) {
+                              return DataRow(
+                                color: MaterialStateColor.resolveWith((states) {
+                                  return entry.key % 2 == 0
+                                      ? Colors.white
+                                      : _appColors.transparentBlueColor;
+                                }),
+                                cells: [
+                                  _buildTableRow('${entry.key + 1}'),
+                                  _buildTableRow(entry.value.pOrderRefNo),
+                                  _buildTableRow(entry.value.purchaseNo),
+                                  _buildTableRow(entry.value.pInvoiceNo),
+                                  _buildTableRow(AppUtils.apiToAppDateFormat(
+                                      entry.value.pInvoiceDate.toString())),
+                                  _buildTableRow(entry.value.vendorName),
+                                  _buildTableRow(
+                                      entry.value.totalQty.toString()),
+                                  _buildTableRow(
+                                      entry.value.gstType.toString()),
+                                  _buildTableRow(AppUtils.formatCurrency(entry
+                                          .value.finalTotalInvoiceAmount
+                                          ?.toDouble() ??
+                                      0.0)),
+                                  DataCell(
+                                    Row(
+                                      children: [
+                                        IconButton(
+                                          icon: SvgPicture.asset(
+                                              AppConstants.icEdit),
+                                          onPressed: () {},
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              );
+                            }).toList(),
+                          ),
+                        ),
+                      ),
+                    ),
+                    CustomPagination(
+                      itemsOnLastPage: employeeListmodel.totalElements ?? 0,
+                      currentPage: currentPage,
+                      totalPages: employeeListmodel.totalPages ?? 0,
+                      onPageChanged: (pageValue) {
+                        _purchaseViewBloc
+                            .pageNumberUpdateStreamController(pageValue);
+                      },
                     ),
                   ],
                 ),
-              ),
-            ],
-          );
-        }),
-      ),
+              );
+            } else {
+              return Center(child: SvgPicture.asset(AppConstants.imgNoData));
+            }
+          },
+        );
+      },
     );
   }
 
-  _buildVehicleTableHeader(String headerValue) => DataColumn(
-        label: Text(
-          headerValue,
-          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-        ),
-      );
+  DataCell _buildTableRow(String? text) => DataCell(Text(
+        text ?? '',
+        style: const TextStyle(fontSize: 14),
+      ));
+
+  _buildVehicleTableHeader(String headerValue) {
+    return DataColumn(
+      label: Text(
+        headerValue,
+        style: const TextStyle(fontWeight: FontWeight.bold),
+      ),
+    );
+  }
 }

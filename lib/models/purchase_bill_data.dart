@@ -1,33 +1,12 @@
 class PurchaseBillData {
-  String? vendorName;
-  String? invoiceNo;
-  String? invoiceDate;
-  String? purchaseRef;
-  String? gstType;
-  String? carrierName;
-  String? carrierNumber;
   List<VehicleDetails>? vehicleDetails;
 
   PurchaseBillData({
-    this.vendorName,
-    this.invoiceNo,
-    this.invoiceDate,
-    this.purchaseRef,
-    this.gstType,
-    this.carrierName,
-    this.carrierNumber,
     this.vehicleDetails,
   });
 
   Map<String, dynamic> toJson() {
     return {
-      "vendorName": vendorName,
-      "invoiceDate": invoiceDate,
-      "purchaseref": purchaseRef,
-      "gstType": gstType,
-      "carrierName": carrierName,
-      "carrierNumber": carrierNumber,
-      "invoiceNo": invoiceNo,
       "vehicleDetails": vehicleDetails?.map((v) => v.toJson()).toList(),
     };
   }
@@ -35,39 +14,90 @@ class PurchaseBillData {
 
 class VehicleDetails {
   int partNo;
+  String? categoryId;
   String vehicleName;
-  String varient;
-  String color;
   int hsnCode;
-  int unitRate;
+  double unitRate;
+  double? totalValue;
+  double? taxableValue;
+  int qty;
+  String? gstType;
+  double? cgstPercentage;
+  double? cgstAmount;
+  double? sgstPercentage;
+  double? sgstAmount;
+  double? igstPercentage;
+  double? igstAmount;
+  double? empsIncentive;
+  String? incentiveType;
+  double? stateIncentive;
+  double? tcsValue;
+  double? invoiceValue;
+  double? discountValue;
+  double? discountPresentage;
+  double? totalInvoiceValue;
   List<EngineDetails> engineDetails;
 
   VehicleDetails({
     required this.partNo,
     required this.vehicleName,
-    required this.varient,
-    required this.color,
     required this.hsnCode,
     required this.unitRate,
+    required this.qty,
+    this.totalValue,
+    this.taxableValue,
+    this.gstType,
+    this.cgstPercentage,
+    this.cgstAmount,
+    this.sgstPercentage,
+    this.sgstAmount,
+    this.igstPercentage,
+    this.igstAmount,
+    this.incentiveType,
+    this.empsIncentive,
+    this.discountPresentage,
+    this.stateIncentive,
+    this.tcsValue,
+    this.invoiceValue,
+    this.discountValue,
+    this.totalInvoiceValue,
     required this.engineDetails,
+    this.categoryId
   });
 
   Map<String, dynamic> toJson() {
     return {
       "partNo": partNo,
       "vehicleName": vehicleName,
-      "varient": varient,
-      "color": color,
       "hsnCode": hsnCode,
       "unitRate": unitRate,
+      "totalValue": totalValue,
+      "taxableValue": taxableValue,
+      "qty": qty,
+      "gstType": gstType,
+      "cgstPercentage": cgstPercentage ,
+      "cgstAmount": cgstAmount,
+      "sgstPercentage": sgstPercentage,
+      "sgstAmount": sgstAmount,
+      "igstPercentage": igstPercentage,
+      "igstAmount": igstAmount,
+      "incentiveType": incentiveType,
+      "empsIncentive": empsIncentive,
+      "categoryId": categoryId,
+      "stateIncentive": stateIncentive,
+      "tcsValue": tcsValue,
+      "invoiceValue": invoiceValue,
+      "discountValue": discountValue ?? 0.0,
+      "discountPresentage": discountPresentage ?? 0.0,
+      "totalInvoiceValue": totalInvoiceValue,
       "engineDetails": engineDetails.map((e) => e.toJson()).toList(),
     };
   }
 }
 
 class EngineDetails {
-  int engineNo;
-  int frameNo;
+  String engineNo;
+  String frameNo;
 
   EngineDetails({
     required this.engineNo,
