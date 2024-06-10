@@ -64,7 +64,7 @@ class ItemDetail {
       'gstDetails': gstDetails.map((i) => i.toJson()).toList(),
       'incentives': incentives.map((i) => i.toJson()).toList(),
       'itemName': itemName,
-      'mainSpecInfos': mainSpecInfos,
+      'mainSpecValues': mainSpecInfos,
       'partNo': partNo,
       'quantity': quantity,
       'specificationsValue': specificationsValue.toJson(),

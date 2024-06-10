@@ -425,9 +425,6 @@ class AppConstants {
   static const partNoErrorDes = 'No Part Details for this';
   static const discount = 'Discount';
   static const purchaseID = 'Purchase Id';
-  static const enterColor = 'Please Enter Color';
-  static const enterHsnCode = 'Please Enter HSN Code';
-  static const enterUnitRate = 'Please Enter Unit Rate';
 
   //insurnse
 
