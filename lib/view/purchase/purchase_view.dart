@@ -234,82 +234,80 @@ class _PurchaseViewState extends State<PurchaseView>
             } else if (snapshot.hasData) {
               GetAllPurchaseByPageNation employeeListmodel = snapshot.data!;
               List<PurchaseBill> purchasedata = snapshot.data?.content ?? [];
-              return Expanded(
-                child: Column(
-                  children: [
-                    Expanded(
+              return Column(
+                children: [
+                  Expanded(
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
                       child: SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: SingleChildScrollView(
-                          child: DataTable(
-                            dividerThickness: 0.01,
-                            columns: [
-                              _buildVehicleTableHeader(AppConstants.sno),
-                              _buildVehicleTableHeader(AppConstants.purchaseID),
-                              _buildVehicleTableHeader(
-                                  AppConstants.purchaseRef),
-                              _buildVehicleTableHeader(AppConstants.invoiceNo),
-                              _buildVehicleTableHeader(
-                                  AppConstants.invoiceDate),
-                              _buildVehicleTableHeader(AppConstants.vendorName),
-                              _buildVehicleTableHeader(AppConstants.quantity),
-                              _buildVehicleTableHeader(AppConstants.gstType),
-                              _buildVehicleTableHeader(
-                                  AppConstants.totalInvAmount),
-                              _buildVehicleTableHeader(AppConstants.action),
-                            ],
-                            rows: purchasedata.asMap().entries.map((entry) {
-                              return DataRow(
-                                color: MaterialStateColor.resolveWith((states) {
-                                  return entry.key % 2 == 0
-                                      ? Colors.white
-                                      : _appColors.transparentBlueColor;
-                                }),
-                                cells: [
-                                  _buildTableRow('${entry.key + 1}'),
-                                  _buildTableRow(entry.value.pOrderRefNo),
-                                  _buildTableRow(entry.value.purchaseNo),
-                                  _buildTableRow(entry.value.pInvoiceNo),
-                                  _buildTableRow(AppUtils.apiToAppDateFormat(
-                                      entry.value.pInvoiceDate.toString())),
-                                  _buildTableRow(entry.value.vendorName),
-                                  _buildTableRow(
-                                      entry.value.totalQty.toString()),
-                                  _buildTableRow(
-                                      entry.value.gstType.toString()),
-                                  _buildTableRow(AppUtils.formatCurrency(entry
-                                          .value.finalTotalInvoiceAmount
-                                          ?.toDouble() ??
-                                      0.0)),
-                                  DataCell(
-                                    Row(
-                                      children: [
-                                        IconButton(
-                                          icon: SvgPicture.asset(
-                                              AppConstants.icEdit),
-                                          onPressed: () {},
-                                        ),
-                                      ],
-                                    ),
+                        child: DataTable(
+                          dividerThickness: 0.01,
+                          columns: [
+                            _buildVehicleTableHeader(AppConstants.sno),
+                            _buildVehicleTableHeader(AppConstants.purchaseID),
+                            _buildVehicleTableHeader(
+                                AppConstants.purchaseRef),
+                            _buildVehicleTableHeader(AppConstants.invoiceNo),
+                            _buildVehicleTableHeader(
+                                AppConstants.invoiceDate),
+                            _buildVehicleTableHeader(AppConstants.vendorName),
+                            _buildVehicleTableHeader(AppConstants.quantity),
+                            _buildVehicleTableHeader(AppConstants.gstType),
+                            _buildVehicleTableHeader(
+                                AppConstants.totalInvAmount),
+                            _buildVehicleTableHeader(AppConstants.action),
+                          ],
+                          rows: purchasedata.asMap().entries.map((entry) {
+                            return DataRow(
+                              color: MaterialStateColor.resolveWith((states) {
+                                return entry.key % 2 == 0
+                                    ? Colors.white
+                                    : _appColors.transparentBlueColor;
+                              }),
+                              cells: [
+                                _buildTableRow('${entry.key + 1}'),
+                                _buildTableRow(entry.value.pOrderRefNo),
+                                _buildTableRow(entry.value.purchaseNo),
+                                _buildTableRow(entry.value.pInvoiceNo),
+                                _buildTableRow(AppUtils.apiToAppDateFormat(
+                                    entry.value.pInvoiceDate.toString())),
+                                _buildTableRow(entry.value.vendorName),
+                                _buildTableRow(
+                                    entry.value.totalQty.toString()),
+                                _buildTableRow(
+                                    entry.value.gstType.toString()),
+                                _buildTableRow(AppUtils.formatCurrency(entry
+                                    .value.finalTotalInvoiceAmount
+                                    ?.toDouble() ??
+                                    0.0)),
+                                DataCell(
+                                  Row(
+                                    children: [
+                                      IconButton(
+                                        icon: SvgPicture.asset(
+                                            AppConstants.icEdit),
+                                        onPressed: () {},
+                                      ),
+                                    ],
                                   ),
-                                ],
-                              );
-                            }).toList(),
-                          ),
+                                ),
+                              ],
+                            );
+                          }).toList(),
                         ),
                       ),
                     ),
-                    CustomPagination(
-                      itemsOnLastPage: employeeListmodel.totalElements ?? 0,
-                      currentPage: currentPage,
-                      totalPages: employeeListmodel.totalPages ?? 0,
-                      onPageChanged: (pageValue) {
-                        _purchaseViewBloc
-                            .pageNumberUpdateStreamController(pageValue);
-                      },
-                    ),
-                  ],
-                ),
+                  ),
+                  CustomPagination(
+                    itemsOnLastPage: employeeListmodel.totalElements ?? 0,
+                    currentPage: currentPage,
+                    totalPages: employeeListmodel.totalPages ?? 0,
+                    onPageChanged: (pageValue) {
+                      _purchaseViewBloc
+                          .pageNumberUpdateStreamController(pageValue);
+                    },
+                  ),
+                ],
               );
             } else {
               return Center(child: SvgPicture.asset(AppConstants.imgNoData));
