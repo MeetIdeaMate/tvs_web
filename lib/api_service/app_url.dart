@@ -12,10 +12,13 @@ class AppUrl {
   static const employee = '${baseUrl}employee';
   static const employeeByPagination = '${baseUrl}employee/getByPagination?';
   static const updateUserStatus = '${baseUrl}user/status/';
-    static const purchaseByPagenation = '${baseUrl}purchase/page';
-    static const vendorNameList = '${baseUrl}vendor';
+  static const purchaseByPagenation = '${baseUrl}purchase/page';
+  static const vendorNameList = '${baseUrl}vendor';
   static const transport = '${baseUrl}transport/';
   static String getAllConfigList = '${baseUrl}config/getAll';
   static const vendorByPagination = '${baseUrl}vendor/page?';
   static const addVendor = '${baseUrl}vendor';
+  static const purchase = '${baseUrl}purchase';
+  static const purchaseByPartNo = '${baseUrl}purchase/ByPartNo/';
+  static const category = '${baseUrl}category/page?page=0&size=10';
 }

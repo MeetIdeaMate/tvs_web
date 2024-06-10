@@ -1,12 +1,16 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:tlbilling/models/parent_response_model.dart';
+import 'package:tlbilling/models/purchase_bill_data.dart';
 import 'package:tlbilling/utils/input_formates.dart';
 import 'package:tlds_flutter/export.dart';
 
 import 'package:tlbilling/utils/app_colors.dart';
 import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/view/purchase/add_purchase/add_vehicle_and_accesories/add_vehicle_and_accessories_bloc.dart';
+import 'package:toastification/toastification.dart';
 
 class VehiclePurchaseDetails extends StatefulWidget {
   AddVehicleAndAccessoriesBlocImpl addVehicleAndAccessoriesBloc;
@@ -21,7 +25,6 @@ class VehiclePurchaseDetails extends StatefulWidget {
 
 class _VehiclePurchaseDetailsState extends State<VehiclePurchaseDetails> {
   final _appColors = AppColors();
-  final List<String> vehicleAndAccessories = ['Vehicle', 'Accessories'];
 
   @override
   void initState() {
@@ -52,7 +55,11 @@ class _VehiclePurchaseDetailsState extends State<VehiclePurchaseDetails> {
       children: [
         _buildVehiclePurchaseDetails(),
         _buildDefaultHeight(),
-        _buildEngineDetails(),
+        Visibility(
+            visible: widget
+                    .addVehicleAndAccessoriesBloc.selectedCategory?.mainSpec !=
+                null,
+            child: _buildEngineDetails()),
       ],
     );
   }
@@ -66,104 +73,67 @@ class _VehiclePurchaseDetailsState extends State<VehiclePurchaseDetails> {
         padding: const EdgeInsets.all(12),
         child: Column(
           children: [
-            _buildPartNumberAndVehicleName(),
+            TldsInputFormField(
+              validator: (String? value) {
+                if (value == null || value.isEmpty) {
+                  return AppConstants.enterPartNo;
+                }
+                return null;
+              },
+              inputFormatters: TlInputFormatters.onlyAllowAlphabetAndNumber,
+              focusNode: widget.addVehicleAndAccessoriesBloc.partNoFocusNode,
+              labelText: AppConstants.partNo,
+              hintText: AppConstants.partNo,
+              controller:
+                  widget.addVehicleAndAccessoriesBloc.partNumberController,
+              onSubmit: (partNumberValue) {
+                widget.addVehicleAndAccessoriesBloc.getPurchasePartNoDetails(
+                  (statusCode) {
+                    if (statusCode == 401 || statusCode == 400) {
+                      AppWidgetUtils.buildToast(
+                          context,
+                          ToastificationType.error,
+                          AppConstants.partNoError,
+                          Icon(Icons.check_circle_outline_rounded,
+                              color: _appColors.errorColor),
+                          AppConstants.partNoErrorDes,
+                          _appColors.errorLightColor);
+                    }
+                  },
+                ).then((partDetails) {
+                  _getAndSetValuesForInputFields(partDetails);
+                });
+                FocusScope.of(context).requestFocus(
+                    widget.addVehicleAndAccessoriesBloc.vehiceNameFocusNode);
+              },
+            ),
+            AppWidgetUtils.buildSizedBox(custHeight: 10),
+            TldsInputFormField(
+              validator: (String? value) {
+                if (value == null || value.isEmpty) {
+                  return AppConstants.enterVehiceName;
+                }
+                return null;
+              },
+              // inputFormatters: TlInputFormatters.onlyAllowAlphabetsAndSpaces,
+              focusNode:
+                  widget.addVehicleAndAccessoriesBloc.vehiceNameFocusNode,
+              labelText: AppConstants.vehicleName,
+              hintText: AppConstants.vehicleName,
+              controller:
+                  widget.addVehicleAndAccessoriesBloc.vehicleNameTextController,
+              onSubmit: (p0) {
+                FocusScope.of(context).requestFocus(
+                    widget.addVehicleAndAccessoriesBloc.hsnCodeFocusNode);
+              },
+            ),
             _buildDefaultHeight(),
-            _buildVariantAndColor(),
             _buildDefaultHeight(),
             _buildHSNCodeAndUniteRate(),
             _buildDefaultHeight(),
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildPartNumberAndVehicleName() {
-    return Row(
-      children: [
-        Expanded(
-            child: TldsInputFormField(
-                validator: (String? value) {
-                  if (value == null || value.isEmpty) {
-                    return AppConstants.enterPartNo;
-                  }
-                  return null;
-                },
-                inputFormatters:  TlInputFormatters.onlyAllowNumbers,
-                focusNode: widget.addVehicleAndAccessoriesBloc.partNoFocusNode,
-                labelText: AppConstants.partNo,
-                hintText: AppConstants.partNo,
-                controller:
-                    widget.addVehicleAndAccessoriesBloc.partNumberController)),
-        _buildDefaultWidth(),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildTextWidget(AppConstants.vehicleName, fontSize: 14),
-            AppWidgetUtils.buildSizedBox(
-                custHeight: MediaQuery.sizeOf(context).height * 0.01),
-            TldsDropDownButtonFormField(
-              validator: (String? value) {
-                if (value == null || value.isEmpty) {
-                  return AppConstants.selectVehiceName;
-                }
-                return null;
-              },
-              width: MediaQuery.sizeOf(context).width * 0.165,
-              hintText: AppConstants.vehicleName,
-              dropDownItems: widget.addVehicleAndAccessoriesBloc.selectVendor,
-              onChange: (String? newValue) {
-                widget.addVehicleAndAccessoriesBloc.vendorDropDownValue =
-                    newValue ?? '';
-              },
-            )
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildVariantAndColor() {
-    return Row(
-      children: [
-        Expanded(
-            child: TldsInputFormField(
-          validator: (String? value) {
-            if (value == null || value.isEmpty) {
-              return AppConstants.enterVarient;
-            }
-            return null;
-          },
-          inputFormatters: TlInputFormatters.onlyAllowAlphabetAndNumber,
-          focusNode: widget.addVehicleAndAccessoriesBloc.varientFocusNode,
-          labelText: AppConstants.variant,
-          hintText: AppConstants.variant,
-          controller: widget.addVehicleAndAccessoriesBloc.variantController,
-          onSubmit: (p0) {
-            FocusScope.of(context).requestFocus(
-                widget.addVehicleAndAccessoriesBloc.colorFocusNode);
-          },
-        )),
-        _buildDefaultWidth(),
-        Expanded(
-            child: TldsInputFormField(
-          validator: (String? value) {
-            if (value == null || value.isEmpty) {
-              return AppConstants.enterColor;
-            }
-            return null;
-          },
-          focusNode: widget.addVehicleAndAccessoriesBloc.colorFocusNode,
-          inputFormatters: TlInputFormatters.onlyAllowAlphabets,
-          labelText: AppConstants.color,
-          hintText: AppConstants.color,
-          controller: widget.addVehicleAndAccessoriesBloc.colorController,
-          onSubmit: (p0) {
-            FocusScope.of(context).requestFocus(
-                widget.addVehicleAndAccessoriesBloc.hsnCodeFocusNode);
-          },
-        )),
-      ],
     );
   }
 
@@ -297,8 +267,8 @@ class _VehiclePurchaseDetailsState extends State<VehiclePurchaseDetails> {
               itemBuilder: (context, index) {
                 final engineDetails = widget
                     .addVehicleAndAccessoriesBloc.engineDetailsList[index];
-                final engineNo = engineDetails['engineNo'] ?? '';
-                final frameNo = engineDetails['frameNo'] ?? '';
+                final engineNo = engineDetails.engineNo;
+                final frameNo = engineDetails.frameNo;
                 return Card(
                     elevation: 0,
                     shape: OutlineInputBorder(
@@ -361,13 +331,11 @@ class _VehiclePurchaseDetailsState extends State<VehiclePurchaseDetails> {
   }
 
   _engineNumberAndFrameNumberOnSubmit() {
-    final engineAndFrameNoMap = {
-      "engineNo":
-          widget.addVehicleAndAccessoriesBloc.engineNumberController.text,
-      "frameNo": widget.addVehicleAndAccessoriesBloc.frameNumberController.text
-    };
-    widget.addVehicleAndAccessoriesBloc.engineDetailsList
-        .add(engineAndFrameNoMap);
+    widget.addVehicleAndAccessoriesBloc.engineDetailsList.add(EngineDetails(
+        engineNo:
+            widget.addVehicleAndAccessoriesBloc.engineNumberController.text,
+        frameNo:
+            widget.addVehicleAndAccessoriesBloc.frameNumberController.text));
     widget.addVehicleAndAccessoriesBloc.engineDetailsStreamController(true);
     widget.addVehicleAndAccessoriesBloc
         .refreshEngineDetailsListStramController(true);
@@ -375,5 +343,82 @@ class _VehiclePurchaseDetailsState extends State<VehiclePurchaseDetails> {
     widget.addVehicleAndAccessoriesBloc.engineNumberController.clear();
     FocusScope.of(context)
         .requestFocus(widget.addVehicleAndAccessoriesBloc.engineNoFocusNode);
+  }
+
+  void _getAndSetValuesForInputFields(ParentResponseModel partDetails) {
+    var vehchileById = partDetails.result?.purchaseByPartNo;
+
+    setState(() {
+      widget.addVehicleAndAccessoriesBloc.vehicleNameTextController.text =
+          vehchileById?.itemName ?? '';
+
+      widget.addVehicleAndAccessoriesBloc.hsnCodeController.text =
+          vehchileById.hashCode.toString();
+
+      widget.addVehicleAndAccessoriesBloc.unitRateController.text =
+          vehchileById?.unitRate.toString() ?? '';
+
+      // Set GST values
+      for (var gstDetail in vehchileById?.gstDetails ?? []) {
+        if (gstDetail.gstName == 'CGST' || gstDetail.gstName == 'SGST') {
+          widget.addVehicleAndAccessoriesBloc.selectedGstType =
+              AppConstants.gstPercent;
+          widget.addVehicleAndAccessoriesBloc
+              .gstRadioBtnRefreshStreamController(true);
+          widget.addVehicleAndAccessoriesBloc.cgstPresentageTextController
+              .text = gstDetail.percentage?.toString() ?? '';
+          widget.addVehicleAndAccessoriesBloc.sgstPresentageTextController
+              .text = gstDetail.percentage?.toString() ?? '';
+        } else {
+          widget.addVehicleAndAccessoriesBloc.selectedGstType =
+              AppConstants.igstPercent;
+          widget.addVehicleAndAccessoriesBloc
+              .gstRadioBtnRefreshStreamController(true);
+          widget.addVehicleAndAccessoriesBloc.igstPresentageTextController
+              .text = gstDetail.percentage?.toString() ?? '';
+        }
+      }
+
+      // Set incentives
+      for (var incentive in vehchileById?.incentives ?? []) {
+        if (incentive.incentiveName == 'StateIncentive') {
+          widget.addVehicleAndAccessoriesBloc.isStateIncChecked = true;
+
+          widget.addVehicleAndAccessoriesBloc
+              .incentiveCheckBoxStreamController(true);
+          widget.addVehicleAndAccessoriesBloc.stateIncentiveTextController
+              .text = incentive.incentiveAmount?.toString() ?? '';
+        } else if (incentive.incentiveName == 'EMPS 2024 Incentive') {
+          widget.addVehicleAndAccessoriesBloc.isEmpsIncChecked = true;
+          widget.addVehicleAndAccessoriesBloc
+              .incentiveCheckBoxStreamController(true);
+          widget.addVehicleAndAccessoriesBloc.empsIncentiveTextController.text =
+              incentive.incentiveAmount?.toString() ?? '';
+        }
+      }
+
+      // Set taxes
+      for (var tax in vehchileById?.taxes ?? []) {
+        if (tax.taxName == 'TcsValue') {
+          widget.addVehicleAndAccessoriesBloc.isTcsValueChecked = true;
+          widget.addVehicleAndAccessoriesBloc
+              .taxValueCheckboxStreamController(true);
+          widget.addVehicleAndAccessoriesBloc.tcsvalueTextController.text =
+              tax.taxAmount?.toString() ?? '';
+          widget.addVehicleAndAccessoriesBloc.isTcsValueChecked =
+              tax.percentage > 0;
+        }
+      }
+
+      // Update total values
+      widget.addVehicleAndAccessoriesBloc.totalValue =
+          vehchileById?.value?.toDouble();
+      widget.addVehicleAndAccessoriesBloc.discountValue =
+          vehchileById?.discount?.toDouble();
+      widget.addVehicleAndAccessoriesBloc.taxableValue =
+          vehchileById?.taxableValue?.toDouble();
+      widget.addVehicleAndAccessoriesBloc.totalInvAmount =
+          vehchileById?.finalInvoiceValue?.toDouble();
+    });
   }
 }

@@ -7,6 +7,7 @@ class AppConstants {
   static const yes = 'Yes';
   static const cancel = 'Cancel';
   static const save = 'Save';
+  static const preview = 'Preview';
   static const delete = 'Delete';
   static const female = 'Female';
   static const male = 'male';
@@ -20,6 +21,7 @@ class AppConstants {
   static const userId = 'userId';
   static const userName = 'userName';
   static const useRefId = 'useRefId';
+  static const branchId = 'branchId';
   static const all = 'All';
   static const today = 'Today';
   static const pending = 'Pending';
@@ -231,7 +233,7 @@ class AppConstants {
   static const selectVendor = 'Select Vendor';
   static const purchaseRef = 'Purchase Ref';
   static const purchaseOrderRef = 'Purchase Order Ref';
-  static const gstPercent = 'GST(%)';
+  static const gstPercent = 'GST %';
   static const unitRate = 'Unit Rate (Rs)';
   static const carrier = 'Carrier';
   static const carrierNumber = 'Carrier Number';
@@ -306,6 +308,10 @@ class AppConstants {
   static const loginSuccess = 'Login Success';
   static const loginFailed = 'Login Failed';
   static const loginToApplication = 'Login to application';
+  static const purchaseBillScc = 'Purchase bill added successfully!';
+  static const purchaseBillDescScc = 'Purchase bill added to the view table';
+  static const purchaseBillerr = 'Cant create purchase bill';
+  static const purchaseBillDescerr = 'Somthing went wrong creating purchase bill';
   static const invalidUser = 'Invalid user found or inactive';
   static const branchCreated = 'Branch Created';
   static const branchCreatedSuccessFully = 'Branch created successFully';
@@ -317,7 +323,6 @@ class AppConstants {
   static const transportCreatedSuccessFully = 'Branch created successFully';
   static const transportUpdate = 'Transport Update';
   static const transportUpdatedSuccessFully = 'Branch updated successFully';
-
 
   static const somethingWentWrong = 'Something went wrong try again...!';
   static const customerUpdate = 'Customer Update';
@@ -367,17 +372,28 @@ class AppConstants {
   static const String partNumber = 'Part Number';
 
   static const String totalValue = 'Total Value';
-  static const String discount = 'Discount';
+  static const String discountPresentage = 'Disc %';
+  static const String discountAmount = 'Disc ₹';
   static const String taxableValue = 'Taxable Value';
   static const String cgstPercent = 'CGST %';
   static const String cgstAmount = 'CGST ₹';
   static const String sgstPercent = 'SGST %';
   static const String sgstAmount = 'SGST ₹';
-
+  static const String igstPercent = 'IGST %';
+  static const String igstAmount = 'IGST ₹';
+  static const String tcsValue = 'TCS Value';
+  static const String invValue = 'INV Value';
+  static const String empsIncetive = 'EMPS 2024 Incentive';
+  static const String stateIncetive = 'State Incentive';
+  static const String totInvVal = 'Tot Inv Value';
+  static const String empsInc = 'EMPS Inc';
+  static const String stateInc = 'State Inc';
   //Pagenation
 
   static const gstType = 'GST Type';
-
+  static const gstDetails = 'GST Details';
+  static const incentives = 'Incentives';
+  static const otherDetails = 'Other Details';
   static const customerDetails = 'Customer Details';
   static const selectCustomer = 'Select Customer';
   static const paymentDetails = 'Payment Method';
@@ -398,9 +414,14 @@ class AppConstants {
   static const selectInvoiceDate = 'Please Select Invoice Date';
   static const enterPurchaseRefNo = 'Please Enter Purchase Ref No';
   static const enterPartNo = 'Please Enter Part No';
-  static const selectVehiceName = 'Please Select Vehicle Name';
+  static const enterVehiceName = 'Please Enter Vehicle Name';
   static const enterVarient = 'Please Enter Varient';
-    static const enterColor = 'Please Enter Color';
-    static const enterHsnCode = 'Please Enter HSN Code';
-    static const enterUnitRate = 'Please Enter Unit Rate';
+  static const enterColor = 'Please Enter Color';
+  static const enterHsnCode = 'Please Enter HSN Code';
+  static const enterUnitRate = 'Please Enter Unit Rate';
+
+  static const partNoError = 'There is No Part No';
+  static const partNoErrorDes = 'No Part Details for this';
+  static const discount = 'Discount';
+  static const purchaseID = 'Purchase Id';
 }

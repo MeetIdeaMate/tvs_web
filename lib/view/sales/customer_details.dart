@@ -163,17 +163,25 @@ class _CustomerDetailsState extends State<CustomerDetails> {
         FutureBuilder(
           future: widget.addSalesBloc.getAllCustomerList(),
           builder: (context, snapshot) {
-            return Expanded(
-              child: TldsDropDownButtonFormField(
-                dropDownValue: widget.addSalesBloc.selectedCustomer,
-                height: 40,
-                width: MediaQuery.sizeOf(context).width * 0.21,
-                hintText: AppConstants.selectCustomer,
-                dropDownItems: const [],
-                onChange: (String? newValue) {
-                  widget.addSalesBloc.selectedCustomer = newValue;
-                },
-              ),
+            var customerList = snapshot.data?.result?.getAllCustomerNameList;
+            List<String>? customerNamesList =
+                customerList?.map((e) => e.customerName ?? '').toList();
+            return TldsDropDownButtonFormField(
+              validator: (String? value) {
+                if (value == null || value.isEmpty) {
+                  return AppConstants.selectCustomer;
+                }
+                return null;
+              },
+              width: MediaQuery.sizeOf(context).width * 0.22,
+              hintText: AppConstants.selectCustomer,
+              dropDownItems: customerNamesList ?? [],
+              onChange: (String? newValue) {
+                var selectedVendor = customerList!.firstWhere(
+                    (customer) => customer.customerName == newValue);
+                widget.addSalesBloc.selectedCustomerId =
+                    selectedVendor.customerId;
+              },
             );
           },
         ),

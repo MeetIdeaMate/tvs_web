@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:tlbilling/api_service/app_service_utils.dart';
 import 'package:tlbilling/models/get_model/get_all_customerName_List.dart';
+import 'package:tlbilling/models/parent_response_model.dart';
 import 'package:tlbilling/utils/app_constants.dart';
 
 abstract class AddSalesBloc {
@@ -32,12 +33,13 @@ abstract class AddSalesBloc {
   bool get isInsurenceChecked;
   String? get selectedPaymentOption;
 
-  Future<List<GetAllCustomerNameList>> getAllCustomerList();
+  Future<ParentResponseModel> getAllCustomerList();
 
   Future<List<String>> getPaymentmethods();
   Stream<List<Map<String, String>>> get vehicleListStream;
   List<Map<String, String>> get vehicleData;
   List<Map<String, String>> get filteredVehicleData;
+  String? get selectedCustomerId;
 }
 
 class AddSalesBlocImpl extends AddSalesBloc {
@@ -66,6 +68,7 @@ class AddSalesBlocImpl extends AddSalesBloc {
   bool _isDiscountChecked = false;
   bool _isInsurenceChecked = false;
   String? _selectedPaymentOption;
+  String? _selectedCustomerId;
   List<String> _customerNameList = [];
   final _vehicleListStreamController =
       StreamController<List<Map<String, String>>>.broadcast();
@@ -272,7 +275,7 @@ class AddSalesBlocImpl extends AddSalesBloc {
       _vehicleNoAndEngineNoSearchController;
 
   @override
-  Future<List<GetAllCustomerNameList>> getAllCustomerList() async {
+  Future<ParentResponseModel> getAllCustomerList() async {
     return await _apiServices.getAllCustomerList();
   }
 
@@ -304,5 +307,12 @@ class AddSalesBlocImpl extends AddSalesBloc {
 
   set filteredVehicleData(List<Map<String, String>> vehicleData) {
     _filteredVehicleData = vehicleData;
+  }
+
+  @override
+  String? get selectedCustomerId => _selectedCustomerId;
+
+  set selectedCustomerId(String? value) {
+    _selectedCustomerId = value;
   }
 }

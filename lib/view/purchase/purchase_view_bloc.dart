@@ -11,7 +11,7 @@ abstract class PurchaseViewBloc {
 
   TextEditingController get vehicleSearchFieldController;
 
-  TextEditingController get hsnCodeSearchFieldController;
+  TextEditingController get purchaseRefSearchFieldController;
 
   TabController get vehicleAndAccessoriesTabController;
 
@@ -21,31 +21,35 @@ abstract class PurchaseViewBloc {
 
   Stream get vehicleSearchFieldControllerStream;
 
-  Stream get hsnCodeSearchFieldControllerStream;
+  Stream get purchaseRefSearchFieldControllerStream;
 
-  Future<GetAllPurchaseByPageNation> getAllPurchaseList(int currentPage,
-      String employeeName, String city, String designation, String branchName);
+  Future<GetAllPurchaseByPageNation?> getAllPurchaseList();
+
+  int get currentPage;
+  Stream<int> get pageNumberStream;
 }
 
 class PurchaseViewBlocImpl extends PurchaseViewBloc {
   final _invoiceSearchFieldController = TextEditingController();
   final _partNoSearchFieldController = TextEditingController();
   final _vehicleSearchFieldController = TextEditingController();
-  final _hsnCodeSearchFieldController = TextEditingController();
-  final _hsnCodeSearchFieldControllerStream = StreamController.broadcast();
+  final _purchaseRefSearchFieldController = TextEditingController();
+  final _purchaseRefSearchFieldControllerStream = StreamController.broadcast();
   final _vehicleSearchFieldControllerStream = StreamController.broadcast();
   final _partNoSearchFieldControllerStream = StreamController.broadcast();
   final _invoiceSearchFieldControllerStream = StreamController.broadcast();
   late TabController _vehicleAndAccessoriesTabController;
   final _apiCalls = AppServiceUtilImpl();
+  int _currentPage = 0;
+  final _pageNumberStreamController = StreamController<int>.broadcast();
 
   @override
   TextEditingController get invoiceSearchFieldController =>
       _invoiceSearchFieldController;
 
   @override
-  TextEditingController get hsnCodeSearchFieldController =>
-      _hsnCodeSearchFieldController;
+  TextEditingController get purchaseRefSearchFieldController =>
+      _purchaseRefSearchFieldController;
 
   @override
   TextEditingController get partNoSearchFieldController =>
@@ -56,11 +60,11 @@ class PurchaseViewBlocImpl extends PurchaseViewBloc {
       _vehicleSearchFieldController;
 
   @override
-  Stream get hsnCodeSearchFieldControllerStream =>
-      _hsnCodeSearchFieldControllerStream.stream;
+  Stream get purchaseRefSearchFieldControllerStream =>
+      _purchaseRefSearchFieldControllerStream.stream;
 
   hsnCodeSearchFieldStreamController(bool streamValue) {
-    _hsnCodeSearchFieldControllerStream.add(streamValue);
+    _purchaseRefSearchFieldControllerStream.add(streamValue);
   }
 
   @override
@@ -96,13 +100,24 @@ class PurchaseViewBlocImpl extends PurchaseViewBloc {
   }
 
   @override
-  Future<GetAllPurchaseByPageNation> getAllPurchaseList(
-      int currentPage,
-      String employeeName,
-      String city,
-      String designation,
-      String branchName) async {
-    return await _apiCalls.getAllPurchaseList(
-        currentPage, employeeName, city, designation, branchName);
+  Future<GetAllPurchaseByPageNation?> getAllPurchaseList() async {
+    return await _apiCalls.getAllPurchaseByPagenation(
+        _currentPage,
+        invoiceSearchFieldController.text,
+        partNoSearchFieldController.text,
+        purchaseRefSearchFieldController.text);
+  }
+
+  @override
+  int get currentPage => _currentPage;
+  set currentPage(int pageValue) {
+    _currentPage = pageValue;
+  }
+
+  @override
+  Stream<int> get pageNumberStream => _pageNumberStreamController.stream;
+
+  pageNumberUpdateStreamController(int streamValue) {
+    _pageNumberStreamController.add(streamValue);
   }
 }
