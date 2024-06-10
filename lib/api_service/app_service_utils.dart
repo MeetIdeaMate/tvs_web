@@ -487,11 +487,9 @@ class AppServiceUtilImpl extends AppServiceUtil {
       purchaseListUrl += '&p_invoiceNo=$invoiceNo';
     }
 
-
-     if (purchaseNo!.isNotEmpty) {
+    if (purchaseNo!.isNotEmpty) {
       purchaseListUrl += '&purchaseNo==$purchaseNo';
     }
-    
 
     var response = await dio.get(purchaseListUrl);
     final responseList =
@@ -860,16 +858,12 @@ class AppServiceUtilImpl extends AppServiceUtil {
   @override
   Future<ParentResponseModel> getPurchasePartNoDetails(
       String? partNo, Function(int) statusCode) async {
-    print('*******pn*****${partNo}');
-
     final dio = Dio();
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var token = prefs.getString('token');
     dio.options.headers['Authorization'] = 'Bearer $token';
     String endPoint = '${AppUrl.purchaseByPartNo}$partNo';
     var response = await dio.get(endPoint);
-    print('*******url*****${endPoint}');
-    print('*******dd*****${response.data}');
     ParentResponseModel parentResponse =
         parentResponseModelFromJson(jsonEncode(response.data));
     return parentResponse;
@@ -887,23 +881,15 @@ class AppServiceUtilImpl extends AppServiceUtil {
       }
 
       dio.options.headers['Authorization'] = 'Bearer $token';
-
-      print('*************purchase data post => ${purchaseData.toJson()}');
       var jsonData = json.encode(purchaseData.toJson());
       var response = await dio.post(AppUrl.purchase, data: jsonData);
-
-      print("^^^^^^^^^^^^^^^^Status code data = > ${response.statusCode}");
-      print("^^^^^^^^^^^^^^^^Purchase URL = > ${AppUrl.purchase}");
-      print("^^^^^^^^^^^^^^^^Response data = > ${response.data}");
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         onSuccessCallBack(response.statusCode!);
       } else {
-        print("Error: ${response.statusMessage}");
         onSuccessCallBack(response.statusCode ?? 0);
       }
     } catch (e) {
-      print("Exception caught: $e");
       onSuccessCallBack(0); // or handle the error as needed
     }
   }
@@ -916,13 +902,9 @@ class AppServiceUtilImpl extends AppServiceUtil {
       var token = prefs.getString('token');
       dio.options.headers['Authorization'] = 'Bearer $token';
       var response = await dio.get(AppUrl.category);
-      print('************URL => ${AppUrl.category}');
-      print('************Rb => ${response.data}');
-      print('************SC => ${response.statusCode}');
       var customerList = parentResponseModelFromJson(jsonEncode(response.data))
           .result
           ?.getAllcategoryList;
-      print('************CL => ${customerList}');
       return customerList;
     } on DioException catch (exception) {
       exception.response?.statusCode ?? 0;

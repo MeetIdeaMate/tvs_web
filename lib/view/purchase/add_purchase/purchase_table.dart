@@ -129,7 +129,7 @@ class _PurchaseTableState extends State<PurchaseTable> {
                             MaterialStateColor.resolveWith((states) => color),
                         cells: [
                           DataCell(Text((index + 1).toString())),
-                          DataCell(Text(data.partNo.toString())),
+                          DataCell(Text(data.partNo ?? '')),
                           DataCell(Text(data.vehicleName)),
                           DataCell(Text(data.hsnCode.toString())),
                           DataCell(Text(data.qty.toString())),
@@ -325,19 +325,15 @@ class _PurchaseTableState extends State<PurchaseTable> {
                       }
                     });
                   }
-                : () {
-                    print('*********Data No***');
-                  },
+                : () {},
             buttonText: AppConstants.save)
       ],
     );
   }
 
   AddPurchaseModel _purchasePostData() {
-    print('****post category Id*********${widget.purchaseBloc.categoryId}');
     SpecificationsValue _specValue = SpecificationsValue(specs: {});
     List<Map<String, dynamic>> _mainSpecInfos = [];
-
     // Collecting engine details
     for (var mainSpecValue in widget.purchaseBloc.purchaseBillDataList) {
       for (var vehicle in mainSpecValue.vehicleDetails!) {
@@ -349,16 +345,12 @@ class _PurchaseTableState extends State<PurchaseTable> {
         }
       }
     }
-print('*********post eng det********${_mainSpecInfos}');
     final List<GstDetail> gstDetailsList = [];
     final List<Incentive> incentivesList = [];
     final List<Tax> taxDetailsList = [];
-
     // Collecting GST, Tax and Incentive details
     for (var gstDetails in widget.purchaseBloc.purchaseBillDataList) {
       for (var vehicle in gstDetails.vehicleDetails!) {
-        print(
-            '*************Selected GST Type = > ${widget.purchaseBloc.selectedGstType}');
         if (vehicle.gstType == AppConstants.gstPercent) {
           gstDetailsList.add(GstDetail(
               gstAmount: vehicle.cgstAmount ?? 0.0,
@@ -369,7 +361,6 @@ print('*********post eng det********${_mainSpecInfos}');
               gstName: "SGST",
               percentage: vehicle.sgstPercentage ?? 0.0));
         }
-
         if (vehicle.gstType == AppConstants.igstPercent) {
           gstDetailsList.add(GstDetail(
               gstAmount: vehicle.igstAmount ?? 0.0,
@@ -444,8 +435,6 @@ print('*********post eng det********${_mainSpecInfos}');
   }
 
   void _editPurchaseBillRow(VehicleDetails data) {
-    
-
     setState(() {
       widget.purchaseBloc.partNumberController.text = data.partNo.toString();
       widget.purchaseBloc.vehicleNameTextController.text = data.vehicleName;
@@ -466,7 +455,7 @@ print('*********post eng det********${_mainSpecInfos}');
         widget.purchaseBloc.sgstPresentageTextController.text =
             data.sgstPercentage.toString();
       } else {
-         widget.purchaseBloc.selectedGstType = data.gstType;
+        widget.purchaseBloc.selectedGstType = data.gstType;
         widget.purchaseBloc.gstRadioBtnRefreshStreamController(true);
         widget.purchaseBloc.igstPresentageTextController.text =
             data.igstPercentage.toString();
