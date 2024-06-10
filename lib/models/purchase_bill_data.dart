@@ -13,10 +13,10 @@ class PurchaseBillData {
 }
 
 class VehicleDetails {
-  int partNo;
+  String? partNo;
   String? categoryId;
   String vehicleName;
-  int hsnCode;
+  int? hsnCode;
   double unitRate;
   double? totalValue;
   double? taxableValue;
@@ -69,7 +69,7 @@ class VehicleDetails {
     return {
       "partNo": partNo,
       "vehicleName": vehicleName,
-      "hsnCode": hsnCode,
+      "hsnCode": hsnCode ?? 0,
       "unitRate": unitRate,
       "totalValue": totalValue,
       "taxableValue": taxableValue,

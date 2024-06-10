@@ -142,12 +142,12 @@ class _VehiclePurchaseDetailsState extends State<VehiclePurchaseDetails> {
       children: [
         Expanded(
             child: TldsInputFormField(
-          validator: (String? value) {
-            if (value == null || value.isEmpty) {
-              return AppConstants.enterHsnCode;
-            }
-            return null;
-          },
+          // validator: (String? value) {
+          //   if (value == null || value.isEmpty) {
+          //     return AppConstants.enterHsnCode;
+          //   }
+          //   return null;
+          // },
           focusNode: widget.addVehicleAndAccessoriesBloc.hsnCodeFocusNode,
           inputFormatters: TlInputFormatters.onlyAllowNumbers,
           labelText: AppConstants.hsnCode,

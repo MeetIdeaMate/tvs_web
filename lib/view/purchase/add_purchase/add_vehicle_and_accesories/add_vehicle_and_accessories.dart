@@ -548,10 +548,6 @@ class _AddVehicleAndAccessoriesState extends State<AddVehicleAndAccessories> {
                   );
 
                   widget.purchaseBloc.selectedCategory = selectedCategory;
-
-                  print(
-                      '*******CAT*****${widget.purchaseBloc.selectedCategory}');
-                  print('*******lcid*****${widget.purchaseBloc.categoryId}');
                   widget.purchaseBloc
                       .selectedPurchaseTypeStreamController(true);
                 });
@@ -603,11 +599,11 @@ class _AddVehicleAndAccessoriesState extends State<AddVehicleAndAccessories> {
                 widget.purchaseBloc.stateIncentiveTextController.text),
             tcsValue: double.tryParse(
                 widget.purchaseBloc.tcsvalueTextController.text),
-            partNo: int.parse(widget.purchaseBloc.partNumberController.text),
+            partNo: widget.purchaseBloc.partNumberController.text,
             vehicleName: widget.purchaseBloc.vehicleNameTextController.text,
-            hsnCode: int.parse(widget.purchaseBloc.hsnCodeController.text),
+            hsnCode: int.tryParse(widget.purchaseBloc.hsnCodeController.text),
             qty: widget.purchaseBloc.engineDetailsList.length,
-            unitRate: double.parse(widget.purchaseBloc.unitRateController.text),
+            unitRate: double.tryParse(widget.purchaseBloc.unitRateController.text) ?? 0,
             engineDetails: widget.purchaseBloc.engineDetailsList
                 .map((map) => EngineDetails(
                       engineNo: map.engineNo,
@@ -666,6 +662,7 @@ class _AddVehicleAndAccessoriesState extends State<AddVehicleAndAccessories> {
       widget.purchaseBloc.isStateIncChecked = false;
       widget.purchaseBloc.isTcsValueChecked = false;
     });
+    widget.purchaseBloc.engineDetailsList.clear();
     widget.purchaseBloc.engineDetailsStreamController(true);
     widget.purchaseBloc.refreshEngineDetailsListStramController(true);
   }
