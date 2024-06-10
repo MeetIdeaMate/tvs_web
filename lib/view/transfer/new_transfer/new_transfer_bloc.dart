@@ -126,7 +126,7 @@ class NewTransferBlocImpl extends NewTransferBloc {
       _transporterVehicleNumberController;
 
   @override
-  Future<List<BranchDetail>?> getBranches() async{
+  Future<List<BranchDetail>?> getBranches() async {
     return _appServices.getAllBranchListWithoutPagination();
   }
 }

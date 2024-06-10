@@ -1,11 +1,9 @@
 import 'package:blurry_modal_progress_hud/blurry_modal_progress_hud.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:tlbilling/components/custom_action_button.dart';
 import 'package:tlbilling/components/custom_dropdown_button_form_field.dart';
-import 'package:tlbilling/components/custom_form_field.dart';
 import 'package:tlbilling/models/get_all_employee_model.dart';
 import 'package:tlbilling/models/parent_response_model.dart';
 import 'package:tlbilling/utils/app_colors.dart';
@@ -16,6 +14,7 @@ import 'package:tlbilling/view/employee/create_employee_dialog.dart';
 import 'package:tlbilling/view/user/create_user_dialog_bloc.dart';
 import 'package:tlbilling/view/user/user_view_bloc.dart';
 import 'package:tlds_flutter/components/tlds_input_form_field.dart';
+import 'package:tlds_flutter/components/tlds_input_formaters.dart';
 import 'package:tlds_flutter/util/app_colors.dart';
 import 'package:toastification/toastification.dart';
 
@@ -227,9 +226,10 @@ class _CreateUserDialogState extends State<CreateUserDialog> {
 
   Expanded _buildMobNoTextField() {
     return Expanded(
-      child: CustomFormField(
-          inputFormat: [FilteringTextInputFormatter.digitsOnly],
+      child: TldsInputFormField(
+          inputFormatters: TldsInputFormatters.onlyAllowNumbers,
           maxLength: 10,
+          counterText: '',
           suffixIcon: SvgPicture.asset(
             colorFilter:
                 ColorFilter.mode(_appColors.primaryColor, BlendMode.srcIn),
@@ -299,7 +299,7 @@ class _CreateUserDialogState extends State<CreateUserDialog> {
             builder: (context, snapshot) {
               return Padding(
                 padding: const EdgeInsets.only(top: 18),
-                child: CustomFormField(
+                child: TldsInputFormField(
                   labelText: AppConstants.passwordLable,
                   controller: _createUserDialogBlocImpl.passwordController,
                   hintText: AppConstants.passwordLable,

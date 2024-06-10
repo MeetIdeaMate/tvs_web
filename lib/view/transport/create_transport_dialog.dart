@@ -8,6 +8,9 @@ import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/utils/app_util_widgets.dart';
 import 'package:tlbilling/utils/input_validation.dart';
 import 'package:tlbilling/view/transport/create_transport_dialog_bloc.dart';
+import 'package:tlds_flutter/components/tlds_input_form_field.dart';
+import 'package:tlds_flutter/components/tlds_input_formaters.dart';
+import 'package:tlds_flutter/export.dart' as tlds;
 import 'package:toastification/toastification.dart';
 
 class CreateTransportDialog extends StatefulWidget {
@@ -111,43 +114,44 @@ class _CreateTransportDialogDialogState extends State<CreateTransportDialog> {
     return CustomActionButtons(
       buttonText: AppConstants.addTransport,
       onPressed: () {
-        _isLoading(true);
         if (_createTransportBlocImpl.transportFormKey.currentState!
             .validate()) {
-          if(widget.transportId != null){
-            _createTransportBlocImpl.editTransport(widget.transportId ?? '',
-            (statusCode) {
-              if(statusCode == 200 || statusCode == 201){
-                _isLoading(false);
-                Navigator.pop(context);
-                AppWidgetUtils.buildToast(
-                    context,
-                    ToastificationType.success,
-                    AppConstants.transportUpdate,
-                    Icon(
-                      Icons.check_circle_outline_rounded,
-                      color: _appColors.successColor,
-                    ),
-                    AppConstants.transportUpdatedSuccessFully,
-                    _appColors.successLightColor);
-              }else{
-                _isLoading(false);
-                AppWidgetUtils.buildToast(
-                    context,
-                    ToastificationType.error,
-                    AppConstants.transportUpdate,
-                    Icon(
-                      Icons.error_outline_outlined,
-                      color: _appColors.errorColor,
-                    ),
-                    AppConstants.somethingWentWrong,
-                    _appColors.errorLightColor);
-              }
-            },);
-
-          }else{
+          _isLoading(true);
+          if (widget.transportId != null) {
+            _createTransportBlocImpl.editTransport(
+              widget.transportId ?? '',
+              (statusCode) {
+                if (statusCode == 200 || statusCode == 201) {
+                  _isLoading(false);
+                  Navigator.pop(context);
+                  AppWidgetUtils.buildToast(
+                      context,
+                      ToastificationType.success,
+                      AppConstants.transportUpdate,
+                      Icon(
+                        Icons.check_circle_outline_rounded,
+                        color: _appColors.successColor,
+                      ),
+                      AppConstants.transportUpdatedSuccessFully,
+                      _appColors.successLightColor);
+                } else {
+                  _isLoading(false);
+                  AppWidgetUtils.buildToast(
+                      context,
+                      ToastificationType.error,
+                      AppConstants.transportUpdate,
+                      Icon(
+                        Icons.error_outline_outlined,
+                        color: _appColors.errorColor,
+                      ),
+                      AppConstants.somethingWentWrong,
+                      _appColors.errorLightColor);
+                }
+              },
+            );
+          } else {
             _createTransportBlocImpl.addTransport(
-                  (statusCode) {
+              (statusCode) {
                 if (statusCode == 200 || statusCode == 201) {
                   _isLoading(false);
                   Navigator.pop(context);
@@ -161,7 +165,7 @@ class _CreateTransportDialogDialogState extends State<CreateTransportDialog> {
                       ),
                       AppConstants.transportCreatedSuccessFully,
                       _appColors.successLightColor);
-                }else{
+                } else {
                   _isLoading(false);
                   AppWidgetUtils.buildToast(
                       context,
@@ -183,11 +187,9 @@ class _CreateTransportDialogDialogState extends State<CreateTransportDialog> {
   }
 
   transportNameFeilds() {
-    return CustomFormField(
+    return TldsInputFormField(
         width: MediaQuery.sizeOf(context).width * 0.188,
-        inputFormatters: [
-          FilteringTextInputFormatter.allow(RegExp("[a-z A-Z 0-9 @]")),
-        ],
+        inputFormatters: tlds.TldsInputFormatters.onlyAllowAlphabetAndNumber,
         requiredLabelText:
             AppWidgetUtils.labelTextWithRequired(AppConstants.transportName),
         validator: (value) {
@@ -201,12 +203,12 @@ class _CreateTransportDialogDialogState extends State<CreateTransportDialog> {
     return Row(
       children: [
         Expanded(
-          child: CustomFormField(
-              inputFormat: [FilteringTextInputFormatter.digitsOnly],
+          child: TldsInputFormField(
               requiredLabelText: AppWidgetUtils.labelTextWithRequired(
                   AppConstants.mobileNumber),
               maxLength: 10,
-              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              counterText: '',
+              inputFormatters: TldsInputFormatters.onlyAllowNumbers,
               validator: (value) {
                 return InputValidations.mobileNumberValidation(value ?? '');
               },
@@ -215,15 +217,13 @@ class _CreateTransportDialogDialogState extends State<CreateTransportDialog> {
         ),
         AppWidgetUtils.buildSizedBox(custWidth: 14),
         Expanded(
-          child: CustomFormField(
+          child: TldsInputFormField(
               requiredLabelText:
                   AppWidgetUtils.labelTextWithRequired(AppConstants.city),
               validator: (value) {
                 return InputValidations.cityValidation(value ?? '');
               },
-              inputFormatters: [
-                FilteringTextInputFormatter.allow(RegExp("[a-z A-Z ]")),
-              ],
+              inputFormatters: TldsInputFormatters.allowAlphabetsAndSpaces,
               hintText: AppConstants.hintCity,
               controller: _createTransportBlocImpl.transportCityController),
         ),
@@ -231,7 +231,7 @@ class _CreateTransportDialogDialogState extends State<CreateTransportDialog> {
     );
   }
 
-  _isLoading(bool state){
+  _isLoading(bool state) {
     setState(() {
       _createTransportBlocImpl.isAsyncCall = state;
     });

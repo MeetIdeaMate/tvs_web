@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:tlbilling/models/get_model/get_All_vendorName_List.dart';
+import 'package:tlbilling/models/get_model/get_all_vendorName_List.dart';
 import 'package:tlbilling/models/get_model/get_all_branch_model.dart';
 import 'package:tlbilling/models/get_model/get_all_branches_by_pagination.dart';
 import 'package:tlbilling/models/get_model/get_all_category_model.dart';

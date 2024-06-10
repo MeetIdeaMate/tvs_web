@@ -40,13 +40,14 @@ class _StocksViewState extends State<StocksView>
   Widget build(BuildContext context) {
     return Scaffold(
         body: Padding(
-      padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 22),
+      padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 21),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           AppWidgetUtils.buildHeaderText(AppConstants.stocks),
-          _buildDefaultHeight(),
+          AppWidgetUtils.buildSizedBox(custHeight: 26),
           _buildStocksFilters(),
+          _buildDefaultHeight(),
           _buildTabBar(),
           _buildTabBarView(),
         ],
@@ -70,6 +71,7 @@ class _StocksViewState extends State<StocksView>
               height: 40,
               controller: _stocksViewBloc.partNumberSearchController,
               hintText: AppConstants.partNo,
+              isSearch: true,
               suffixIcon: IconButton(
                 onPressed: () {
                   isTextEmpty
@@ -100,6 +102,7 @@ class _StocksViewState extends State<StocksView>
             return TldsInputFormField(
               width: 203,
               height: 40,
+              isSearch: true,
               controller: _stocksViewBloc.vehicleNameSearchController,
               hintText: AppConstants.vehicleName,
               suffixIcon: IconButton(

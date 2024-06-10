@@ -10,6 +10,7 @@ import 'package:tlbilling/view/branch/branch_view.dart';
 import 'package:tlbilling/view/configuration/configuration_view.dart';
 import 'package:tlbilling/view/customer/customer_view.dart';
 import 'package:tlbilling/view/employee/employee_view_screen.dart';
+import 'package:tlbilling/view/insuranse/insuranse_view.dart';
 import 'package:tlbilling/view/login/login_page.dart';
 import 'package:tlbilling/view/purchase/purchase_view.dart';
 import 'package:tlbilling/view/report/report_screen.dart';
@@ -80,15 +81,19 @@ class _SideMenuNavigationState extends State<SideMenuNavigation> {
             ),
           ),
         ),
-        Expanded(
-          flex: 5,
-          child: Center(
-            child: Container(
-              color: Colors.grey[200],
-              child: _buildPage(selectedMenuItem),
-            ),
-          ),
-        ),
+        StreamBuilder(
+            stream: sideMenuBloc.sideMenuStream,
+            builder: (context, snapshot) {
+              return Expanded(
+                flex: 5,
+                child: Center(
+                  child: Container(
+                    color: Colors.grey[200],
+                    child: _buildPage(selectedMenuItem),
+                  ),
+                ),
+              );
+            }),
       ],
     );
   }
@@ -239,8 +244,15 @@ class _SideMenuNavigationState extends State<SideMenuNavigation> {
               _buildDrawerMenuItem(
                 AppConstants.icReport,
                 AppConstants.configuration,
-                    () {
+                () {
                   _onMenuItemSelected(AppConstants.configuration);
+                },
+              ),
+              _buildDrawerMenuItem(
+                AppConstants.icReport,
+                AppConstants.insurance,
+                () {
+                  _onMenuItemSelected(AppConstants.insurance);
                 },
               ),
               AppWidgetUtils.buildSizedBox(custHeight: 30),
@@ -267,36 +279,41 @@ class _SideMenuNavigationState extends State<SideMenuNavigation> {
           borderRadius: const BorderRadius.all(Radius.circular(50)),
           color: isSelected ? _appcolors.whiteColor : null,
         ),
-        child: ListTile(
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
-          leading: SvgPicture.asset(
-            svgIconPath,
-            colorFilter: ColorFilter.mode(
-                isSelected ? _appcolors.primaryColor : _appcolors.whiteColor,
-                BlendMode.srcIn),
+        child: Center(
+          child: ListTile(
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
+            leading: SvgPicture.asset(
+              svgIconPath,
+              colorFilter: ColorFilter.mode(
+                  isSelected ? _appcolors.primaryColor : _appcolors.whiteColor,
+                  BlendMode.srcIn),
+            ),
+            title: Padding(
+              padding: const EdgeInsets.only(bottom: 5),
+              child: Text(titleText,
+                  style: TextStyle(
+                      color: isSelected
+                          ? _appcolors.primaryColor
+                          : _appcolors.whiteColor,
+                      fontSize: 14)),
+            ),
+            onTap: () {
+              onTapFunction();
+              if (Responsive.isMobile(context) ||
+                  Responsive.isTablet(context)) {
+                Navigator.pop(context);
+              }
+            },
           ),
-          title: Text(titleText,
-              style: TextStyle(
-                  color: isSelected
-                      ? _appcolors.primaryColor
-                      : _appcolors.whiteColor,
-                  fontSize: 14)),
-          onTap: () {
-            onTapFunction();
-            if (Responsive.isMobile(context) || Responsive.isTablet(context)) {
-              Navigator.pop(context);
-            }
-          },
         ),
       ),
     );
   }
 
   void _onMenuItemSelected(String menuItem) {
-    setState(() {
-      selectedMenuItem = menuItem;
-    });
+    sideMenuBloc.sideMenuStreamController(true);
+    selectedMenuItem = menuItem;
   }
 
   Widget _buildPage(String menuItem) {
@@ -327,6 +344,8 @@ class _SideMenuNavigationState extends State<SideMenuNavigation> {
         return const VoucherReceiptList();
       case AppConstants.configuration:
         return const ConfigurationView();
+      case AppConstants.insurance:
+        return const InsuranseView();
 
       case AppConstants.logOut:
         return Container();

@@ -6,22 +6,20 @@ import 'package:tlbilling/models/parent_response_model.dart';
 import 'package:tlbilling/utils/app_colors.dart';
 import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/utils/app_util_widgets.dart' as tlbilling_widget;
-import 'package:tlbilling/utils/app_util_widgets.dart';
 import 'package:tlbilling/view/report/report_generate_pdf_dialog.dart';
 import 'package:tlbilling/view/report/sale_report/sales_accessories_report_bloc.dart';
 import 'package:tlbilling/view/report/sale_report/sales_report_bloc.dart';
 import 'package:tlbilling/view/report/sale_report/sales_vehicles_report_bloc.dart';
-import 'package:tlds_flutter/components/tlds_date_picker.dart';
-import 'package:tlds_flutter/components/tlds_dropdown_button_form_field.dart';
+import 'package:tlds_flutter/export.dart';
 
-class Salesreport extends StatefulWidget {
-  const Salesreport({super.key});
+class SalesReport extends StatefulWidget {
+  const SalesReport({super.key});
 
   @override
-  State<Salesreport> createState() => _SalesreportState();
+  State<SalesReport> createState() => _SalesReportState();
 }
 
-class _SalesreportState extends State<Salesreport>
+class _SalesReportState extends State<SalesReport>
     with SingleTickerProviderStateMixin {
   final _appColors = AppColors();
   final _saledReportBlocImpl = SaledReportBlocImpl();
@@ -106,7 +104,7 @@ class _SalesreportState extends State<Salesreport>
     return Column(
       children: [
         _buildTabBar(),
-        AppWidgetUtils.buildSizedBox(custHeight: 16),
+        tlbilling_widget.AppWidgetUtils.buildSizedBox(custHeight: 16),
         _buildTabBarView(),
       ],
     );
@@ -115,7 +113,8 @@ class _SalesreportState extends State<Salesreport>
   _buildTabBar() {
     return Row(
       children: [
-        Expanded(
+        SizedBox(
+          width: MediaQuery.of(context).size.width * 0.2,
           child: TabBar(
             controller: _saledReportBlocImpl.salesScreenTabController,
             tabs: const [
@@ -129,7 +128,7 @@ class _SalesreportState extends State<Salesreport>
             builder: (context, snapshot) {
               return Expanded(
                 child: Center(
-                  child: AppWidgetUtils.buildHeaderText(
+                  child: tlbilling_widget.AppWidgetUtils.buildHeaderText(
                     _totalAmountText(),
                     fontSize: 18,
                   ),
@@ -169,19 +168,24 @@ class _SalesreportState extends State<Salesreport>
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         } else if (snapshot.hasError) {
-          return Center(child: Text('Error: ${snapshot.error}'));
+          return Center(child: Text(' ${snapshot.error}'));
         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
           return const Center(child: Text(AppConstants.noData));
         } else {
           final branchList = snapshot.data![0].result!.getAllBranchList!
               .map((item) => item.branchName ?? '')
               .toList();
+          branchList.insert(0, AppConstants.all);
+
           final paymentTypes =
               snapshot.data![2].result!.getConfigModel!.configuration ?? [];
+
+          paymentTypes.insert(0, AppConstants.all);
 
           final vehicleTypes = snapshot.data![0].result!.getAllBranchList!
               .map((item) => item.branchName ?? '')
               .toList();
+          vehicleTypes.insert(0, AppConstants.all);
 
           return searchAndTableView(
               vehicleOrAccessoriesHintName: AppConstants.vehicle,
@@ -239,12 +243,17 @@ class _SalesreportState extends State<Salesreport>
           final branchList = snapshot.data![0].result!.getAllBranchList!
               .map((item) => item.branchName ?? '')
               .toList();
+          branchList.insert(0, AppConstants.all);
+
           final paymentTypes =
               snapshot.data![2].result!.getConfigModel!.configuration ?? [];
+
+          paymentTypes.insert(0, AppConstants.all);
 
           final vehicleTypes = snapshot.data![0].result!.getAllBranchList!
               .map((item) => item.branchName ?? '')
               .toList();
+          vehicleTypes.insert(0, AppConstants.all);
 
           return searchAndTableView(
             vehicleOrAccessoriesHintName: AppConstants.accessories,
@@ -308,43 +317,35 @@ class _SalesreportState extends State<Salesreport>
         children: [
           Row(
             children: [
-              Padding(
-                padding: const EdgeInsets.only(top: 5),
-                child: TldsDropDownButtonFormField(
-                    height: 40,
-                    width: MediaQuery.of(context).size.width * 0.1,
-                    dropDownItems: vehicleOrAccessoriesList,
-                    dropDownValue: vehicleOrAccessoriesDropDownValues,
-                    hintText: vehicleOrAccessoriesHintName,
-                    onChange: vehicleOrAccessoriesDropDownOnChange),
-              ),
-              tlbilling_widget.AppWidgetUtils.buildSizedBox(custWidth: 5),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 5),
-                  child: TldsDropDownButtonFormField(
-                    height: 40,
-                    dropDownItems: branchDropdownList,
-                    hintText: AppConstants.selectedBranch,
-                    dropDownValue: selectedBranchName,
-                    onChange: branchOnChange,
-                  ),
-                ),
-              ),
-              tlbilling_widget.AppWidgetUtils.buildSizedBox(custWidth: 5),
-              Padding(
-                padding: const EdgeInsets.only(top: 5),
-                child: TldsDropDownButtonFormField(
+              TldsDropDownButtonFormField(
                   height: 40,
                   width: MediaQuery.of(context).size.width * 0.1,
-                  dropDownItems: paymentTypeDropDownList,
-                  dropDownValue: paymentdropDownValue,
-                  hintText: AppConstants.paymentType,
-                  onChange: paymentOnChange,
+                  dropDownItems: vehicleOrAccessoriesList,
+                  dropDownValue: AppConstants.all,
+                  hintText: vehicleOrAccessoriesHintName,
+                  onChange: vehicleOrAccessoriesDropDownOnChange),
+              tlbilling_widget.AppWidgetUtils.buildSizedBox(custWidth: 5),
+              Expanded(
+                child: TldsDropDownButtonFormField(
+                  height: 40,
+                  dropDownItems: branchDropdownList,
+                  hintText: AppConstants.selectedBranch,
+                  dropDownValue: AppConstants.all,
+                  onChange: branchOnChange,
                 ),
+              ),
+              tlbilling_widget.AppWidgetUtils.buildSizedBox(custWidth: 5),
+              TldsDropDownButtonFormField(
+                height: 40,
+                width: MediaQuery.of(context).size.width * 0.1,
+                dropDownItems: paymentTypeDropDownList,
+                dropDownValue: AppConstants.all,
+                hintText: AppConstants.paymentType,
+                onChange: paymentOnChange,
               ),
               tlbilling_widget.AppWidgetUtils.buildSizedBox(custWidth: 5),
               TldsDatePicker(
+                  firstDate: DateTime(2000, 1, 1),
                   height: 40,
                   suffixIcon: SvgPicture.asset(
                     AppConstants.icDate,
@@ -358,6 +359,7 @@ class _SalesreportState extends State<Salesreport>
                   controller: fromDateController),
               tlbilling_widget.AppWidgetUtils.buildSizedBox(custWidth: 5),
               TldsDatePicker(
+                  firstDate: DateTime(2000, 1, 1),
                   fontSize: 14,
                   height: 40,
                   suffixIcon: SvgPicture.asset(
@@ -377,8 +379,8 @@ class _SalesreportState extends State<Salesreport>
                     height: 40,
                     text: AppConstants.pdfGeneration,
                     fontSize: 16,
-                    buttonBackgroundColor: AppColors().primaryColor,
-                    fontColor: AppColors().whiteColor,
+                    buttonBackgroundColor: _appColors.primaryColor,
+                    fontColor: _appColors.whiteColor,
                     suffixIcon: SvgPicture.asset(AppConstants.icPdfPrint),
                     onPressed: buttonOnPressed),
               )

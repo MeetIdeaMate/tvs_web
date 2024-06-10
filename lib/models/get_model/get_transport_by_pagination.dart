@@ -99,7 +99,8 @@ class TransportDetails {
     this.updatedDateTime,
   });
 
-  factory TransportDetails.fromJson(Map<String, dynamic> json) => TransportDetails(
+  factory TransportDetails.fromJson(Map<String, dynamic> json) =>
+      TransportDetails(
         city: json["city"],
         createdBy: json["createdBy"],
         createdDateTime: json["createdDateTime"] == null

@@ -4,7 +4,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:tlbilling/components/custom_action_button.dart';
 import 'package:tlbilling/components/custom_dropdown_button_form_field.dart';
-import 'package:tlbilling/components/custom_form_field.dart';
 import 'package:tlbilling/utils/app_colors.dart';
 import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/utils/app_util_widgets.dart';
@@ -13,6 +12,9 @@ import 'package:tlbilling/view/employee/create_employee_dialog_bloc.dart';
 import 'package:tlbilling/view/employee/employee_view_bloc.dart';
 import 'package:tlbilling/view/user/create_user_dialog_bloc.dart';
 import 'package:tlbilling/view/voucher_receipt/new_voucher/new_voucher_bloc.dart';
+import 'package:tlds_flutter/components/tlds_input_form_field.dart';
+import 'package:tlds_flutter/components/tlds_input_formaters.dart';
+import 'package:tlds_flutter/export.dart' as tlds;
 import 'package:toastification/toastification.dart';
 
 class CreateEmployeeDialog extends StatefulWidget {
@@ -159,7 +161,7 @@ class _CreateEmployeeDialogState extends State<CreateEmployeeDialog> {
     return Expanded(
       child: Padding(
         padding: const EdgeInsets.only(bottom: 25),
-        child: CustomFormField(
+        child: TldsInputFormField(
             suffixIcon: SvgPicture.asset(
               colorFilter:
                   ColorFilter.mode(_appColors.primaryColor, BlendMode.srcIn),
@@ -178,10 +180,8 @@ class _CreateEmployeeDialogState extends State<CreateEmployeeDialog> {
 
   Widget _buildEmployeenNameFields() {
     return Expanded(
-      child: CustomFormField(
-          inputFormatters: [
-            FilteringTextInputFormatter.allow(RegExp('[A-Z a-z @]'))
-          ],
+      child: TldsInputFormField(
+          inputFormatters: tlds.TldsInputFormatters.allowAlphabetsAndSpaces,
           height: 70,
           suffixIcon: SvgPicture.asset(
             colorFilter:
@@ -326,7 +326,7 @@ class _CreateEmployeeDialogState extends State<CreateEmployeeDialog> {
   Widget _buildEmpCityFields() {
     return Expanded(
       flex: 2,
-      child: CustomFormField(
+      child: TldsInputFormField(
           requiredLabelText:
               AppWidgetUtils.labelTextWithRequired(AppConstants.city),
           validator: (value) {
@@ -385,9 +385,10 @@ class _CreateEmployeeDialogState extends State<CreateEmployeeDialog> {
 
   Widget _buildEmployeeAgeFields() {
     return Expanded(
-      child: CustomFormField(
+      child: TldsInputFormField(
           maxLength: 2,
-          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+          counterText: '',
+          inputFormatters: TldsInputFormatters.onlyAllowNumbers,
           labelText: AppConstants.age,
           hintText: AppConstants.hintAge,
           controller: _createEmployeeDialogBlocImpl.empAgeController),
@@ -406,7 +407,7 @@ class _CreateEmployeeDialogState extends State<CreateEmployeeDialog> {
 
   Widget _buildEmployeeAdress() {
     return Expanded(
-      child: CustomFormField(
+      child: TldsInputFormField(
           requiredLabelText:
               AppWidgetUtils.labelTextWithRequired(AppConstants.address),
           validator: (value) {
@@ -419,7 +420,7 @@ class _CreateEmployeeDialogState extends State<CreateEmployeeDialog> {
 
   Widget _buildEmpMobileNoFields() {
     return Expanded(
-      child: CustomFormField(
+      child: TldsInputFormField(
           suffixIcon: SvgPicture.asset(
             colorFilter:
                 ColorFilter.mode(_appColors.primaryColor, BlendMode.srcIn),
@@ -427,6 +428,7 @@ class _CreateEmployeeDialogState extends State<CreateEmployeeDialog> {
             fit: BoxFit.none,
           ),
           maxLength: 10,
+          counterText: '',
           inputFormatters: [FilteringTextInputFormatter.digitsOnly],
           requiredLabelText:
               AppWidgetUtils.labelTextWithRequired(AppConstants.mobileNumber),
@@ -479,6 +481,7 @@ class _CreateEmployeeDialogState extends State<CreateEmployeeDialog> {
       widget.newVoucherBloc?.payToTextStreamController(true);
       widget.newVoucherBloc?.giverTextStreamController(true);
     } else if (statusCode == 409) {
+      _isLoadingState(state: false);
       AppWidgetUtils.buildToast(
           context,
           ToastificationType.error,

@@ -87,17 +87,16 @@ class _StockReportState extends State<StockReport>
   _buildTabBar() {
     return Row(
       children: [
-        Expanded(
-          child: SizedBox(
-            child: TabBar(
-              controller: _stocksReportBlocImpl.stockReportTabController,
-              tabs: const [
-                Tab(text: AppConstants.vehicle),
-                Tab(text: AppConstants.accessories),
-              ],
-              indicatorSize: TabBarIndicatorSize.label,
-              labelPadding: const EdgeInsets.symmetric(horizontal: 8.0),
-            ),
+        SizedBox(
+          width: MediaQuery.of(context).size.width * 0.2,
+          child: TabBar(
+            controller: _stocksReportBlocImpl.stockReportTabController,
+            tabs: const [
+              Tab(text: AppConstants.vehicle),
+              Tab(text: AppConstants.accessories),
+            ],
+            indicatorSize: TabBarIndicatorSize.label,
+            labelPadding: const EdgeInsets.symmetric(horizontal: 8.0),
           ),
         ),
       ],
@@ -137,10 +136,12 @@ class _StockReportState extends State<StockReport>
           final branchList = snapshot.data![0].result!.getAllBranchList!
               .map((item) => item.branchName ?? '')
               .toList();
+          branchList.insert(0, AppConstants.all);
 
           final vehicleTypes = snapshot.data![0].result!.getAllBranchList!
               .map((item) => item.branchName ?? '')
               .toList();
+          vehicleTypes.insert(0, AppConstants.all);
 
           return searchAndTableView(
             vehicleOrAccessoriesHintName: AppConstants.accessoriesType,
@@ -186,10 +187,12 @@ class _StockReportState extends State<StockReport>
           final branchList = snapshot.data![0].result!.getAllBranchList!
               .map((item) => item.branchName ?? '')
               .toList();
+          branchList.insert(0, AppConstants.all);
 
           final vehicleTypes = snapshot.data![0].result!.getAllBranchList!
               .map((item) => item.branchName ?? '')
               .toList();
+          vehicleTypes.insert(0, AppConstants.all);
 
           return searchAndTableView(
             vehicleOrAccessoriesHintName: AppConstants.vehicleType,
@@ -241,31 +244,27 @@ class _StockReportState extends State<StockReport>
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Padding(
-                padding: const EdgeInsets.only(top: 5),
+              TldsDropDownButtonFormField(
+                  height: 40,
+                  width: MediaQuery.of(context).size.width * 0.15,
+                  dropDownItems: vehicleOrAccessoriesDropDownItems,
+                  hintText: vehicleOrAccessoriesHintName,
+                  dropDownValue: AppConstants.all,
+                  onChange: vehicleOrAccessoriesOnChange),
+              tlbilling_widget.AppWidgetUtils.buildSizedBox(custWidth: 5),
+              Expanded(
                 child: TldsDropDownButtonFormField(
                     height: 40,
                     width: MediaQuery.of(context).size.width * 0.15,
-                    dropDownItems: vehicleOrAccessoriesDropDownItems,
-                    hintText: vehicleOrAccessoriesHintName,
-                    dropDownValue: vehicleOrAccessoriesDropDownValue,
-                    onChange: vehicleOrAccessoriesOnChange),
-              ),
-              tlbilling_widget.AppWidgetUtils.buildSizedBox(custWidth: 5),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 5),
-                  child: TldsDropDownButtonFormField(
-                      height: 40,
-                      width: MediaQuery.of(context).size.width * 0.15,
-                      dropDownItems: branchList,
-                      hintText: AppConstants.selectedBranch,
-                      dropDownValue: selectedBranchName,
-                      onChange: branchOnChange),
-                ),
+                    dropDownItems: branchList,
+                    hintText: AppConstants.selectedBranch,
+                    dropDownValue: AppConstants.all,
+                    onChange: branchOnChange),
               ),
               tlbilling_widget.AppWidgetUtils.buildSizedBox(custWidth: 5),
               TldsDatePicker(
+                  style: TextStyle(color: _appColors.red, fontSize: 20),
+                  firstDate: DateTime(2000, 1, 1),
                   height: 40,
                   suffixIcon: SvgPicture.asset(
                     AppConstants.icDate,
@@ -279,6 +278,7 @@ class _StockReportState extends State<StockReport>
                   controller: fromDateController),
               tlbilling_widget.AppWidgetUtils.buildSizedBox(custWidth: 5),
               TldsDatePicker(
+                firstDate: DateTime(2000, 1, 1),
                 fontSize: 14,
                 height: 40,
                 suffixIcon: SvgPicture.asset(

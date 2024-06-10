@@ -55,7 +55,7 @@ class _VoucherReceiptListState extends State<VoucherReceiptList>
   Widget _buildHeaderText() {
     return AppWidgetUtils.buildCustomDmSansTextWidget(AppConstants.receipt,
         color: _appColors.primaryColor,
-        fontSize: 28,
+        fontSize: 22,
         fontWeight: FontWeight.w700);
   }
 
@@ -107,11 +107,12 @@ class _VoucherReceiptListState extends State<VoucherReceiptList>
                     .map((result) => result.employeeName ?? "")
                     .toSet();
                 List<String> employeeNamesList = employeeNamesSet.toList();
+                employeeNamesList.insert(0, AppConstants.all);
                 return TldsDropDownButtonFormField(
                   height: 40,
                   width: MediaQuery.sizeOf(context).width * 0.15,
                   dropDownItems: employeeNamesList,
-                  dropDownValue: _voucherReceiptBloc.selectedEmployee,
+                  dropDownValue: AppConstants.all,
                   hintText: AppConstants.employee,
                   onChange: (String? value) {
                     _voucherReceiptBloc.selectedEmployee = value;
@@ -164,8 +165,7 @@ class _VoucherReceiptListState extends State<VoucherReceiptList>
   }
 
   _buildTransferTableView(BuildContext context) {
-    return Expanded(
-        child: SingleChildScrollView(
+    return SingleChildScrollView(
       scrollDirection: Axis.vertical,
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
@@ -224,7 +224,7 @@ class _VoucherReceiptListState extends State<VoucherReceiptList>
           }),
         ),
       ),
-    ));
+    );
   }
 
   _buildVoucherTableView(BuildContext context) {
@@ -301,6 +301,7 @@ class _VoucherReceiptListState extends State<VoucherReceiptList>
       height: 40,
       controller: textController,
       hintText: hintText,
+      isSearch: true,
       suffixIcon: IconButton(
         onPressed: iconData == Icons.search
             ? () {
@@ -329,6 +330,7 @@ class _VoucherReceiptListState extends State<VoucherReceiptList>
     }
   }
 
+  // ignore: unused_element
   Widget _buildDefaultWidth() {
     return AppWidgetUtils.buildSizedBox(
         custWidth: MediaQuery.sizeOf(context).width * 0.01);

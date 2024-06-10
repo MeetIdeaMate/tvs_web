@@ -130,11 +130,12 @@ class AppConstants {
   static const transport = 'Transport';
   static const reports = 'Reports';
   static const configuration = 'Configuration';
-  static const user = 'user';
+  static const user = 'User';
   static const voucherReceipt = 'Voc / Rec';
   static const receipt = 'Receipt';
   static const employee = 'Employee';
   static const pinCode = 'Pin Code';
+  static const insurance = 'Insurance';
 
   //Customer
   static const addCustomer = 'Add Customer';
@@ -147,7 +148,7 @@ class AppConstants {
   static const hintMail = 'Enter Mail';
   static const panNo = 'Pan Number';
   static const hintPanNo = 'Enter Pan Number';
-  static const hintAatharNo = 'Enter Aadhar Number';
+  static const hintAadharNo = 'Enter Aadhar Number';
   static const aadharNo = 'Aadhar Number';
   static const city = 'City';
   static const cities = 'Cities';
@@ -424,4 +425,14 @@ class AppConstants {
   static const partNoErrorDes = 'No Part Details for this';
   static const discount = 'Discount';
   static const purchaseID = 'Purchase Id';
+  static const enterColor = 'Please Enter Color';
+  static const enterHsnCode = 'Please Enter HSN Code';
+  static const enterUnitRate = 'Please Enter Unit Rate';
+
+  //insurnse
+
+  static const String vehicleNo = 'Vehicle No';
+  static const String customerID = 'Customer ID';
+
+  static const String mobileNo = 'Mobile No';
 }

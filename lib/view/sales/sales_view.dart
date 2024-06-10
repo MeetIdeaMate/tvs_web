@@ -70,6 +70,7 @@ class _SalesViewScreenState extends State<SalesViewScreen>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             AppWidgetUtils.buildHeaderText(AppConstants.sales),
+            AppWidgetUtils.buildSizedBox(custHeight: 26),
             _buildSearchFilters(),
             AppWidgetUtils.buildSizedBox(
                 custHeight: MediaQuery.sizeOf(context).height * 0.02),
@@ -161,6 +162,7 @@ class _SalesViewScreenState extends State<SalesViewScreen>
       inputFormatters: inputFormatters,
       controller: textController,
       hintText: hintText,
+      isSearch: true,
       suffixIcon: IconButton(
         onPressed: iconData == Icons.search
             ? () {
@@ -224,67 +226,65 @@ class _SalesViewScreenState extends State<SalesViewScreen>
   }
 
   _buildCustomerTableView(BuildContext context) {
-    return Expanded(
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: DataTable(
-          key: UniqueKey(),
-          dividerThickness: 0.01,
-          columns: [
-            _buildVehicleTableHeader(
-              AppConstants.sno,
-            ),
-            _buildVehicleTableHeader(AppConstants.invoiceNo),
-            _buildVehicleTableHeader(AppConstants.invoiceDate),
-            _buildVehicleTableHeader(AppConstants.customerId),
-            _buildVehicleTableHeader(AppConstants.customerName),
-            _buildVehicleTableHeader(AppConstants.mobileNumber),
-            _buildVehicleTableHeader(AppConstants.paymentType),
-            _buildVehicleTableHeader(AppConstants.totalInvAmount),
-            _buildVehicleTableHeader(AppConstants.pendingInvAmt),
-            _buildVehicleTableHeader(AppConstants.balanceAmt),
-            _buildVehicleTableHeader(AppConstants.status),
-            _buildVehicleTableHeader(AppConstants.createdBy),
-            _buildVehicleTableHeader(AppConstants.action),
-            _buildVehicleTableHeader(AppConstants.print),
-          ],
-          rows: List.generate(rowData.length, (index) {
-            final data = rowData[index];
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: DataTable(
+        key: UniqueKey(),
+        dividerThickness: 0.01,
+        columns: [
+          _buildVehicleTableHeader(
+            AppConstants.sno,
+          ),
+          _buildVehicleTableHeader(AppConstants.invoiceNo),
+          _buildVehicleTableHeader(AppConstants.invoiceDate),
+          _buildVehicleTableHeader(AppConstants.customerId),
+          _buildVehicleTableHeader(AppConstants.customerName),
+          _buildVehicleTableHeader(AppConstants.mobileNumber),
+          _buildVehicleTableHeader(AppConstants.paymentType),
+          _buildVehicleTableHeader(AppConstants.totalInvAmount),
+          _buildVehicleTableHeader(AppConstants.pendingInvAmt),
+          _buildVehicleTableHeader(AppConstants.balanceAmt),
+          _buildVehicleTableHeader(AppConstants.status),
+          _buildVehicleTableHeader(AppConstants.createdBy),
+          _buildVehicleTableHeader(AppConstants.action),
+          _buildVehicleTableHeader(AppConstants.print),
+        ],
+        rows: List.generate(rowData.length, (index) {
+          final data = rowData[index];
 
-            final color = index.isEven
-                ? _appColors.whiteColor
-                : _appColors.transparentBlueColor;
-            return DataRow(
-              color: MaterialStateColor.resolveWith((states) => color),
-              cells: [
-                DataCell(Text(data[AppConstants.sno]!)),
-                DataCell(Text(data[AppConstants.invoiceNo]!)),
-                DataCell(Text(data[AppConstants.invoiceDate]!)),
-                DataCell(Text(data[AppConstants.customerId]!)),
-                DataCell(Text(data[AppConstants.customerName]!)),
-                DataCell(Text(data[AppConstants.mobileNumber]!)),
-                DataCell(Text(data[AppConstants.paymentType]!)),
-                DataCell(Text(data[AppConstants.totalInvAmount]!)),
-                DataCell(Text(data[AppConstants.pendingInvAmt]!)),
-                DataCell(Text(data[AppConstants.balanceAmt]!)),
-                DataCell(Chip(label: Text(data[AppConstants.status]!))),
-                DataCell(Text(data[AppConstants.createdBy]!)),
-                DataCell(
-                  Row(
-                    children: [
-                      IconButton(
-                        icon: SvgPicture.asset(AppConstants.icEdit),
-                        onPressed: () {},
-                      ),
-                    ],
-                  ),
+          final color = index.isEven
+              ? _appColors.whiteColor
+              : _appColors.transparentBlueColor;
+          return DataRow(
+            color: MaterialStateColor.resolveWith((states) => color),
+            cells: [
+              DataCell(Text(data[AppConstants.sno]!)),
+              DataCell(Text(data[AppConstants.invoiceNo]!)),
+              DataCell(Text(data[AppConstants.invoiceDate]!)),
+              DataCell(Text(data[AppConstants.customerId]!)),
+              DataCell(Text(data[AppConstants.customerName]!)),
+              DataCell(Text(data[AppConstants.mobileNumber]!)),
+              DataCell(Text(data[AppConstants.paymentType]!)),
+              DataCell(Text(data[AppConstants.totalInvAmount]!)),
+              DataCell(Text(data[AppConstants.pendingInvAmt]!)),
+              DataCell(Text(data[AppConstants.balanceAmt]!)),
+              DataCell(Chip(label: Text(data[AppConstants.status]!))),
+              DataCell(Text(data[AppConstants.createdBy]!)),
+              DataCell(
+                Row(
+                  children: [
+                    IconButton(
+                      icon: SvgPicture.asset(AppConstants.icEdit),
+                      onPressed: () {},
+                    ),
+                  ],
                 ),
-                DataCell(IconButton(
-                    onPressed: () {}, icon: const Icon(Icons.print))),
-              ],
-            );
-          }),
-        ),
+              ),
+              DataCell(
+                  IconButton(onPressed: () {}, icon: const Icon(Icons.print))),
+            ],
+          );
+        }),
       ),
     );
   }

@@ -5,7 +5,7 @@ import 'package:tlbilling/api_service/app_service_utils.dart';
 import 'package:tlbilling/models/get_model/get_all_branches_by_pagination.dart';
 
 abstract class BranchViewBloc {
-  TextEditingController get filterBranchnameController;
+  TextEditingController get filterBranchNameController;
 
   TextEditingController get filterpinCodeController;
 
@@ -28,8 +28,8 @@ abstract class BranchViewBloc {
 }
 
 class BranchViewBlocImpl extends BranchViewBloc {
-  final _filterBranchnameController = TextEditingController();
-  final _filterpinCodeController = TextEditingController();
+  final _filterBranchNameController = TextEditingController();
+  final _filterPinCodeController = TextEditingController();
   final _branchNameStreamController = StreamController.broadcast();
   final _pinCodeStreamController = StreamController.broadcast();
   final _branchTablePageStreamController = StreamController.broadcast();
@@ -39,11 +39,11 @@ class BranchViewBlocImpl extends BranchViewBloc {
   bool _isAsyncCall = false;
 
   @override
-  TextEditingController get filterBranchnameController =>
-      _filterBranchnameController;
+  TextEditingController get filterBranchNameController =>
+      _filterBranchNameController;
 
   @override
-  TextEditingController get filterpinCodeController => _filterpinCodeController;
+  TextEditingController get filterpinCodeController => _filterPinCodeController;
 
   @override
   String? get selectedCity => _selectedCity;
@@ -69,8 +69,7 @@ class BranchViewBlocImpl extends BranchViewBloc {
   @override
   Future<GetAllBranchesByPaginationModel?> getBranchList() async {
     return _apiCalls.getBranchList(currentPage, filterpinCodeController.text,
-        filterBranchnameController.text,
-        selectedCity);
+        filterBranchNameController.text, selectedCity);
   }
 
   @override

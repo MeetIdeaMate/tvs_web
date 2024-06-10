@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:tlbilling/components/custom_elevated_button.dart';
 import 'package:tlbilling/utils/app_colors.dart';
 import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/utils/app_util_widgets.dart';
+import 'package:tlbilling/utils/input_formates.dart';
 import 'package:tlbilling/view/transfer/new_transfer/new_transfer.dart';
 import 'package:tlbilling/view/transfer/transfer_view_bloc.dart';
 import 'package:tlds_flutter/components/tlds_dropdown_button_form_field.dart';
@@ -33,13 +35,14 @@ class _TransferViewState extends State<TransferView>
   Widget build(BuildContext context) {
     return Scaffold(
       body: Padding(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.fromLTRB(21, 28, 21, 28),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             AppWidgetUtils.buildHeaderText(AppConstants.transfer),
-            _buildDefaultHeight(),
+            AppWidgetUtils.buildSizedBox(custHeight: 26),
             _buildSearchFilter(),
+            _buildDefaultHeight(),
             _buildTabBar(),
             _buildTabBarView(),
           ],
@@ -59,7 +62,8 @@ class _TransferViewState extends State<TransferView>
               builder: (context, snapshot) {
                 return _buildFormField(
                     _transferViewBloc.transporterNameSearchController,
-                    AppConstants.transporterName);
+                    AppConstants.transporterName,
+                    TlInputFormatters.onlyAllowAlphabetAndNumber);
               },
             ),
             _buildDefaultWidth(),
@@ -68,7 +72,8 @@ class _TransferViewState extends State<TransferView>
               builder: (context, snapshot) {
                 return _buildFormField(
                     _transferViewBloc.vehicleNameSearchController,
-                    AppConstants.vehicleName);
+                    AppConstants.vehicleName,
+                    TlInputFormatters.onlyAllowAlphabetAndNumber);
               },
             ),
             _buildDefaultWidth(),
@@ -157,69 +162,72 @@ class _TransferViewState extends State<TransferView>
   }
 
   _buildTransferTableView(BuildContext context) {
-    return SizedBox(
-      width: MediaQuery.sizeOf(context).width,
-      child: DataTable(
-        key: UniqueKey(),
-        dividerThickness: 0.01,
-        columns: [
-          _buildTransferTableHeader(
-            AppConstants.sno,
-          ),
-          _buildTransferTableHeader(AppConstants.fromBranch),
-          _buildTransferTableHeader(AppConstants.toBranch),
-          _buildTransferTableHeader(AppConstants.transporterName),
-          _buildTransferTableHeader(AppConstants.mobileNumber),
-          _buildTransferTableHeader(AppConstants.vehicleNumber),
-          _buildTransferTableHeader(AppConstants.status),
-          _buildTransferTableHeader(AppConstants.action),
-        ],
-        rows: List.generate(_transferViewBloc.rowData.length, (index) {
-          final data = _transferViewBloc.rowData[index];
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: SizedBox(
+        width: MediaQuery.sizeOf(context).width,
+        child: DataTable(
+          key: UniqueKey(),
+          dividerThickness: 0.01,
+          columns: [
+            _buildTransferTableHeader(
+              AppConstants.sno,
+            ),
+            _buildTransferTableHeader(AppConstants.fromBranch),
+            _buildTransferTableHeader(AppConstants.toBranch),
+            _buildTransferTableHeader(AppConstants.transporterName),
+            _buildTransferTableHeader(AppConstants.mobileNumber),
+            _buildTransferTableHeader(AppConstants.vehicleNumber),
+            _buildTransferTableHeader(AppConstants.status),
+            _buildTransferTableHeader(AppConstants.action),
+          ],
+          rows: List.generate(_transferViewBloc.rowData.length, (index) {
+            final data = _transferViewBloc.rowData[index];
 
-          final color = index.isEven
-              ? _appColors.whiteColor
-              : _appColors.transparentBlueColor;
-          return DataRow(
-            color: MaterialStateColor.resolveWith((states) => color),
-            cells: [
-              DataCell(Text(data[AppConstants.sno] ?? '')),
-              DataCell(Text(data[AppConstants.fromBranch] ?? '')),
-              DataCell(Text(data[AppConstants.toBranch] ?? '')),
-              DataCell(Text(data[AppConstants.transporterName] ?? '')),
-              DataCell(Text(data[AppConstants.mobileNumber] ?? '')),
-              DataCell(Text(data[AppConstants.vehicleNumber] ?? '')),
-              DataCell(
-                Container(
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(50),
-                        border: Border.all(
-                            color: data[AppConstants.status] == 'Transferred'
-                                ? _appColors.whiteColor
-                                : _appColors.yellowColor)),
-                    child: Padding(
-                        padding: const EdgeInsets.all(4),
-                        child: _buildTransferStatus(data))),
-              ),
-              DataCell(
-                Row(
-                  children: [
-                    IconButton(
-                      icon: SvgPicture.asset(AppConstants.icMore),
-                      onPressed: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const NewTransfer(),
-                            ));
-                      },
-                    ),
-                  ],
+            final color = index.isEven
+                ? _appColors.whiteColor
+                : _appColors.transparentBlueColor;
+            return DataRow(
+              color: MaterialStateColor.resolveWith((states) => color),
+              cells: [
+                DataCell(Text(data[AppConstants.sno] ?? '')),
+                DataCell(Text(data[AppConstants.fromBranch] ?? '')),
+                DataCell(Text(data[AppConstants.toBranch] ?? '')),
+                DataCell(Text(data[AppConstants.transporterName] ?? '')),
+                DataCell(Text(data[AppConstants.mobileNumber] ?? '')),
+                DataCell(Text(data[AppConstants.vehicleNumber] ?? '')),
+                DataCell(
+                  Container(
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(50),
+                          border: Border.all(
+                              color: data[AppConstants.status] == 'Transferred'
+                                  ? _appColors.whiteColor
+                                  : _appColors.yellowColor)),
+                      child: Padding(
+                          padding: const EdgeInsets.all(4),
+                          child: _buildTransferStatus(data))),
                 ),
-              ),
-            ],
-          );
-        }),
+                DataCell(
+                  Row(
+                    children: [
+                      IconButton(
+                        icon: SvgPicture.asset(AppConstants.icMore),
+                        onPressed: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const NewTransfer(),
+                              ));
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            );
+          }),
+        ),
       ),
     );
   }
@@ -265,8 +273,8 @@ class _TransferViewState extends State<TransferView>
         custHeight: MediaQuery.sizeOf(context).height * 0.02);
   }
 
-  Widget _buildFormField(
-      TextEditingController textController, String hintText) {
+  Widget _buildFormField(TextEditingController textController, String hintText,
+      List<TextInputFormatter>? inputFormatters) {
     final bool isTextEmpty = textController.text.isEmpty;
     final IconData iconData = isTextEmpty ? Icons.search : Icons.close;
     final Color iconColor = isTextEmpty ? _appColors.primaryColor : Colors.red;
@@ -275,6 +283,8 @@ class _TransferViewState extends State<TransferView>
       height: 40,
       controller: textController,
       hintText: hintText,
+      isSearch: true,
+      inputFormatters: inputFormatters,
       suffixIcon: IconButton(
         onPressed: iconData == Icons.search
             ? () {
