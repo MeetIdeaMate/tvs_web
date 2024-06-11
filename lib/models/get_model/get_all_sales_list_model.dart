@@ -1,3 +1,7 @@
+// To parse this JSON data, do
+//
+//     final getAllSalesList = getAllSalesListFromJson(jsonString);
+
 import 'dart:convert';
 
 GetAllSalesList getAllSalesListFromJson(String str) =>
@@ -15,14 +19,14 @@ class GetAllSalesList {
 
   factory GetAllSalesList.fromJson(Map<String, dynamic> json) =>
       GetAllSalesList(
-        salesList: json["salesList"] == null
+        salesList: json["SalesList"] == null
             ? []
             : List<SalesList>.from(
-                json["salesList"]!.map((x) => SalesList.fromJson(x))),
+                json["SalesList"]!.map((x) => SalesList.fromJson(x))),
       );
 
   Map<String, dynamic> toJson() => {
-        "salesList": salesList == null
+        "SalesList": salesList == null
             ? []
             : List<dynamic>.from(salesList!.map((x) => x.toJson())),
       };
@@ -30,17 +34,21 @@ class GetAllSalesList {
 
 class SalesList {
   String? billType;
-  String? createdBy;
-  DateTime? createdDateTime;
+  String? branchId;
+  String? branchName;
   String? customerId;
-  String? id;
+  String? customerName;
+  Insurance? insurance;
   DateTime? invoiceDate;
   String? invoiceNo;
   String? invoiceType;
   List<ItemDetail>? itemDetails;
+  Loaninfo? loaninfo;
+  String? mobileNo;
   int? netAmt;
   List<PaidDetail>? paidDetails;
   String? paymentStatus;
+  int? pendingAmt;
   int? roundOffAmt;
   int? totalCgst;
   int? totalDisc;
@@ -48,22 +56,24 @@ class SalesList {
   int? totalQty;
   int? totalSgst;
   int? totalTaxableAmt;
-  String? updatedBy;
-  DateTime? updatedDateTime;
 
   SalesList({
     this.billType,
-    this.createdBy,
-    this.createdDateTime,
+    this.branchId,
+    this.branchName,
     this.customerId,
-    this.id,
+    this.customerName,
+    this.insurance,
     this.invoiceDate,
     this.invoiceNo,
     this.invoiceType,
     this.itemDetails,
+    this.loaninfo,
+    this.mobileNo,
     this.netAmt,
     this.paidDetails,
     this.paymentStatus,
+    this.pendingAmt,
     this.roundOffAmt,
     this.totalCgst,
     this.totalDisc,
@@ -71,18 +81,17 @@ class SalesList {
     this.totalQty,
     this.totalSgst,
     this.totalTaxableAmt,
-    this.updatedBy,
-    this.updatedDateTime,
   });
 
   factory SalesList.fromJson(Map<String, dynamic> json) => SalesList(
         billType: json["billType"],
-        createdBy: json["createdBy"],
-        createdDateTime: json["createdDateTime"] == null
-            ? null
-            : DateTime.parse(json["createdDateTime"]),
+        branchId: json["branchId"],
+        branchName: json["branchName"],
         customerId: json["customerId"],
-        id: json["id"],
+        customerName: json["customerName"],
+        insurance: json["insurance"] == null
+            ? null
+            : Insurance.fromJson(json["insurance"]),
         invoiceDate: json["invoiceDate"] == null
             ? null
             : DateTime.parse(json["invoiceDate"]),
@@ -92,12 +101,17 @@ class SalesList {
             ? []
             : List<ItemDetail>.from(
                 json["itemDetails"]!.map((x) => ItemDetail.fromJson(x))),
+        loaninfo: json["loaninfo"] == null
+            ? null
+            : Loaninfo.fromJson(json["loaninfo"]),
+        mobileNo: json["mobileNo"],
         netAmt: json["netAmt"],
         paidDetails: json["paidDetails"] == null
             ? []
             : List<PaidDetail>.from(
                 json["paidDetails"]!.map((x) => PaidDetail.fromJson(x))),
         paymentStatus: json["paymentStatus"],
+        pendingAmt: json["pendingAmt"],
         roundOffAmt: json["roundOffAmt"],
         totalCgst: json["totalCgst"],
         totalDisc: json["totalDisc"],
@@ -105,18 +119,15 @@ class SalesList {
         totalQty: json["totalQty"],
         totalSgst: json["totalSgst"],
         totalTaxableAmt: json["totalTaxableAmt"],
-        updatedBy: json["updatedBy"],
-        updatedDateTime: json["updatedDateTime"] == null
-            ? null
-            : DateTime.parse(json["updatedDateTime"]),
       );
 
   Map<String, dynamic> toJson() => {
         "billType": billType,
-        "createdBy": createdBy,
-        "createdDateTime": createdDateTime?.toIso8601String(),
+        "branchId": branchId,
+        "branchName": branchName,
         "customerId": customerId,
-        "id": id,
+        "customerName": customerName,
+        "insurance": insurance?.toJson(),
         "invoiceDate":
             "${invoiceDate!.year.toString().padLeft(4, '0')}-${invoiceDate!.month.toString().padLeft(2, '0')}-${invoiceDate!.day.toString().padLeft(2, '0')}",
         "invoiceNo": invoiceNo,
@@ -124,11 +135,14 @@ class SalesList {
         "itemDetails": itemDetails == null
             ? []
             : List<dynamic>.from(itemDetails!.map((x) => x.toJson())),
+        "loaninfo": loaninfo?.toJson(),
+        "mobileNo": mobileNo,
         "netAmt": netAmt,
         "paidDetails": paidDetails == null
             ? []
             : List<dynamic>.from(paidDetails!.map((x) => x.toJson())),
         "paymentStatus": paymentStatus,
+        "pendingAmt": pendingAmt,
         "roundOffAmt": roundOffAmt,
         "totalCgst": totalCgst,
         "totalDisc": totalDisc,
@@ -136,8 +150,46 @@ class SalesList {
         "totalQty": totalQty,
         "totalSgst": totalSgst,
         "totalTaxableAmt": totalTaxableAmt,
-        "updatedBy": updatedBy,
-        "updatedDateTime": updatedDateTime?.toIso8601String(),
+      };
+}
+
+class Insurance {
+  DateTime? expiryDate;
+  String? insuranceCompanyName;
+  String? insuranceId;
+  int? insuredAmt;
+  DateTime? insuredDate;
+  String? invoiceNo;
+
+  Insurance({
+    this.expiryDate,
+    this.insuranceCompanyName,
+    this.insuranceId,
+    this.insuredAmt,
+    this.insuredDate,
+    this.invoiceNo,
+  });
+
+  factory Insurance.fromJson(Map<String, dynamic> json) => Insurance(
+        expiryDate: json["expiryDate"] == null
+            ? null
+            : DateTime.parse(json["expiryDate"]),
+        insuranceCompanyName: json["insuranceCompanyName"],
+        insuranceId: json["insuranceId"],
+        insuredAmt: json["insuredAmt"],
+        insuredDate: json["insuredDate"] == null
+            ? null
+            : DateTime.parse(json["insuredDate"]),
+        invoiceNo: json["invoiceNo"],
+      );
+
+  Map<String, dynamic> toJson() => {
+        "expiryDate": expiryDate?.toIso8601String(),
+        "insuranceCompanyName": insuranceCompanyName,
+        "insuranceId": insuranceId,
+        "insuredAmt": insuredAmt,
+        "insuredDate": insuredDate?.toIso8601String(),
+        "invoiceNo": invoiceNo,
       };
 }
 
@@ -148,7 +200,6 @@ class ItemDetail {
   List<GstDetail>? gstDetails;
   List<Incentive>? incentives;
   int? invoiceValue;
-  String? itemName;
   Value? mainSpecValue;
   String? partNo;
   int? quantity;
@@ -165,7 +216,6 @@ class ItemDetail {
     this.gstDetails,
     this.incentives,
     this.invoiceValue,
-    this.itemName,
     this.mainSpecValue,
     this.partNo,
     this.quantity,
@@ -189,7 +239,6 @@ class ItemDetail {
             : List<Incentive>.from(
                 json["incentives"]!.map((x) => Incentive.fromJson(x))),
         invoiceValue: json["invoiceValue"],
-        itemName: json["itemName"],
         mainSpecValue: json["mainSpecValue"] == null
             ? null
             : Value.fromJson(json["mainSpecValue"]),
@@ -217,7 +266,6 @@ class ItemDetail {
             ? []
             : List<dynamic>.from(incentives!.map((x) => x.toJson())),
         "invoiceValue": invoiceValue,
-        "itemName": itemName,
         "mainSpecValue": mainSpecValue?.toJson(),
         "partNo": partNo,
         "quantity": quantity,
@@ -280,27 +328,11 @@ class Incentive {
 }
 
 class Value {
-  String? additionalProp1;
-  String? additionalProp2;
-  String? additionalProp3;
+  Value();
 
-  Value({
-    this.additionalProp1,
-    this.additionalProp2,
-    this.additionalProp3,
-  });
+  factory Value.fromJson(Map<String, dynamic> json) => Value();
 
-  factory Value.fromJson(Map<String, dynamic> json) => Value(
-        additionalProp1: json["additionalProp1"],
-        additionalProp2: json["additionalProp2"],
-        additionalProp3: json["additionalProp3"],
-      );
-
-  Map<String, dynamic> toJson() => {
-        "additionalProp1": additionalProp1,
-        "additionalProp2": additionalProp2,
-        "additionalProp3": additionalProp3,
-      };
+  Map<String, dynamic> toJson() => {};
 }
 
 class Tax {
@@ -327,15 +359,37 @@ class Tax {
       };
 }
 
+class Loaninfo {
+  String? bankName;
+  int? loanAmt;
+  String? loanId;
+
+  Loaninfo({
+    this.bankName,
+    this.loanAmt,
+    this.loanId,
+  });
+
+  factory Loaninfo.fromJson(Map<String, dynamic> json) => Loaninfo(
+        bankName: json["bankName"],
+        loanAmt: json["loanAmt"],
+        loanId: json["loanId"],
+      );
+
+  Map<String, dynamic> toJson() => {
+        "bankName": bankName,
+        "loanAmt": loanAmt,
+        "loanId": loanId,
+      };
+}
+
 class PaidDetail {
-  String? id;
   String? paidAmount;
-  String? paymentDate;
+  DateTime? paymentDate;
   String? paymentId;
   String? paymentType;
 
   PaidDetail({
-    this.id,
     this.paidAmount,
     this.paymentDate,
     this.paymentId,
@@ -343,17 +397,18 @@ class PaidDetail {
   });
 
   factory PaidDetail.fromJson(Map<String, dynamic> json) => PaidDetail(
-        id: json["id"],
         paidAmount: json["paidAmount"],
-        paymentDate: json["paymentDate"],
+        paymentDate: json["paymentDate"] == null
+            ? null
+            : DateTime.parse(json["paymentDate"]),
         paymentId: json["paymentId"],
         paymentType: json["paymentType"],
       );
 
   Map<String, dynamic> toJson() => {
-        "id": id,
         "paidAmount": paidAmount,
-        "paymentDate": paymentDate,
+        "paymentDate":
+            "${paymentDate!.year.toString().padLeft(4, '0')}-${paymentDate!.month.toString().padLeft(2, '0')}-${paymentDate!.day.toString().padLeft(2, '0')}",
         "paymentId": paymentId,
         "paymentType": paymentType,
       };
