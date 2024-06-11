@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:tlbilling/models/get_model/get_all_customers_model.dart';
 import 'package:tlbilling/utils/app_colors.dart';
 import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/utils/app_util_widgets.dart';
 import 'package:tlbilling/view/insuranse/insuranse_view_bloc.dart';
+import 'package:tlbilling/components/custom_pagenation.dart';
+import 'package:tlbilling/models/get_model/get_all_insurance_by_pagination_model.dart';
 
 class InsuranseView extends StatefulWidget {
   const InsuranseView({super.key});
@@ -33,29 +36,6 @@ class _InsuranseViewState extends State<InsuranseView>
     super.dispose();
   }
 
-  final List<Map<String, String>> _insuranceList = [
-    {
-      'Invoice No': 'INV001',
-      'Invoice Date': '2024-06-01',
-      'Vehicle No': 'ABC123',
-      'Customer ID': 'CUST001',
-      'Customer Name': 'John Doe',
-      'Mobile No': '1234567890',
-      'Status': 'Active',
-      'Created By': 'Admin',
-    },
-    {
-      'Invoice No': 'INV002',
-      'Invoice Date': '2024-06-02',
-      'Vehicle No': 'XYZ456',
-      'Customer ID': 'CUST002',
-      'Customer Name': 'Jane Smith',
-      'Mobile No': '9876543210',
-      'Status': 'Inactive',
-      'Created By': 'Manager',
-    },
-  ];
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -66,7 +46,7 @@ class _InsuranseViewState extends State<InsuranseView>
           children: [
             AppWidgetUtils.buildHeaderText(AppConstants.insurance),
             AppWidgetUtils.buildSizedBox(custHeight: 26),
-            _buildSearchFilter(context),
+            _buildSearchFilterAddButton(context),
             AppWidgetUtils.buildSizedBox(custHeight: 28),
             _buildTabBar(context),
             AppWidgetUtils.buildSizedBox(custHeight: 15),
@@ -77,43 +57,17 @@ class _InsuranseViewState extends State<InsuranseView>
     );
   }
 
-  _buildTabBar(BuildContext context) {
-    return SizedBox(
-      width: MediaQuery.of(context).size.width * 0.2,
-      child: TabBar(
-        controller: _tabController,
-        tabs: const [
-          Tab(text: AppConstants.pending),
-          Tab(text: AppConstants.completed),
-        ],
-      ),
-    );
-  }
-
-  _buildTabBarView(BuildContext context) {
-    return Expanded(
-      child: TabBarView(
-        physics: const NeverScrollableScrollPhysics(),
-        controller: _tabController,
-        children: [
-          _buildInsuranceTableView(context),
-          _buildInsuranceTableView(context),
-        ],
-      ),
-    );
-  }
-
-  _buildSearchFilter(BuildContext context) {
+  _buildSearchFilterAddButton(BuildContext context) {
     return Row(
       children: [
-        _buildInvoiceSearch(),
+        _buildInvoiceNoSearch(),
         _buildMobileNoSearch(),
         _buildCustomerNameSearch(),
       ],
     );
   }
 
-  Widget _buildInvoiceSearch() {
+  Widget _buildInvoiceNoSearch() {
     return buildSearchField(
       hintText: AppConstants.invoiceNo,
       searchController: _insuranceViewBlocImpl.invoiceNoSearchController,
@@ -165,20 +119,20 @@ class _InsuranseViewState extends State<InsuranseView>
               if (iconPath == Icons.search) {
                 if (searchController.text.isNotEmpty) {
                   searchStreamController(true);
+                  _insuranceViewBlocImpl.pageNumberUpdateStreamController(0);
                 }
               } else {
                 searchController.clear();
                 searchStreamController(false);
+                _insuranceViewBlocImpl.pageNumberUpdateStreamController(0);
               }
             },
-            icon: Icon(
-              iconPath,
-              color: iconColor,
-            ),
+            icon: Icon(iconPath, color: iconColor),
           ),
           onSubmit: (value) {
             if (value.isNotEmpty) {
               searchStreamController(true);
+              _insuranceViewBlocImpl.pageNumberUpdateStreamController(0);
             }
           },
         );
@@ -186,65 +140,162 @@ class _InsuranseViewState extends State<InsuranseView>
     );
   }
 
-  Widget _buildInsuranceTableView(BuildContext context) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: DataTable(
-        dividerThickness: 0.01,
-        columns: [
-          _buildinsuranseTableHeader(AppConstants.invoiceNo),
-          _buildinsuranseTableHeader(AppConstants.invoiceDate),
-          _buildinsuranseTableHeader(AppConstants.vehicleNo),
-          _buildinsuranseTableHeader(AppConstants.customerID),
-          _buildinsuranseTableHeader(AppConstants.customerName),
-          _buildinsuranseTableHeader(AppConstants.mobileNo),
-          _buildinsuranseTableHeader(AppConstants.status),
-          _buildinsuranseTableHeader(AppConstants.createdBy),
-          _buildinsuranseTableHeader(AppConstants.action),
+  _buildTabBar(BuildContext context) {
+    return SizedBox(
+      width: MediaQuery.of(context).size.width * 0.5,
+      child: TabBar(
+        controller: _tabController,
+        tabs: const [
+          Tab(text: AppConstants.pending),
+          Tab(text: AppConstants.completed),
         ],
-        rows: _insuranceList.map((rowData) {
-          final bool isEven = _insuranceList.indexOf(rowData).isEven;
-          return DataRow(
-            color: MaterialStateColor.resolveWith((states) {
-              return isEven ? Colors.white : _appColors.transparentBlueColor;
-            }),
-            cells: [
-              DataCell(Text(rowData[AppConstants.invoiceNo] ?? '')),
-              DataCell(Text(rowData[AppConstants.invoiceDate] ?? '')),
-              DataCell(Text(rowData[AppConstants.vehicleNo] ?? '')),
-              DataCell(Text(rowData[AppConstants.customerID] ?? '')),
-              DataCell(Text(rowData[AppConstants.customerName] ?? '')),
-              DataCell(Text(rowData[AppConstants.mobileNo] ?? '')),
-              DataCell(
-                Chip(
-                  label: const Text(
-                    'Pending',
-                    style: TextStyle(
-                      color: Colors.yellow,
-                    ),
-                  ),
-                  backgroundColor: Colors.transparent,
-                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  padding: EdgeInsets.zero,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
-                    side: const BorderSide(color: Colors.yellow, width: 1),
-                  ),
-                ),
-              ),
-              DataCell(Text(rowData[AppConstants.createdBy] ?? '')),
-              DataCell(SvgPicture.asset(AppConstants.icEdit)),
-            ],
-          );
-        }).toList(),
       ),
     );
   }
 
-  DataColumn _buildinsuranseTableHeader(String headerValue) => DataColumn(
-        label: Text(
-          headerValue,
+  _buildTabBarView(BuildContext context) {
+    return Expanded(
+      child: TabBarView(
+        physics: const NeverScrollableScrollPhysics(),
+        controller: _tabController,
+        children: [
+          _buildInsuranceTableView(context, AppConstants.pending),
+          _buildInsuranceTableView(context, AppConstants.completed),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInsuranceTableView(BuildContext context, String status) {
+    return StreamBuilder<int>(
+      stream: _insuranceViewBlocImpl.pageNumberStream,
+      initialData: _insuranceViewBlocImpl.currentPage,
+      builder: (context, streamSnapshot) {
+        int currentPage = streamSnapshot.data ?? 0;
+        if (currentPage < 0) currentPage = 0;
+        _insuranceViewBlocImpl.currentPage = currentPage;
+
+        return FutureBuilder<GetAllInsuranceByPaginationModel?>(
+          future: _insuranceViewBlocImpl.getAllInsuranceByPagination(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(child: AppWidgetUtils.buildLoading());
+            } else if (snapshot.hasError) {
+              return const Center(child: Text(AppConstants.somethingWentWrong));
+            } else if (snapshot.hasData) {
+              if (snapshot.data?.getAllCustomersModel?.isEmpty ?? false) {
+                return Center(
+                  child: SvgPicture.asset(AppConstants.imgNoData),
+                );
+              }
+            }
+
+            GetAllInsuranceByPaginationModel insuranceListModel =
+                snapshot.data!;
+
+            List<GetAllCustomersModel> insuranceData =
+                snapshot.data?.getAllCustomersModel ?? [];
+
+            return Column(
+              children: [
+                Expanded(
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.vertical,
+                      child: DataTable(
+                        dividerThickness: 0.01,
+                        columns: [
+                          _buildInsuranceTableHeader(AppConstants.sno),
+                          _buildInsuranceTableHeader(AppConstants.invoiceNo),
+                          _buildInsuranceTableHeader(AppConstants.invoiceDate),
+                          _buildInsuranceTableHeader(AppConstants.vehicleNo),
+                          _buildInsuranceTableHeader(AppConstants.customerID),
+                          _buildInsuranceTableHeader(AppConstants.customerName),
+                          _buildInsuranceTableHeader(AppConstants.mobileNo),
+                          _buildInsuranceTableHeader(AppConstants.status),
+                          _buildInsuranceTableHeader(AppConstants.createdBy),
+                          _buildInsuranceTableHeader(AppConstants.action),
+                        ],
+                        rows: insuranceData.asMap().entries.map((entry) {
+                          return DataRow(
+                            color: MaterialStateColor.resolveWith((states) {
+                              return entry.key % 2 == 0
+                                  ? Colors.white
+                                  : _appColors.transparentBlueColor;
+                            }),
+                            cells: [
+                              DataCell(Text('${entry.key + 1}')),
+                              DataCell(Text(entry.value.city ?? '')),
+                              DataCell(Text(entry.value.customerId ?? '')),
+                              DataCell(Text(entry.value.city ?? '')),
+                              DataCell(Text(entry.value.customerId ?? '')),
+                              DataCell(Text(entry.value.customerName ?? '')),
+                              DataCell(Text(entry.value.mobileNo ?? '')),
+                              DataCell(
+                                Chip(
+                                  label: Text(
+                                    status,
+                                    style: TextStyle(
+                                      color: status == AppConstants.pending
+                                          ? _appColors.yellowColor
+                                          : _appColors.red,
+                                    ),
+                                  ),
+                                  backgroundColor: Colors.transparent,
+                                  materialTapTargetSize:
+                                      MaterialTapTargetSize.shrinkWrap,
+                                  padding: EdgeInsets.zero,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(20),
+                                    side: BorderSide(
+                                      color: status == AppConstants.pending
+                                          ? _appColors.yellowColor
+                                          : _appColors.red,
+                                      width: 1,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              DataCell(Text(entry.value.customerName ?? '')),
+                              DataCell(
+                                IconButton(
+                                  icon: SvgPicture.asset(AppConstants.icEdit),
+                                  onPressed: () {},
+                                ),
+                              ),
+                            ],
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                  ),
+                ),
+                CustomPagination(
+                  itemsOnLastPage: insuranceListModel.totalElements ?? 0,
+                  currentPage: currentPage,
+                  totalPages: insuranceListModel.totalPages ?? 0,
+                  onPageChanged: (pageValue) {
+                    _insuranceViewBlocImpl
+                        .pageNumberUpdateStreamController(pageValue);
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  DataColumn _buildInsuranceTableHeader(String text) {
+    return DataColumn(
+      label: Expanded(
+        child: Text(
+          text,
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
-      );
+      ),
+    );
+  }
 }

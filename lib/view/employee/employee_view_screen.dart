@@ -89,6 +89,7 @@ class _EmployeeViewState extends State<EmployeeView> {
           if (value.isNotEmpty) {
             _employeeViewBloc.employeeTableViewStream(true);
             _employeeViewBloc.getEmployeesList();
+            _employeeViewBloc.pageNumberUpdateStreamController(0);
           }
         });
       },

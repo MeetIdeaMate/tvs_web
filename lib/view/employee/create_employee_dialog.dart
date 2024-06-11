@@ -229,7 +229,6 @@ class _CreateEmployeeDialogState extends State<CreateEmployeeDialog> {
                       .cast<String>()
                       .toList();
 
-                  // Ensure the selected branch is in the list
                   final selectedBranch = branchNameList!.contains(
                           _createEmployeeDialogBlocImpl.selectedEmpBranch)
                       ? _createEmployeeDialogBlocImpl.selectedEmpBranch

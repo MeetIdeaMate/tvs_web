@@ -102,7 +102,15 @@ class _NewVoucherState extends State<NewVoucher> {
                           _newVoucherBloc.payToTextController.text = suggestion;
                         },
                         suggestionsCallback: (pattern) {
-                          return employeeNamesList
+                          List<String> filteredEmployeeNamesList;
+
+                          filteredEmployeeNamesList = employeeNamesList
+                              .where((employee) =>
+                                  employee !=
+                                  _newVoucherBloc.giverTextController.text)
+                              .toList();
+
+                          return filteredEmployeeNamesList
                               .where((employee) => employee
                                   .toLowerCase()
                                   .contains(pattern.toLowerCase()))
@@ -198,7 +206,7 @@ class _NewVoucherState extends State<NewVoucher> {
                     final employeesList =
                         snapshot.data!.result!.employeeListModel;
                     final employeeNamesSet = employeesList!
-                        .map((result) => result.employeeName ?? "")
+                        .map((result) => result.employeeName ?? '')
                         .toSet();
                     List<String> employeeNamesList = employeeNamesSet.toList();
                     return TypeAheadField(
@@ -212,8 +220,7 @@ class _NewVoucherState extends State<NewVoucher> {
                         _newVoucherBloc.giverTextController.text = suggestion;
                       },
                       suggestionsCallback: (pattern) {
-                        List<String> filteredEmployeeNamesList =
-                            employeeNamesList;
+                        List<String> filteredEmployeeNamesList;
 
                         filteredEmployeeNamesList = employeeNamesList
                             .where((employee) =>

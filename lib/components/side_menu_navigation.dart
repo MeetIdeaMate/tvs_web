@@ -31,24 +31,26 @@ class SideMenuNavigation extends StatefulWidget {
 
 class _SideMenuNavigationState extends State<SideMenuNavigation> {
   final _appcolors = AppColors();
-  final sideMenuBloc = SideMenuNavigationBlocImpl();
+  final _sideMenuBloc = SideMenuNavigationBlocImpl();
   String selectedMenuItem = AppConstants.purchase;
   String? userName;
   String? designation;
+  String? branchname;
 
   @override
   void initState() {
     super.initState();
     getUserNameAndDesignation();
 
-    sideMenuBloc.sideMenuStreamController(true);
+    _sideMenuBloc.sideMenuStreamController(true);
   }
 
   Future<void> getUserNameAndDesignation() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     designation = prefs.getString('designation') ?? '';
     userName = prefs.getString('userName') ?? '';
-    sideMenuBloc.sideMenuStreamController(true);
+    _sideMenuBloc.branchId = prefs.getString('branchId') ?? '';
+    _sideMenuBloc.sideMenuStreamController(true);
   }
 
   @override
@@ -82,7 +84,7 @@ class _SideMenuNavigationState extends State<SideMenuNavigation> {
           ),
         ),
         StreamBuilder(
-            stream: sideMenuBloc.sideMenuStream,
+            stream: _sideMenuBloc.sideMenuStream,
             builder: (context, snapshot) {
               return Expanded(
                 flex: 5,
@@ -118,7 +120,7 @@ class _SideMenuNavigationState extends State<SideMenuNavigation> {
 
   Widget _buildDrawer() {
     return StreamBuilder(
-      stream: sideMenuBloc.sideMenuStream,
+      stream: _sideMenuBloc.sideMenuStream,
       builder: (context, snapshot) {
         return Drawer(
           backgroundColor: _appcolors.primaryColor,
@@ -312,7 +314,7 @@ class _SideMenuNavigationState extends State<SideMenuNavigation> {
   }
 
   void _onMenuItemSelected(String menuItem) {
-    sideMenuBloc.sideMenuStreamController(true);
+    _sideMenuBloc.sideMenuStreamController(true);
     selectedMenuItem = menuItem;
   }
 
@@ -417,33 +419,39 @@ class _SideMenuNavigationState extends State<SideMenuNavigation> {
   }
 
   _buildBranch() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+    return FutureBuilder(
+      future: _sideMenuBloc.getBranchById(),
+      builder: (context, snapshot) {
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              'KovilPatti',
-              style: TextStyle(color: _appcolors.whiteColor, fontSize: 14),
-            ),
-            Row(
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  height: 5,
-                  width: 5,
-                  decoration: const BoxDecoration(
-                    borderRadius: BorderRadius.all(Radius.circular(50)),
-                    color: Colors.green,
-                  ),
+                Text(
+                  snapshot.data?.city ?? '',
+                  style: TextStyle(color: _appcolors.whiteColor, fontSize: 14),
                 ),
-                _buildText(' Current Branch', _appcolors.whiteColor, 8),
+                Row(
+                  children: [
+                    Container(
+                      height: 5,
+                      width: 5,
+                      decoration: const BoxDecoration(
+                        borderRadius: BorderRadius.all(Radius.circular(50)),
+                        color: Colors.green,
+                      ),
+                    ),
+                    _buildText('  ${snapshot.data?.branchName ?? ''}',
+                        _appcolors.whiteColor, 8),
+                  ],
+                )
               ],
-            )
+            ),
+            SvgPicture.asset(AppConstants.icDownArrow)
           ],
-        ),
-        SvgPicture.asset(AppConstants.icDownArrow)
-      ],
+        );
+      },
     );
   }
 
