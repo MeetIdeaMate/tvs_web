@@ -11,8 +11,8 @@ import 'package:tlbilling/view/sales/add_sales_bloc.dart';
 import 'package:tlds_flutter/components/tlds_dropdown_button_form_field.dart';
 
 class CustomerDetails extends StatefulWidget {
-  AddSalesBlocImpl addSalesBloc;
-  CustomerDetails({
+  final AddSalesBlocImpl addSalesBloc;
+  const CustomerDetails({
     super.key,
     required this.addSalesBloc,
   });
@@ -48,7 +48,7 @@ class _CustomerDetailsState extends State<CustomerDetails> {
               fontSize: 17,
               fontWeight: FontWeight.bold),
         ),
-        AppWidgetUtils.buildSizedBox(custHeight: 10),
+        AppWidgetUtils.buildSizedBox(custHeight: 7),
         _buildPaymentMethodSelection(context),
         const Spacer(),
         CustomActionButtons(
@@ -160,30 +160,32 @@ class _CustomerDetailsState extends State<CustomerDetails> {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        FutureBuilder(
-          future: widget.addSalesBloc.getAllCustomerList(),
-          builder: (context, snapshot) {
-            var customerList = snapshot.data?.result?.getAllCustomerNameList;
-            List<String>? customerNamesList =
-                customerList?.map((e) => e.customerName ?? '').toList();
-            return TldsDropDownButtonFormField(
-              validator: (String? value) {
-                if (value == null || value.isEmpty) {
-                  return AppConstants.selectCustomer;
-                }
-                return null;
-              },
-              width: MediaQuery.sizeOf(context).width * 0.22,
-              hintText: AppConstants.selectCustomer,
-              dropDownItems: customerNamesList ?? [],
-              onChange: (String? newValue) {
-                var selectedVendor = customerList!.firstWhere(
-                    (customer) => customer.customerName == newValue);
-                widget.addSalesBloc.selectedCustomerId =
-                    selectedVendor.customerId;
-              },
-            );
-          },
+        Expanded(
+          child: FutureBuilder(
+            future: widget.addSalesBloc.getAllCustomerList(),
+            builder: (context, snapshot) {
+              var customerList = snapshot.data?.result?.getAllCustomerNameList;
+              List<String>? customerNamesList =
+                  customerList?.map((e) => e.customerName ?? '').toList();
+              return TldsDropDownButtonFormField(
+                validator: (String? value) {
+                  if (value == null || value.isEmpty) {
+                    return AppConstants.selectCustomer;
+                  }
+                  return null;
+                },
+                width: MediaQuery.sizeOf(context).width * 0.22,
+                hintText: AppConstants.selectCustomer,
+                dropDownItems: customerNamesList ?? [],
+                onChange: (String? newValue) {
+                  var selectedVendor = customerList!.firstWhere(
+                      (customer) => customer.customerName == newValue);
+                  widget.addSalesBloc.selectedCustomerId =
+                      selectedVendor.customerId;
+                },
+              );
+            },
+          ),
         ),
         AppWidgetUtils.buildSizedBox(custWidth: 10),
         CustomElevatedButton(

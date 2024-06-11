@@ -163,19 +163,21 @@ class _CreateBranchDialogState extends State<CreateBranchDialog> {
   }
 
   _buildBranchCreateForm() {
-    return Form(
-      key: _createBranchDialogBlocImpl.branchFormKey,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _buildSelectBranchRadioButton(),
-          AppWidgetUtils.buildSizedBox(custHeight: 10),
-          _buildBranchNameAndCityFields(),
-          AppWidgetUtils.buildSizedBox(custHeight: 13),
-          _buildMobNoPinCodeAndAddressFields(),
-          AppWidgetUtils.buildSizedBox(custHeight: 13),
-          _buildSelectBranchMainBranchFields(),
-        ],
+    return SingleChildScrollView(
+      child: Form(
+        key: _createBranchDialogBlocImpl.branchFormKey,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _buildSelectBranchRadioButton(),
+            AppWidgetUtils.buildSizedBox(custHeight: 10),
+            _buildBranchNameAndCityFields(),
+            AppWidgetUtils.buildSizedBox(custHeight: 13),
+            _buildMobNoPinCodeAndAddressFields(),
+            AppWidgetUtils.buildSizedBox(custHeight: 13),
+            _buildSelectBranchMainBranchFields(),
+          ],
+        ),
       ),
     );
   }

@@ -26,6 +26,7 @@ class AppConstants {
   static const today = 'Today';
   static const pending = 'Pending';
   static const completed = 'Completed';
+  // static const branchId = 'branchId';
 
   //LoginPage
   static const loginheader = 'Login to your account';
@@ -118,6 +119,7 @@ class AppConstants {
   static const imgNoData = 'assets/images/img_nodata.svg';
   static const imgLoginPagebg = 'assets/images/img_tvs.png';
   static const imgTvsLogo = 'assets/images/img_tvs_logo.png';
+  static const imgPdfHeader = 'images/img_pdf_header.png';
 
   //SideMenu
   static const purchase = 'Purchase';
@@ -312,7 +314,8 @@ class AppConstants {
   static const purchaseBillScc = 'Purchase bill added successfully!';
   static const purchaseBillDescScc = 'Purchase bill added to the view table';
   static const purchaseBillerr = 'Cant create purchase bill';
-  static const purchaseBillDescerr = 'Somthing went wrong creating purchase bill';
+  static const purchaseBillDescerr =
+      'Somthing went wrong creating purchase bill';
   static const invalidUser = 'Invalid user found or inactive';
   static const branchCreated = 'Branch Created';
   static const branchCreatedSuccessFully = 'Branch created successFully';

@@ -61,10 +61,10 @@ class AppWidgetUtils {
                 ? 10
                 : null,
         counterText: '',
-        inputFormatters:
-            (name == AppConstants.mobileNumber || name == AppConstants.pinCode)
-                ? TldsInputFormatters.onlyAllowNumbers
-                : TldsInputFormatters.allowAlphabetsAndSpaces,
+        inputFormatters: (name == AppConstants.mobileNumber ||
+                name == AppConstants.pinCode)
+            ? TldsInputFormatters.onlyAllowNumbers
+            : inputFormatters ?? TldsInputFormatters.allowAlphabetsAndSpaces,
         isSearch: true,
         suffixIcon: suffixIcon ??
             IconButton(

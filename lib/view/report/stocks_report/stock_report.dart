@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:tlbilling/components/custom_elevated_button.dart';
-import 'package:tlbilling/components/custom_table_view.dart';
+import 'package:tlbilling/components/custom_pagenation.dart';
+import 'package:tlbilling/models/get_model/get_all_vendor_by_pagination_model.dart';
 import 'package:tlbilling/utils/app_colors.dart';
 import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/utils/app_util_widgets.dart' as tlbilling_widget;
+import 'package:tlbilling/utils/app_util_widgets.dart';
 import 'package:tlbilling/view/report/stocks_report/stock_report_bloc.dart';
 import 'package:tlbilling/view/report/stocks_report/stocks_accessories_bloc.dart';
 import 'package:tlbilling/view/report/stocks_report/stocks_vehicles_report.dart';
-import 'package:tlds_flutter/export.dart';
+import 'package:tlds_flutter/components/tlds_date_picker.dart';
+import 'package:tlds_flutter/components/tlds_dropdown_button_form_field.dart';
 
 class StockReport extends StatefulWidget {
   const StockReport({super.key});
@@ -46,30 +49,6 @@ class _StockReportState extends State<StockReport>
     'Variant',
     'HSN Code',
     'Qty',
-  ];
-
-  List<Map<String, String>> rowData = [
-    {
-      'S.No': '1',
-      'Vehicle Name': 'Toyota Camry',
-      'Variant': 'Base',
-      'HSN Code': '87089900',
-      'Qty': '10',
-    },
-    {
-      'S.No': '2',
-      'Vehicle Name': 'Honda Accord',
-      'Variant': 'Sport',
-      'HSN Code': '87089900',
-      'Qty': '5',
-    },
-    {
-      'S.No': '3',
-      'Vehicle Name': 'BMW 3 Series',
-      'Variant': 'Luxury',
-      'HSN Code': '87089900',
-      'Qty': '8',
-    }
   ];
 
   @override
@@ -127,7 +106,7 @@ class _StockReportState extends State<StockReport>
       ]),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
+          return const Text(AppConstants.loading);
         } else if (snapshot.hasError) {
           return Center(child: Text('Error: ${snapshot.error}'));
         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
@@ -144,7 +123,12 @@ class _StockReportState extends State<StockReport>
           vehicleTypes.insert(0, AppConstants.all);
 
           return searchAndTableView(
-            vehicleOrAccessoriesHintName: AppConstants.accessoriesType,
+            vehicleOrAccessoriesHintName:
+                (snapshot.connectionState == ConnectionState.waiting)
+                    ? AppConstants.loading
+                    : (snapshot.hasError || snapshot.data == null)
+                        ? AppConstants.errorLoading
+                        : AppConstants.exSelect,
             vehicleOrAccessoriesDropDownValue:
                 _stocksAccessoriesReportBlocImpl.selectedAccessories,
             vehicleOrAccessoriesDropDownItems: vehicleTypes,
@@ -162,8 +146,6 @@ class _StockReportState extends State<StockReport>
             toDateController: _stocksAccessoriesReportBlocImpl.toDateTextEdit,
             buttonOnPressed: () {},
             toDateonSuccessCallBack: () {},
-            columnHeaders: columnHeaders,
-            rowData: rowData,
           );
         }
       },
@@ -178,7 +160,7 @@ class _StockReportState extends State<StockReport>
       ]),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
+          return const Text(AppConstants.loading);
         } else if (snapshot.hasError) {
           return Center(child: Text('Error: ${snapshot.error}'));
         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
@@ -195,7 +177,12 @@ class _StockReportState extends State<StockReport>
           vehicleTypes.insert(0, AppConstants.all);
 
           return searchAndTableView(
-            vehicleOrAccessoriesHintName: AppConstants.vehicleType,
+            vehicleOrAccessoriesHintName:
+                (snapshot.connectionState == ConnectionState.waiting)
+                    ? AppConstants.loading
+                    : (snapshot.hasError || snapshot.data == null)
+                        ? AppConstants.errorLoading
+                        : AppConstants.exSelect,
             vehicleOrAccessoriesDropDownValue:
                 _stocksVehiclesReportBlocImpl.vehicleType,
             vehicleOrAccessoriesDropDownItems: vehicleTypes,
@@ -212,29 +199,26 @@ class _StockReportState extends State<StockReport>
             toDateController: _stocksVehiclesReportBlocImpl.toDateTextEdit,
             buttonOnPressed: () {},
             toDateonSuccessCallBack: () {},
-            columnHeaders: columnHeaders,
-            rowData: rowData,
           );
         }
       },
     );
   }
 
-  searchAndTableView(
-      {required List<String> vehicleOrAccessoriesDropDownItems,
-      String? vehicleOrAccessoriesHintName,
-      Function(String?)? vehicleOrAccessoriesOnChange,
-      String? vehicleOrAccessoriesDropDownValue,
-      required List<String> branchList,
-      String? selectedBranchName,
-      Function(String?)? branchOnChange,
-      required TextEditingController fromDateController,
-      Function()? fromDateonSuccessCallBack,
-      required TextEditingController toDateController,
-      Function()? toDateonSuccessCallBack,
-      Function()? buttonOnPressed,
-      required List<String> columnHeaders,
-      required List<Map<String, String>> rowData}) {
+  searchAndTableView({
+    required List<String> vehicleOrAccessoriesDropDownItems,
+    String? vehicleOrAccessoriesHintName,
+    Function(String?)? vehicleOrAccessoriesOnChange,
+    String? vehicleOrAccessoriesDropDownValue,
+    required List<String> branchList,
+    String? selectedBranchName,
+    Function(String?)? branchOnChange,
+    required TextEditingController fromDateController,
+    Function()? fromDateonSuccessCallBack,
+    required TextEditingController toDateController,
+    Function()? toDateonSuccessCallBack,
+    Function()? buttonOnPressed,
+  }) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 27),
       child: Column(
@@ -306,13 +290,95 @@ class _StockReportState extends State<StockReport>
               )
             ],
           ),
-          Padding(
-            padding: const EdgeInsets.only(top: 20),
-            child:
-                CustomTableView(columnHeaders: columnHeaders, rowData: rowData),
-          )
+          tlbilling_widget.AppWidgetUtils.buildSizedBox(custHeight: 16),
+          _buildReportTableView(context)
         ],
       ),
     );
   }
+
+  Widget _buildReportTableView(BuildContext context) {
+    return Expanded(
+      child: StreamBuilder<int>(
+        stream: _stocksVehiclesReportBlocImpl.pageNumberStream,
+        initialData: _stocksVehiclesReportBlocImpl.currentPage,
+        builder: (context, streamSnapshot) {
+          int currentPage = streamSnapshot.data ?? 0;
+          if (currentPage < 0) currentPage = 0;
+          _stocksVehiclesReportBlocImpl.currentPage = currentPage;
+          return FutureBuilder<GetAllVendorByPagination?>(
+            future: _stocksVehiclesReportBlocImpl.getPurchaseReport(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return AppWidgetUtils.buildLoading();
+              } else if (snapshot.hasError) {
+                return const Center(
+                    child: Text(AppConstants.somethingWentWrong));
+              } else if (!snapshot.hasData) {
+                return Center(child: SvgPicture.asset(AppConstants.imgNoData));
+              } else {
+                GetAllVendorByPagination? employeeListmodel = snapshot.data;
+                List<Content>? userData = snapshot.data?.content ?? [];
+
+                return Column(
+                  children: [
+                    Expanded(
+                      child: SizedBox(
+                        width: MediaQuery.of(context).size.width,
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: DataTable(
+                            dividerThickness: 0.01,
+                            columns: columnHeaders
+                                .map((header) => DataColumn(
+                                      label: Text(
+                                        header,
+                                        style: const TextStyle(
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                    ))
+                                .toList(),
+                            rows: userData.asMap().entries.map((entry) {
+                              return DataRow(
+                                color: MaterialStateColor.resolveWith((states) {
+                                  return entry.key % 2 == 0
+                                      ? Colors.white
+                                      : _appColors.transparentBlueColor;
+                                }),
+                                cells: [
+                                  _buildTableRow('${entry.key + 1}'),
+                                  _buildTableRow(entry.value.city),
+                                  _buildTableRow(entry.value.city),
+                                  _buildTableRow(entry.value.accountNo),
+                                  _buildTableRow(entry.value.accountNo),
+                                ],
+                              );
+                            }).toList(),
+                          ),
+                        ),
+                      ),
+                    ),
+                    CustomPagination(
+                      itemsOnLastPage: employeeListmodel?.totalElements ?? 0,
+                      currentPage: currentPage,
+                      totalPages: employeeListmodel?.totalPages ?? 0,
+                      onPageChanged: (pageValue) {
+                        _stocksVehiclesReportBlocImpl
+                            .pageNumberUpdateStreamController(pageValue);
+                      },
+                    ),
+                  ],
+                );
+              }
+            },
+          );
+        },
+      ),
+    );
+  }
+
+  DataCell _buildTableRow(String? text) => DataCell(Text(
+        text ?? '',
+        style: const TextStyle(fontSize: 14),
+      ));
 }

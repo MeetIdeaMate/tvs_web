@@ -8,6 +8,7 @@ import 'package:tlbilling/utils/app_util_widgets.dart';
 import 'package:tlbilling/utils/app_utils.dart';
 import 'package:tlbilling/view/voucher_receipt/new_receipt/new_receipt_bloc.dart';
 import 'package:tlds_flutter/components/tlds_input_form_field.dart';
+import 'package:tlds_flutter/components/tlds_input_formaters.dart';
 
 class NewReceipt extends StatefulWidget {
   const NewReceipt({super.key});
@@ -25,22 +26,27 @@ class _NewReceiptState extends State<NewReceipt> {
     return AlertDialog(
       surfaceTintColor: _appColors.whiteColor,
       backgroundColor: _appColors.whiteColor,
-      content: SizedBox(
-        width: MediaQuery.sizeOf(context).width * 0.4,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _buildHeader(),
-            const Divider(),
-            _buildDefaultHeight(),
-            _buildCustomerNameField(),
-            _buildDefaultHeight(),
-            _buildProductAndDate(),
-            _buildDefaultHeight(),
-            _buildColorAndPaymentType(),
-            _buildDefaultHeight(),
-            _buildReceivedFromAndAmount(),
-          ],
+      content: SingleChildScrollView(
+        child: Form(
+          key: _newReceiptBloc.formKey,
+          child: SizedBox(
+            width: MediaQuery.sizeOf(context).width * 0.4,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _buildHeader(),
+                const Divider(),
+                _buildDefaultHeight(),
+                _buildCustomerNameField(),
+                //    _buildDefaultHeight(),
+                _buildProductAndDate(),
+                //    _buildDefaultHeight(),
+                _buildColorAndPaymentType(),
+                //    _buildDefaultHeight(),
+                _buildReceivedFromAndAmount(),
+              ],
+            ),
+          ),
         ),
       ),
       actions: [_buildActionButton()],
@@ -67,13 +73,33 @@ class _NewReceiptState extends State<NewReceipt> {
         Row(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            _buildCustomTyAhead(
-                width: MediaQuery.sizeOf(context).width * 0.40,
-                labelText: AppConstants.customerName,
-                textEditingController: _newReceiptBloc.customerNameController,
-                hintText: AppConstants.select,
-                errorText: 'Select Customer',
-                list: _newReceiptBloc.customerList)
+            FutureBuilder(
+              future: _newReceiptBloc.getAllCustomerList(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: Text(AppConstants.loading));
+                } else if (snapshot.hasError) {
+                  return const Center(child: Text(AppConstants.errorLoading));
+                } else if (!snapshot.hasData || snapshot.data == null) {
+                  return const Center(child: Text(AppConstants.noData));
+                }
+                final customerList =
+                    snapshot.data?.result?.getAllCustomerNameList ?? [];
+                final customerNamesSet = customerList
+                    .map((result) => result.customerName ?? "")
+                    .toSet();
+                List<String> customerNamesList = customerNamesSet.toList();
+
+                return _buildCustomTyAhead(
+                    width: MediaQuery.sizeOf(context).width * 0.40,
+                    labelText: AppConstants.customerName,
+                    textEditingController:
+                        _newReceiptBloc.customerNameController,
+                    hintText: AppConstants.select,
+                    errorText: 'Select Customer',
+                    list: customerNamesList);
+              },
+            )
           ],
         ),
       ],
@@ -96,7 +122,7 @@ class _NewReceiptState extends State<NewReceipt> {
           requiredLabelText: AppWidgetUtils.buildCustomDmSansTextWidget(
               AppConstants.date,
               fontSize: 14),
-          height: 40,
+          height: 70,
           width: MediaQuery.sizeOf(context).width * 0.19,
           hintText: 'dd/mm/yyyy',
           suffixIcon: IconButton(
@@ -127,13 +153,18 @@ class _NewReceiptState extends State<NewReceipt> {
             hintText: AppConstants.select,
             errorText: 'Select Color',
             list: _newReceiptBloc.customerList),
-        _buildCustomTyAhead(
-            width: MediaQuery.sizeOf(context).width * 0.19,
-            labelText: AppConstants.paymentType,
-            textEditingController: _newReceiptBloc.paymentTypeController,
-            hintText: AppConstants.select,
-            errorText: 'Select PaymentType',
-            list: _newReceiptBloc.customerList),
+        FutureBuilder(
+          future: _newReceiptBloc.getConfigById(),
+          builder: (context, snapshot) {
+            return _buildCustomTyAhead(
+                width: MediaQuery.sizeOf(context).width * 0.19,
+                labelText: AppConstants.paymentType,
+                textEditingController: _newReceiptBloc.paymentTypeController,
+                hintText: AppConstants.select,
+                errorText: 'Select PaymentType',
+                list: snapshot.data);
+          },
+        ),
       ],
     );
   }
@@ -142,16 +173,42 @@ class _NewReceiptState extends State<NewReceipt> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        _buildCustomTyAhead(
-            width: MediaQuery.sizeOf(context).width * 0.19,
-            labelText: AppConstants.receivedFrom,
-            textEditingController: _newReceiptBloc.receivedFromController,
-            hintText: AppConstants.select,
-            errorText: 'Select Received From',
-            list: _newReceiptBloc.customerList),
+        Padding(
+          padding: const EdgeInsets.only(top: 20),
+          child: FutureBuilder(
+            future: _newReceiptBloc.getEmployeeName(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: Text(AppConstants.loading));
+              } else if (snapshot.hasError) {
+                return const Center(child: Text(AppConstants.errorLoading));
+              } else if (!snapshot.hasData ||
+                  snapshot.data!.result == null ||
+                  snapshot.data!.result!.employeeListModel == null) {
+                return const Center(child: Text(AppConstants.noData));
+              }
+
+              final employeesList = snapshot.data!.result!.employeeListModel;
+              final employeeNamesSet = employeesList!
+                  .map((result) => result.employeeName ?? "")
+                  .toSet();
+              List<String> employeeNamesList = employeeNamesSet.toList();
+              return _buildCustomTyAhead(
+                  width: MediaQuery.sizeOf(context).width * 0.19,
+                  labelText: AppConstants.receivedFrom,
+                  textEditingController: _newReceiptBloc.receivedFromController,
+                  hintText: AppConstants.select,
+                  errorText: 'Select Received From',
+                  list: employeeNamesList);
+            },
+          ),
+        ),
         TldsInputFormField(
           controller: _newReceiptBloc.receivedAmountController,
-          height: 40,
+          height: 50,
+          maxLength: 15,
+          counterText: '',
+          inputFormatters: TldsInputFormatters.onlyAllowDecimalAfterTwoDigits,
           width: MediaQuery.sizeOf(context).width * 0.19,
           labelText: AppConstants.amount,
           hintText: AppConstants.amount,
@@ -187,7 +244,7 @@ class _NewReceiptState extends State<NewReceipt> {
         return TldsInputFormField(
           suffixIcon: const Icon(Icons.arrow_drop_down),
           width: width,
-          height: 40,
+          height: 70,
           focusNode: focusNode,
           labelText: labelText,
           hintText: hintText,
@@ -204,7 +261,11 @@ class _NewReceiptState extends State<NewReceipt> {
   }
 
   Widget _buildActionButton() {
-    return CustomActionButtons(onPressed: () {}, buttonText: AppConstants.save);
+    return CustomActionButtons(
+        onPressed: () {
+          if (_newReceiptBloc.formKey.currentState!.validate()) {}
+        },
+        buttonText: AppConstants.save);
   }
 
   Future<void> _selectDate(
@@ -231,6 +292,6 @@ class _NewReceiptState extends State<NewReceipt> {
 
   Widget _buildDefaultHeight({double? height}) {
     return AppWidgetUtils.buildSizedBox(
-        custHeight: height ?? MediaQuery.sizeOf(context).height * 0.02);
+        custHeight: height ?? MediaQuery.sizeOf(context).height * 0.01);
   }
 }

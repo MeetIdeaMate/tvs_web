@@ -1,17 +1,22 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:tlbilling/api_service/app_service_utils.dart';
+import 'package:tlbilling/models/get_model/get_all_sales_list_model.dart';
 
 abstract class SalesViewBloc {
   TextEditingController get invoiceNoTextController;
   TextEditingController get paymentTypeTextController;
   TextEditingController get customerNameTextController;
 
-  Stream get invoiceNoStream;
-  Stream get paymentTypeStream;
-  Stream get customerNameStream;
+  Stream<bool> get invoiceNoStream;
+  Stream<bool> get paymentTypeStream;
+  Stream<bool> get customerNameStream;
+  int get currentPage;
+  Stream<int> get pageNumberStream;
 
   TabController get salesTabController;
+  Future<GetAllSalesList?> getSalesList();
 }
 
 class SalesViewBlocImpl extends SalesViewBloc {
@@ -19,9 +24,19 @@ class SalesViewBlocImpl extends SalesViewBloc {
   final _paymentTypeController = TextEditingController();
   final _customerNameController = TextEditingController();
 
-  final _invoiceNoStreamControler = StreamController.broadcast();
-  final _paymentTypeStreamController = StreamController.broadcast();
-  final _customerNameStreamController = StreamController.broadcast();
+  final _invoiceNoStreamControler = StreamController<bool>.broadcast();
+  final _paymentTypeStreamController = StreamController<bool>.broadcast();
+  final _customerNameStreamController = StreamController<bool>.broadcast();
+  final _appServiceUtilBlocImpl = AppServiceUtilImpl();
+  int _currentPage = 0;
+  final _pageNumberStreamController = StreamController<int>.broadcast();
+
+  @override
+  Stream<int> get pageNumberStream => _pageNumberStreamController.stream;
+
+  pageNumberUpdateStreamController(int streamValue) {
+    _pageNumberStreamController.add(streamValue);
+  }
 
   late TabController _salesViewTabController;
 
@@ -36,24 +51,24 @@ class SalesViewBlocImpl extends SalesViewBloc {
   TextEditingController get paymentTypeTextController => _paymentTypeController;
 
   @override
-  Stream get customerNameStream => _customerNameStreamController.stream;
+  Stream<bool> get customerNameStream => _customerNameStreamController.stream;
 
   customerNameStreamController(bool customerNameStreamValue) {
     _customerNameStreamController.add(customerNameStreamValue);
   }
 
   @override
-  Stream get invoiceNoStream => _invoiceNoStreamControler.stream;
+  Stream<bool> get invoiceNoStream => _invoiceNoStreamControler.stream;
 
   invoiceNoStreamController(bool invoiceNoStreamValue) {
-    _customerNameStreamController.add(invoiceNoStreamValue);
+    _invoiceNoStreamControler.add(invoiceNoStreamValue);
   }
 
   @override
-  Stream get paymentTypeStream => _paymentTypeStreamController.stream;
+  Stream<bool> get paymentTypeStream => _paymentTypeStreamController.stream;
 
   paymentTypeStreamController(bool paymentTypeStreamValue) {
-    _customerNameStreamController.add(paymentTypeStreamValue);
+    _paymentTypeStreamController.add(paymentTypeStreamValue);
   }
 
   @override
@@ -61,5 +76,20 @@ class SalesViewBlocImpl extends SalesViewBloc {
 
   set salesTabController(TabController tabValue) {
     _salesViewTabController = tabValue;
+  }
+
+  @override
+  Future<GetAllSalesList?> getSalesList() {
+    return _appServiceUtilBlocImpl.getSalesList(
+        invoiceNoTextController.text,
+        paymentTypeTextController.text,
+        customerNameTextController.text,
+        currentPage);
+  }
+
+  @override
+  int get currentPage => _currentPage;
+  set currentPage(int pageValue) {
+    _currentPage = pageValue;
   }
 }
