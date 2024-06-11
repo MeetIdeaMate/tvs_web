@@ -134,6 +134,8 @@ abstract class AppServiceUtil {
 
   Future<List<BranchDetail>?> getAllBranchListWithoutPagination();
 
+  Future<List<TransportDetails>?> getAllTransportsWithoutPagination();
+
   Future<GetVendorById?> getVendorById(String vendorId);
   Future<ParentResponseModel> getPurchasePartNoDetails(
       String? partNo, Function(int) statusCode);
@@ -775,6 +777,23 @@ class AppServiceUtilImpl extends AppServiceUtil {
       return parentResponseModelFromJson(jsonEncode(response.data))
           .result
           ?.branchDetails;
+    } on DioException catch (exception) {
+      exception.response?.statusCode ?? 0;
+    }
+    return null;
+  }
+
+  @override
+  Future<List<TransportDetails>?> getAllTransportsWithoutPagination() async{
+    try {
+      final dio = Dio();
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      var token = prefs.getString('token');
+      dio.options.headers['Authorization'] = 'Bearer $token';
+      var response = await dio.get(AppUrl.transport);
+      return parentResponseModelFromJson(jsonEncode(response.data))
+          .result
+          ?.getAllTransportsWithoutPagination;
     } on DioException catch (exception) {
       exception.response?.statusCode ?? 0;
     }

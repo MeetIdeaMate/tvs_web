@@ -80,6 +80,7 @@ class ResultObj {
   List<BranchDetail>? branchDetails;
   PurchaseByPartNoModel? purchaseByPartNo;
   GetAllCategoryListModel? getAllcategoryList;
+  List<TransportDetails>? getAllTransportsWithoutPagination;
 
   ResultObj(
       {this.getAllVendorByPagination,
@@ -102,6 +103,7 @@ class ResultObj {
       this.getConfigurationModel,
       this.transportDetails,
       this.branchDetails,
+      this.getAllTransportsWithoutPagination,
       this.purchaseByPartNo,
       this.getAllcategoryList});
 
@@ -173,6 +175,10 @@ class ResultObj {
         getAllCustomerNameList: json['customers'] != null
             ? List<GetAllCustomerNameList>.from(json['customers']
                 .map((x) => GetAllCustomerNameList.fromJson(x)))
+            : null,
+        getAllTransportsWithoutPagination: json['transports'] != null
+            ? List<TransportDetails>.from(
+                json['transports'].map((x) => TransportDetails.fromJson(x)))
             : null,
         purchaseByPartNo: json['ItemDetailByPartNo'] != null
             ? PurchaseByPartNoModel.fromJson(json['ItemDetailByPartNo'])
