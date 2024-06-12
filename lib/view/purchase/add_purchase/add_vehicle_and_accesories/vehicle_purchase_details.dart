@@ -1,29 +1,28 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:tlbilling/models/parent_response_model.dart';
 import 'package:tlbilling/models/purchase_bill_data.dart';
-import 'package:tlbilling/utils/input_formates.dart';
-import 'package:tlds_flutter/export.dart';
-
 import 'package:tlbilling/utils/app_colors.dart';
 import 'package:tlbilling/utils/app_constants.dart';
+import 'package:tlbilling/utils/input_formates.dart';
 import 'package:tlbilling/view/purchase/add_purchase/add_vehicle_and_accesories/add_vehicle_and_accessories_bloc.dart';
-import 'package:toastification/toastification.dart';
+import 'package:tlds_flutter/export.dart';
 
-class VehiclePurchaseDetails extends StatefulWidget {
+class EngineAndFrameNumberEntry extends StatefulWidget {
   AddVehicleAndAccessoriesBlocImpl addVehicleAndAccessoriesBloc;
-  VehiclePurchaseDetails({
+  EngineAndFrameNumberEntry({
     super.key,
     required this.addVehicleAndAccessoriesBloc,
   });
 
   @override
-  State<VehiclePurchaseDetails> createState() => _VehiclePurchaseDetailsState();
+  State<EngineAndFrameNumberEntry> createState() =>
+      _EngineAndFrameNumberEntryState();
 }
 
-class _VehiclePurchaseDetailsState extends State<VehiclePurchaseDetails> {
+class _EngineAndFrameNumberEntryState extends State<EngineAndFrameNumberEntry> {
   final _appColors = AppColors();
 
   @override
@@ -51,159 +50,42 @@ class _VehiclePurchaseDetailsState extends State<VehiclePurchaseDetails> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        _buildVehiclePurchaseDetails(),
-        _buildDefaultHeight(),
-        Visibility(
-            visible: widget
-                    .addVehicleAndAccessoriesBloc.selectedCategory?.mainSpec !=
-                null,
-            child: _buildEngineDetails()),
-      ],
-    );
-  }
-
-  Widget _buildVehiclePurchaseDetails() {
     return Container(
-      width: MediaQuery.sizeOf(context).width * 0.36,
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-          border: Border(bottom: BorderSide(color: _appColors.greyColor))),
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          children: [
-            TldsInputFormField(
-              validator: (String? value) {
-                if (value == null || value.isEmpty) {
-                  return AppConstants.enterPartNo;
-                }
-                return null;
-              },
-              inputFormatters: TlInputFormatters.onlyAllowAlphabetAndNumber,
-              focusNode: widget.addVehicleAndAccessoriesBloc.partNoFocusNode,
-              labelText: AppConstants.partNo,
-              hintText: AppConstants.partNo,
-              controller:
-                  widget.addVehicleAndAccessoriesBloc.partNumberController,
-              onSubmit: (partNumberValue) {
-                widget.addVehicleAndAccessoriesBloc.getPurchasePartNoDetails(
-                  (statusCode) {
-                    if (statusCode == 401 || statusCode == 400) {
-                      AppWidgetUtils.buildToast(
-                          context,
-                          ToastificationType.error,
-                          AppConstants.partNoError,
-                          Icon(Icons.check_circle_outline_rounded,
-                              color: _appColors.errorColor),
-                          AppConstants.partNoErrorDes,
-                          _appColors.errorLightColor);
-                    }
-                  },
-                ).then((partDetails) {
-                  _getAndSetValuesForInputFields(partDetails);
-                });
-                FocusScope.of(context).requestFocus(
-                    widget.addVehicleAndAccessoriesBloc.vehiceNameFocusNode);
-              },
-            ),
-            AppWidgetUtils.buildSizedBox(custHeight: 10),
-            TldsInputFormField(
-              validator: (String? value) {
-                if (value == null || value.isEmpty) {
-                  return AppConstants.enterVehiceName;
-                }
-                return null;
-              },
-              // inputFormatters: TlInputFormatters.onlyAllowAlphabetsAndSpaces,
-              focusNode:
-                  widget.addVehicleAndAccessoriesBloc.vehiceNameFocusNode,
-              labelText: AppConstants.vehicleName,
-              hintText: AppConstants.vehicleName,
-              controller:
-                  widget.addVehicleAndAccessoriesBloc.vehicleNameTextController,
-              onSubmit: (p0) {
-                FocusScope.of(context).requestFocus(
-                    widget.addVehicleAndAccessoriesBloc.hsnCodeFocusNode);
-              },
-            ),
-            _buildDefaultHeight(),
-            _buildDefaultHeight(),
-            _buildHSNCodeAndUniteRate(),
-            _buildDefaultHeight(),
-          ],
-        ),
+          border:
+              Border.symmetric(horizontal: BorderSide(color: _appColors.grey))),
+      child: Column(
+        children: [
+          _buildEngineDetails(),
+        ],
       ),
-    );
-  }
-
-  Widget _buildHSNCodeAndUniteRate() {
-    return Row(
-      children: [
-        Expanded(
-            child: TldsInputFormField(
-          // validator: (String? value) {
-          //   if (value == null || value.isEmpty) {
-          //     return AppConstants.enterHsnCode;
-          //   }
-          //   return null;
-          // },
-          focusNode: widget.addVehicleAndAccessoriesBloc.hsnCodeFocusNode,
-          inputFormatters: TlInputFormatters.onlyAllowNumbers,
-          labelText: AppConstants.hsnCode,
-          hintText: AppConstants.hsnCode,
-          controller: widget.addVehicleAndAccessoriesBloc.hsnCodeController,
-          onSubmit: (p0) {
-            FocusScope.of(context).requestFocus(
-                widget.addVehicleAndAccessoriesBloc.unitRateFocusNode);
-          },
-        )),
-        _buildDefaultWidth(),
-        Expanded(
-            child: TldsInputFormField(
-          validator: (String? value) {
-            if (value == null || value.isEmpty) {
-              return AppConstants.enterUnitRate;
-            }
-            return null;
-          },
-          inputFormatters: TlInputFormatters.onlyAllowDecimalNumbers,
-          focusNode: widget.addVehicleAndAccessoriesBloc.unitRateFocusNode,
-          labelText: AppConstants.unitRate,
-          hintText: AppConstants.unitRate,
-          controller: widget.addVehicleAndAccessoriesBloc.unitRateController,
-          onSubmit: (p0) {
-            FocusScope.of(context).requestFocus(
-                widget.addVehicleAndAccessoriesBloc.engineNoFocusNode);
-          },
-        )),
-      ],
     );
   }
 
   Widget _buildEngineDetails() {
     return SizedBox(
       width: MediaQuery.sizeOf(context).width * 0.36,
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                _buildTextWidget(AppConstants.engineDetails,
-                    color: _appColors.primaryColor, fontSize: 20),
-                _buildQtyData(),
-              ],
-            ),
-            _buildDefaultHeight(),
-            _buildEngineNumberAndFrameNumber(),
-            _buildDefaultHeight(),
-            _buildEngineDetailsList(),
-            _buildDefaultHeight()
-          ],
-        ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              _buildTextWidget(AppConstants.engineDetails,
+                  color: _appColors.primaryColor, fontSize: 20),
+              _buildQtyData(),
+            ],
+          ),
+          AppWidgetUtils.buildSizedBox(custHeight: 10),
+          _buildEngineDetailsHint(),
+          AppWidgetUtils.buildSizedBox(custHeight: 10),
+          _buildDefaultHeight(),
+          _buildEngineNumberAndFrameNumber(),
+          _buildDefaultHeight(),
+          _buildEngineDetailsList(),
+          _buildDefaultHeight()
+        ],
       ),
     );
   }
@@ -212,11 +94,36 @@ class _VehiclePurchaseDetailsState extends State<VehiclePurchaseDetails> {
     return StreamBuilder(
         stream: widget.addVehicleAndAccessoriesBloc.refreshEngineListStream,
         builder: (context, snapshot) {
-          return _buildTextWidget(
+          return Chip(
+            visualDensity: VisualDensity.compact,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            side: BorderSide.none,
+            backgroundColor: _appColors.hightlightColor,
+            label: Text(
               'QTY : ${widget.addVehicleAndAccessoriesBloc.engineDetailsList.length}',
-              color: _appColors.primaryColor,
-              fontSize: 20);
+              style: TextStyle(color: _appColors.primaryColor, fontSize: 14),
+            ),
+            padding: const EdgeInsets.all(4),
+          );
         });
+  }
+
+  Widget _buildEngineDetailsHint() {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        SvgPicture.asset(AppConstants.icInfo),
+        AppWidgetUtils.buildSizedBox(custWidth: 8),
+        Expanded(
+            child: Text(
+          AppConstants.partNoHint,
+          style: TextStyle(color: _appColors.grey),
+        ))
+      ],
+    );
   }
 
   Widget _buildEngineNumberAndFrameNumber() {
@@ -242,7 +149,11 @@ class _VehiclePurchaseDetailsState extends State<VehiclePurchaseDetails> {
                 focusNode:
                     widget.addVehicleAndAccessoriesBloc.frameNumberFocusNode,
                 onSubmit: (p0) {
-                  _engineNumberAndFrameNumberOnSubmit();
+                  if (widget.addVehicleAndAccessoriesBloc.engineNumberController
+                      .text.isNotEmpty) {
+                    _engineNumberAndFrameNumberOnSubmit();
+                    updateTotalValue();
+                  }
                 },
                 labelText: AppConstants.frameNumber,
                 hintText: AppConstants.frameNumber,
@@ -283,6 +194,8 @@ class _VehiclePurchaseDetailsState extends State<VehiclePurchaseDetails> {
                           _buildTextWidget(frameNo),
                           IconButton(
                               onPressed: () {
+                                updateTotalValue();
+
                                 widget.addVehicleAndAccessoriesBloc
                                     .engineDetailsList
                                     .removeAt(index);
@@ -345,80 +258,91 @@ class _VehiclePurchaseDetailsState extends State<VehiclePurchaseDetails> {
         .requestFocus(widget.addVehicleAndAccessoriesBloc.engineNoFocusNode);
   }
 
-  void _getAndSetValuesForInputFields(ParentResponseModel partDetails) {
-    var vehchileById = partDetails.result?.purchaseByPartNo;
+  // void _getAndSetValuesForInputFields(ParentResponseModel partDetails) {
+  //   var vehchileById = partDetails.result?.purchaseByPartNo;
 
-    setState(() {
-      widget.addVehicleAndAccessoriesBloc.vehicleNameTextController.text =
-          vehchileById?.itemName ?? '';
+  //   setState(() {
+  //     widget.addVehicleAndAccessoriesBloc.vehicleNameTextController.text =
+  //         vehchileById?.itemName ?? '';
 
-      widget.addVehicleAndAccessoriesBloc.hsnCodeController.text =
-          vehchileById.hashCode.toString();
+  //     widget.addVehicleAndAccessoriesBloc.unitRateController.text =
+  //         vehchileById?.unitRate.toString() ?? '';
 
-      widget.addVehicleAndAccessoriesBloc.unitRateController.text =
-          vehchileById?.unitRate.toString() ?? '';
+  //     // Set GST values
+  //     for (var gstDetail in vehchileById?.gstDetails ?? []) {
+  //       if (gstDetail.gstName == 'CGST' || gstDetail.gstName == 'SGST') {
+  //         widget.addVehicleAndAccessoriesBloc.selectedGstType =
+  //             AppConstants.gstPercent;
+  //         widget.addVehicleAndAccessoriesBloc
+  //             .gstRadioBtnRefreshStreamController(true);
+  //         widget.addVehicleAndAccessoriesBloc.cgstPresentageTextController
+  //             .text = gstDetail.percentage?.toString() ?? '';
+  //         widget.addVehicleAndAccessoriesBloc.sgstPresentageTextController
+  //             .text = gstDetail.percentage?.toString() ?? '';
+  //       } else {
+  //         widget.addVehicleAndAccessoriesBloc.selectedGstType =
+  //             AppConstants.igstPercent;
+  //         widget.addVehicleAndAccessoriesBloc
+  //             .gstRadioBtnRefreshStreamController(true);
+  //         widget.addVehicleAndAccessoriesBloc.igstPresentageTextController
+  //             .text = gstDetail.percentage?.toString() ?? '';
+  //       }
+  //     }
 
-      // Set GST values
-      for (var gstDetail in vehchileById?.gstDetails ?? []) {
-        if (gstDetail.gstName == 'CGST' || gstDetail.gstName == 'SGST') {
-          widget.addVehicleAndAccessoriesBloc.selectedGstType =
-              AppConstants.gstPercent;
-          widget.addVehicleAndAccessoriesBloc
-              .gstRadioBtnRefreshStreamController(true);
-          widget.addVehicleAndAccessoriesBloc.cgstPresentageTextController
-              .text = gstDetail.percentage?.toString() ?? '';
-          widget.addVehicleAndAccessoriesBloc.sgstPresentageTextController
-              .text = gstDetail.percentage?.toString() ?? '';
-        } else {
-          widget.addVehicleAndAccessoriesBloc.selectedGstType =
-              AppConstants.igstPercent;
-          widget.addVehicleAndAccessoriesBloc
-              .gstRadioBtnRefreshStreamController(true);
-          widget.addVehicleAndAccessoriesBloc.igstPresentageTextController
-              .text = gstDetail.percentage?.toString() ?? '';
-        }
-      }
+  //     // Set incentives
+  //     for (var incentive in vehchileById?.incentives ?? []) {
+  //       if (incentive.incentiveName == 'StateIncentive') {
+  //         widget.addVehicleAndAccessoriesBloc.isStateIncChecked = true;
 
-      // Set incentives
-      for (var incentive in vehchileById?.incentives ?? []) {
-        if (incentive.incentiveName == 'StateIncentive') {
-          widget.addVehicleAndAccessoriesBloc.isStateIncChecked = true;
+  //         widget.addVehicleAndAccessoriesBloc
+  //             .incentiveCheckBoxStreamController(true);
+  //         widget.addVehicleAndAccessoriesBloc.stateIncentiveTextController
+  //             .text = incentive.incentiveAmount?.toString() ?? '';
+  //       } else if (incentive.incentiveName == 'EMPS 2024 Incentive') {
+  //         widget.addVehicleAndAccessoriesBloc.isEmpsIncChecked = true;
+  //         widget.addVehicleAndAccessoriesBloc
+  //             .incentiveCheckBoxStreamController(true);
+  //         widget.addVehicleAndAccessoriesBloc.empsIncentiveTextController.text =
+  //             incentive.incentiveAmount?.toString() ?? '';
+  //       }
+  //     }
 
-          widget.addVehicleAndAccessoriesBloc
-              .incentiveCheckBoxStreamController(true);
-          widget.addVehicleAndAccessoriesBloc.stateIncentiveTextController
-              .text = incentive.incentiveAmount?.toString() ?? '';
-        } else if (incentive.incentiveName == 'EMPS 2024 Incentive') {
-          widget.addVehicleAndAccessoriesBloc.isEmpsIncChecked = true;
-          widget.addVehicleAndAccessoriesBloc
-              .incentiveCheckBoxStreamController(true);
-          widget.addVehicleAndAccessoriesBloc.empsIncentiveTextController.text =
-              incentive.incentiveAmount?.toString() ?? '';
-        }
-      }
+  //     // Set taxes
+  //     for (var tax in vehchileById?.taxes ?? []) {
+  //       if (tax.taxName == 'TcsValue') {
+  //         widget.addVehicleAndAccessoriesBloc.isTcsValueChecked = true;
+  //         widget.addVehicleAndAccessoriesBloc
+  //             .taxValueCheckboxStreamController(true);
+  //         widget.addVehicleAndAccessoriesBloc.tcsvalueTextController.text =
+  //             tax.taxAmount?.toString() ?? '';
+  //         widget.addVehicleAndAccessoriesBloc.isTcsValueChecked =
+  //             tax.percentage > 0;
+  //       }
+  //     }
 
-      // Set taxes
-      for (var tax in vehchileById?.taxes ?? []) {
-        if (tax.taxName == 'TcsValue') {
-          widget.addVehicleAndAccessoriesBloc.isTcsValueChecked = true;
-          widget.addVehicleAndAccessoriesBloc
-              .taxValueCheckboxStreamController(true);
-          widget.addVehicleAndAccessoriesBloc.tcsvalueTextController.text =
-              tax.taxAmount?.toString() ?? '';
-          widget.addVehicleAndAccessoriesBloc.isTcsValueChecked =
-              tax.percentage > 0;
-        }
-      }
+  //     // Update total values
+  //     widget.addVehicleAndAccessoriesBloc.totalValue =
+  //         vehchileById?.value?.toDouble();
+  //     widget.addVehicleAndAccessoriesBloc.discountValue =
+  //         vehchileById?.discount?.toDouble();
+  //     widget.addVehicleAndAccessoriesBloc.taxableValue =
+  //         vehchileById?.taxableValue?.toDouble();
+  //     widget.addVehicleAndAccessoriesBloc.totalInvAmount =
+  //         vehchileById?.finalInvoiceValue?.toDouble();
+  //   });
+  // }
 
-      // Update total values
-      widget.addVehicleAndAccessoriesBloc.totalValue =
-          vehchileById?.value?.toDouble();
-      widget.addVehicleAndAccessoriesBloc.discountValue =
-          vehchileById?.discount?.toDouble();
-      widget.addVehicleAndAccessoriesBloc.taxableValue =
-          vehchileById?.taxableValue?.toDouble();
-      widget.addVehicleAndAccessoriesBloc.totalInvAmount =
-          vehchileById?.finalInvoiceValue?.toDouble();
-    });
+  void updateTotalValue() {
+    double? unitRate = double.tryParse(
+        widget.addVehicleAndAccessoriesBloc.unitRateController.text);
+    double totalQty =
+        widget.addVehicleAndAccessoriesBloc.engineDetailsList.length.toDouble();
+    widget.addVehicleAndAccessoriesBloc.totalValue = (unitRate ?? 0) * totalQty;
+    widget.addVehicleAndAccessoriesBloc.paymentDetailsStreamController(true);
+    widget.addVehicleAndAccessoriesBloc.taxableValue =
+        (unitRate ?? 0) * totalQty;
+    widget.addVehicleAndAccessoriesBloc.invAmount = (unitRate ?? 0) * totalQty;
+    widget.addVehicleAndAccessoriesBloc.totalInvAmount =
+        (unitRate ?? 0) * totalQty;
   }
 }

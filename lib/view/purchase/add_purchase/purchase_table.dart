@@ -1,4 +1,6 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tlbilling/components/custom_action_button.dart';
@@ -9,6 +11,7 @@ import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/utils/app_colors.dart';
 import 'package:tlbilling/utils/app_utils.dart';
 import 'package:tlbilling/view/purchase/add_purchase/add_vehicle_and_accesories/add_vehicle_and_accessories_bloc.dart';
+import 'package:tlbilling/view/purchase/add_purchase/add_vehicle_and_accesories/purchase_table_preview.dart';
 import 'package:tlds_flutter/export.dart';
 import 'package:toastification/toastification.dart';
 
@@ -94,15 +97,26 @@ class _PurchaseTableState extends State<PurchaseTable> {
                   _buildVehicleTableHeader(AppConstants.quantity),
                   _buildVehicleTableHeader(AppConstants.unitRate),
                   _buildVehicleTableHeader(AppConstants.totalValue),
-                  _buildVehicleTableHeader(AppConstants.discountPresentage),
                   _buildVehicleTableHeader(AppConstants.discountAmount),
                   _buildVehicleTableHeader(AppConstants.taxableValue),
-                  _buildVehicleTableHeader(AppConstants.cgstPercent),
-                  _buildVehicleTableHeader(AppConstants.cgstAmount),
-                  _buildVehicleTableHeader(AppConstants.sgstPercent),
-                  _buildVehicleTableHeader(AppConstants.sgstAmount),
-                  _buildVehicleTableHeader(AppConstants.igstPercent),
-                  _buildVehicleTableHeader(AppConstants.igstAmount),
+                  if (widget.purchaseBloc.selectedGstType !=
+                      AppConstants.igstAmount)
+                    _buildVehicleTableHeader(AppConstants.cgstPercent),
+                  if (widget.purchaseBloc.selectedGstType !=
+                      AppConstants.igstAmount)
+                    _buildVehicleTableHeader(AppConstants.cgstAmount),
+                  if (widget.purchaseBloc.selectedGstType !=
+                      AppConstants.igstAmount)
+                    _buildVehicleTableHeader(AppConstants.sgstPercent),
+                  if (widget.purchaseBloc.selectedGstType !=
+                      AppConstants.igstAmount)
+                    _buildVehicleTableHeader(AppConstants.sgstAmount),
+                  if (widget.purchaseBloc.selectedGstType !=
+                      AppConstants.gstPercent)
+                    _buildVehicleTableHeader(AppConstants.igstPercent),
+                  if (widget.purchaseBloc.selectedGstType !=
+                      AppConstants.gstPercent)
+                    _buildVehicleTableHeader(AppConstants.igstAmount),
                   _buildVehicleTableHeader(AppConstants.tcsValue),
                   _buildVehicleTableHeader(AppConstants.invValue),
                   _buildVehicleTableHeader(AppConstants.empsInc),
@@ -137,20 +151,31 @@ class _PurchaseTableState extends State<PurchaseTable> {
                               Text(AppUtils.formatCurrency(data.unitRate))),
                           DataCell(Text(AppUtils.formatCurrency(
                               data.totalValue?.toDouble() ?? 0.0))),
-                          DataCell(Text(data.discountPresentage.toString())),
                           DataCell(Text(AppUtils.formatCurrency(
                               data.discountValue ?? 0.0))),
                           DataCell(Text(AppUtils.formatCurrency(
                               data.taxableValue ?? 0.0))),
-                          DataCell(Text(data.cgstPercentage.toString())),
-                          DataCell(Text(
-                              AppUtils.formatCurrency(data.cgstAmount ?? 0.0))),
-                          DataCell(Text(data.sgstPercentage.toString())),
-                          DataCell(Text(
-                              AppUtils.formatCurrency(data.sgstAmount ?? 0.0))),
-                          DataCell(Text(data.igstPercentage.toString())),
-                          DataCell(Text(
-                              AppUtils.formatCurrency(data.igstAmount ?? 0.0))),
+                          if (widget.purchaseBloc.selectedGstType !=
+                              AppConstants.igstAmount)
+                            DataCell(Text(data.cgstPercentage.toString())),
+                          if (widget.purchaseBloc.selectedGstType !=
+                              AppConstants.igstAmount)
+                            DataCell(Text(AppUtils.formatCurrency(
+                                data.cgstAmount ?? 0.0))),
+                          if (widget.purchaseBloc.selectedGstType !=
+                              AppConstants.igstAmount)
+                            DataCell(Text(data.sgstPercentage.toString())),
+                          if (widget.purchaseBloc.selectedGstType !=
+                              AppConstants.igstAmount)
+                            DataCell(Text(AppUtils.formatCurrency(
+                                data.sgstAmount ?? 0.0))),
+                          if (widget.purchaseBloc.selectedGstType !=
+                              AppConstants.gstPercent)
+                            DataCell(Text(data.igstPercentage.toString())),
+                          if (widget.purchaseBloc.selectedGstType !=
+                              AppConstants.gstPercent)
+                            DataCell(Text(AppUtils.formatCurrency(
+                                data.igstAmount ?? 0.0))),
                           DataCell(Text(
                               AppUtils.formatCurrency(data.tcsValue ?? 0.0))),
                           DataCell(Text(
@@ -161,13 +186,75 @@ class _PurchaseTableState extends State<PurchaseTable> {
                               data.stateIncentive ?? 0.0))),
                           DataCell(Text(AppUtils.formatCurrency(
                               data.totalInvoiceValue ?? 0.0))),
-                          DataCell(IconButton(
-                            onPressed: () {},
-                            icon: Icon(
-                              Icons.table_chart_outlined,
-                              color: _appColors.primaryColor,
+                          DataCell(
+                            IconButton(
+                              onPressed: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (context) {
+                                    return AlertDialog.adaptive(
+                                      surfaceTintColor: AppColors().whiteColor,
+                                      backgroundColor: AppColors().whiteColor,
+                                      title: const Text(
+                                          AppConstants.engineDetails),
+                                      content: ConstrainedBox(
+                                        constraints: BoxConstraints(
+                                          maxHeight: MediaQuery.of(context)
+                                                  .size
+                                                  .height *
+                                              0.8,
+                                        ),
+                                        child: SingleChildScrollView(
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              SizedBox(
+                                                width: double.infinity,
+                                                child: DataTable(
+                                                  columns: const [
+                                                    DataColumn(
+                                                        label: Text('S.No')),
+                                                    DataColumn(
+                                                        label: Text(
+                                                            'Engine Number')),
+                                                    DataColumn(
+                                                        label: Text(
+                                                            'Frame Number')),
+                                                  ],
+                                                  rows: List.generate(
+                                                    data.engineDetails.length,
+                                                    (index) => DataRow(
+                                                      cells: [
+                                                        DataCell(Text(
+                                                            (index + 1)
+                                                                .toString())),
+                                                        DataCell(Text(data
+                                                            .engineDetails[
+                                                                index]
+                                                            .engineNo)),
+                                                        DataCell(Text(data
+                                                            .engineDetails[
+                                                                index]
+                                                            .frameNo)),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                );
+                              },
+                              icon: Icon(
+                                Icons.table_chart_outlined,
+                                color: _appColors.primaryColor,
+                              ),
                             ),
-                          )),
+                          ),
                           DataCell(
                             Row(
                               children: [
@@ -196,7 +283,6 @@ class _PurchaseTableState extends State<PurchaseTable> {
                       const DataCell(Text('')),
                       DataCell(
                           Text(AppUtils.formatCurrency(totals['totalValue']!))),
-                      const DataCell(Text('')),
                       DataCell(Text(
                           AppUtils.formatCurrency(totals['discountValue']!))),
                       DataCell(Text(
@@ -207,9 +293,13 @@ class _PurchaseTableState extends State<PurchaseTable> {
                       const DataCell(Text('')),
                       DataCell(
                           Text(AppUtils.formatCurrency(totals['sgstAmount']!))),
-                      const DataCell(Text('')),
-                      DataCell(
-                          Text(AppUtils.formatCurrency(totals['igstAmount']!))),
+                      if (widget.purchaseBloc.selectedGstType !=
+                          AppConstants.gstPercent)
+                        const DataCell(Text('')),
+                      if (widget.purchaseBloc.selectedGstType !=
+                          AppConstants.gstPercent)
+                        DataCell(Text(
+                            AppUtils.formatCurrency(totals['igstAmount']!))),
                       DataCell(
                           Text(AppUtils.formatCurrency(totals['tcsValue']!))),
                       DataCell(
@@ -293,39 +383,57 @@ class _PurchaseTableState extends State<PurchaseTable> {
           fontSize: 16,
           buttonBackgroundColor: _appColors.primaryColor,
           fontColor: _appColors.whiteColor,
+          onPressed: () {
+            Navigator.push(
+                context,
+                PageRouteBuilder(
+                  pageBuilder: (context, animation, secondaryAnimation) =>
+                      PurchaseTablePreview(
+                    purchaseBloc: widget.purchaseBloc,
+                  ),
+                ));
+          },
         ),
         CustomActionButtons(
-            onPressed: widget.purchaseBloc.purchaseBillDataList.isEmpty
-                ? () {
-                    _isLoadingState(state: true);
-
-                    widget.purchaseBloc.addNewPurchaseDetails(
-                        _purchasePostData(), (statusCode) {
-                      if (statusCode == 201 || statusCode == 200) {
-                        Navigator.pop(context);
-                        _isLoadingState(state: false);
-                        AppWidgetUtils.buildToast(
-                            context,
-                            ToastificationType.success,
-                            AppConstants.purchaseBillScc,
-                            Icon(Icons.check_circle_outline_rounded,
-                                color: _appColors.successColor),
-                            AppConstants.purchaseBillDescScc,
-                            _appColors.successLightColor);
-                      } else {
-                        _isLoadingState(state: false);
-                        AppWidgetUtils.buildToast(
-                            context,
-                            ToastificationType.error,
-                            AppConstants.purchaseBillerr,
-                            Icon(Icons.not_interested_rounded,
-                                color: _appColors.errorColor),
-                            AppConstants.purchaseBillDescerr,
-                            _appColors.errorLightColor);
-                      }
-                    });
+            onPressed: () {
+              if (widget.purchaseBloc.purchaseBillDataList.isNotEmpty) {
+                _isLoadingState(state: true);
+                widget.purchaseBloc.addNewPurchaseDetails(_purchasePostData(),
+                    (statusCode) {
+                  if (statusCode == 201 || statusCode == 200) {
+                    Navigator.pop(context);
+                    _isLoadingState(state: false);
+                    AppWidgetUtils.buildToast(
+                        context,
+                        ToastificationType.success,
+                        AppConstants.purchaseBillScc,
+                        Icon(Icons.check_circle_outline_rounded,
+                            color: _appColors.successColor),
+                        AppConstants.purchaseBillDescScc,
+                        _appColors.successLightColor);
+                  } else {
+                    _isLoadingState(state: false);
+                    AppWidgetUtils.buildToast(
+                        context,
+                        ToastificationType.error,
+                        AppConstants.purchaseBillerr,
+                        Icon(Icons.not_interested_rounded,
+                            color: _appColors.errorColor),
+                        AppConstants.purchaseBillDescerr,
+                        _appColors.errorLightColor);
                   }
-                : () {},
+                });
+              } else {
+                AppWidgetUtils.buildToast(
+                    context,
+                    ToastificationType.error,
+                    AppConstants.purchaseBillEmpty,
+                    Icon(Icons.not_interested_rounded,
+                        color: _appColors.errorColor),
+                    AppConstants.purchaseBillDesEmptycerr,
+                    _appColors.errorLightColor);
+              }
+            },
             buttonText: AppConstants.save)
       ],
     );

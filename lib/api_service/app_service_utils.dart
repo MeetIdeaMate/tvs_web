@@ -534,10 +534,13 @@ class AppServiceUtilImpl extends AppServiceUtil {
     if (purchaseNo!.isNotEmpty) {
       purchaseListUrl += '&purchaseNo==$purchaseNo';
     }
-
+    print('^^^^^^^^^purchase url^^^^^^^^^^${purchaseListUrl}');
     var response = await dio.get(purchaseListUrl);
+    print('^^^^^^^^^purchase sc^^^^^^^^^^${response.statusCode}');
+    print('^^^^^^^^^purchase rb^^^^^^^^^^${response.data}');
+
     final responseList =
-        parentResponseModelFromJson(json.encode(response.data));
+        parentResponseModelFromJson(jsonEncode(response.data));
     return responseList.result!.getAllPurchaseByPageNation;
   }
 
@@ -934,6 +937,8 @@ class AppServiceUtilImpl extends AppServiceUtil {
   Future<void> addNewPurchaseDetails(
       AddPurchaseModel purchaseData, Function(int p1) onSuccessCallBack) async {
     try {
+      print('*********OBJ********${purchaseData.toJson()}');
+
       SharedPreferences prefs = await SharedPreferences.getInstance();
       var token = prefs.getString('token');
 
@@ -944,6 +949,9 @@ class AppServiceUtilImpl extends AppServiceUtil {
       dio.options.headers['Authorization'] = 'Bearer $token';
       var jsonData = json.encode(purchaseData.toJson());
       var response = await dio.post(AppUrl.purchase, data: jsonData);
+
+      print('*********URL********${AppUrl.purchase}');
+      print('*********RD********${response.data}');
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         onSuccessCallBack(response.statusCode!);
