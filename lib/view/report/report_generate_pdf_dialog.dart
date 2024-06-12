@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:pdf/src/pdf/page_format.dart';
+import 'package:printing/printing.dart';
 import 'package:tlbilling/components/custom_dropdown_button_form_field.dart';
 import 'package:tlbilling/components/custom_elevated_button.dart';
 import 'package:tlbilling/utils/app_colors.dart';
@@ -7,6 +9,7 @@ import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/utils/app_util_widgets.dart' as tlbilling;
 import 'package:tlbilling/utils/input_validation.dart';
 import 'package:tlbilling/view/report/report_generate_pdf_dialog_bloc.dart';
+import 'package:tlbilling/view/report/report_pdf_generation.dart';
 import 'package:tlds_flutter/export.dart';
 
 class GeneratePdfDialog extends StatefulWidget {
@@ -131,7 +134,7 @@ class _GeneratePdfDialogState extends State<GeneratePdfDialog> {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Text(AppConstants.loading);
         } else if (snapshot.hasError) {
-          return Text('Error: ${snapshot.error}');
+          return Text('${snapshot.error}');
         } else if (snapshot.hasData) {
           List<String>? branchNameList = snapshot.data?.result?.getAllBranchList
               ?.map((e) => e.branchName)
@@ -139,19 +142,19 @@ class _GeneratePdfDialogState extends State<GeneratePdfDialog> {
               .cast<String>()
               .toList();
 
-          // Ensure the selected branch is in the list
           final selectedBranch =
               branchNameList!.contains(_genratePdfDialogBlocImpl.selectedBranch)
                   ? _genratePdfDialogBlocImpl.selectedBranch
                   : null;
 
+          branchNameList.insert(0, AppConstants.all);
           return CustomDropDownButtonFormField(
             height: 70,
             requiredLabelText:
                 AppWidgetUtils.labelTextWithRequired(AppConstants.branch),
             dropDownItems: branchNameList,
             hintText: AppConstants.exSelect,
-            dropDownValue: selectedBranch,
+            dropDownValue: AppConstants.all,
             validator: (value) {
               return InputValidations.branchValidation(value ?? '');
             },
@@ -177,8 +180,13 @@ class _GeneratePdfDialogState extends State<GeneratePdfDialog> {
           buttonBackgroundColor: AppColors().primaryColor,
           fontColor: AppColors().whiteColor,
           suffixIcon: SvgPicture.asset(AppConstants.icPdfPrint),
-          onPressed: () {
-            if (_genratePdfDialogBlocImpl.formkey.currentState!.validate()) {}
+          onPressed: () async {
+            final pdfData = await PdfPrinter.generatePdf();
+            await Printing.layoutPdf(
+              onLayout: (PdfPageFormat format) async {
+                return pdfData;
+              },
+            );
           }),
     );
   }

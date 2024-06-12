@@ -5,9 +5,7 @@ import 'package:tlbilling/models/get_model/get_all_vendor_by_pagination_model.da
 import 'package:tlbilling/models/parent_response_model.dart';
 import 'package:tlbilling/utils/app_constants.dart';
 
-abstract class VoucherReceiptListBloc {
-  TabController get receiptVoucherTabController;
-
+abstract class VoucherList {
   TextEditingController get receiptIdTextController;
 
   Stream get receiptIdStream;
@@ -22,8 +20,7 @@ abstract class VoucherReceiptListBloc {
   Future<GetAllVendorByPagination?> getVocherReport();
 }
 
-class VoucherReceiptListBlocImpl extends VoucherReceiptListBloc {
-  late TabController _receiptVoucherTabController;
+class VoucherListBlocImpl extends VoucherList {
   final _receiptIdStream = StreamController.broadcast();
   final _receiptIdTextController = TextEditingController();
   List<String> employeeList = ['Ajith', 'Karthik', 'Senthil'];
@@ -70,7 +67,6 @@ class VoucherReceiptListBlocImpl extends VoucherReceiptListBloc {
     },
   ];
   String? _selectedEmployee;
-
   int _currentPage = 0;
   final _pageNumberStreamController = StreamController<int>.broadcast();
 
@@ -85,13 +81,6 @@ class VoucherReceiptListBlocImpl extends VoucherReceiptListBloc {
 
   pageNumberUpdateStreamController(int streamValue) {
     _pageNumberStreamController.add(streamValue);
-  }
-
-  @override
-  TabController get receiptVoucherTabController => _receiptVoucherTabController;
-
-  set receiptVoucherTabController(TabController tabValue) {
-    _receiptVoucherTabController = tabValue;
   }
 
   @override

@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:tlbilling/api_service/app_service_utils.dart';
-import 'package:tlbilling/models/get_model/get_all_customerName_List.dart';
+import 'package:tlbilling/models/get_model/get_all_stocks_model.dart';
 import 'package:tlbilling/models/parent_response_model.dart';
 import 'package:tlbilling/utils/app_constants.dart';
 
@@ -40,6 +40,8 @@ abstract class AddSalesBloc {
   List<Map<String, String>> get vehicleData;
   List<Map<String, String>> get filteredVehicleData;
   String? get selectedCustomerId;
+
+  Future<GetAllStockDetails?> getStockDetails();
 }
 
 class AddSalesBlocImpl extends AddSalesBloc {
@@ -69,7 +71,6 @@ class AddSalesBlocImpl extends AddSalesBloc {
   bool _isInsurenceChecked = false;
   String? _selectedPaymentOption;
   String? _selectedCustomerId;
-  List<String> _customerNameList = [];
   final _vehicleListStreamController =
       StreamController<List<Map<String, String>>>.broadcast();
 
@@ -314,5 +315,10 @@ class AddSalesBlocImpl extends AddSalesBloc {
 
   set selectedCustomerId(String? value) {
     _selectedCustomerId = value;
+  }
+
+  @override
+  Future<GetAllStockDetails?> getStockDetails() {
+    return _apiServices.getStockList();
   }
 }

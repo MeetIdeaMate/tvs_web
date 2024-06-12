@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:pdf/pdf.dart';
+import 'package:printing/printing.dart';
 import 'package:tlbilling/components/custom_elevated_button.dart';
+import 'package:tlbilling/models/get_model/get_all_sales_list_model.dart';
 import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/utils/app_util_widgets.dart';
-import 'package:tlbilling/utils/input_formates.dart';
 import 'package:tlbilling/view/sales/add_sales.dart';
+import 'package:tlbilling/view/sales/sales_report_pdf.dart';
 import 'package:tlbilling/view/sales/sales_view_bloc.dart';
-import 'package:tlds_flutter/components/tlds_input_form_field.dart';
 import 'package:tlds_flutter/util/app_colors.dart';
 
 class SalesViewScreen extends StatefulWidget {
@@ -89,40 +91,38 @@ class _SalesViewScreenState extends State<SalesViewScreen>
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            StreamBuilder(
-              stream: _salesViewBloc.invoiceNoStream,
-              builder: (context, snapshot) {
-                return _buildFormField(
-                  _salesViewBloc.invoiceNoTextController,
-                  AppConstants.invoiceNo,
-                  TlInputFormatters.onlyAllowAlphabetAndNumber,
-                );
-              },
-            ),
+            buildSearchField(
+                searchStream: _salesViewBloc.invoiceNoStream,
+                searchController: _salesViewBloc.invoiceNoTextController,
+                hintText: AppConstants.invoiceNo,
+                searchStreamController: _salesViewBloc.invoiceNoStreamController
+                //inputFormatters: TlInputFormatters.onlyAllowAlphabetAndNumber,
+                ),
             AppWidgetUtils.buildSizedBox(
               custWidth: MediaQuery.sizeOf(context).width * 0.01,
             ),
-            StreamBuilder(
-              stream: _salesViewBloc.paymentTypeStream,
-              builder: (context, snapshot) {
-                return _buildFormField(
-                  _salesViewBloc.paymentTypeTextController,
-                  AppConstants.paymentType,
-                  TlInputFormatters.onlyAllowAlphabets,
-                );
-              },
-            ),
+            buildSearchField(
+                searchStream: _salesViewBloc.paymentTypeStream,
+                searchController: _salesViewBloc.paymentTypeTextController,
+                hintText: AppConstants.paymentType,
+                searchStreamController:
+                    _salesViewBloc.paymentTypeStreamController
+                //     inputFormatters: TlInputFormatters.onlyAllowAlphabets,
+                ),
             AppWidgetUtils.buildSizedBox(
               custWidth: MediaQuery.sizeOf(context).width * 0.01,
             ),
-            StreamBuilder(
+            StreamBuilder<bool>(
               stream: _salesViewBloc.customerNameStream,
               builder: (context, snapshot) {
-                return _buildFormField(
-                  _salesViewBloc.customerNameTextController,
-                  AppConstants.customerName,
-                  TlInputFormatters.onlyAllowAlphabets,
-                );
+                return buildSearchField(
+                    searchController: _salesViewBloc.customerNameTextController,
+                    hintText: AppConstants.customerName,
+                    searchStream: _salesViewBloc.customerNameStream,
+                    searchStreamController:
+                        _salesViewBloc.customerNameStreamController
+                    //  inputFormatters: TlInputFormatters.onlyAllowAlphabets,
+                    );
               },
             ),
           ],
@@ -151,48 +151,54 @@ class _SalesViewScreenState extends State<SalesViewScreen>
     );
   }
 
-  Widget _buildFormField(TextEditingController textController, String hintText,
-      List<TextInputFormatter>? inputFormatters) {
-    final bool isTextEmpty = textController.text.isEmpty;
-    final IconData iconData = isTextEmpty ? Icons.search : Icons.close;
-    final Color iconColor = isTextEmpty ? _appColors.primaryColor : Colors.red;
-    return TldsInputFormField(
-      width: 203,
-      height: 40,
-      inputFormatters: inputFormatters,
-      controller: textController,
-      hintText: hintText,
-      isSearch: true,
-      suffixIcon: IconButton(
-        onPressed: iconData == Icons.search
-            ? () {
-                //add search cont here
-                _checkController(hintText);
+  StreamBuilder<bool> buildSearchField(
+      {Stream<bool>? searchStream,
+      TextEditingController? searchController,
+      Function(bool)? searchStreamController,
+      String? hintText,
+      List<TextInputFormatter>? inputFormatters}) {
+    return StreamBuilder(
+      stream: searchStream,
+      builder: (context, snapshot) {
+        bool isTextEmpty = searchController!.text.isEmpty;
+        IconData iconPath = isTextEmpty ? Icons.search : Icons.close;
+        Color iconColor = isTextEmpty ? _appColors.primaryColor : Colors.red;
+
+        return AppWidgetUtils.buildSearchField(
+          hintText,
+          searchController,
+          context,
+          inputFormatters: inputFormatters,
+          suffixIcon: IconButton(
+            onPressed: () {
+              if (iconPath == Icons.search) {
+                if (searchController.text.isNotEmpty) {
+                  searchStreamController!(true);
+                  _salesViewBloc.pageNumberUpdateStreamController(0);
+
+                  _salesViewBloc.getSalesList();
+                }
+              } else {
+                searchController.clear();
+                searchStreamController!(false);
+                _salesViewBloc.pageNumberUpdateStreamController(0);
               }
-            : () {
-                textController.clear();
-                _checkController(hintText);
-              },
-        icon: Icon(
-          iconData,
-          color: iconColor,
-        ),
-      ),
-      onSubmit: (p0) {
-        //add search cont here
-        _checkController(hintText);
+            },
+            icon: Icon(
+              iconPath,
+              color: iconColor,
+            ),
+          ),
+          onSubmit: (value) {
+            if (value.isNotEmpty) {
+              searchStreamController!(true);
+              _salesViewBloc.pageNumberUpdateStreamController(0);
+              _salesViewBloc.getSalesList();
+            }
+          },
+        );
       },
     );
-  }
-
-  void _checkController(String hintText) {
-    if (AppConstants.invoiceNo == hintText) {
-      _salesViewBloc.invoiceNoStreamController(true);
-    } else if (AppConstants.paymentType == hintText) {
-      _salesViewBloc.paymentTypeStreamController(true);
-    } else if (AppConstants.customerName == hintText) {
-      _salesViewBloc.customerNameStreamController(true);
-    }
   }
 
   Widget _buildTabBar() {
@@ -228,64 +234,119 @@ class _SalesViewScreenState extends State<SalesViewScreen>
   _buildCustomerTableView(BuildContext context) {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
-      child: DataTable(
-        key: UniqueKey(),
-        dividerThickness: 0.01,
-        columns: [
-          _buildVehicleTableHeader(
-            AppConstants.sno,
-          ),
-          _buildVehicleTableHeader(AppConstants.invoiceNo),
-          _buildVehicleTableHeader(AppConstants.invoiceDate),
-          _buildVehicleTableHeader(AppConstants.customerId),
-          _buildVehicleTableHeader(AppConstants.customerName),
-          _buildVehicleTableHeader(AppConstants.mobileNumber),
-          _buildVehicleTableHeader(AppConstants.paymentType),
-          _buildVehicleTableHeader(AppConstants.totalInvAmount),
-          _buildVehicleTableHeader(AppConstants.pendingInvAmt),
-          _buildVehicleTableHeader(AppConstants.balanceAmt),
-          _buildVehicleTableHeader(AppConstants.status),
-          _buildVehicleTableHeader(AppConstants.createdBy),
-          _buildVehicleTableHeader(AppConstants.action),
-          _buildVehicleTableHeader(AppConstants.print),
-        ],
-        rows: List.generate(rowData.length, (index) {
-          final data = rowData[index];
-
-          final color = index.isEven
-              ? _appColors.whiteColor
-              : _appColors.transparentBlueColor;
-          return DataRow(
-            color: MaterialStateColor.resolveWith((states) => color),
-            cells: [
-              DataCell(Text(data[AppConstants.sno]!)),
-              DataCell(Text(data[AppConstants.invoiceNo]!)),
-              DataCell(Text(data[AppConstants.invoiceDate]!)),
-              DataCell(Text(data[AppConstants.customerId]!)),
-              DataCell(Text(data[AppConstants.customerName]!)),
-              DataCell(Text(data[AppConstants.mobileNumber]!)),
-              DataCell(Text(data[AppConstants.paymentType]!)),
-              DataCell(Text(data[AppConstants.totalInvAmount]!)),
-              DataCell(Text(data[AppConstants.pendingInvAmt]!)),
-              DataCell(Text(data[AppConstants.balanceAmt]!)),
-              DataCell(Chip(label: Text(data[AppConstants.status]!))),
-              DataCell(Text(data[AppConstants.createdBy]!)),
-              DataCell(
-                Row(
-                  children: [
-                    IconButton(
-                      icon: SvgPicture.asset(AppConstants.icEdit),
-                      onPressed: () {},
-                    ),
-                  ],
+      child: StreamBuilder<int>(
+          stream: _salesViewBloc.pageNumberStream,
+          initialData: _salesViewBloc.currentPage,
+          builder: (context, streamSnapshot) {
+            int currentPage = streamSnapshot.data ?? 0;
+            if (currentPage < 0) currentPage = 0;
+            _salesViewBloc.currentPage = currentPage;
+            return Column(
+              children: [
+                Expanded(
+                  child: FutureBuilder(
+                    future: _salesViewBloc.getSalesList(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return Center(child: AppWidgetUtils.buildLoading());
+                      } else if (!snapshot.hasData) {
+                        return Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            SvgPicture.asset(AppConstants.imgNoData),
+                          ],
+                        );
+                      }
+                      List<SalesList> salesList =
+                          snapshot.data?.salesList ?? [];
+                      return DataTable(
+                        key: UniqueKey(),
+                        dividerThickness: 0.01,
+                        columns: [
+                          _buildVehicleTableHeader(
+                            AppConstants.sno,
+                          ),
+                          _buildVehicleTableHeader(AppConstants.invoiceNo),
+                          _buildVehicleTableHeader(AppConstants.invoiceDate),
+                          _buildVehicleTableHeader(AppConstants.customerId),
+                          _buildVehicleTableHeader(AppConstants.customerName),
+                          _buildVehicleTableHeader(AppConstants.mobileNumber),
+                          _buildVehicleTableHeader(AppConstants.paymentType),
+                          _buildVehicleTableHeader(AppConstants.totalInvAmount),
+                          _buildVehicleTableHeader(AppConstants.pendingInvAmt),
+                          _buildVehicleTableHeader(AppConstants.balanceAmt),
+                          _buildVehicleTableHeader(AppConstants.status),
+                          _buildVehicleTableHeader(AppConstants.createdBy),
+                          _buildVehicleTableHeader(AppConstants.action),
+                          _buildVehicleTableHeader(AppConstants.print),
+                        ],
+                        rows: salesList.asMap().entries.map((entry) {
+                          return DataRow(
+                            color: MaterialStateColor.resolveWith((states) {
+                              return entry.key % 2 == 0
+                                  ? Colors.white
+                                  : _appColors.transparentBlueColor;
+                            }),
+                            cells: [
+                              DataCell(Text('${entry.key + 1}')),
+                              DataCell(Text(entry.value.invoiceNo ?? '')),
+                              DataCell(
+                                  Text(entry.value.invoiceDate.toString())),
+                              DataCell(Text(entry.value.customerId ?? '')),
+                              DataCell(Text(entry.value.customerId ?? '')),
+                              DataCell(Text(entry.value.customerId ?? '')),
+                              DataCell(Text(entry.value.totalCgst.toString())),
+                              DataCell(
+                                  Text(entry.value.totalInvoiceAmt.toString())),
+                              DataCell(Text(entry.value.totalQty.toString())),
+                              DataCell(Text(entry.value.totalSgst.toString())),
+                              DataCell(Chip(
+                                  label: Text(entry.value.billType ?? ''))),
+                              DataCell(
+                                  Text(entry.value.totalTaxableAmt.toString())),
+                              DataCell(
+                                Row(
+                                  children: [
+                                    IconButton(
+                                      icon:
+                                          SvgPicture.asset(AppConstants.icEdit),
+                                      onPressed: () {},
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              DataCell(IconButton(
+                                  onPressed: () async {
+                                    final pdfData =
+                                        await SalesPdfPrinter.generatePdf();
+                                    await Printing.layoutPdf(
+                                      onLayout: (PdfPageFormat format) async {
+                                        return pdfData;
+                                      },
+                                    );
+                                  },
+                                  icon: const Icon(Icons.print))),
+                            ],
+                          );
+                        }).toList(),
+                      );
+                    },
+                  ),
                 ),
-              ),
-              DataCell(
-                  IconButton(onPressed: () {}, icon: const Icon(Icons.print))),
-            ],
-          );
-        }),
-      ),
+
+                //     CustomPagination(
+                //   itemsOnLastPage: _salesViewBloc.totalElements ?? 0,
+                //   currentPage: currentPage,
+                //   totalPages: employeeListmodel.totalPages ?? 0,
+                //   onPageChanged: (pageValue) {
+                //     _employeeViewBloc
+                //         .pageNumberUpdateStreamController(pageValue);
+                //   },
+                // ),
+              ],
+            );
+          }),
     );
   }
 

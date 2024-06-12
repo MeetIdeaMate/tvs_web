@@ -1,5 +1,9 @@
 import 'dart:convert';
 
+import 'package:tlbilling/models/get_model/get_all_branch_by_id_model.dart';
+import 'package:tlbilling/models/get_model/get_all_insurance_by_pagination_model.dart';
+import 'package:tlbilling/models/get_model/get_all_sales_list_model.dart';
+import 'package:tlbilling/models/get_model/get_all_stocks_model.dart';
 import 'package:tlbilling/models/get_model/get_all_vendorName_List.dart';
 import 'package:tlbilling/models/get_model/get_all_branch_model.dart';
 import 'package:tlbilling/models/get_model/get_all_branches_by_pagination.dart';
@@ -16,6 +20,7 @@ import 'package:tlbilling/models/get_model/get_all_purchase_model.dart';
 import 'package:tlbilling/models/get_model/get_all_vendor_by_pagination_model.dart';
 import 'package:tlbilling/models/get_model/get_configuration_list_model.dart';
 import 'package:tlbilling/models/get_model/get_configuration_model.dart';
+import 'package:tlbilling/models/get_model/get_purchase_report_model.dart';
 import 'package:tlbilling/models/get_model/get_transport_by_pagination.dart';
 import 'package:tlbilling/models/get_model/get_vendor_by_id_model.dart';
 import 'package:tlbilling/models/get_model/purchase_by_partno_model.dart';
@@ -78,9 +83,14 @@ class ResultObj {
   GetConfigurationModel? getConfigurationModel;
   TransportDetails? transportDetails;
   List<BranchDetail>? branchDetails;
+  GetAllInsuranceByPaginationModel? getAllInsuranceModel;
+  GetAllSalesList? getAllSalesList;
+  GetBranchById? getBranchId;
+  GetAllpurchaseReport? getPurchaseReport;
   PurchaseByPartNoModel? purchaseByPartNo;
   GetAllCategoryListModel? getAllcategoryList;
   List<TransportDetails>? getAllTransportsWithoutPagination;
+  GetAllStockDetails? getAllStockDetails;
 
   ResultObj(
       {this.getAllVendorByPagination,
@@ -104,8 +114,13 @@ class ResultObj {
       this.transportDetails,
       this.branchDetails,
       this.getAllTransportsWithoutPagination,
+      this.getAllInsuranceModel,
+      this.getAllSalesList,
+      this.getBranchId,
+      this.getPurchaseReport,
       this.purchaseByPartNo,
-      this.getAllcategoryList});
+      this.getAllcategoryList,
+      this.getAllStockDetails});
 
   factory ResultObj.fromJson(Map<String, dynamic> json) => ResultObj(
         getAllCustomersByPaginationModel: json['customersWithPage'] != null
@@ -164,9 +179,8 @@ class ResultObj {
         vendorById: json["vendor"] != null
             ? GetVendorById.fromJson(json["vendor"])
             : null,
-          getAllPurchaseByPageNation: json['purchasesWithPage'] != null
-            ? GetAllPurchaseByPageNation.fromJson(
-                json['purchasesWithPage'])
+        getAllPurchaseByPageNation: json['purchasesWithPage'] != null
+            ? GetAllPurchaseByPageNation.fromJson(json['purchasesWithPage'])
             : null,
         getAllVendorNameList: json['vendors'] != null
             ? List<GetAllVendorNameList>.from(
@@ -180,11 +194,27 @@ class ResultObj {
             ? List<TransportDetails>.from(
                 json['transports'].map((x) => TransportDetails.fromJson(x)))
             : null,
+        getAllInsuranceModel: json['customersWithPage'] != null
+            ? GetAllInsuranceByPaginationModel.fromJson(
+                json['customersWithPage'])
+            : null,
+        getAllSalesList: json['salesList'] != null
+            ? GetAllSalesList.fromJson(json['salesList'])
+            : null,
+        getBranchId: json["branchResponse"] != null
+            ? GetBranchById.fromJson(json["branchResponse"])
+            : null,
+        getPurchaseReport: json['purchasesWithPage'] != null
+            ? GetAllpurchaseReport.fromJson(json['purchasesWithPage'])
+            : null,
         purchaseByPartNo: json['ItemDetailByPartNo'] != null
             ? PurchaseByPartNoModel.fromJson(json['ItemDetailByPartNo'])
             : null,
         getAllcategoryList: json['categorysWithPage'] != null
             ? GetAllCategoryListModel.fromJson(json['categorysWithPage'])
+            : null,
+        getAllStockDetails: json['stocks'] != null
+            ? GetAllStockDetails.fromJson(json['stocks'])
             : null,
       );
 

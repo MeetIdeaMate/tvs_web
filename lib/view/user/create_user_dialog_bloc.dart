@@ -21,8 +21,12 @@ abstract class CreateUserDialogBloc {
   Future<List<String>> getConfigByIdModel({String? configId});
   String? get selectedEmpId;
   String? get userUpdatedStatus;
+  String? get selectedBranchId;
+  String? get selectedBranch;
 
   Future<ParentResponseModel> getEmployeeName();
+  Future<ParentResponseModel> getBranchName();
+
   Stream<bool> get employeeSelectStream;
   Future<void> onboardNewUser(
     Function onSuccessCallBack,
@@ -51,6 +55,8 @@ class CreateUserDialogBlocImpl extends CreateUserDialogBloc {
   final _employeeNameEditText = TextEditingController();
   final _employeeSelectStream = StreamController<bool>();
   String? _selectedEmpId;
+  String? _selectedBranchId;
+  String? _selectedBranch;
   set ispasswordVisible(bool passwordState) {
     _isPasswordVisible = passwordState;
   }
@@ -121,6 +127,7 @@ class CreateUserDialogBlocImpl extends CreateUserDialogBloc {
         onErrorCallBack,
         selectedDesignation ?? '',
         selectedUserName ?? '',
+        selectedBranchId ?? '',
         selectedEmpId ?? '',
         passwordController.text,
         mobileNoTextController.text);
@@ -155,5 +162,23 @@ class CreateUserDialogBlocImpl extends CreateUserDialogBloc {
       String? userId, Function(int statusCode) onSuccessCallBack) {
     return _appServiceUtilsImpl.updateUserStatus(
         userId, userUpdatedStatus, onSuccessCallBack);
+  }
+
+  @override
+  String? get selectedBranchId => _selectedBranchId;
+  set selectedBranchId(String? newValue) {
+    _selectedBranchId = newValue;
+  }
+
+  @override
+  Future<ParentResponseModel> getBranchName() {
+    return _appServiceUtilsImpl.getBranchName();
+  }
+
+  @override
+  String? get selectedBranch => _selectedBranch;
+
+  set selectedBranch(String? newValue) {
+    _selectedBranch = newValue;
   }
 }

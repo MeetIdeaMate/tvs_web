@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:tlbilling/components/custom_elevated_button.dart';
-import 'package:tlbilling/components/custom_table_view.dart';
+import 'package:tlbilling/components/custom_pagenation.dart';
+import 'package:tlbilling/models/get_model/get_all_vendor_by_pagination_model.dart';
 import 'package:tlbilling/models/parent_response_model.dart';
 import 'package:tlbilling/utils/app_colors.dart';
 import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/utils/app_util_widgets.dart' as tlbilling_widget;
+import 'package:tlbilling/utils/app_util_widgets.dart';
 import 'package:tlbilling/view/report/report_generate_pdf_dialog.dart';
 import 'package:tlbilling/view/report/sale_report/sales_accessories_report_bloc.dart';
 import 'package:tlbilling/view/report/sale_report/sales_report_bloc.dart';
 import 'package:tlbilling/view/report/sale_report/sales_vehicles_report_bloc.dart';
-import 'package:tlds_flutter/export.dart';
+import 'package:tlds_flutter/components/tlds_date_picker.dart';
+import 'package:tlds_flutter/components/tlds_dropdown_button_form_field.dart';
 
 class SalesReport extends StatefulWidget {
   const SalesReport({super.key});
@@ -165,9 +168,7 @@ class _SalesReportState extends State<SalesReport>
         _saledReportBlocImpl.getConfigById(configId: 'Payments'),
       ]),
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        } else if (snapshot.hasError) {
+        if (snapshot.hasError) {
           return Center(child: Text(' ${snapshot.error}'));
         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
           return const Center(child: Text(AppConstants.noData));
@@ -188,7 +189,12 @@ class _SalesReportState extends State<SalesReport>
           vehicleTypes.insert(0, AppConstants.all);
 
           return searchAndTableView(
-              vehicleOrAccessoriesHintName: AppConstants.vehicle,
+              vehicleOrAccessoriesHintName:
+                  (snapshot.connectionState == ConnectionState.waiting)
+                      ? AppConstants.loading
+                      : (snapshot.hasError || snapshot.data == null)
+                          ? AppConstants.errorLoading
+                          : AppConstants.exSelect,
               vehicleOrAccessoriesDropDownValues:
                   _salesVehicleReportBlocImpl.vehicleType,
               vehicleOrAccessoriesDropDownOnChange: (value) {
@@ -256,7 +262,12 @@ class _SalesReportState extends State<SalesReport>
           vehicleTypes.insert(0, AppConstants.all);
 
           return searchAndTableView(
-            vehicleOrAccessoriesHintName: AppConstants.accessories,
+            vehicleOrAccessoriesHintName:
+                (snapshot.connectionState == ConnectionState.waiting)
+                    ? AppConstants.loading
+                    : (snapshot.hasError || snapshot.data == null)
+                        ? AppConstants.errorLoading
+                        : AppConstants.exSelect,
             vehicleOrAccessoriesDropDownValues:
                 _salesAccessoriesBlocImpl.accessoriesType,
             vehicleOrAccessoriesDropDownOnChange: (value) {
@@ -320,17 +331,18 @@ class _SalesReportState extends State<SalesReport>
               TldsDropDownButtonFormField(
                   height: 40,
                   width: MediaQuery.of(context).size.width * 0.1,
-                  dropDownItems: vehicleOrAccessoriesList,
-                  dropDownValue: AppConstants.all,
+                  dropDownItems: vehicleOrAccessoriesList.toSet().toList(),
+                  dropDownValue:
+                      vehicleOrAccessoriesDropDownValues ?? AppConstants.all,
                   hintText: vehicleOrAccessoriesHintName,
                   onChange: vehicleOrAccessoriesDropDownOnChange),
               tlbilling_widget.AppWidgetUtils.buildSizedBox(custWidth: 5),
               Expanded(
                 child: TldsDropDownButtonFormField(
                   height: 40,
-                  dropDownItems: branchDropdownList,
+                  dropDownItems: branchDropdownList.toSet().toList(),
                   hintText: AppConstants.selectedBranch,
-                  dropDownValue: AppConstants.all,
+                  dropDownValue: selectedBranchName ?? AppConstants.all,
                   onChange: branchOnChange,
                 ),
               ),
@@ -338,8 +350,8 @@ class _SalesReportState extends State<SalesReport>
               TldsDropDownButtonFormField(
                 height: 40,
                 width: MediaQuery.of(context).size.width * 0.1,
-                dropDownItems: paymentTypeDropDownList,
-                dropDownValue: AppConstants.all,
+                dropDownItems: paymentTypeDropDownList.toSet().toList(),
+                dropDownValue: paymentdropDownValue ?? AppConstants.all,
                 hintText: AppConstants.paymentType,
                 onChange: paymentOnChange,
               ),
@@ -386,13 +398,101 @@ class _SalesReportState extends State<SalesReport>
               )
             ],
           ),
-          Padding(
-            padding: const EdgeInsets.only(top: 20),
-            child:
-                CustomTableView(columnHeaders: columnHeaders, rowData: rowData),
-          )
+          tlbilling_widget.AppWidgetUtils.buildSizedBox(custHeight: 10),
+          _buildPurchaseTableView(context)
         ],
       ),
     );
   }
+
+  Widget _buildPurchaseTableView(BuildContext context) {
+    return Expanded(
+      child: StreamBuilder<int>(
+        stream: _salesVehicleReportBlocImpl.pageNumberStream,
+        initialData: _salesVehicleReportBlocImpl.currentPage,
+        builder: (context, streamSnapshot) {
+          int currentPage = streamSnapshot.data ?? 0;
+          if (currentPage < 0) currentPage = 0;
+          _salesVehicleReportBlocImpl.currentPage = currentPage;
+          return FutureBuilder<GetAllVendorByPagination?>(
+            future: _salesVehicleReportBlocImpl.getPurchaseReport(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return AppWidgetUtils.buildLoading();
+              } else if (snapshot.hasError) {
+                return const Center(
+                    child: Text(AppConstants.somethingWentWrong));
+              } else if (!snapshot.hasData) {
+                return Center(child: SvgPicture.asset(AppConstants.imgNoData));
+              } else {
+                GetAllVendorByPagination? employeeListmodel = snapshot.data;
+                List<Content>? userData = snapshot.data?.content ?? [];
+
+                return Column(
+                  children: [
+                    Expanded(
+                      child: SizedBox(
+                        width: MediaQuery.of(context).size.width,
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: DataTable(
+                            dividerThickness: 0.01,
+                            columns: columnHeaders
+                                .map((header) => DataColumn(
+                                      label: Text(
+                                        header,
+                                        style: const TextStyle(
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                    ))
+                                .toList(),
+                            rows: userData.asMap().entries.map((entry) {
+                              return DataRow(
+                                color: MaterialStateColor.resolveWith((states) {
+                                  return entry.key % 2 == 0
+                                      ? Colors.white
+                                      : _appColors.transparentBlueColor;
+                                }),
+                                cells: [
+                                  _buildTableRow('${entry.key + 1}'),
+                                  _buildTableRow(entry.value.city),
+                                  _buildTableRow(entry.value.city),
+                                  _buildTableRow(entry.value.accountNo),
+                                  _buildTableRow(entry.value.accountNo),
+                                  _buildTableRow(entry.value.city),
+                                  _buildTableRow(entry.value.mobileNo),
+                                  _buildTableRow(entry.value.vendorName),
+                                  _buildTableRow(entry.value.city),
+                                  _buildTableRow(entry.value.vendorId),
+                                  _buildTableRow(entry.value.city),
+                                ],
+                              );
+                            }).toList(),
+                          ),
+                        ),
+                      ),
+                    ),
+                    CustomPagination(
+                      itemsOnLastPage: employeeListmodel?.totalElements ?? 0,
+                      currentPage: currentPage,
+                      totalPages: employeeListmodel?.totalPages ?? 0,
+                      onPageChanged: (pageValue) {
+                        _salesVehicleReportBlocImpl
+                            .pageNumberUpdateStreamController(pageValue);
+                      },
+                    ),
+                  ],
+                );
+              }
+            },
+          );
+        },
+      ),
+    );
+  }
+
+  DataCell _buildTableRow(String? text) => DataCell(Text(
+        text ?? '',
+        style: const TextStyle(fontSize: 14),
+      ));
 }

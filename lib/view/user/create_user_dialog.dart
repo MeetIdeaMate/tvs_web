@@ -29,8 +29,6 @@ class CreateUserDialog extends StatefulWidget {
 class _CreateUserDialogState extends State<CreateUserDialog> {
   final _appColors = AppColors();
   final _createUserDialogBlocImpl = CreateUserDialogBlocImpl();
-  List<String>? username = ['muthu', 'Laskhu'];
-  List<String>? design = ['Manager', 'AssistMangaer'];
   bool _isLoading = false;
   void _isLoadingState({required bool state}) {
     setState(() {
@@ -54,7 +52,7 @@ class _CreateUserDialogState extends State<CreateUserDialog> {
         ],
         content: SizedBox(
           width: MediaQuery.sizeOf(context).width * 0.4,
-          height: 250,
+          // height: 300,
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 30),
             child: _buildUserCreateForm(),
@@ -90,20 +88,21 @@ class _CreateUserDialogState extends State<CreateUserDialog> {
   }
 
   _buildUserCreateForm() {
-    return Form(
-      key: _createUserDialogBlocImpl.userFormKey,
-      child: Column(
-        children: [
-          AppWidgetUtils.buildSizedBox(custHeight: 10),
-          _buildUserNameAndMobNoFields(),
-          // AppWidgetUtils.buildSizedBox(custHeight: 13),
-          _buildDesignationAndPasswordFields(),
-        ],
+    return SingleChildScrollView(
+      child: Form(
+        key: _createUserDialogBlocImpl.userFormKey,
+        child: Column(
+          children: [
+            AppWidgetUtils.buildSizedBox(custHeight: 10),
+            _buildUserNameAndMobNoFields(),
+            _buildDesignationAndPasswordFields(),
+            AppWidgetUtils.buildSizedBox(custHeight: 15),
+            _buildSelectBranch()
+          ],
+        ),
       ),
     );
   }
-  // print(
-  //     '*************${snapshot.data!.map((e) => e.employeeId).toList()}');
 
   _buildUserNameAndMobNoFields() {
     return Row(children: [
@@ -324,6 +323,49 @@ class _CreateUserDialogState extends State<CreateUserDialog> {
             }));
   }
 
+  Widget _buildSelectBranch() {
+    return FutureBuilder(
+      future: _createUserDialogBlocImpl.getBranchName(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Text(AppConstants.loading);
+        } else if (snapshot.hasError) {
+          return Text('${snapshot.error}');
+        } else if (snapshot.hasData) {
+          // Create a map to store branch names and IDs
+          final branchMap = {
+            for (var branch in snapshot.data!.result!.getAllBranchList!)
+              if (branch.branchName != null) branch.branchName!: branch.branchId
+          };
+
+          final branchNameList = branchMap.keys.toList();
+          final selectedBranchName =
+              branchMap.keys.contains(_createUserDialogBlocImpl.selectedBranch)
+                  ? _createUserDialogBlocImpl.selectedBranch
+                  : null;
+
+          return CustomDropDownButtonFormField(
+            height: 70,
+            requiredLabelText:
+                AppWidgetUtils.labelTextWithRequired(AppConstants.branch),
+            dropDownItems: branchNameList,
+            hintText: AppConstants.exSelect,
+            dropDownValue: selectedBranchName,
+            validator: (value) {
+              return InputValidations.branchValidation(value ?? '');
+            },
+            onChange: (String? newValue) {
+              _createUserDialogBlocImpl.selectedBranchId = branchMap[newValue];
+              _createUserDialogBlocImpl.selectedBranch = newValue;
+            },
+          );
+        } else {
+          return const Text(AppConstants.noData);
+        }
+      },
+    );
+  }
+
   _buildSaveButton() {
     return CustomActionButtons(
         buttonText: AppConstants.addUser, onPressed: _buildOnPressed);
@@ -333,7 +375,7 @@ class _CreateUserDialogState extends State<CreateUserDialog> {
     if (_createUserDialogBlocImpl.userFormKey.currentState!.validate()) {
       _isLoadingState(state: true);
       _createUserDialogBlocImpl.onboardNewUser(() {
-        _isLoadingState(state: true);
+        _isLoadingState(state: false);
         AppWidgetUtils.buildToast(
             context,
             ToastificationType.success,
@@ -344,7 +386,7 @@ class _CreateUserDialogState extends State<CreateUserDialog> {
             AppColor().successLightColor);
         Navigator.pop(context);
         _isLoadingState(state: false);
-        widget.userViewBloc.usersListStream(true);
+        widget.userViewBloc.pageNumberUpdateStreamController(0);
       }, (statusCode) {
         if (statusCode == 409) {
           AppWidgetUtils.buildToast(

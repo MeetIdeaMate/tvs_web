@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:tlbilling/components/custom_elevated_button.dart';
+import 'package:tlbilling/components/custom_pagenation.dart';
+import 'package:tlbilling/models/get_model/get_all_vendor_by_pagination_model.dart';
 import 'package:tlbilling/utils/app_colors.dart';
 import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/utils/app_util_widgets.dart';
 import 'package:tlbilling/view/voucher_receipt/new_receipt/new_receipt.dart';
 import 'package:tlbilling/view/voucher_receipt/new_voucher/new_voucher.dart';
+import 'package:tlbilling/view/voucher_receipt/voucher_list_bloc.dart';
 import 'package:tlbilling/view/voucher_receipt/vouecher_receipt_list_bloc.dart';
 import 'package:tlds_flutter/components/tlds_dropdown_button_form_field.dart';
 import 'package:tlds_flutter/components/tlds_input_form_field.dart';
@@ -21,6 +24,7 @@ class _VoucherReceiptListState extends State<VoucherReceiptList>
     with SingleTickerProviderStateMixin {
   final _appColors = AppColors();
   final _voucherReceiptBloc = VoucherReceiptListBlocImpl();
+  final _voucherListBlocImpl = VoucherListBlocImpl();
 
   @override
   void initState() {
@@ -45,7 +49,9 @@ class _VoucherReceiptListState extends State<VoucherReceiptList>
             _buildDefaultHeight(),
             _buildSearchFilters(),
             _buildDefaultHeight(),
-            _buildTabBarView(),
+            Expanded(
+              child: _buildTabBarView(),
+            ),
           ],
         ),
       ),
@@ -63,6 +69,8 @@ class _VoucherReceiptListState extends State<VoucherReceiptList>
     return SizedBox(
       width: 250,
       child: TabBar(
+        isScrollable: false,
+        physics: const NeverScrollableScrollPhysics(),
         controller: _voucherReceiptBloc.receiptVoucherTabController,
         tabs: const [
           Tab(text: AppConstants.receipt),
@@ -152,144 +160,224 @@ class _VoucherReceiptListState extends State<VoucherReceiptList>
   }
 
   Widget _buildTabBarView() {
-    return Expanded(
-      child: TabBarView(
-        physics: const NeverScrollableScrollPhysics(),
-        controller: _voucherReceiptBloc.receiptVoucherTabController,
-        children: [
-          _buildTransferTableView(context),
-          _buildVoucherTableView(context),
-        ],
-      ),
+    return TabBarView(
+      physics: const NeverScrollableScrollPhysics(),
+      controller: _voucherReceiptBloc.receiptVoucherTabController,
+      children: [
+        _buildTransferTableView(context),
+        _buildVoucherTableView(context),
+      ],
     );
   }
 
-  _buildTransferTableView(BuildContext context) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.vertical,
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: DataTable(
-          key: UniqueKey(),
-          dividerThickness: 0.01,
-          columns: [
-            _buildTransferTableHeader(
-              AppConstants.sno,
-            ),
-            _buildTransferTableHeader(AppConstants.receiptNumber, flex: 2),
-            _buildTransferTableHeader(AppConstants.receiptDate, flex: 2),
-            _buildTransferTableHeader(AppConstants.vehicleName, flex: 2),
-            _buildTransferTableHeader(AppConstants.color, flex: 2),
-            _buildTransferTableHeader(AppConstants.receivedFrom, flex: 2),
-            _buildTransferTableHeader(AppConstants.paymentType, flex: 2),
-            _buildTransferTableHeader(AppConstants.amount, flex: 2),
-            _buildTransferTableHeader(AppConstants.print, flex: 2),
-            _buildTransferTableHeader(AppConstants.action, flex: 2),
-          ],
-          rows: List.generate(_voucherReceiptBloc.rowData.length, (index) {
-            final data = _voucherReceiptBloc.rowData[index];
+  Widget _buildTransferTableView(BuildContext context) {
+    return StreamBuilder<int>(
+      stream: _voucherListBlocImpl.pageNumberStream,
+      initialData: _voucherListBlocImpl.currentPage,
+      builder: (context, streamSnapshot) {
+        int currentPage = streamSnapshot.data ?? 0;
+        if (currentPage < 0) currentPage = 0;
+        _voucherListBlocImpl.currentPage = currentPage;
+        return FutureBuilder<GetAllVendorByPagination?>(
+          future: _voucherListBlocImpl.getVocherReport(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(child: AppWidgetUtils.buildLoading());
+            } else if (snapshot.hasError) {
+              return const Center(child: Text(AppConstants.somethingWentWrong));
+            } else if (!snapshot.hasData) {
+              return Center(child: SvgPicture.asset(AppConstants.imgNoData));
+            }
+            GetAllVendorByPagination receiptListModel = snapshot.data!;
 
-            final color = index.isEven
-                ? _appColors.whiteColor
-                : _appColors.transparentBlueColor;
-            return DataRow(
-              color: MaterialStateColor.resolveWith((states) => color),
-              cells: [
-                DataCell(Text(data[AppConstants.sno] ?? '')),
-                DataCell(Text(data[AppConstants.receiptNumber] ?? '')),
-                DataCell(Text(data[AppConstants.receiptDate] ?? '')),
-                DataCell(Text(data[AppConstants.vehicleName] ?? '')),
-                DataCell(Text(data[AppConstants.color] ?? '')),
-                DataCell(Text(data[AppConstants.receivedFrom] ?? '')),
-                DataCell(Text(data[AppConstants.paymentType] ?? '')),
-                DataCell(Text(data[AppConstants.amount] ?? '')),
-                DataCell(IconButton(
-                    onPressed: () {},
-                    icon: SvgPicture.asset(AppConstants.icPrint))),
-                DataCell(Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    IconButton(
-                      onPressed: () {},
-                      icon: SvgPicture.asset(AppConstants.icEdit),
+            List<Content> receiptData = snapshot.data?.content ?? [];
+
+            return Column(
+              children: [
+                Expanded(
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.vertical,
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: DataTable(
+                        dividerThickness: 0.01,
+                        columns: [
+                          _buildTransferTableHeader(AppConstants.sno),
+                          _buildTransferTableHeader(AppConstants.receiptNumber),
+                          _buildTransferTableHeader(AppConstants.receiptDate),
+                          _buildTransferTableHeader(AppConstants.vehicleName),
+                          _buildTransferTableHeader(AppConstants.color),
+                          _buildTransferTableHeader(AppConstants.receivedFrom),
+                          _buildTransferTableHeader(AppConstants.paymentType),
+                          _buildTransferTableHeader(AppConstants.amount),
+                          _buildTransferTableHeader(AppConstants.print),
+                          _buildTransferTableHeader(AppConstants.action),
+                        ],
+                        rows: receiptData.asMap().entries.map((entry) {
+                          return DataRow(
+                            color: MaterialStateColor.resolveWith((states) {
+                              return entry.key % 2 == 0
+                                  ? Colors.white
+                                  : _appColors.transparentBlueColor;
+                            }),
+                            cells: [
+                              _buildTableRow('${entry.key + 1}'),
+                              _buildTableRow(entry.value.city),
+                              _buildTableRow(entry.value.ifscCode),
+                              _buildTableRow(entry.value.vendorName),
+                              _buildTableRow(entry.value.mobileNo),
+                              _buildTableRow(entry.value.address),
+                              _buildTableRow(entry.value.id),
+                              _buildTableRow(entry.value.vendorName),
+                              DataCell(IconButton(
+                                  onPressed: () {},
+                                  icon:
+                                      SvgPicture.asset(AppConstants.icPrint))),
+                              DataCell(Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  IconButton(
+                                    onPressed: () {},
+                                    icon: SvgPicture.asset(AppConstants.icEdit),
+                                  ),
+                                  IconButton(
+                                    onPressed: () {},
+                                    icon: SvgPicture.asset(
+                                        AppConstants.icFilledClose),
+                                  )
+                                ],
+                              )),
+                            ],
+                          );
+                        }).toList(),
+                      ),
                     ),
-                    IconButton(
-                      onPressed: () {},
-                      icon: SvgPicture.asset(AppConstants.icFilledClose),
-                    )
-                  ],
-                )),
+                  ),
+                ),
+                CustomPagination(
+                  itemsOnLastPage: receiptListModel.totalElements ?? 0,
+                  currentPage: currentPage,
+                  totalPages: receiptListModel.totalPages ?? 0,
+                  onPageChanged: (pageValue) {
+                    _voucherListBlocImpl
+                        .pageNumberUpdateStreamController(pageValue);
+                  },
+                ),
               ],
             );
-          }),
-        ),
-      ),
+          },
+        );
+      },
     );
   }
 
-  _buildVoucherTableView(BuildContext context) {
-    return Expanded(
-        child: SingleChildScrollView(
-      scrollDirection: Axis.vertical,
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: DataTable(
-          key: UniqueKey(),
-          dividerThickness: 0.01,
-          columns: [
-            _buildTransferTableHeader(
-              AppConstants.sno,
-            ),
-            _buildTransferTableHeader(AppConstants.voucherId, flex: 2),
-            _buildTransferTableHeader(AppConstants.voucherDate, flex: 2),
-            _buildTransferTableHeader(AppConstants.giver, flex: 2),
-            _buildTransferTableHeader(AppConstants.receiver, flex: 2),
-            _buildTransferTableHeader(AppConstants.amount, flex: 2),
-            _buildTransferTableHeader(AppConstants.print, flex: 2),
-            _buildTransferTableHeader(AppConstants.action, flex: 2),
-          ],
-          rows: List.generate(_voucherReceiptBloc.voucherData.length, (index) {
-            final data = _voucherReceiptBloc.voucherData[index];
+  DataCell _buildTableRow(String? text) => DataCell(Text(
+        text ?? '',
+        style: const TextStyle(fontSize: 14),
+      ));
 
-            final color = index.isEven
-                ? _appColors.whiteColor
-                : _appColors.transparentBlueColor;
-            return DataRow(
-              color: MaterialStateColor.resolveWith((states) => color),
-              cells: [
-                DataCell(Text(data[AppConstants.sno] ?? '')),
-                DataCell(Text(data[AppConstants.voucherId] ?? '')),
-                DataCell(Text(data[AppConstants.voucherDate] ?? '')),
-                DataCell(Text(data[AppConstants.giver] ?? '')),
-                DataCell(Text(data[AppConstants.receiver] ?? '')),
-                DataCell(Text(data[AppConstants.amount] ?? '')),
-                DataCell(IconButton(
-                    onPressed: () {},
-                    icon: SvgPicture.asset(AppConstants.icPrint))),
-                DataCell(Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    IconButton(
-                      onPressed: () {},
-                      icon: SvgPicture.asset(AppConstants.icEdit),
+  Widget _buildVoucherTableView(BuildContext context) {
+    return StreamBuilder<int>(
+      stream: _voucherReceiptBloc.pageNumberStream,
+      initialData: _voucherReceiptBloc.currentPage,
+      builder: (context, streamSnapshot) {
+        int currentPage = streamSnapshot.data ?? 0;
+        if (currentPage < 0) currentPage = 0;
+        _voucherReceiptBloc.currentPage = currentPage;
+        return FutureBuilder<GetAllVendorByPagination?>(
+          future: _voucherReceiptBloc.getVocherReport(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(child: AppWidgetUtils.buildLoading());
+            } else if (snapshot.hasError) {
+              return const Center(child: Text(AppConstants.somethingWentWrong));
+            } else if (!snapshot.hasData) {
+              return Center(child: SvgPicture.asset(AppConstants.imgNoData));
+            }
+            GetAllVendorByPagination voucherListModel = snapshot.data!;
+            List<Content> voucherData = snapshot.data?.content ?? [];
+
+            return Column(
+              children: [
+                Expanded(
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: DataTable(
+                      key: UniqueKey(),
+                      dividerThickness: 0.01,
+                      columns: [
+                        _buildTransferTableHeader(AppConstants.sno),
+                        _buildTransferTableHeader(AppConstants.voucherId,
+                            flex: 2),
+                        _buildTransferTableHeader(AppConstants.voucherDate,
+                            flex: 2),
+                        _buildTransferTableHeader(AppConstants.giver, flex: 2),
+                        _buildTransferTableHeader(AppConstants.receiver,
+                            flex: 2),
+                        _buildTransferTableHeader(AppConstants.amount, flex: 2),
+                        _buildTransferTableHeader(AppConstants.print, flex: 2),
+                        _buildTransferTableHeader(AppConstants.action, flex: 2),
+                      ],
+                      rows: voucherData.asMap().entries.map((entry) {
+                        final data = entry.value;
+                        final color = entry.key.isEven
+                            ? _appColors.whiteColor
+                            : _appColors.transparentBlueColor;
+                        return DataRow(
+                          color:
+                              MaterialStateColor.resolveWith((states) => color),
+                          cells: [
+                            _buildTableRow('${entry.key + 1}'),
+                            _buildTableRow(data.address),
+                            _buildTableRow(data.city),
+                            _buildTableRow(data.ifscCode),
+                            _buildTableRow(data.vendorId),
+                            _buildTableRow(data.city),
+                            DataCell(IconButton(
+                                onPressed: () {},
+                                icon: SvgPicture.asset(AppConstants.icPrint))),
+                            DataCell(Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                IconButton(
+                                  onPressed: () {},
+                                  icon: SvgPicture.asset(AppConstants.icEdit),
+                                ),
+                                IconButton(
+                                  onPressed: () {},
+                                  icon: SvgPicture.asset(
+                                      AppConstants.icFilledClose),
+                                )
+                              ],
+                            )),
+                          ],
+                        );
+                      }).toList(),
                     ),
-                    IconButton(
-                      onPressed: () {},
-                      icon: SvgPicture.asset(AppConstants.icFilledClose),
-                    )
-                  ],
-                )),
+                  ),
+                ),
+                CustomPagination(
+                  itemsOnLastPage: voucherListModel.totalElements ?? 0,
+                  currentPage: currentPage,
+                  totalPages: voucherListModel.totalPages ?? 0,
+                  onPageChanged: (pageValue) {
+                    _voucherReceiptBloc
+                        .pageNumberUpdateStreamController(pageValue);
+                  },
+                ),
               ],
             );
-          }),
-        ),
-      ),
-    ));
+          },
+        );
+      },
+    );
   }
 
-  _buildTransferTableHeader(String headerValue, {int flex = 1}) => DataColumn(
-      label: AppWidgetUtils.buildCustomDmSansTextWidget(headerValue,
-          fontSize: 14, fontWeight: FontWeight.w700));
+  DataColumn _buildTransferTableHeader(String headerValue, {int flex = 1}) =>
+      DataColumn(
+          label: AppWidgetUtils.buildCustomDmSansTextWidget(headerValue,
+              fontSize: 14, fontWeight: FontWeight.w700));
 
   Widget _buildFormField(
       TextEditingController textController, String hintText) {
@@ -328,12 +416,6 @@ class _VoucherReceiptListState extends State<VoucherReceiptList>
     if (AppConstants.receiptId == hintText) {
       _voucherReceiptBloc.receiptIdStreamController(true);
     }
-  }
-
-  // ignore: unused_element
-  Widget _buildDefaultWidth() {
-    return AppWidgetUtils.buildSizedBox(
-        custWidth: MediaQuery.sizeOf(context).width * 0.01);
   }
 
   Widget _buildDefaultHeight() {

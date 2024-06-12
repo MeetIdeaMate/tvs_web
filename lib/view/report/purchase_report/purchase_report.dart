@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:tlbilling/components/custom_elevated_button.dart';
-import 'package:tlbilling/components/custom_table_view.dart';
+import 'package:tlbilling/components/custom_pagenation.dart';
+import 'package:tlbilling/models/get_model/get_all_vendor_by_pagination_model.dart';
 import 'package:tlbilling/utils/app_colors.dart';
 import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/utils/app_util_widgets.dart' as tlbilling_widget;
@@ -26,6 +29,11 @@ class _PurchaseReportState extends State<PurchaseReport>
   final _purchaseVechicleBlocImpl = PurchaseVehiclesReportBlocImpl();
   final _purchaseAccessoriesBlocImpl = PurchaseAccessoriesReportBlocImpl();
 
+  final StreamController<int> _pageNumberStreamController =
+      StreamController<int>.broadcast();
+  final TextEditingController _fromDateController = TextEditingController();
+  final TextEditingController _toDateController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
@@ -34,18 +42,12 @@ class _PurchaseReportState extends State<PurchaseReport>
     _purchaseReportBlocImpl.purchaseReportTabController.addListener(() {
       _purchaseReportBlocImpl.tabChangeStreamControll(true);
     });
+    _pageNumberStreamController.add(0);
   }
 
-  final List<String> vehicles = [
-    'Toyota Camry',
-    'Honda Accord',
-    'BMW 3 Series',
-    'Mercedes-Benz C-Class',
-    'Audi A4',
-  ];
   final List<String> columnHeaders = [
     'S.No',
-    'date',
+    'Date',
     'Vehicle Name',
     'HSN code',
     'Qty',
@@ -57,81 +59,18 @@ class _PurchaseReportState extends State<PurchaseReport>
     'Tot Inv Value',
   ];
 
-  List<Map<String, String>> rowData = [
-    {
-      'S.No': '1',
-      'Date': '2024-05-01',
-      'Vehicle Name': 'Toyota Camry',
-      'HSN Code': '87089900',
-      'Qty': '10',
-      'Unit Rate': '5000',
-      'Total Value': '50000',
-      'Taxable Value': '45000',
-      'CGST ₹': '2250',
-      'SGST ₹': '2250',
-      'Tot Inv Value': '49500',
-    },
-    {
-      'S.No': '2',
-      'Date': '2024-05-02',
-      'Vehicle Name': 'Honda Accord',
-      'HSN Code': '87089900',
-      'Qty': '5',
-      'Unit Rate': '7000',
-      'Total Value': '35000',
-      'Taxable Value': '31500',
-      'CGST ₹': '1575',
-      'SGST ₹': '1575',
-      'Tot Inv Value': '34650',
-    },
-    {
-      'S.No': '3',
-      'Date': '2024-05-03',
-      'Vehicle Name': 'BMW 3 Series',
-      'HSN Code': '87089900',
-      'Qty': '8',
-      'Unit Rate': '12000',
-      'Total Value': '96000',
-      'Taxable Value': '86400',
-      'CGST ₹': '4320',
-      'SGST ₹': '4320',
-      'Tot Inv Value': '95040',
-    },
-    {
-      'S.No': '',
-      'Date': '',
-      'Vehicle Name': '',
-      'HSN Code': '',
-      'Qty': '10',
-      'Unit Rate': '',
-      'Total Value': '50000',
-      'Taxable Value': '45000',
-      'CGST ₹': '₹ 2250',
-      'SGST ₹': '₹ 2250',
-      'Tot Inv Value': '₹ 49500',
-    }
-  ];
-
-  Map<String, String> total = {
-    'S.No': '',
-    'Date': '',
-    'Vehicle Name': '',
-    'HSN Code': '',
-    'Qty': '10',
-    'Unit Rate': '',
-    'Total Value': '50000',
-    'Taxable Value': '45000',
-    'CGST ₹': '₹ 2250',
-    'SGST ₹': '₹ 2250',
-    'Tot Inv Value': '₹ 49500',
-  };
+  @override
+  void dispose() {
+    _pageNumberStreamController.close();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
         _buildTabBar(),
-        AppWidgetUtils.buildSizedBox(custHeight: 16),
+        tlbilling_widget.AppWidgetUtils.buildSizedBox(custHeight: 16),
         _buildTabBarView(),
       ],
     );
@@ -155,7 +94,7 @@ class _PurchaseReportState extends State<PurchaseReport>
             builder: (context, snapshot) {
               return Expanded(
                 child: Center(
-                  child: AppWidgetUtils.buildHeaderText(
+                  child: tlbilling_widget.AppWidgetUtils.buildHeaderText(
                     _getHeaderText(),
                     fontSize: 18,
                   ),
@@ -182,7 +121,7 @@ class _PurchaseReportState extends State<PurchaseReport>
         children: [
           //vehicles
           _buildVehicleReportView(),
-          // accessaries
+          // accessories
           _buildAccessoriesReportView()
         ],
       ),
@@ -191,36 +130,40 @@ class _PurchaseReportState extends State<PurchaseReport>
 
   Widget _buildAccessoriesReportView() {
     return FutureBuilder(
-      future: _purchaseReportBlocImpl.getBranchName(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        } else if (snapshot.hasError) {
-          return Center(child: Text('Error: ${snapshot.error}'));
-        } else if (!snapshot.hasData) {
-          return const Center(child: Text(AppConstants.noData));
-        } else {
-          final vehicleTypes = snapshot.data!.result!.getAllBranchList!
-              .map((item) => item.branchName ?? '')
-              .toList();
-          vehicleTypes.insert(0, AppConstants.all);
+        future: _purchaseReportBlocImpl.getBranchName(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else if (!snapshot.hasData) {
+            return const Center(child: Text(AppConstants.noData));
+          } else {
+            final vehicleTypes = snapshot.data!.result!.getAllBranchList!
+                .map((item) => item.branchName ?? '')
+                .toList();
+            vehicleTypes.insert(0, AppConstants.all);
 
-          return searchAndTableView(
+            return searchAndTableView(
               dropDownHintText: AppConstants.accessories,
               dropDownItems: vehicleTypes,
-              fromDateController: _purchaseAccessoriesBlocImpl.fromDateTextEdit,
-              toDateControler: _purchaseAccessoriesBlocImpl.toDateTextEdit,
+              fromDateController: _fromDateController,
+              toDateControler: _toDateController,
               buttonOnPressed: () {},
               dropDownOnChange: (value) {
                 _purchaseVechicleBlocImpl.selectedVehiclesType = value;
               },
               dropDownValue:
                   _purchaseAccessoriesBlocImpl.selectedAccessoriesType,
-              columnHeaders: columnHeaders,
-              rowData: rowData);
-        }
-      },
-    );
+              fromDateOnSuccessCallBack: () {
+                // Add your callback function here
+              },
+              toDateOnSuccessCallBack: () {
+                // Add your callback function here
+              },
+            );
+          }
+        });
   }
 
   Widget _buildVehicleReportView() {
@@ -240,34 +183,38 @@ class _PurchaseReportState extends State<PurchaseReport>
           vehicleTypes.insert(0, AppConstants.all);
 
           return searchAndTableView(
-              dropDownHintText: AppConstants.vehicleType,
-              dropDownItems: vehicleTypes,
-              fromDateController: _purchaseVechicleBlocImpl.fromDateTextEdit,
-              toDateControler: _purchaseVechicleBlocImpl.toDateTextEdit,
-              buttonOnPressed: () {},
-              dropDownOnChange: (value) {
-                _purchaseVechicleBlocImpl.selectedVehiclesType = value;
-              },
-              dropDownValue: _purchaseVechicleBlocImpl.selectedVehiclesType,
-              columnHeaders: columnHeaders,
-              rowData: rowData);
+            dropDownHintText: AppConstants.vehicleType,
+            dropDownItems: vehicleTypes,
+            fromDateController: _fromDateController,
+            toDateControler: _toDateController,
+            buttonOnPressed: () {},
+            dropDownOnChange: (value) {
+              _purchaseVechicleBlocImpl.selectedVehiclesType = value;
+            },
+            dropDownValue: _purchaseVechicleBlocImpl.selectedVehiclesType,
+            fromDateOnSuccessCallBack: () {
+              // Add your callback function here
+            },
+            toDateOnSuccessCallBack: () {
+              // Add your callback function here
+            },
+          );
         }
       },
     );
   }
 
-  searchAndTableView(
-      {List<String>? dropDownItems,
-      String? dropDownHintText,
-      String? dropDownValue,
-      Function(String?)? dropDownOnChange,
-      required TextEditingController fromDateController,
-      required TextEditingController toDateControler,
-      Function()? buttonOnPressed,
-      required List<String> columnHeaders,
-      required List<Map<String, String>> rowData,
-      Function()? fromDateOnSuccessCallBack,
-      Function()? toDateOnSuccessCallBack}) {
+  Widget searchAndTableView({
+    List<String>? dropDownItems,
+    String? dropDownHintText,
+    String? dropDownValue,
+    Function(String?)? dropDownOnChange,
+    required TextEditingController fromDateController,
+    required TextEditingController toDateControler,
+    required Function()? buttonOnPressed,
+    required Function()? fromDateOnSuccessCallBack,
+    required Function()? toDateOnSuccessCallBack,
+  }) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 27),
       child: Column(
@@ -279,59 +226,153 @@ class _PurchaseReportState extends State<PurchaseReport>
                 width: MediaQuery.of(context).size.width * 0.1,
                 dropDownItems: dropDownItems ?? [],
                 hintText: dropDownHintText,
-                dropDownValue: AppConstants.all,
+                dropDownValue: dropDownValue ?? AppConstants.all,
                 onChange: dropDownOnChange,
               ),
               tlbilling_widget.AppWidgetUtils.buildSizedBox(custWidth: 5),
               TldsDatePicker(
-                  firstDate: DateTime(2000, 1, 1),
-                  height: 40,
-                  onSuccessCallBack: fromDateOnSuccessCallBack,
-                  suffixIcon: SvgPicture.asset(
-                    AppConstants.icDate,
-                    colorFilter: ColorFilter.mode(
-                        _appColors.primaryColor, BlendMode.srcIn),
+                firstDate: DateTime(2000, 1, 1),
+                height: 40,
+                onSuccessCallBack: fromDateOnSuccessCallBack,
+                suffixIcon: SvgPicture.asset(
+                  AppConstants.icDate,
+                  colorFilter: ColorFilter.mode(
+                    _appColors.primaryColor,
+                    BlendMode.srcIn,
                   ),
-                  fontSize: 14,
-                  width: MediaQuery.of(context).size.width * 0.1,
-                  hintText: AppConstants.fromDate,
-                  controller: fromDateController),
+                ),
+                fontSize: 14,
+                width: MediaQuery.of(context).size.width * 0.1,
+                hintText: AppConstants.fromDate,
+                controller: fromDateController,
+              ),
               tlbilling_widget.AppWidgetUtils.buildSizedBox(custWidth: 5),
               TldsDatePicker(
-                  firstDate: DateTime(2000, 1, 1),
-                  fontSize: 14,
-                  height: 40,
-                  suffixIcon: SvgPicture.asset(
-                    AppConstants.icDate,
-                    colorFilter: ColorFilter.mode(
-                        _appColors.primaryColor, BlendMode.srcIn),
+                firstDate: DateTime(2000, 1, 1),
+                fontSize: 14,
+                height: 40,
+                suffixIcon: SvgPicture.asset(
+                  AppConstants.icDate,
+                  colorFilter: ColorFilter.mode(
+                    _appColors.primaryColor,
+                    BlendMode.srcIn,
                   ),
-                  width: MediaQuery.of(context).size.width * 0.1,
-                  hintText: AppConstants.toDate,
-                  onSuccessCallBack: toDateOnSuccessCallBack,
-                  controller: toDateControler),
+                ),
+                width: MediaQuery.of(context).size.width * 0.1,
+                hintText: AppConstants.toDate,
+                onSuccessCallBack: toDateOnSuccessCallBack,
+                controller: toDateControler,
+              ),
               tlbilling_widget.AppWidgetUtils.buildSizedBox(custWidth: 5),
               const Spacer(),
               Expanded(
                 flex: 0,
                 child: CustomElevatedButton(
-                    height: 40,
-                    text: AppConstants.pdfGeneration,
-                    fontSize: 16,
-                    buttonBackgroundColor: AppColors().primaryColor,
-                    fontColor: AppColors().whiteColor,
-                    suffixIcon: SvgPicture.asset(AppConstants.icPdfPrint),
-                    onPressed: buttonOnPressed),
-              )
+                  height: 40,
+                  text: AppConstants.pdfGeneration,
+                  fontSize: 16,
+                  buttonBackgroundColor: AppColors().primaryColor,
+                  fontColor: AppColors().whiteColor,
+                  suffixIcon: SvgPicture.asset(AppConstants.icPdfPrint),
+                  onPressed: buttonOnPressed,
+                ),
+              ),
             ],
           ),
-          Padding(
-            padding: const EdgeInsets.only(top: 20),
-            child:
-                CustomTableView(columnHeaders: columnHeaders, rowData: rowData),
-          )
+          tlbilling_widget.AppWidgetUtils.buildSizedBox(custHeight: 10),
+          _buildPurchaseTableView(context)
         ],
       ),
     );
   }
+
+  Widget _buildPurchaseTableView(BuildContext context) {
+    return Expanded(
+      child: StreamBuilder<int>(
+        stream: _purchaseVechicleBlocImpl.pageNumberStream,
+        initialData: _purchaseVechicleBlocImpl.currentPage,
+        builder: (context, streamSnapshot) {
+          int currentPage = streamSnapshot.data ?? 0;
+          if (currentPage < 0) currentPage = 0;
+          _purchaseVechicleBlocImpl.currentPage = currentPage;
+          return FutureBuilder<GetAllVendorByPagination?>(
+            future: _purchaseVechicleBlocImpl.getPurchaseReport(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return AppWidgetUtils.buildLoading();
+              } else if (snapshot.hasError) {
+                return const Center(
+                    child: Text(AppConstants.somethingWentWrong));
+              } else if (!snapshot.hasData) {
+                return Center(child: SvgPicture.asset(AppConstants.imgNoData));
+              } else {
+                GetAllVendorByPagination? employeeListmodel = snapshot.data;
+                List<Content>? userData = snapshot.data?.content ?? [];
+
+                return Column(
+                  children: [
+                    Expanded(
+                      child: SizedBox(
+                        width: MediaQuery.of(context).size.width,
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: DataTable(
+                            dividerThickness: 0.01,
+                            columns: columnHeaders
+                                .map((header) => DataColumn(
+                                      label: Text(
+                                        header,
+                                        style: const TextStyle(
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                    ))
+                                .toList(),
+                            rows: userData.asMap().entries.map((entry) {
+                              return DataRow(
+                                color: MaterialStateColor.resolveWith((states) {
+                                  return entry.key % 2 == 0
+                                      ? Colors.white
+                                      : _appColors.transparentBlueColor;
+                                }),
+                                cells: [
+                                  _buildTableRow('${entry.key + 1}'),
+                                  _buildTableRow(entry.value.city),
+                                  _buildTableRow(entry.value.city),
+                                  _buildTableRow(entry.value.accountNo),
+                                  _buildTableRow(entry.value.accountNo),
+                                  _buildTableRow(entry.value.city),
+                                  _buildTableRow(entry.value.mobileNo),
+                                  _buildTableRow(entry.value.vendorName),
+                                  _buildTableRow(entry.value.city),
+                                  _buildTableRow(entry.value.vendorId),
+                                  _buildTableRow(entry.value.city),
+                                ],
+                              );
+                            }).toList(),
+                          ),
+                        ),
+                      ),
+                    ),
+                    CustomPagination(
+                      itemsOnLastPage: employeeListmodel?.totalElements ?? 0,
+                      currentPage: currentPage,
+                      totalPages: employeeListmodel?.totalPages ?? 0,
+                      onPageChanged: (pageValue) {
+                        _pageNumberStreamController.add(pageValue);
+                      },
+                    ),
+                  ],
+                );
+              }
+            },
+          );
+        },
+      ),
+    );
+  }
+
+  DataCell _buildTableRow(String? text) => DataCell(Text(
+        text ?? '',
+        style: const TextStyle(fontSize: 14),
+      ));
 }
