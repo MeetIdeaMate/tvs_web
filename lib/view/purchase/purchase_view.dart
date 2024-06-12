@@ -10,6 +10,7 @@ import 'package:tlbilling/utils/app_utils.dart';
 import 'package:tlbilling/utils/input_formates.dart';
 import 'package:tlbilling/view/purchase/add_purchase/add_purchase.dart';
 import 'package:tlbilling/view/purchase/purchase_view_bloc.dart';
+import 'package:tlbilling/view/purchase/vehicle_details_dialog.dart';
 import 'package:tlds_flutter/components/tlds_input_form_field.dart';
 import 'package:tlds_flutter/util/app_colors.dart';
 
@@ -129,7 +130,10 @@ class _PurchaseViewState extends State<PurchaseView>
                     context,
                     MaterialPageRoute(
                       builder: (context) => const AddPurchase(),
-                    ));
+                    )).then((value) {
+                  _purchaseViewBloc.getAllPurchaseList();
+                  _purchaseViewBloc.pageNumberUpdateStreamController(0);
+                });
               },
             )
           ],
@@ -245,14 +249,12 @@ class _PurchaseViewState extends State<PurchaseView>
                           columns: [
                             _buildVehicleTableHeader(AppConstants.sno),
                             _buildVehicleTableHeader(AppConstants.purchaseID),
-                            _buildVehicleTableHeader(
-                                AppConstants.purchaseRef),
+                            _buildVehicleTableHeader(AppConstants.purchaseRef),
                             _buildVehicleTableHeader(AppConstants.invoiceNo),
-                            _buildVehicleTableHeader(
-                                AppConstants.invoiceDate),
+                            _buildVehicleTableHeader(AppConstants.invoiceDate),
                             _buildVehicleTableHeader(AppConstants.vendorName),
                             _buildVehicleTableHeader(AppConstants.quantity),
-                            _buildVehicleTableHeader(AppConstants.gstType),
+                            _buildVehicleTableHeader(AppConstants.branchName),
                             _buildVehicleTableHeader(
                                 AppConstants.totalInvAmount),
                             _buildVehicleTableHeader(AppConstants.action),
@@ -272,25 +274,16 @@ class _PurchaseViewState extends State<PurchaseView>
                                 _buildTableRow(AppUtils.apiToAppDateFormat(
                                     entry.value.pInvoiceDate.toString())),
                                 _buildTableRow(entry.value.vendorName),
+                                _buildTableRow(entry.value.totalQty.toString()),
                                 _buildTableRow(
-                                    entry.value.totalQty.toString()),
-                                _buildTableRow(
-                                    entry.value.gstType.toString()),
+                                    entry.value.branchName.toString()),
                                 _buildTableRow(AppUtils.formatCurrency(entry
-                                    .value.finalTotalInvoiceAmount
-                                    ?.toDouble() ??
+                                        .value.finalTotalInvoiceAmount
+                                        ?.toDouble() ??
                                     0.0)),
                                 DataCell(
-                                  Row(
-                                    children: [
-                                      IconButton(
-                                        icon: SvgPicture.asset(
-                                            AppConstants.icEdit),
-                                        onPressed: () {},
-                                      ),
-                                    ],
-                                  ),
-                                ),
+                                  _buildPopMenuItem(context, entry),
+                                )
                               ],
                             );
                           }).toList(),
@@ -315,6 +308,47 @@ class _PurchaseViewState extends State<PurchaseView>
           },
         );
       },
+    );
+  }
+
+  Widget _buildPopMenuItem(
+      BuildContext context, MapEntry<int, PurchaseBill> entry) {
+    return Row(
+      children: [
+        PopupMenuButton(
+          surfaceTintColor: _appColors.whiteColor,
+          icon: const Icon(Icons.more_vert),
+          itemBuilder: (BuildContext context) => <PopupMenuEntry>[
+            const PopupMenuItem(
+              value: 'option1',
+              child: Text('View'),
+            ),
+            const PopupMenuItem(
+              value: 'option2',
+              child: Text('Re-Entry'),
+            ),
+            const PopupMenuItem(
+              value: 'option3',
+              child: Text('Print'),
+            ),
+          ],
+          onSelected: (value) {
+            switch (value) {
+              case 'option1':
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return VehicleDetailsDialog(
+                        purchaseBills: entry.value.itemDetails);
+                  },
+                );
+                break;
+              case 'option2':
+                break;
+            }
+          },
+        ),
+      ],
     );
   }
 

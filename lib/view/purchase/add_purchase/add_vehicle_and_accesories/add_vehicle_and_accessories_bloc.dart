@@ -44,7 +44,7 @@ abstract class AddVehicleAndAccessoriesBloc {
   String? get vendorDropDownValue;
 
   String? get selectedPurchaseType;
-  List<EngineDetails > get engineDetailsList;
+  List<EngineDetails> get engineDetailsList;
 
   Stream get updateEngineDetailsStream;
   Stream get refreshEngineListStream;
@@ -70,6 +70,7 @@ abstract class AddVehicleAndAccessoriesBloc {
   Stream<bool> get gstRadioBtnRefreashStream;
   Stream<bool> get incentiveCheckBoxStream;
   Stream<bool> get taxValueCheckBoxStream;
+  Stream<bool> get paymentDetailsStream;
 
   TextEditingController get cgstPresentageTextController;
   TextEditingController get sgstPresentageTextController;
@@ -135,8 +136,9 @@ class AddVehicleAndAccessoriesBlocImpl extends AddVehicleAndAccessoriesBloc {
   String? _selectedPurchaseType;
   List<String> selectVendor = ['Ajithkumar', 'Peter', 'Prasath'];
   late Set<String> optionsSet = {selectedPurchaseType ?? ''};
-  final List<EngineDetails > _engineDetailsList = [];
+  final List<EngineDetails> _engineDetailsList = [];
   final _refreshEngineDetailsListStream = StreamController.broadcast();
+  final _paymentDetailsStreamController = StreamController<bool>.broadcast();
   final _frameNumberFocusNode = FocusNode();
   final _inVoiceDateFocusNode = FocusNode();
   final _purchaseRefFocusNode = FocusNode();
@@ -549,5 +551,13 @@ class AddVehicleAndAccessoriesBlocImpl extends AddVehicleAndAccessoriesBloc {
 
   taxValueCheckboxStreamController(bool streamValue) {
     _taxValueCheckboxStreamController.add(streamValue);
+  }
+
+  @override
+  Stream<bool> get paymentDetailsStream =>
+      _paymentDetailsStreamController.stream;
+
+  paymentDetailsStreamController(bool streamValue) {
+    _paymentDetailsStreamController.add(streamValue);
   }
 }

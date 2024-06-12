@@ -108,6 +108,7 @@ class AppConstants {
   static const icLastPage = 'assets/icons/ic_last_page.svg';
   static const icNextPage = 'assets/icons/ic_next_page.svg';
   static const icPrevPage = 'assets/icons/ic_prev_page.svg';
+  static const icInfo = 'assets/icons/ic_info.svg';
 
   //json
   static const jsonLoader = 'assets/json/json_loading_animation.json';
@@ -223,6 +224,7 @@ class AppConstants {
   static const vehicleType = 'Vehicle Type';
   static const vehicleDescription = 'Vehicle Description';
   static const vehicleDetails = 'Vehicle Details';
+  static const details = 'Details';
   static const hsnCode = 'HSN Code';
   static const addPurchase = 'Add Purchase';
   static const addSales = 'Add Sales';
@@ -237,7 +239,9 @@ class AppConstants {
   static const purchaseRef = 'Purchase Ref';
   static const purchaseOrderRef = 'Purchase Order Ref';
   static const gstPercent = 'GST %';
-  static const unitRate = 'Unit Rate (Rs)';
+  static const unitRate = 'Unit Rate (₹)';
+  static const rupeeHint = '₹0.0';
+  static const partNoTxtHint = 'Ex : 3456789RTYUIOP';
   static const carrier = 'Carrier';
   static const carrierNumber = 'Carrier Number';
   static const selectPurchaseType = 'Select Purchase Type';
@@ -344,6 +348,10 @@ class AppConstants {
   static const vendorUpdateSuccessfully = 'Vendor Update  successfully';
   static const vendorCreatedSuccessfully = 'Vendor Create successfully';
 
+  static const purchaseBillEmpty = 'Invoice Data Empty';
+  static const purchaseBillDesEmptycerr =
+      'Cant save the purchase bill its empty';
+
   static const selectDiffrentUser =
       'Please select different name to create user.';
   static const userAlreadyCreated = ' User already created.';
@@ -437,4 +445,25 @@ class AppConstants {
   static const String customerID = 'Customer ID';
 
   static const String mobileNo = 'Mobile No';
+
+  static const String partNoHint =
+      'Enter Part No and Hit Enter to Get the Vehicle Details if it had any previous entry ';
+
+  static const String engineDeatilsHint =
+      'Enter Engine & Frame No, Press Enter Button to add in a list';
+
+ 
+  static const String totalValueA = '(a)';
+  static const String discountB = '(b)';
+  static const String taxableValueAB = '(i)(a-b)';
+  static const String gstThree = 'GST (ii)';
+  static const String tcsValueThree = '(iii)';
+  static const String invoiceValueFour = '(iv) i + ii + iii';
+  static const String invoiceValue = 'Invoice Value';
+  static const String empsIncentive = 'Emps Incentive';
+  static const String stateIncentive = 'State Incentive';
+  static const String empsIncentiveFive = '(v)';
+  static const String stateIncentiveSix = '(vi)';
+  static const String totalInvoiceAmount = 'Total Invoice Amount';
+  static const String totalInvoiceAmountCal = 'iv - (v+vi)';
 }

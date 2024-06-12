@@ -182,8 +182,9 @@ class ResultObj {
         vendorById: json["vendor"] != null
             ? GetVendorById.fromJson(json["vendor"])
             : null,
-        getAllPurchaseByPageNation: json['purchasesWithPage'] != null
-            ? GetAllPurchaseByPageNation.fromJson(json['purchasesWithPage'])
+      getAllPurchaseByPageNation: json['purchasesWithPage'] != null
+            ? GetAllPurchaseByPageNation.fromJson(
+                json['purchasesWithPage'])
             : null,
         getAllVendorNameList: json['vendors'] != null
             ? List<GetAllVendorNameList>.from(
