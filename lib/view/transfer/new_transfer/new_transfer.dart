@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:tlbilling/models/get_model/get_all_stocks_without_pagination.dart';
 import 'package:tlbilling/utils/app_colors.dart';
 import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/utils/app_util_widgets.dart';
@@ -22,7 +23,7 @@ class _NewTransferState extends State<NewTransfer> {
   @override
   void initState() {
     super.initState();
-    _newTransferBloc.selectedVehicleAndAccessories = 'Vehicle';
+    _newTransferBloc.selectedVehicleAndAccessories = AppConstants.vehicle;
     _newTransferBloc.selectedVehicleAndAccessoriesStreamController(true);
   }
 
@@ -35,7 +36,7 @@ class _NewTransferState extends State<NewTransfer> {
       body: Row(
         children: [
           _buildVehicleDetails(),
-          const TransferDetails(),
+          TransferDetails(newTransferBloc: _newTransferBloc),
         ],
       ),
     );
@@ -177,37 +178,44 @@ class _NewTransferState extends State<NewTransfer> {
   }
 
   Widget _buildAvailableVehicleList() {
-    return StreamBuilder(
-      stream: _newTransferBloc.availableVehicleListStreamController,
-      builder: (context, snapshot) {
-        return FutureBuilder(
-          future: _newTransferBloc.getBranches(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(
-                child: AppWidgetUtils.buildLoading(),
-              );
-            } else if (snapshot.hasData) {
-              return Expanded(
-                  child: ListView.builder(
-                itemCount: _newTransferBloc.vehicleData.length,
-                itemBuilder: (context, index) {
-                  var vehicle = _newTransferBloc.vehicleData[index];
-                  return _buildAvailableVehicleListCard(vehicle, index);
-                },
-              ));
-            }
+    return FutureBuilder(
+      future: _newTransferBloc.stockListWithOutPagination(),
+      builder: (context, futureSnapshot) {
+        _newTransferBloc.vehicleData = futureSnapshot.data;
+        if (futureSnapshot.connectionState == ConnectionState.waiting) {
+          return Center(
+            child: AppWidgetUtils.buildLoading(),
+          );
+        } else if (futureSnapshot.hasData) {
+          if (futureSnapshot.data != null) {
+            return StreamBuilder(
+              stream: _newTransferBloc.availableVehicleListStreamController,
+              builder: (context, streamSnapshot) {
+                return Expanded(
+                    child: ListView.builder(
+                  itemCount: _newTransferBloc.vehicleData?.length,
+                  itemBuilder: (context, index) {
+                    var vehicle = _newTransferBloc.vehicleData?[index];
+                    return _buildAvailableVehicleListCard(vehicle, index);
+                  },
+                ));
+              },
+            );
+          } else {
             return Center(
               child: SvgPicture.asset(AppConstants.imgNoData),
             );
-          },
+          }
+        }
+        return Center(
+          child: SvgPicture.asset(AppConstants.imgNoData),
         );
       },
     );
   }
 
   Widget _buildAvailableVehicleListCard(
-      Map<String, String> vehicle, int index) {
+      GetAllStocksWithoutPaginationModel? vehicle, int index) {
     return Card(
       elevation: 0,
       shape: OutlineInputBorder(
@@ -222,13 +230,13 @@ class _NewTransferState extends State<NewTransfer> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                _buildCustomTextWidget('${vehicle[AppConstants.vehicleName]}',
+                _buildCustomTextWidget(vehicle?.itemName ?? '',
                     fontSize: 14, fontWeight: FontWeight.w500),
-                _buildCustomTextWidget('${vehicle[AppConstants.color]}',
-                    fontSize: 12, fontWeight: FontWeight.w500),
+                /*_buildCustomTextWidget('${vehicle[AppConstants.color]}',
+                    fontSize: 12, fontWeight: FontWeight.w500),*/
               ],
             ),
-            _buildCustomTextWidget('${vehicle[AppConstants.partNo]}',
+            _buildCustomTextWidget(vehicle?.partNo ?? '',
                 color: _appColors.greyColor),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -237,12 +245,12 @@ class _NewTransferState extends State<NewTransfer> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     _buildCustomTextWidget(
-                        '${vehicle[AppConstants.engineNumber]}',
+                        vehicle?.mainSpecValue?.engineNo ?? '',
                         fontSize: 10,
                         fontWeight: FontWeight.bold),
                     AppWidgetUtils.buildSizedBox(custWidth: 12),
                     _buildCustomTextWidget(
-                        '${vehicle[AppConstants.frameNumber]}',
+                        vehicle?.mainSpecValue?.frameNo ?? '',
                         fontSize: 10,
                         fontWeight: FontWeight.bold),
                   ],
@@ -251,10 +259,10 @@ class _NewTransferState extends State<NewTransfer> {
                   children: [
                     IconButton(
                         onPressed: () {
-                          var selectedVehicle =
-                              _newTransferBloc.vehicleData.removeAt(index);
-                          _newTransferBloc.selectedList.add(selectedVehicle);
+                          GetAllStocksWithoutPaginationModel? selectedVehicle =
+                              _newTransferBloc.vehicleData?.removeAt(index);
                           _newTransferBloc.availableVehicleListStream(true);
+                          _newTransferBloc.selectedList?.add(selectedVehicle!);
                           _newTransferBloc
                               .selectedVehicleListStreamController(true);
                           _newTransferBloc.selectedItemStream(true);
@@ -391,16 +399,16 @@ class _NewTransferState extends State<NewTransfer> {
             child: StreamBuilder(
               stream: _newTransferBloc.selectedItemStreamController,
               builder: (context, streamSnapshot) {
-                if (_newTransferBloc.selectedList.isEmpty) {
+                if (_newTransferBloc.selectedList == null) {
                   return Center(
                     child: SvgPicture.asset(AppConstants.imgNoData),
                   );
                 } else {
                   return ListView.builder(
-                    itemCount: _newTransferBloc.selectedList.length,
+                    itemCount: _newTransferBloc.selectedList?.length,
                     itemBuilder: (BuildContext context, int index) {
                       var selectedVehicleData =
-                          _newTransferBloc.selectedList[index];
+                          _newTransferBloc.selectedList?[index];
                       return Card(
                         color: _appColors.whiteColor,
                         elevation: 0,
@@ -420,19 +428,19 @@ class _NewTransferState extends State<NewTransfer> {
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   _buildCustomTextWidget(
-                                    '${selectedVehicleData[AppConstants.vehicleName]}',
+                                    selectedVehicleData?.itemName ?? '',
                                     fontSize: 14,
                                     fontWeight: FontWeight.w500,
                                   ),
-                                  _buildCustomTextWidget(
+                                  /*_buildCustomTextWidget(
                                     '${selectedVehicleData[AppConstants.color]}',
                                     fontSize: 12,
                                     fontWeight: FontWeight.w500,
-                                  ),
+                                  ),*/
                                 ],
                               ),
                               _buildCustomTextWidget(
-                                '${selectedVehicleData[AppConstants.partNo]}',
+                                selectedVehicleData?.partNo ?? '',
                                 color: _appColors.greyColor,
                               ),
                               Row(
@@ -444,14 +452,14 @@ class _NewTransferState extends State<NewTransfer> {
                                         MainAxisAlignment.spaceBetween,
                                     children: [
                                       _buildCustomTextWidget(
-                                        '${selectedVehicleData[AppConstants.engineNumber]}',
+                                        '${selectedVehicleData?.mainSpecValue?.engineNo}',
                                         fontSize: 10,
                                         fontWeight: FontWeight.bold,
                                       ),
                                       AppWidgetUtils.buildSizedBox(
                                           custWidth: 12),
                                       _buildCustomTextWidget(
-                                        '${selectedVehicleData[AppConstants.frameNumber]}',
+                                        '${selectedVehicleData?.mainSpecValue?.frameNo}',
                                         fontSize: 10,
                                         fontWeight: FontWeight.bold,
                                       ),
@@ -462,11 +470,11 @@ class _NewTransferState extends State<NewTransfer> {
                                       IconButton(
                                         onPressed: () {
                                           _newTransferBloc.selectedList
-                                              .removeAt(index);
+                                              ?.removeAt(index);
                                           _newTransferBloc
                                               .selectedItemStream(true);
                                           _newTransferBloc.vehicleData
-                                              .add(selectedVehicleData);
+                                              ?.add(selectedVehicleData!);
                                           _newTransferBloc
                                               .availableVehicleListStream(true);
                                         },

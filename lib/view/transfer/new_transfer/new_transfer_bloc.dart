@@ -3,9 +3,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:tlbilling/api_service/app_service_utils.dart';
 import 'package:tlbilling/models/get_model/get_all_branches_by_pagination.dart';
+import 'package:tlbilling/models/get_model/get_all_stocks_without_pagination.dart';
 import 'package:tlbilling/models/get_model/get_transport_by_pagination.dart';
-
-import '../../../utils/app_constants.dart';
+import 'package:tlbilling/models/post_model/add_new_transfer.dart';
+import 'package:tlbilling/utils/app_constants.dart';
 
 abstract class NewTransferBloc {
   Stream get selectedVehicleAndAccessoriesStream;
@@ -48,7 +49,7 @@ abstract class NewTransferBloc {
 
   String? get transporterMailId;
 
-  List<Map<String, String>> get vehicleData;
+  List<GetAllStocksWithoutPaginationModel>? get vehicleData;
 
   List<Widget> get selectedItems;
 
@@ -71,6 +72,11 @@ abstract class NewTransferBloc {
   Stream<Map<String, dynamic>> get filteredAccListStreamController;
 
   TextEditingController get accessoriesCountController;
+
+  Future<List<GetAllStocksWithoutPaginationModel>?>
+      stockListWithOutPagination();
+
+  Future<void> createNewTransfer(AddNewTransfer addNewTransfer);
 }
 
 class NewTransferBlocImpl extends NewTransferBloc {
@@ -96,7 +102,7 @@ class NewTransferBlocImpl extends NewTransferBloc {
   List<String>? _toBranchNameList;
   List<String> vehicleAndAccessoriesList = ['Vehicle', 'Accessories'];
   List<Widget> selectedVehicleList = [];
-  List<Map<String, String>> selectedList = [];
+  List<GetAllStocksWithoutPaginationModel>? selectedList = [];
   List<String> branch = ['Kovilpatti', 'Sattur', 'Sivakasi'];
   late Set<String> optionsSet = {selectedVehicleAndAccessories ?? ''};
   String? _selectedVehicleAndAccessories;
@@ -110,88 +116,7 @@ class NewTransferBlocImpl extends NewTransferBloc {
   int initialValue = 0;
   int? _salesIndex = 0;
 
-  final List<Map<String, String>> _vehicleData = [
-    {
-      AppConstants.partNo: 'K61916304K',
-      AppConstants.vehicleName: 'TVS JUPITER',
-      AppConstants.color: 'Red',
-      AppConstants.vehicleNumber: 'TN01AB1240',
-      AppConstants.frameNumber: 'MDFJ1A1A1A1A1A1A1',
-      AppConstants.engineNumber: 'E1A1A1A1A1A1A1A1A1',
-    },
-    {
-      AppConstants.partNo: 'K61916305K',
-      AppConstants.vehicleName: 'HONDA ACTIVA',
-      AppConstants.color: 'Blue',
-      AppConstants.vehicleNumber: 'TN01AB1240',
-      AppConstants.frameNumber: 'MDFJ2B2B2B2B2B2B2',
-      AppConstants.engineNumber: 'E2B2B2B2B2B2B2B2B2',
-    },
-    {
-      AppConstants.partNo: 'K61916306K',
-      AppConstants.vehicleName: 'BAJAJ PULSAR',
-      AppConstants.color: 'Black',
-      AppConstants.vehicleNumber: 'TN01AB1240',
-      AppConstants.frameNumber: 'MDFJ3C3C3C3C3C3C3',
-      AppConstants.engineNumber: 'E3C3C3C3C3C3C3C3C',
-    },
-    {
-      AppConstants.partNo: 'K61916307K',
-      AppConstants.vehicleName: 'YAMAHA FZ',
-      AppConstants.color: 'Green',
-      AppConstants.vehicleNumber: 'TN01AB1240',
-      AppConstants.frameNumber: 'MDFJ4D4D4D4D4D4D4',
-      AppConstants.engineNumber: 'E4D4D4D4D4D4D4D4D4',
-    },
-    {
-      AppConstants.partNo: 'K61916308K',
-      AppConstants.vehicleName: 'SUZUKI GIXXER',
-      AppConstants.color: 'Yellow',
-      AppConstants.vehicleNumber: 'TN01AB1238',
-      AppConstants.frameNumber: 'MDFJ5E5E5E5E5E5E5',
-      AppConstants.engineNumber: 'E5E5E5E5E5E5E5E5E5',
-    },
-    {
-      AppConstants.partNo: 'K61916309K',
-      AppConstants.vehicleName: 'ROYAL ENFIELD',
-      AppConstants.color: 'Black',
-      AppConstants.vehicleNumber: 'TN01AB1240',
-      AppConstants.frameNumber: 'MDFJ6F6F6F6F6F6F6',
-      AppConstants.engineNumber: 'E6F6F6F6F6F6F6F6F6',
-    },
-    {
-      AppConstants.partNo: 'K61916310K',
-      AppConstants.vehicleName: 'HERO SPLENDOR',
-      AppConstants.color: 'Red',
-      AppConstants.vehicleNumber: 'TN01AB1240',
-      AppConstants.frameNumber: 'MDFJ7G7G7G7G7G7G7',
-      AppConstants.engineNumber: 'E7G7G7G7G7G7G7G7G7',
-    },
-    {
-      AppConstants.partNo: 'K61916311K',
-      AppConstants.vehicleName: 'TVS APACHE',
-      AppConstants.color: 'Blue',
-      AppConstants.vehicleNumber: 'TN01AB1240',
-      AppConstants.frameNumber: 'MDFJ8H8H8H8H8H8H8',
-      AppConstants.engineNumber: 'E8H8H8H8H8H8H8H8H8',
-    },
-    {
-      AppConstants.partNo: 'K61916312K',
-      AppConstants.vehicleName: 'KTM DUKE',
-      AppConstants.color: 'Orange',
-      AppConstants.vehicleNumber: 'TN01AB1240',
-      AppConstants.frameNumber: 'MDFJ9I9I9I9I9I9I9',
-      AppConstants.engineNumber: 'E9I9I9I9I9I9I9I9I9',
-    },
-    {
-      AppConstants.partNo: 'K61916313K',
-      AppConstants.vehicleName: 'BMW G310R',
-      AppConstants.color: 'White',
-      AppConstants.vehicleNumber: 'TN01AB1240',
-      AppConstants.frameNumber: 'MDFJ0J0J0J0J0J0J0',
-      AppConstants.engineNumber: 'E0J0J0J0J0J0J0J0J0',
-    },
-  ];
+  List<GetAllStocksWithoutPaginationModel>? _vehicleData = [];
   final List<Map<String, dynamic>> accessoriesList = [
     {
       AppConstants.accessoriesName: 'TVS-APACHE TOOL KIT',
@@ -369,7 +294,10 @@ class NewTransferBlocImpl extends NewTransferBloc {
   }
 
   @override
-  List<Map<String, String>> get vehicleData => _vehicleData;
+  List<GetAllStocksWithoutPaginationModel>? get vehicleData => _vehicleData;
+  set vehicleData(List<GetAllStocksWithoutPaginationModel>? newValue){
+    _vehicleData = newValue;
+  }
 
   @override
   List<Widget> get selectedItems => _selectedItems;
@@ -442,4 +370,15 @@ class NewTransferBlocImpl extends NewTransferBloc {
   @override
   TextEditingController get accessoriesCountController =>
       _accessoriesCountController;
+
+  @override
+  Future<List<GetAllStocksWithoutPaginationModel>?>
+      stockListWithOutPagination() async {
+    return _appServices.getAllStockList();
+  }
+
+  @override
+  Future<void> createNewTransfer(AddNewTransfer addNewTransfer) async{
+    return _appServices.createNewTransfer(addNewTransfer);
+  }
 }

@@ -3,6 +3,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:tlbilling/components/custom_action_button.dart';
 import 'package:tlbilling/components/custom_elevated_button.dart';
+import 'package:tlbilling/models/get_model/get_all_stocks_without_pagination.dart';
+import 'package:tlbilling/models/post_model/add_new_transfer.dart';
 import 'package:tlbilling/utils/app_colors.dart';
 import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/utils/app_util_widgets.dart';
@@ -11,7 +13,9 @@ import 'package:tlds_flutter/components/tlds_dropdown_button_form_field.dart';
 import 'package:tlds_flutter/components/tlds_input_form_field.dart';
 
 class TransferDetails extends StatefulWidget {
-  const TransferDetails({super.key});
+  final NewTransferBlocImpl? newTransferBloc;
+
+  const TransferDetails({super.key, this.newTransferBloc});
 
   @override
   State<TransferDetails> createState() => _TransferDetailsState();
@@ -69,9 +73,11 @@ class _TransferDetailsState extends State<TransferDetails> {
       builder: (context, snapshot) {
         List<String> branchNameList =
             snapshot.data?.map((e) => e.branchName ?? '').toList() ?? [];
-        if(snapshot.connectionState == ConnectionState.waiting){
-          return Center(child: AppWidgetUtils.buildLoading(),);
-        }else if(snapshot.hasData){
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(
+            child: AppWidgetUtils.buildLoading(),
+          );
+        } else if (snapshot.hasData) {
           return Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -91,7 +97,7 @@ class _TransferDetailsState extends State<TransferDetails> {
                       await Future.delayed(Duration.zero);
                       _transferBloc.toBranchNameList = branchNameList
                           .where((element) =>
-                      element != _transferBloc.selectedFromBranch)
+                              element != _transferBloc.selectedFromBranch)
                           .toList();
                       _transferBloc.selectedToBranch = null;
                       _transferBloc.toBranchNameListStream(true);
@@ -118,7 +124,9 @@ class _TransferDetailsState extends State<TransferDetails> {
             ],
           );
         }
-        return Center(child: SvgPicture.asset(AppConstants.imgNoData),);
+        return Center(
+          child: SvgPicture.asset(AppConstants.imgNoData),
+        );
       },
     );
   }
@@ -136,7 +144,30 @@ class _TransferDetailsState extends State<TransferDetails> {
         _buildDefaultHeight(),
         _buildTransporterDetailsCard(),
         _buildDefaultHeight(),
-        CustomActionButtons(onPressed: () {}, buttonText: AppConstants.save)
+        CustomActionButtons(
+            onPressed: () {
+              AddNewTransfer? addNewTransferObj;
+              for (GetAllStocksWithoutPaginationModel element
+                  in widget.newTransferBloc?.selectedList ?? []) {
+                addNewTransferObj = AddNewTransfer(
+                    transferFromBranch:
+                        _transferBloc.selectedFromBranch,
+                    transferToBranch: _transferBloc.selectedToBranch,
+                    transferItems: [
+                      TransferItem(
+                          categoryId: element.categoryId,
+                          addNewTransferMainSpecValue:
+                              AddNewTransferMainSpecValue(
+                                  engineNo: element.mainSpecValue?.engineNo,
+                                  frameNo: element.mainSpecValue?.frameNo),
+                          partNo: element.partNo,
+                          quantity: element.quantity)
+                    ]);
+              }
+              print('************req obj********${addNewTransferObj?.toJson()}');
+              widget.newTransferBloc?.createNewTransfer(addNewTransferObj!);
+            },
+            buttonText: AppConstants.save)
       ],
     );
   }

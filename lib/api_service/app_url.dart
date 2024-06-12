@@ -24,4 +24,5 @@ class AppUrl {
   static const purchase = '${baseUrl}purchase';
   static const purchaseByPartNo = '${baseUrl}purchase/ByPartNo/';
   static const category = '${baseUrl}category/page?page=0&size=10';
+  static const stock = '${baseUrl}stock';
 }

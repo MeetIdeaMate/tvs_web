@@ -4,6 +4,7 @@ import 'package:tlbilling/models/get_model/get_all_branch_by_id_model.dart';
 import 'package:tlbilling/models/get_model/get_all_insurance_by_pagination_model.dart';
 import 'package:tlbilling/models/get_model/get_all_sales_list_model.dart';
 import 'package:tlbilling/models/get_model/get_all_stocks_model.dart';
+import 'package:tlbilling/models/get_model/get_all_stocks_without_pagination.dart';
 import 'package:tlbilling/models/get_model/get_all_vendorName_List.dart';
 import 'package:tlbilling/models/get_model/get_all_branch_model.dart';
 import 'package:tlbilling/models/get_model/get_all_branches_by_pagination.dart';
@@ -90,6 +91,7 @@ class ResultObj {
   PurchaseByPartNoModel? purchaseByPartNo;
   GetAllCategoryListModel? getAllcategoryList;
   List<TransportDetails>? getAllTransportsWithoutPagination;
+  List<GetAllStocksWithoutPaginationModel>? getAllStocksWithoutPagination;
   GetAllStockDetails? getAllStockDetails;
 
   ResultObj(
@@ -120,6 +122,7 @@ class ResultObj {
       this.getPurchaseReport,
       this.purchaseByPartNo,
       this.getAllcategoryList,
+      this.getAllStocksWithoutPagination,
       this.getAllStockDetails});
 
   factory ResultObj.fromJson(Map<String, dynamic> json) => ResultObj(
@@ -212,6 +215,10 @@ class ResultObj {
             : null,
         getAllcategoryList: json['categorysWithPage'] != null
             ? GetAllCategoryListModel.fromJson(json['categorysWithPage'])
+            : null,
+        getAllStocksWithoutPagination: json['Stocks'] != null
+            ? List<GetAllStocksWithoutPaginationModel>.from(json['Stocks']
+                .map((x) => GetAllStocksWithoutPaginationModel.fromJson(x)))
             : null,
         getAllStockDetails: json['stocks'] != null
             ? GetAllStockDetails.fromJson(json['stocks'])
