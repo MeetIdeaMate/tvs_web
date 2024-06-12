@@ -248,6 +248,8 @@ class AppConstants {
   static const color = 'Color';
   static const addToTable = 'Add To Table';
   static const accessoriesDetails = 'Accessories Details';
+  static const accessoriesName = 'Accessories Name';
+  static const accessoriesNumber = 'Accessories Number';
 
   //Stocks
   static const branchCode = 'Branch Code';

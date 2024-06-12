@@ -4,6 +4,7 @@ import 'package:tlbilling/models/get_model/get_all_branch_by_id_model.dart';
 import 'package:tlbilling/models/get_model/get_all_insurance_by_pagination_model.dart';
 import 'package:tlbilling/models/get_model/get_all_sales_list_model.dart';
 import 'package:tlbilling/models/get_model/get_all_stocks_model.dart';
+import 'package:tlbilling/models/get_model/get_all_stocks_without_pagination.dart';
 import 'package:tlbilling/models/get_model/get_all_vendorName_List.dart';
 import 'package:tlbilling/models/get_model/get_all_branch_model.dart';
 import 'package:tlbilling/models/get_model/get_all_branches_by_pagination.dart';
@@ -89,6 +90,8 @@ class ResultObj {
   GetAllpurchaseReport? getPurchaseReport;
   PurchaseByPartNoModel? purchaseByPartNo;
   GetAllCategoryListModel? getAllcategoryList;
+  List<TransportDetails>? getAllTransportsWithoutPagination;
+  List<GetAllStocksWithoutPaginationModel>? getAllStocksWithoutPagination;
   GetAllStockDetails? getAllStockDetails;
 
   ResultObj(
@@ -112,12 +115,14 @@ class ResultObj {
       this.getConfigurationModel,
       this.transportDetails,
       this.branchDetails,
+      this.getAllTransportsWithoutPagination,
       this.getAllInsuranceModel,
       this.getAllSalesList,
       this.getBranchId,
       this.getPurchaseReport,
       this.purchaseByPartNo,
       this.getAllcategoryList,
+      this.getAllStocksWithoutPagination,
       this.getAllStockDetails});
 
   factory ResultObj.fromJson(Map<String, dynamic> json) => ResultObj(
@@ -188,6 +193,10 @@ class ResultObj {
             ? List<GetAllCustomerNameList>.from(json['customers']
                 .map((x) => GetAllCustomerNameList.fromJson(x)))
             : null,
+        getAllTransportsWithoutPagination: json['transports'] != null
+            ? List<TransportDetails>.from(
+                json['transports'].map((x) => TransportDetails.fromJson(x)))
+            : null,
         getAllInsuranceModel: json['customersWithPage'] != null
             ? GetAllInsuranceByPaginationModel.fromJson(
                 json['customersWithPage'])
@@ -206,6 +215,10 @@ class ResultObj {
             : null,
         getAllcategoryList: json['categorysWithPage'] != null
             ? GetAllCategoryListModel.fromJson(json['categorysWithPage'])
+            : null,
+        getAllStocksWithoutPagination: json['Stocks'] != null
+            ? List<GetAllStocksWithoutPaginationModel>.from(json['Stocks']
+                .map((x) => GetAllStocksWithoutPaginationModel.fromJson(x)))
             : null,
         getAllStockDetails: json['stocks'] != null
             ? GetAllStockDetails.fromJson(json['stocks'])

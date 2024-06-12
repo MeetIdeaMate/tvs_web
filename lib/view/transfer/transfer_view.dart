@@ -77,15 +77,26 @@ class _TransferViewState extends State<TransferView>
               },
             ),
             _buildDefaultWidth(),
-            TldsDropDownButtonFormField(
-              height: 40,
-              width: MediaQuery.sizeOf(context).width * 0.15,
-              hintText: AppConstants.selectVendor,
-              dropDownItems: _transferViewBloc.status,
-              onChange: (String? newValue) {
-                _transferViewBloc.selectedStatus = newValue ?? '';
+            FutureBuilder(
+              future: _transferViewBloc.getVendorList(),
+              builder: (context, snapshot) {
+                var vendorNameList = snapshot.data?.result?.getAllVendorNameList
+                    ?.map((e) => e.vendorName ?? '')
+                    .toList();
+                vendorNameList?.insert(0, AppConstants.all);
+                _transferViewBloc.selectedVendor = vendorNameList?.first;
+                return TldsDropDownButtonFormField(
+                  height: 40,
+                  width: MediaQuery.sizeOf(context).width * 0.15,
+                  hintText: AppConstants.selectVendor,
+                  dropDownItems: vendorNameList ?? [],
+                  dropDownValue: _transferViewBloc.selectedVendor,
+                  onChange: (String? newValue) {
+                    _transferViewBloc.selectedVendor = newValue ?? '';
+                  },
+                );
               },
-            ),
+            )
           ],
         ),
         Row(
@@ -136,14 +147,20 @@ class _TransferViewState extends State<TransferView>
       children: [
         Text(title),
         AppWidgetUtils.buildSizedBox(custWidth: 8),
-        CircleAvatar(
-          radius: 10,
-          backgroundColor: _appColors.red,
-          child: Text(
-            count,
-            style: GoogleFonts.nunitoSans(color: _appColors.whiteColor),
+        Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(100),
+            color: _appColors.red,
           ),
-        ),
+          width: 24,
+          height: 24,
+          child: Center(
+            child: Text(
+              count,
+              style: GoogleFonts.nunitoSans(color: _appColors.whiteColor),
+            ),
+          ),
+        )
       ],
     );
   }

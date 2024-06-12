@@ -15,6 +15,7 @@ import 'package:tlbilling/models/get_model/get_all_insurance_by_pagination_model
 import 'package:tlbilling/models/get_model/get_all_purchase_model.dart';
 import 'package:tlbilling/models/get_model/get_all_sales_list_model.dart';
 import 'package:tlbilling/models/get_model/get_all_stocks_model.dart';
+import 'package:tlbilling/models/get_model/get_all_stocks_without_pagination.dart';
 import 'package:tlbilling/models/get_model/get_all_vendor_by_pagination_model.dart';
 import 'package:tlbilling/models/get_model/get_configuration_list_model.dart';
 import 'package:tlbilling/models/get_model/get_configuration_model.dart';
@@ -24,6 +25,7 @@ import 'package:tlbilling/models/parent_response_model.dart';
 import 'package:tlbilling/models/post_model/add_branch_model.dart';
 import 'package:tlbilling/models/post_model/add_customer_model.dart';
 import 'package:tlbilling/models/post_model/add_employee_model.dart';
+import 'package:tlbilling/models/post_model/add_new_transfer.dart';
 import 'package:tlbilling/models/post_model/add_purchase_model.dart';
 import 'package:tlbilling/models/post_model/add_transport_model.dart';
 import 'package:tlbilling/models/update/update_branch_model.dart';
@@ -51,6 +53,7 @@ abstract class AppServiceUtil {
       int currentPage);
 
   Future<GetAllCustomersModel?> getCustomerDetails(String customerId);
+
   Future<void> updateVendor(String vendorId, AddVendorModel vendorObj,
       Function(int? statusCode) statusCode);
 
@@ -66,12 +69,15 @@ abstract class AppServiceUtil {
       String customerId,
       AddCustomerModel addCustomerModel,
       Function(int statusCode) onSuccessCallBack);
+
   //Future<UserList>? getAllUserList();
   Future<UsersListModel?> getUserList(
       String userName, String selectedDesignation, int currentPage);
 
   Future<List<String>> getConfigByIdModel({String? configId});
+
   Future<ParentResponseModel> getEmployeesName();
+
   Future<ParentResponseModel> getConfigurationById({String? configId});
 
   // Future<List<Content>?> getAllEmployeesByPaginationModel(
@@ -89,6 +95,7 @@ abstract class AppServiceUtil {
 
   Future<GetEmployeeById?> getEmployeeById(String employeeId);
   Future<GetBranchById?> getBranchById();
+
   Future<void> updateUserStatus(String? userId, String? userUpdateStatus,
       Function(int statusCode) onSuccessCallBack);
 
@@ -104,6 +111,7 @@ abstract class AppServiceUtil {
 
   Future<void> onboardNewEmployee(
       AddEmployeeModel empObj, Function(int? statusCode) statusCode);
+
   Future<void> addVendor(
       AddVendorModel vendorObj, Function(int? statusCode) statusCode);
 
@@ -111,7 +119,9 @@ abstract class AppServiceUtil {
       Function(int? statusCode) statusCode);
 
   Future<ParentResponseModel> getBranchName();
+
   Future<ParentResponseModel> getAllVendorNameList();
+
   Future<ParentResponseModel> getAllCustomerList();
 
   Future<GetAllPurchaseByPageNation?> getAllPurchaseByPagenation(
@@ -154,13 +164,21 @@ abstract class AppServiceUtil {
 
   Future<List<BranchDetail>?> getAllBranchListWithoutPagination();
 
+  Future<List<TransportDetails>?> getAllTransportsWithoutPagination();
+
   Future<GetVendorById?> getVendorById(String vendorId);
+
   Future<ParentResponseModel> getPurchasePartNoDetails(
       String? partNo, Function(int) statusCode);
+
   Future<void> addNewPurchaseDetails(
       AddPurchaseModel purchaseData, Function(int p1) onSuccessCallBack);
 
   Future<GetAllCategoryListModel?> getAllCategoryList();
+
+  Future<List<GetAllStocksWithoutPaginationModel>?> getAllStockList();
+
+  Future<void> createNewTransfer(AddNewTransfer addNewTransfer);
 
   Future<GetAllVendorByPagination?> getVoucharRecieptList(
       String reportId, String receiver, int currentPage);
@@ -183,7 +201,6 @@ class AppServiceUtilImpl extends AppServiceUtil {
         var userId = response.data['result']['login']['userId'];
         var useRefId = response.data['result']['login']['useRefId'] ?? '';
         var branchId = response.data['result']['login']['branchId'] ?? '';
-        branchId = response.data['result']['login']['branchId'] ?? '';
         SharedPreferences prefs = await SharedPreferences.getInstance();
         prefs.setString(AppConstants.token, token);
         prefs.setString(AppConstants.designation, designation);
@@ -809,6 +826,23 @@ class AppServiceUtilImpl extends AppServiceUtil {
   }
 
   @override
+  Future<List<TransportDetails>?> getAllTransportsWithoutPagination() async {
+    try {
+      final dio = Dio();
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      var token = prefs.getString('token');
+      dio.options.headers['Authorization'] = 'Bearer $token';
+      var response = await dio.get(AppUrl.transport);
+      return parentResponseModelFromJson(jsonEncode(response.data))
+          .result
+          ?.getAllTransportsWithoutPagination;
+    } on DioException catch (exception) {
+      exception.response?.statusCode ?? 0;
+    }
+    return null;
+  }
+
+  @override
   Future<GetAllVendorByPagination> getAllVendorByPagination(int currentPage,
       String vendorName, String city, String mobileNumber) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -937,6 +971,38 @@ class AppServiceUtilImpl extends AppServiceUtil {
       exception.response?.statusCode ?? 0;
     }
     return null;
+  }
+
+  @override
+  Future<List<GetAllStocksWithoutPaginationModel>?> getAllStockList() async {
+    try {
+      final dio = Dio();
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      var token = prefs.getString('token');
+      dio.options.headers['Authorization'] = 'Bearer $token';
+      var response = await dio.get(AppUrl.stock);
+      var stocksList = parentResponseModelFromJson(jsonEncode(response.data))
+          .result
+          ?.getAllStocksWithoutPagination;
+      return stocksList;
+    } on DioException catch (exception) {
+      exception.response?.statusCode ?? 0;
+    }
+    return null;
+  }
+
+  @override
+  Future<void> createNewTransfer(AddNewTransfer addNewTransfer) async {
+    try {
+      final dio = Dio();
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      var token = prefs.getString('token');
+      dio.options.headers['Authorization'] = 'Bearer $token';
+      var response = await dio.post('${AppUrl.stock}/transfer',
+          data: jsonEncode(addNewTransfer));
+    } on DioException catch (exception) {
+      exception.response?.statusCode ?? 0;
+    }
   }
 
   @override

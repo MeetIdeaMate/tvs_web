@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:tlbilling/api_service/app_service_utils.dart';
+import 'package:tlbilling/models/parent_response_model.dart';
 import 'package:tlbilling/utils/app_constants.dart';
 
 abstract class TransferViewBloc {
@@ -13,6 +15,10 @@ abstract class TransferViewBloc {
   TextEditingController get vehicleNameSearchController;
 
   TabController get transferScreenTabController;
+
+  String? get selectedVendor;
+
+  Future<ParentResponseModel> getVendorList();
 }
 
 class TransferViewBlocImpl extends TransferViewBloc {
@@ -42,7 +48,8 @@ class TransferViewBlocImpl extends TransferViewBloc {
       AppConstants.status: 'Not Transferred',
     },
   ];
-  String? selectedStatus;
+  String? _selectedVendor;
+  final _appService = AppServiceUtilImpl();
 
   @override
   TextEditingController get transporterNameSearchController =>
@@ -71,5 +78,17 @@ class TransferViewBlocImpl extends TransferViewBloc {
 
   set transferScreenTabController(TabController controllerValue) {
     _transferScreenTabController = controllerValue;
+  }
+
+  @override
+  String? get selectedVendor => _selectedVendor;
+
+  set selectedVendor(String? newValue) {
+    _selectedVendor = newValue;
+  }
+
+  @override
+  Future<ParentResponseModel> getVendorList() async{
+    return _appService.getAllVendorNameList();
   }
 }
