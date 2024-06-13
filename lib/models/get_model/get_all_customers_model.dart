@@ -1,12 +1,3 @@
-import 'dart:convert';
-
-List<GetAllCustomersModel> getAllCustomersModelFromJson(String str) =>
-    List<GetAllCustomersModel>.from(
-        json.decode(str).map((x) => GetAllCustomersModel.fromJson(x)));
-
-String getAllCustomersModelToJson(List<GetAllCustomersModel> data) =>
-    json.encode(List<dynamic>.from(data.map((x) => x.toJson())));
-
 class GetAllCustomersModel {
   String? aadharNo;
   String? accountNo;

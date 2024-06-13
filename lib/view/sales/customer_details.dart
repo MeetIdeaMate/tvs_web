@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:tlbilling/components/custom_action_button.dart';
 import 'package:tlbilling/components/custom_elevated_button.dart';
+import 'package:tlbilling/models/get_model/get_all_customers_model.dart';
 import 'package:tlbilling/utils/app_colors.dart';
 import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/utils/app_util_widgets.dart';
@@ -100,45 +101,70 @@ class _CustomerDetailsState extends State<CustomerDetails> {
         borderRadius: BorderRadius.circular(8),
         color: _appColors.whiteColor,
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Ajith Kumar',
-            style: TextStyle(color: _appColors.primaryColor, fontSize: 20),
-          ),
+      child: StreamBuilder(
+          stream: widget.addSalesBloc.selectedCustomerDetailsViewStream,
+          builder: (context, snapshot) {
+            return FutureBuilder<GetAllCustomersModel?>(
+              future: widget.addSalesBloc.getCustomerById(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: Text(AppConstants.loading));
+                } else if (snapshot.hasError) {
+                  return const Center(child: Text(AppConstants.errorLoading));
+                } else if (!snapshot.hasData || snapshot.data == null) {
+                  return const Center(child: Text(AppConstants.selectCustomer));
+                }
+
+                GetAllCustomersModel? customer = snapshot.data;
+
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      customer?.customerName ?? 'ajith',
+                      style: TextStyle(
+                          color: _appColors.primaryColor, fontSize: 20),
+                    ),
+                    AppWidgetUtils.buildSizedBox(custHeight: 10),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        _buildCustomerColumn([
+                          _buildCustomerData(
+                              customer?.mobileNo ?? '', AppConstants.icCall),
+                          _buildCustomerData(
+                              customer?.accountNo ?? '', AppConstants.icBank),
+                          _buildCustomerData(
+                              customer?.address ?? '', AppConstants.icLocation),
+                        ]),
+                        _buildCustomerColumn([
+                          _buildCustomerData(
+                              customer?.emailId ?? '', AppConstants.icMail),
+                          _buildCustomerData(
+                              customer?.aadharNo ?? '', AppConstants.icCard),
+                          _buildCustomerData(
+                              customer?.city ?? '', AppConstants.icCity),
+                        ]),
+                      ],
+                    ),
+                  ],
+                );
+              },
+            );
+          }),
+    );
+  }
+
+  Widget _buildCustomerColumn(List<Widget> children) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        for (var child in children) ...[
+          child,
           AppWidgetUtils.buildSizedBox(custHeight: 10),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildCustomerData('+91 9876543210', AppConstants.icCall),
-                  AppWidgetUtils.buildSizedBox(custHeight: 10),
-                  _buildCustomerData('876543235SBI', AppConstants.icBank),
-                  AppWidgetUtils.buildSizedBox(custHeight: 10),
-                  _buildCustomerData(
-                      '37,/A  SBI Opposite \n ,KovilpattiTamilnadu',
-                      AppConstants.icLocation),
-                ],
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildCustomerData(
-                      'ajith@techlambdas.com', AppConstants.icMail),
-                  AppWidgetUtils.buildSizedBox(custHeight: 10),
-                  _buildCustomerData('345-67-78999-6789', AppConstants.icCard),
-                  AppWidgetUtils.buildSizedBox(custHeight: 10),
-                  _buildCustomerData('Thoothukudi', AppConstants.icCity),
-                ],
-              ),
-            ],
-          ),
         ],
-      ),
+      ],
     );
   }
 
@@ -147,7 +173,8 @@ class _CustomerDetailsState extends State<CustomerDetails> {
       children: [
         SvgPicture.asset(
           svgPath,
-          color: _appColors.primaryColor,
+          colorFilter:
+              ColorFilter.mode(_appColors.primaryColor, BlendMode.srcIn),
         ),
         AppWidgetUtils.buildSizedBox(custWidth: 10),
         Text(textValue ?? '')
@@ -182,6 +209,8 @@ class _CustomerDetailsState extends State<CustomerDetails> {
                       (customer) => customer.customerName == newValue);
                   widget.addSalesBloc.selectedCustomerId =
                       selectedVendor.customerId;
+                  widget.addSalesBloc
+                      .selectedCustomerDetailsStreamController(true);
                 },
               );
             },

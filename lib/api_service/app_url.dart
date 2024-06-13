@@ -20,7 +20,7 @@ class AppUrl {
   static const addVendor = '${baseUrl}vendor';
   static const insurance = '${baseUrl}customer';
   static const sales = '${baseUrl}sales';
-  static const stocks = '${baseUrl}stocks';
+  static const stocks = '${baseUrl}stock';
   static const purchase = '${baseUrl}purchase';
   static const purchaseByPartNo = '${baseUrl}purchase/ByPartNo/';
   static const category = '${baseUrl}category/page?page=0&size=10';

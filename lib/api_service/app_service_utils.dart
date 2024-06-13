@@ -60,7 +60,7 @@ abstract class AppServiceUtil {
   Future<GetAllSalesList?> getSalesList(String invoiceNo, String paymentType,
       String customerName, int currentPage);
 
-  Future<GetAllStockDetails?> getStockList();
+  Future<List<GetAllStockDetails>?> getStockList();
 
   Future<GetAllVendorByPagination?> getPurchaseReport(
       String vehicleType, String fromDate, String toDate, int currentPage);
@@ -304,7 +304,11 @@ class AppServiceUtilImpl extends AppServiceUtil {
       var token = prefs.getString('token');
       dio.options.headers['Authorization'] = 'Bearer $token';
       var response = await dio.get('${AppUrl.customer}/$customerId');
-      return GetAllCustomersModel.fromJson(response.data);
+      print('${AppUrl.customer}/$customerId');
+      print(response.statusCode);
+      return parentResponseModelFromJson(jsonEncode(response.data))
+          .result
+          ?.getCustomerById;
     } on DioException catch (e) {
       e.response?.statusCode ?? 0;
     }
@@ -1123,7 +1127,7 @@ class AppServiceUtilImpl extends AppServiceUtil {
   }
 
   @override
-  Future<GetAllStockDetails?> getStockList() async {
+  Future<List<GetAllStockDetails>?> getStockList() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var token = prefs.getString('token');
     dio.options.headers['Authorization'] = 'Bearer $token';

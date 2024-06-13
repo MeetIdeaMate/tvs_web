@@ -67,6 +67,7 @@ class ResultObj {
   GetAllVendorByPagination? getAllVendorByPagination;
   GetAllCustomersByPaginationModel? getAllCustomersByPaginationModel;
   GetAllCustomersModel? getAllCustomersModel;
+  GetAllCustomersModel? getCustomerById;
   GetAllEmployeesByPaginationModel? getAllEmployeesByPaginationModel;
   UsersListModel? usersListModel;
   ConfigModel? getConfigModel;
@@ -92,7 +93,8 @@ class ResultObj {
   GetAllCategoryListModel? getAllcategoryList;
   List<TransportDetails>? getAllTransportsWithoutPagination;
   List<GetAllStocksWithoutPaginationModel>? getAllStocksWithoutPagination;
-  GetAllStockDetails? getAllStockDetails;
+
+  List<GetAllStockDetails>? getAllStockDetails;
 
   ResultObj(
       {this.getAllVendorByPagination,
@@ -123,7 +125,8 @@ class ResultObj {
       this.purchaseByPartNo,
       this.getAllcategoryList,
       this.getAllStocksWithoutPagination,
-      this.getAllStockDetails});
+      this.getAllStockDetails,
+      this.getCustomerById});
 
   factory ResultObj.fromJson(Map<String, dynamic> json) => ResultObj(
         getAllCustomersByPaginationModel: json['customersWithPage'] != null
@@ -220,8 +223,12 @@ class ResultObj {
             ? List<GetAllStocksWithoutPaginationModel>.from(json['Stocks']
                 .map((x) => GetAllStocksWithoutPaginationModel.fromJson(x)))
             : null,
-        getAllStockDetails: json['stocks'] != null
-            ? GetAllStockDetails.fromJson(json['stocks'])
+        getAllStockDetails: json['Stocks'] != null
+            ? List<GetAllStockDetails>.from(
+                json['Stocks'].map((x) => GetAllStockDetails.fromJson(x)))
+            : null,
+        getCustomerById: json["customer"] != null
+            ? GetAllCustomersModel.fromJson(json["customer"])
             : null,
       );
 

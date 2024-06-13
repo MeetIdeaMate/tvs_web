@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:tlbilling/api_service/app_service_utils.dart';
+import 'package:tlbilling/models/get_model/get_all_customers_model.dart';
 import 'package:tlbilling/models/get_model/get_all_stocks_model.dart';
 import 'package:tlbilling/models/parent_response_model.dart';
 import 'package:tlbilling/utils/app_constants.dart';
@@ -13,6 +14,7 @@ abstract class AddSalesBloc {
   Stream get selectedVehicleListStream;
   Stream get selectedVehicleAndAccessoriesListStream;
   Stream get accessoriesIncrementStream;
+  Stream get selectedCustomerDetailsViewStream;
 
   TextEditingController get discountTextController;
   TextEditingController get transporterVehicleNumberController;
@@ -32,16 +34,17 @@ abstract class AddSalesBloc {
   bool get isDiscountChecked;
   bool get isInsurenceChecked;
   String? get selectedPaymentOption;
+  Future<GetAllCustomersModel?> getCustomerById();
 
   Future<ParentResponseModel> getAllCustomerList();
 
   Future<List<String>> getPaymentmethods();
-  Stream<List<Map<String, String>>> get vehicleListStream;
-  List<Map<String, String>> get vehicleData;
-  List<Map<String, String>> get filteredVehicleData;
+  Stream<List<GetAllStockDetails>> get vehicleListStream;
+  // List<Map<String, String>> get vehicleData;
+  List<GetAllStockDetails> get filteredVehicleData;
   String? get selectedCustomerId;
 
-  Future<GetAllStockDetails?> getStockDetails();
+  Future<List<GetAllStockDetails>?> getStockDetails();
 }
 
 class AddSalesBlocImpl extends AddSalesBloc {
@@ -69,10 +72,11 @@ class AddSalesBlocImpl extends AddSalesBloc {
   String _selectedGstType = 'GST';
   bool _isDiscountChecked = false;
   bool _isInsurenceChecked = false;
+  final _selectedCustomerDetailsViewStream = StreamController.broadcast();
   String? _selectedPaymentOption;
   String? _selectedCustomerId;
   final _vehicleListStreamController =
-      StreamController<List<Map<String, String>>>.broadcast();
+      StreamController<List<GetAllStockDetails>>.broadcast();
 
   final List<Map<String, String>> _vehicleData = [
     {
@@ -149,7 +153,7 @@ class AddSalesBlocImpl extends AddSalesBloc {
     },
   ];
 
-  List<Map<String, String>> _filteredVehicleData = [];
+  List<GetAllStockDetails> _filteredVehicleData = [];
   @override
   String? get selectedVehicleAndAccessories => _selectedVehicleAndAccessories;
 
@@ -293,20 +297,20 @@ class AddSalesBlocImpl extends AddSalesBloc {
   }
 
   @override
-  Stream<List<Map<String, String>>> get vehicleListStream =>
+  Stream<List<GetAllStockDetails>> get vehicleListStream =>
       _vehicleListStreamController.stream;
 
-  vehicleListStreamController(List<Map<String, String>> streamValue) {
+  vehicleListStreamController(List<GetAllStockDetails> streamValue) {
     _vehicleListStreamController.add(streamValue);
   }
 
-  @override
-  List<Map<String, String>> get vehicleData => _vehicleData;
+  // @override
+  // List<Map<String, String>> get vehicleData => _vehicleData;
 
   @override
-  List<Map<String, String>> get filteredVehicleData => _filteredVehicleData;
+  List<GetAllStockDetails> get filteredVehicleData => _filteredVehicleData;
 
-  set filteredVehicleData(List<Map<String, String>> vehicleData) {
+  set filteredVehicleData(List<GetAllStockDetails> vehicleData) {
     _filteredVehicleData = vehicleData;
   }
 
@@ -318,7 +322,20 @@ class AddSalesBlocImpl extends AddSalesBloc {
   }
 
   @override
-  Future<GetAllStockDetails?> getStockDetails() {
+  Future<List<GetAllStockDetails>?> getStockDetails() {
     return _apiServices.getStockList();
+  }
+
+  @override
+  Future<GetAllCustomersModel?> getCustomerById() {
+    return _apiServices.getCustomerDetails(selectedCustomerId ?? '');
+  }
+
+  @override
+  Stream get selectedCustomerDetailsViewStream =>
+      _selectedCustomerDetailsViewStream.stream;
+
+  selectedCustomerDetailsStreamController(bool newValue) {
+    _selectedCustomerDetailsViewStream.add(newValue);
   }
 }
