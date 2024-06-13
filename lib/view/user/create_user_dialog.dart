@@ -118,7 +118,8 @@ class _CreateUserDialogState extends State<CreateUserDialog> {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return const Center(child: Text(AppConstants.loading));
                     } else if (snapshot.hasError) {
-                      return Center(child: Text(AppConstants.errorLoading));
+                      return const Center(
+                          child: Text(AppConstants.errorLoading));
                     } else if (!snapshot.hasData ||
                         snapshot.data!.result == null ||
                         snapshot.data!.result!.employeeListModel == null) {

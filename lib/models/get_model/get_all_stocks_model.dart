@@ -1,33 +1,4 @@
-import 'dart:convert';
-
-GetAllStockDetails getAllStockDetailsFromJson(String str) =>
-    GetAllStockDetails.fromJson(json.decode(str));
-
-String getAllStockDetailsToJson(GetAllStockDetails data) =>
-    json.encode(data.toJson());
-
 class GetAllStockDetails {
-  List<Stock>? stocks;
-
-  GetAllStockDetails({
-    this.stocks,
-  });
-
-  factory GetAllStockDetails.fromJson(Map<String, dynamic> json) =>
-      GetAllStockDetails(
-        stocks: json["Stocks"] == null
-            ? []
-            : List<Stock>.from(json["Stocks"]!.map((x) => Stock.fromJson(x))),
-      );
-
-  Map<String, dynamic> toJson() => {
-        "Stocks": stocks == null
-            ? []
-            : List<dynamic>.from(stocks!.map((x) => x.toJson())),
-      };
-}
-
-class Stock {
   String? partNo;
   String? itemName;
   String? categoryId;
@@ -39,7 +10,7 @@ class Stock {
   String? branchName;
   String? hsnSacCode;
 
-  Stock({
+  GetAllStockDetails({
     this.partNo,
     this.itemName,
     this.categoryId,
@@ -52,7 +23,8 @@ class Stock {
     this.hsnSacCode,
   });
 
-  factory Stock.fromJson(Map<String, dynamic> json) => Stock(
+  factory GetAllStockDetails.fromJson(Map<String, dynamic> json) =>
+      GetAllStockDetails(
         partNo: json["partNo"],
         itemName: json["itemName"],
         categoryId: json["categoryId"],
@@ -91,12 +63,12 @@ class MainSpecValue {
   });
 
   factory MainSpecValue.fromJson(Map<String, dynamic> json) => MainSpecValue(
-        frameNo: json["FrameNo"],
-        engineNo: json["EngineNo"],
+        frameNo: json["frameNo"],
+        engineNo: json["engineNo"],
       );
 
   Map<String, dynamic> toJson() => {
-        "FrameNo": frameNo,
-        "EngineNo": engineNo,
+        "frameNo": frameNo,
+        "engineNo": engineNo,
       };
 }

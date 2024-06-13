@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tlbilling/api_service/app_url.dart';
@@ -27,6 +26,7 @@ import 'package:tlbilling/models/post_model/add_customer_model.dart';
 import 'package:tlbilling/models/post_model/add_employee_model.dart';
 import 'package:tlbilling/models/post_model/add_new_transfer.dart';
 import 'package:tlbilling/models/post_model/add_purchase_model.dart';
+import 'package:tlbilling/models/post_model/add_sales_model.dart';
 import 'package:tlbilling/models/post_model/add_transport_model.dart';
 import 'package:tlbilling/models/update/update_branch_model.dart';
 import 'package:tlbilling/models/user_model.dart';
@@ -60,7 +60,7 @@ abstract class AppServiceUtil {
   Future<GetAllSalesList?> getSalesList(String invoiceNo, String paymentType,
       String customerName, int currentPage);
 
-  Future<List<GetAllStockDetails>?> getStockList();
+  Future<List<GetAllStockDetails>?> getStockList(String? categoryName);
 
   Future<GetAllVendorByPagination?> getPurchaseReport(
       String vehicleType, String fromDate, String toDate, int currentPage);
@@ -173,6 +173,9 @@ abstract class AppServiceUtil {
 
   Future<void> addNewPurchaseDetails(
       AddPurchaseModel purchaseData, Function(int p1) onSuccessCallBack);
+
+  Future<void> addNewSalesDeatils(
+      AddSalesModel salesdata, Function(int value) onSuccessCallBack);
 
   Future<GetAllCategoryListModel?> getAllCategoryList();
 
@@ -304,8 +307,6 @@ class AppServiceUtilImpl extends AppServiceUtil {
       var token = prefs.getString('token');
       dio.options.headers['Authorization'] = 'Bearer $token';
       var response = await dio.get('${AppUrl.customer}/$customerId');
-      print('${AppUrl.customer}/$customerId');
-      print(response.statusCode);
       return parentResponseModelFromJson(jsonEncode(response.data))
           .result
           ?.getCustomerById;
@@ -1002,6 +1003,7 @@ class AppServiceUtilImpl extends AppServiceUtil {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       var token = prefs.getString('token');
       dio.options.headers['Authorization'] = 'Bearer $token';
+      // ignore: unused_local_variable
       var response = await dio.post('${AppUrl.stock}/transfer',
           data: jsonEncode(addNewTransfer));
     } on DioException catch (exception) {
@@ -1127,15 +1129,43 @@ class AppServiceUtilImpl extends AppServiceUtil {
   }
 
   @override
-  Future<List<GetAllStockDetails>?> getStockList() async {
+  Future<List<GetAllStockDetails>?> getStockList(String? categoryName) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var token = prefs.getString('token');
     dio.options.headers['Authorization'] = 'Bearer $token';
-    String stocksList = AppUrl.stocks;
-    final response = await dio.get(stocksList);
-
+    String stocksListUrl = AppUrl.stock;
+    if (categoryName!.isNotEmpty) {
+      stocksListUrl += '?categoryName=$categoryName';
+    }
+    final response = await dio.get(stocksListUrl);
+    print(stocksListUrl);
     return parentResponseModelFromJson(jsonEncode(response.data))
         .result
         ?.getAllStockDetails;
+  }
+
+  @override
+  Future<void> addNewSalesDeatils(
+      AddSalesModel salesdata, Function(int value) onSuccessCallBack) async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      var token = prefs.getString('token');
+
+      if (token == null) {
+        throw Exception("Token not found");
+      }
+
+      dio.options.headers['Authorization'] = 'Bearer $token';
+      var jsonData = json.encode(salesdata.toJson());
+      var response = await dio.post(AppUrl.sales, data: jsonData);
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        onSuccessCallBack(response.statusCode!);
+      } else {
+        onSuccessCallBack(response.statusCode ?? 0);
+      }
+    } catch (e) {
+      onSuccessCallBack(0);
+    }
   }
 }

@@ -93,7 +93,6 @@ class ResultObj {
   GetAllCategoryListModel? getAllcategoryList;
   List<TransportDetails>? getAllTransportsWithoutPagination;
   List<GetAllStocksWithoutPaginationModel>? getAllStocksWithoutPagination;
-
   List<GetAllStockDetails>? getAllStockDetails;
 
   ResultObj(

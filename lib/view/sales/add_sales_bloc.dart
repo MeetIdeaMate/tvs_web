@@ -1,7 +1,7 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:tlbilling/api_service/app_service_utils.dart';
+import 'package:tlbilling/models/get_model/get_all_category_model.dart';
 import 'package:tlbilling/models/get_model/get_all_customers_model.dart';
 import 'package:tlbilling/models/get_model/get_all_stocks_model.dart';
 import 'package:tlbilling/models/parent_response_model.dart';
@@ -11,10 +11,15 @@ abstract class AddSalesBloc {
   Stream get selectedVehicleAndAccessoriesStream;
   Stream get vehicleAndEngineNumberStream;
   Stream get changeVehicleAndAccessoriesListStream;
-  Stream get selectedVehicleListStream;
   Stream get selectedVehicleAndAccessoriesListStream;
   Stream get accessoriesIncrementStream;
   Stream get selectedCustomerDetailsViewStream;
+  Stream get availableVehicleListStreamController;
+  Stream get selectedVehiclesListStream;
+  Stream get selectedAccessoriesListStream;
+  Stream get selectedItemStreamController;
+  Stream get availableAccListStreamController;
+  Stream<List<GetAllStockDetails>> get filteredAccListStreamController;
 
   TextEditingController get discountTextController;
   TextEditingController get transporterVehicleNumberController;
@@ -25,6 +30,8 @@ abstract class AddSalesBloc {
   String? get selectedCustomer;
 
   List<Widget> get selectedItems;
+  List<GetAllStockDetails>? get vehicleData;
+  List<GetAllStockDetails>? get accessoriesData;
 
   Stream<bool> get selectedSalesStreamItems;
 
@@ -37,6 +44,8 @@ abstract class AddSalesBloc {
   Future<GetAllCustomersModel?> getCustomerById();
 
   Future<ParentResponseModel> getAllCustomerList();
+
+  Future<GetAllCategoryListModel?> getAllCategoryList();
 
   Future<List<String>> getPaymentmethods();
   Stream<List<GetAllStockDetails>> get vehicleListStream;
@@ -52,17 +61,26 @@ class AddSalesBlocImpl extends AddSalesBloc {
   final _selectedVehicleAndAccessoriesStream = StreamController.broadcast();
   final _changeVehicleAndAccessoriesListStream = StreamController.broadcast();
   final _vehicleAndEngineNumberStream = StreamController.broadcast();
-  final _selectedVehicleListStream = StreamController.broadcast();
+
   final _accessoriesIncrementStream = StreamController.broadcast();
   final _selectedVehicleAndAccessoriesListStream = StreamController.broadcast();
   final _selectedSalesStreamController = StreamController<bool>.broadcast();
   final _discountTextController = TextEditingController();
   final _transporterVehicleNumberController = TextEditingController();
   final _vehicleNoAndEngineNoSearchController = TextEditingController();
-  List<String> vehicleAndAccessoriesList = ['Vehicle', 'Accessories'];
+  final _availableVehicleListStreamController = StreamController.broadcast();
+  final __availableAccListStreamController = StreamController.broadcast();
+  final _filteredAccListStreamController =
+      StreamController<List<GetAllStockDetails>>.broadcast();
+
   List<String> selectedVehicleList = [];
-  List<String> branch = ['Kovilpatti', 'Sattur', 'Sivakasi'];
-  late Set<String> optionsSet = {selectedVehicleAndAccessories ?? ''};
+
+  final _selectedItemStreamController = StreamController.broadcast();
+  List<GetAllStockDetails>? selectedVehiclesList = [];
+
+  List<GetAllStockDetails>? slectedAccessoriesList = [];
+
+  late Set<String> optionsSet = {selectedVehicleAndAccessories ?? 'M-vehicle'};
   String? _selectedVehicleAndAccessories;
   String? _selectedBranch;
   String? _selectedCustomer;
@@ -72,93 +90,95 @@ class AddSalesBlocImpl extends AddSalesBloc {
   String _selectedGstType = 'GST';
   bool _isDiscountChecked = false;
   bool _isInsurenceChecked = false;
+  List<GetAllStockDetails>? _vehicleDatas = [];
+  List<GetAllStockDetails>? _accessoriesData = [];
+  ValueNotifier<int> initialValueNotifier = ValueNotifier<int>(0);
+  void incrementInitialValue() {
+    initialValueNotifier.value++;
+  }
+
+  void decrementInitialValue() {
+    if (initialValueNotifier.value > 0) {
+      initialValueNotifier.value--;
+    }
+  }
+
+  final _selectedVehiclesListStream = StreamController.broadcast();
+
+  final _selectedAccessoriesListStream = StreamController.broadcast();
+
   final _selectedCustomerDetailsViewStream = StreamController.broadcast();
   String? _selectedPaymentOption;
   String? _selectedCustomerId;
   final _vehicleListStreamController =
       StreamController<List<GetAllStockDetails>>.broadcast();
-
-  final List<Map<String, String>> _vehicleData = [
+  final List<Map<String, dynamic>> accessoriesList = [
     {
-      AppConstants.partNo: 'K61916304K',
-      AppConstants.vehicleName: 'TVS JUPITER',
-      AppConstants.color: 'Red',
-      AppConstants.frameNumber: 'MDFJ1A1A1A1A1A1A1',
-      AppConstants.engineNumber: 'E1A1A1A1A1A1A1A1A1',
+      AppConstants.accessoriesName: 'TVS-APACHE TOOL KIT',
+      AppConstants.quantity: 10,
+      AppConstants.accessoriesNumber: 'K61916321F',
     },
     {
-      AppConstants.partNo: 'K61916305K',
-      AppConstants.vehicleName: 'HONDA ACTIVA',
-      AppConstants.color: 'Blue',
-      AppConstants.frameNumber: 'MDFJ2B2B2B2B2B2B2',
-      AppConstants.engineNumber: 'E2B2B2B2B2B2B2B2B2',
+      AppConstants.accessoriesName: 'HELMET',
+      AppConstants.quantity: 20,
+      AppConstants.accessoriesNumber: 'K61916322F',
     },
     {
-      AppConstants.partNo: 'K61916306K',
-      AppConstants.vehicleName: 'BAJAJ PULSAR',
-      AppConstants.color: 'Black',
-      AppConstants.frameNumber: 'MDFJ3C3C3C3C3C3C3',
-      AppConstants.engineNumber: 'E3C3C3C3C3C3C3C3C',
+      AppConstants.accessoriesName: 'STAR-CITY FOOT REST',
+      AppConstants.quantity: 10,
+      AppConstants.accessoriesNumber: 'K61916323F',
     },
     {
-      AppConstants.partNo: 'K61916307K',
-      AppConstants.vehicleName: 'YAMAHA FZ',
-      AppConstants.color: 'Green',
-      AppConstants.frameNumber: 'MDFJ4D4D4D4D4D4D4',
-      AppConstants.engineNumber: 'E4D4D4D4D4D4D4D4D4',
+      AppConstants.accessoriesName: 'XL-SUPER SEAT',
+      AppConstants.quantity: 5,
+      AppConstants.accessoriesNumber: 'K61916324F',
     },
     {
-      AppConstants.partNo: 'K61916308K',
-      AppConstants.vehicleName: 'SUZUKI GIXXER',
-      AppConstants.color: 'Yellow',
-      AppConstants.vehicleNumber: 'TN01AB1238',
-      AppConstants.frameNumber: 'MDFJ5E5E5E5E5E5E5',
-      AppConstants.engineNumber: 'E5E5E5E5E5E5E5E5E5',
-    },
-    {
-      AppConstants.partNo: 'K61916309K',
-      AppConstants.vehicleName: 'ROYAL ENFIELD',
-      AppConstants.color: 'Black',
-      AppConstants.frameNumber: 'MDFJ6F6F6F6F6F6F6',
-      AppConstants.engineNumber: 'E6F6F6F6F6F6F6F6F6',
-    },
-    {
-      AppConstants.partNo: 'K61916310K',
-      AppConstants.vehicleName: 'HERO SPLENDOR',
-      AppConstants.color: 'Red',
-      AppConstants.vehicleNumber: 'TN01AB1240',
-      AppConstants.frameNumber: 'MDFJ7G7G7G7G7G7G7',
-      AppConstants.engineNumber: 'E7G7G7G7G7G7G7G7G7',
-    },
-    {
-      AppConstants.partNo: 'K61916311K',
-      AppConstants.vehicleName: 'TVS APACHE',
-      AppConstants.color: 'Blue',
-      AppConstants.frameNumber: 'MDFJ8H8H8H8H8H8H8',
-      AppConstants.engineNumber: 'E8H8H8H8H8H8H8H8H8',
-    },
-    {
-      AppConstants.partNo: 'K61916312K',
-      AppConstants.vehicleName: 'KTM DUKE',
-      AppConstants.color: 'Orange',
-      AppConstants.frameNumber: 'MDFJ9I9I9I9I9I9I9',
-      AppConstants.engineNumber: 'E9I9I9I9I9I9I9I9I9',
-    },
-    {
-      AppConstants.partNo: 'K61916313K',
-      AppConstants.vehicleName: 'BMW G310R',
-      AppConstants.color: 'White',
-      AppConstants.frameNumber: 'MDFJ0J0J0J0J0J0J0',
-      AppConstants.engineNumber: 'E0J0J0J0J0J0J0J0J0',
+      AppConstants.accessoriesName: 'SILENCER',
+      AppConstants.quantity: 2,
+      AppConstants.accessoriesNumber: 'K61916325F',
     },
   ];
 
+  @override
+  Stream get availableAccListStreamController =>
+      __availableAccListStreamController.stream;
+
+  availableAccListStream(bool? streamValue) {
+    __availableAccListStreamController.add(streamValue);
+  }
+
+  final List<GetAllStockDetails> filteredAccessoriesList = [];
+
   List<GetAllStockDetails> _filteredVehicleData = [];
+
   @override
   String? get selectedVehicleAndAccessories => _selectedVehicleAndAccessories;
 
   set selectedVehicleAndAccessories(String? newValue) {
     _selectedVehicleAndAccessories = newValue;
+  }
+
+  @override
+  Stream<List<GetAllStockDetails>> get filteredAccListStreamController =>
+      _filteredAccListStreamController.stream;
+
+  filteredAccListStream(List<GetAllStockDetails> streamValue) {
+    _filteredAccListStreamController.add(streamValue);
+  }
+
+  @override
+  Stream get availableVehicleListStreamController =>
+      _availableVehicleListStreamController.stream;
+
+  availableVehicleListStream(bool? streamValue) {
+    _availableVehicleListStreamController.add(streamValue);
+  }
+
+  @override
+  List<GetAllStockDetails>? get vehicleData => _vehicleDatas;
+  set vehicleData(List<GetAllStockDetails>? newValue) {
+    _vehicleDatas = newValue;
   }
 
   @override
@@ -198,18 +218,19 @@ class AddSalesBlocImpl extends AddSalesBloc {
   }
 
   @override
-  Stream get selectedVehicleListStream => _selectedVehicleListStream.stream;
-
-  selectedVehicleListStreamController(bool streamValue) {
-    _selectedVehicleListStream.add(streamValue);
-  }
-
-  @override
   Stream get selectedVehicleAndAccessoriesListStream =>
       _selectedVehicleAndAccessoriesListStream.stream;
 
   selectedVehicleAndAccessoriesListStreamController(bool streamValue) {
     _selectedVehicleAndAccessoriesListStream.add(streamValue);
+  }
+
+  @override
+  Stream get selectedItemStreamController =>
+      _selectedItemStreamController.stream;
+
+  selectedItemStream(bool? streamValue) {
+    _selectedItemStreamController.add(streamValue);
   }
 
   @override
@@ -304,6 +325,13 @@ class AddSalesBlocImpl extends AddSalesBloc {
     _vehicleListStreamController.add(streamValue);
   }
 
+  @override
+  Stream get selectedVehiclesListStream => _selectedVehiclesListStream.stream;
+
+  selectedVehiclesListStreamController(bool streamValue) {
+    _selectedVehiclesListStream.add(streamValue);
+  }
+
   // @override
   // List<Map<String, String>> get vehicleData => _vehicleData;
 
@@ -322,8 +350,8 @@ class AddSalesBlocImpl extends AddSalesBloc {
   }
 
   @override
-  Future<List<GetAllStockDetails>?> getStockDetails() {
-    return _apiServices.getStockList();
+  Future<List<GetAllStockDetails>?> getStockDetails({String? category}) async {
+    return await _apiServices.getStockList(category);
   }
 
   @override
@@ -337,5 +365,25 @@ class AddSalesBlocImpl extends AddSalesBloc {
 
   selectedCustomerDetailsStreamController(bool newValue) {
     _selectedCustomerDetailsViewStream.add(newValue);
+  }
+
+  @override
+  Future<GetAllCategoryListModel?> getAllCategoryList() async {
+    return _apiServices.getAllCategoryList();
+  }
+
+  @override
+  List<GetAllStockDetails>? get accessoriesData => _accessoriesData;
+
+  set accessoriesData(List<GetAllStockDetails>? newValue) {
+    _accessoriesData = newValue;
+  }
+
+  @override
+  Stream get selectedAccessoriesListStream =>
+      _selectedAccessoriesListStream.stream;
+
+  selectedAccessoriesListStreamController(bool newValue) {
+    _selectedAccessoriesListStream.add(newValue);
   }
 }
