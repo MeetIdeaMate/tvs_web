@@ -13,6 +13,7 @@ import 'package:tlbilling/utils/app_utils.dart';
 import 'package:tlbilling/view/purchase/add_purchase/add_vehicle_and_accesories/add_vehicle_and_accessories_bloc.dart';
 import 'package:tlbilling/view/purchase/add_purchase/add_vehicle_and_accesories/purchase_table_preview.dart';
 import 'package:tlds_flutter/export.dart';
+import 'package:tlds_flutter/util/app_colors.dart';
 import 'package:toastification/toastification.dart';
 
 class PurchaseTable extends StatefulWidget {
@@ -411,6 +412,35 @@ class _PurchaseTableState extends State<PurchaseTable> {
                             color: _appColors.successColor),
                         AppConstants.purchaseBillDescScc,
                         _appColors.successLightColor);
+
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                            surfaceTintColor: AppColor().whiteColor,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10)),
+                            content: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.downloading_rounded,
+                                  color: AppColor().successColor,
+                                ),
+                                AppWidgetUtils.buildSizedBox(custHeight: 10),
+                                const Text(
+                                  'Are you sure you want print invoice ?',
+                                  style: TextStyle(fontSize: 20),
+                                )
+                              ],
+                            ),
+                            actions: [
+                              CustomActionButtons(
+                                  onPressed: () {},
+                                  buttonText: AppConstants.print),
+                            ]);
+                      },
+                    );
                   } else {
                     _isLoadingState(state: false);
                     AppWidgetUtils.buildToast(
@@ -509,10 +539,16 @@ class _PurchaseTableState extends State<PurchaseTable> {
           gstDetails: gstDetailsList,
           incentives: incentivesList,
           itemName: vehicleData.vehicleName,
-          mainSpecInfos: _mainSpecInfos,
+          mainSpecInfos: widget.purchaseBloc.selectedPurchaseType !=
+                  AppConstants.accessories
+              ? _mainSpecInfos
+              : null,
           partNo: vehicleData.partNo.toString(),
           quantity: vehicleData.qty,
-          specificationsValue: _specValue,
+          specificationsValue: widget.purchaseBloc.selectedPurchaseType !=
+                  AppConstants.accessories
+              ? _specValue
+              : null,
           taxes: taxDetailsList,
           unitRate: vehicleData.unitRate,
         );
@@ -554,7 +590,6 @@ class _PurchaseTableState extends State<PurchaseTable> {
         widget.purchaseBloc.refreshEngineDetailsListStramController(true);
       }
       widget.purchaseBloc.selectedGstType = data.gstType;
-      print('*****************GST Type = > ${data.gstType}');
       if (data.gstType == AppConstants.gstPercent) {
         widget.purchaseBloc.selectedGstType = data.gstType;
         widget.purchaseBloc.gstRadioBtnRefreshStreamController(true);

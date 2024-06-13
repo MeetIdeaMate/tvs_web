@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:tlbilling/components/custom_action_button.dart';
 import 'package:tlbilling/components/custom_elevated_button.dart';
 import 'package:tlbilling/components/custom_pagenation.dart';
 import 'package:tlbilling/models/get_model/get_all_purchase_model.dart';
@@ -9,6 +10,7 @@ import 'package:tlbilling/utils/app_util_widgets.dart';
 import 'package:tlbilling/utils/app_utils.dart';
 import 'package:tlbilling/utils/input_formates.dart';
 import 'package:tlbilling/view/purchase/add_purchase/add_purchase.dart';
+import 'package:tlbilling/view/purchase/add_purchase/purchase_invoice_pdf.dart';
 import 'package:tlbilling/view/purchase/purchase_view_bloc.dart';
 import 'package:tlbilling/view/purchase/vehicle_details_dialog.dart';
 import 'package:tlds_flutter/components/tlds_input_form_field.dart';
@@ -344,6 +346,40 @@ class _PurchaseViewState extends State<PurchaseView>
                 );
                 break;
               case 'option2':
+                break;
+              case 'option3':
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return AlertDialog(
+                        surfaceTintColor: AppColor().whiteColor,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10)),
+                        content: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.downloading_rounded,
+                              color: AppColor().successColor,
+                              size: 50,
+                            ),
+                            AppWidgetUtils.buildSizedBox(custHeight: 10),
+                            const Text(
+                              'Are you sure you want print invoice ?',
+                              style: TextStyle(fontSize: 20),
+                            )
+                          ],
+                        ),
+                        actions: [
+                          CustomActionButtons(
+                              onPressed: () {
+                                PurchaseInvoicePrint().printDocument(entry.value);
+                              },
+                              buttonText: AppConstants.print),
+                        ]);
+                  },
+                );
+
                 break;
             }
           },
