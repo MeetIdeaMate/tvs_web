@@ -431,7 +431,7 @@ class _AddVehicleAndAccessoriesState extends State<AddVehicleAndAccessories> {
                   AppConstants.gstPercent) ...[
                 Flexible(
                     child: TldsInputFormField(
-                  inputFormatters: TlInputFormatters.onlyAllowNumbers,
+                  inputFormatters: TlInputFormatters.onlyAllowDecimalNumbers,
                   hintText: AppConstants.cgstPercent,
                   controller: widget.purchaseBloc.cgstPresentageTextController,
                   onChanged: (cgst) {
@@ -464,7 +464,7 @@ class _AddVehicleAndAccessoriesState extends State<AddVehicleAndAccessories> {
                 Flexible(
                     child: TldsInputFormField(
                   enabled: false,
-                  inputFormatters: TlInputFormatters.onlyAllowNumbers,
+                  inputFormatters: TlInputFormatters.onlyAllowDecimalNumbers,
                   hintText: AppConstants.sgstPercent,
                   controller: widget.purchaseBloc.cgstPresentageTextController,
                 )),
@@ -472,7 +472,7 @@ class _AddVehicleAndAccessoriesState extends State<AddVehicleAndAccessories> {
                   AppConstants.igstPercent) ...[
                 Flexible(
                     child: TldsInputFormField(
-                  inputFormatters: TlInputFormatters.onlyAllowNumbers,
+               inputFormatters: TlInputFormatters.onlyAllowDecimalNumbers,
                   hintText: AppConstants.igstPercent,
                   controller: widget.purchaseBloc.igstPresentageTextController,
                   onChanged: (igst) {

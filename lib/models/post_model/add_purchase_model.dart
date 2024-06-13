@@ -1,6 +1,6 @@
 class AddPurchaseModel {
   String branchId;
-  List<ItemDetail> itemDetails;
+  List<ItemDetail>? itemDetails;
   String pInvoiceDate;
   String pInvoiceNo;
   String pOrderRefNo;
@@ -9,7 +9,7 @@ class AddPurchaseModel {
 
   AddPurchaseModel({
     required this.branchId,
-    required this.itemDetails,
+    this.itemDetails,
     required this.pInvoiceDate,
     required this.pInvoiceNo,
     required this.pOrderRefNo,
@@ -20,7 +20,7 @@ class AddPurchaseModel {
   Map<String, dynamic> toJson() {
     return {
       'branchId': branchId,
-      'itemDetails': itemDetails.map((i) => i.toJson()).toList(),
+      'itemDetails': itemDetails?.map((i) => i.toJson()).toList(),
       'p_invoiceDate': pInvoiceDate,
       'p_invoiceNo': pInvoiceNo,
       'p_orderRefNo': pOrderRefNo,
@@ -36,10 +36,10 @@ class ItemDetail {
   List<GstDetail> gstDetails;
   List<Incentive> incentives;
   String itemName;
-  List<Map<String, dynamic>> mainSpecInfos;
+  List<Map<String, dynamic>>? mainSpecInfos;
   String partNo;
   int quantity;
-  SpecificationsValue specificationsValue;
+  SpecificationsValue? specificationsValue;
   List<Tax> taxes;
   double unitRate;
 
@@ -49,10 +49,10 @@ class ItemDetail {
     required this.gstDetails,
     required this.incentives,
     required this.itemName,
-    required this.mainSpecInfos,
+    this.mainSpecInfos,
     required this.partNo,
     required this.quantity,
-    required this.specificationsValue,
+    this.specificationsValue,
     required this.taxes,
     required this.unitRate,
   });
@@ -64,10 +64,11 @@ class ItemDetail {
       'gstDetails': gstDetails.map((i) => i.toJson()).toList(),
       'incentives': incentives.map((i) => i.toJson()).toList(),
       'itemName': itemName,
+      
       'mainSpecValues': mainSpecInfos,
       'partNo': partNo,
       'quantity': quantity,
-      'specificationsValue': specificationsValue.toJson(),
+      'specificationsValue': specificationsValue?.toJson(),
       'taxes': taxes.map((i) => i.toJson()).toList(),
       'unitRate': unitRate,
     };
