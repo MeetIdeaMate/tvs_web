@@ -12,6 +12,7 @@ import 'package:tlbilling/utils/app_colors.dart';
 import 'package:tlbilling/utils/app_utils.dart';
 import 'package:tlbilling/view/purchase/add_purchase/add_vehicle_and_accesories/add_vehicle_and_accessories_bloc.dart';
 import 'package:tlbilling/view/purchase/add_purchase/add_vehicle_and_accesories/purchase_table_preview.dart';
+import 'package:tlbilling/view/purchase/add_purchase/purchase_invoice_pdf.dart';
 import 'package:tlds_flutter/export.dart';
 import 'package:tlds_flutter/util/app_colors.dart';
 import 'package:toastification/toastification.dart';
@@ -412,35 +413,6 @@ class _PurchaseTableState extends State<PurchaseTable> {
                             color: _appColors.successColor),
                         AppConstants.purchaseBillDescScc,
                         _appColors.successLightColor);
-
-                    showDialog(
-                      context: context,
-                      builder: (context) {
-                        return AlertDialog(
-                            surfaceTintColor: AppColor().whiteColor,
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10)),
-                            content: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
-                                  Icons.downloading_rounded,
-                                  color: AppColor().successColor,
-                                ),
-                                AppWidgetUtils.buildSizedBox(custHeight: 10),
-                                const Text(
-                                  'Are you sure you want print invoice ?',
-                                  style: TextStyle(fontSize: 20),
-                                )
-                              ],
-                            ),
-                            actions: [
-                              CustomActionButtons(
-                                  onPressed: () {},
-                                  buttonText: AppConstants.print),
-                            ]);
-                      },
-                    );
                   } else {
                     _isLoadingState(state: false);
                     AppWidgetUtils.buildToast(
@@ -452,6 +424,37 @@ class _PurchaseTableState extends State<PurchaseTable> {
                         AppConstants.purchaseBillDescerr,
                         _appColors.errorLightColor);
                   }
+                }).then((value) {
+                  return showDialog(
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog(
+                          surfaceTintColor: AppColor().whiteColor,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10)),
+                          content: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.downloading_rounded,
+                                color: AppColor().successColor,
+                              ),
+                              AppWidgetUtils.buildSizedBox(custHeight: 10),
+                              const Text(
+                                'Are you sure you want print invoice ?',
+                                style: TextStyle(fontSize: 20),
+                              )
+                            ],
+                          ),
+                          actions: [
+                            CustomActionButtons(
+                                onPressed: () {
+                                  PurchaseInvoicePrint().printDocument(value);
+                                },
+                                buttonText: AppConstants.print),
+                          ]);
+                    },
+                  );
                 });
               } else {
                 AppWidgetUtils.buildToast(

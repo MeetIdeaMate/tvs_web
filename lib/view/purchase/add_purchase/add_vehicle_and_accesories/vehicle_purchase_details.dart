@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tlbilling/models/parent_response_model.dart';
 import 'package:tlbilling/models/purchase_bill_data.dart';
 import 'package:tlbilling/utils/app_colors.dart';
@@ -212,6 +213,8 @@ class _EngineAndFrameNumberEntryState extends State<EngineAndFrameNumberEntry> {
                                 widget.addVehicleAndAccessoriesBloc
                                     .refreshEngineDetailsListStramController(
                                         true);
+                                enteredEngineNumbers.remove(engineNo);
+                                enteredFrameNumbers.remove(frameNo);
                               },
                               icon: Icon(
                                 Icons.cancel,
@@ -261,11 +264,15 @@ class _EngineAndFrameNumberEntryState extends State<EngineAndFrameNumberEntry> {
       isDuplicate = true;
     }
 
+    // Check for duplicates
     if (isDuplicate) {
       showDialog(
         context: context,
         builder: (context) {
           return AlertDialog(
+            backgroundColor: _appColors.whiteColor,
+            surfaceTintColor: _appColors.whiteColor,
+            contentPadding: const EdgeInsets.all(10),
             title: const Text('Duplicate Entry'),
             content:
                 const Text('Engine number or Frame number already exists.'),
@@ -280,23 +287,52 @@ class _EngineAndFrameNumberEntryState extends State<EngineAndFrameNumberEntry> {
           );
         },
       );
-      return;
+      return; // Stop further execution
     }
 
-    widget.addVehicleAndAccessoriesBloc.engineDetailsList.add(
-      EngineDetails(engineNo: engineNo, frameNo: frameNo),
-    );
-    widget.addVehicleAndAccessoriesBloc.engineDetailsStreamController(true);
-    widget.addVehicleAndAccessoriesBloc
-        .refreshEngineDetailsListStramController(true);
-    widget.addVehicleAndAccessoriesBloc.frameNumberController.clear();
-    widget.addVehicleAndAccessoriesBloc.engineNumberController.clear();
-    FocusScope.of(context)
-        .requestFocus(widget.addVehicleAndAccessoriesBloc.engineNoFocusNode);
+    // Perform purchase validation
+    widget.addVehicleAndAccessoriesBloc.purchaseValidate().then((value) {
+      if (value) {
+        // If validation fails (duplicate entry detected)
+        showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              backgroundColor: _appColors.whiteColor,
+              surfaceTintColor: _appColors.whiteColor,
+              contentPadding: const EdgeInsets.all(10),
+              title: const Text('Duplicate Entry'),
+              content:
+                  const Text('Engine number or Frame number already exists.'),
+              actions: <Widget>[
+                TextButton(
+                  child: const Text('OK'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      } else {
+        // If validation succeeds (no duplicate), proceed with adding to list and clearing fields
+        widget.addVehicleAndAccessoriesBloc.engineDetailsList.add(
+          EngineDetails(engineNo: engineNo, frameNo: frameNo),
+        );
+        widget.addVehicleAndAccessoriesBloc.engineDetailsStreamController(true);
+        widget.addVehicleAndAccessoriesBloc
+            .refreshEngineDetailsListStramController(true);
+        widget.addVehicleAndAccessoriesBloc.frameNumberController.clear();
+        widget.addVehicleAndAccessoriesBloc.engineNumberController.clear();
+        FocusScope.of(context).requestFocus(
+            widget.addVehicleAndAccessoriesBloc.engineNoFocusNode);
 
-    enteredEngineNumbers.add(engineNo);
-    enteredFrameNumbers.add(frameNo);
-    updateTotalValue();
+        enteredEngineNumbers.add(engineNo);
+        enteredFrameNumbers.add(frameNo);
+        updateTotalValue();
+      }
+    });
   }
   // void _getAndSetValuesForInputFields(ParentResponseModel partDetails) {
   //   var vehchileById = partDetails.result?.purchaseByPartNo;

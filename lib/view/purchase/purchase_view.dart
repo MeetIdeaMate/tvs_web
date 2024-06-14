@@ -295,9 +295,12 @@ class _PurchaseViewState extends State<PurchaseView>
                                         .value.finalTotalInvoiceAmount
                                         ?.toDouble() ??
                                     0.0)),
-                                DataCell(
-                                  _buildPopMenuItem(context, entry),
-                                )
+                                DataCell(_purchaseViewBloc
+                                            .vehicleAndAccessoriesTabController
+                                            .index ==
+                                        0
+                                    ? _buildPopMenuItem(context, entry)
+                                    : Text('data'))
                               ],
                             );
                           }).toList(),

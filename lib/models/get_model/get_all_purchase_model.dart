@@ -226,7 +226,7 @@ class ItemDetail {
         invoiceValue: json["invoiceValue"],
         itemName: json["itemName"],
         mainSpecValues: json["mainSpecValues"] == null
-            ? []
+            ? null
             : List<VehicleDetails>.from(
                 json["mainSpecValues"].map((x) => VehicleDetails.fromJson(x))),
         partNo: json["partNo"],

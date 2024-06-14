@@ -109,6 +109,8 @@ abstract class AppServiceUtil {
       String password,
       String mobileNumber);
 
+  Future<bool> purchaseValidate(Map<String, String> itemDetails, String partNo);
+
   Future<void> onboardNewEmployee(
       AddEmployeeModel empObj, Function(int? statusCode) statusCode);
 
@@ -172,7 +174,7 @@ abstract class AppServiceUtil {
   Future<ParentResponseModel> getPurchasePartNoDetails(
       String? partNo, Function(int) statusCode);
 
-  Future<void> addNewPurchaseDetails(
+  Future<PurchaseBill> addNewPurchaseDetails(
       AddPurchaseModel purchaseData, Function(int p1) onSuccessCallBack);
 
   Future<GetAllCategoryListModel?> getAllCategoryList();
@@ -536,10 +538,10 @@ class AppServiceUtilImpl extends AppServiceUtil {
     if (categoryName != null && categoryName.isNotEmpty && categoryName != '') {
       purchaseListUrl += '&categoryName=$categoryName';
     }
-    print('^^^^^^^^^purchase url^^^^^^^^^^${purchaseListUrl}');
+
     var response = await dio.get(purchaseListUrl);
-    print('^^^^^^^^^purchase sc^^^^^^^^^^${response.statusCode}');
-    print('^^^^^^^^^purchase rb^^^^^^^^^^${response.data}');
+    // print('^^^^^^^^^purchase sc^^^^^^^^^^${response.statusCode}');
+    // print('^^^^^^^^^purchase rb^^^^^^^^^^${response.data}');
 
     final responseList = parentResponseModelFromJson(jsonEncode(response.data));
     return responseList.result!.getAllPurchaseByPageNation;
@@ -935,33 +937,33 @@ class AppServiceUtilImpl extends AppServiceUtil {
   }
 
   @override
-  Future<void> addNewPurchaseDetails(
+  Future<PurchaseBill> addNewPurchaseDetails(
       AddPurchaseModel purchaseData, Function(int p1) onSuccessCallBack) async {
-    try {
-      print('*********OBJ********${purchaseData.toJson()}');
+    print('*********OBJ********${purchaseData.toJson()}');
 
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      var token = prefs.getString('token');
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var token = prefs.getString('token');
 
-      if (token == null) {
-        throw Exception("Token not found");
-      }
-
-      dio.options.headers['Authorization'] = 'Bearer $token';
-      var jsonData = json.encode(purchaseData.toJson());
-      var response = await dio.post(AppUrl.purchase, data: jsonData);
-
-      print('*********URL********${AppUrl.purchase}');
-      print('*********RD********${response.data}');
-
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        onSuccessCallBack(response.statusCode!);
-      } else {
-        onSuccessCallBack(response.statusCode ?? 0);
-      }
-    } catch (e) {
-      onSuccessCallBack(0); // or handle the error as needed
+    if (token == null) {
+      throw Exception("Token not found");
     }
+
+    dio.options.headers['Authorization'] = 'Bearer $token';
+    var jsonData = json.encode(purchaseData.toJson());
+    var response = await dio.post(AppUrl.purchase, data: jsonData);
+
+    print('*********URL********${AppUrl.purchase}');
+    print('*********RD********${response.data}');
+    var responseData = response.data;
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      onSuccessCallBack(response.statusCode!);
+    } else {
+      onSuccessCallBack(response.statusCode ?? 0);
+    }
+    print(responseData['result']['purchasesWithPage']['content']);
+
+    return responseData['result']['purchasesWithPage']['content'];
   }
 
   @override
@@ -1142,5 +1144,26 @@ class AppServiceUtilImpl extends AppServiceUtil {
     return parentResponseModelFromJson(jsonEncode(response.data))
         .result
         ?.getAllStockDetails;
+  }
+
+  @override
+  Future<bool> purchaseValidate(
+      Map<String, String> itemDetails, String partNo) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var token = prefs.getString('token');
+    dio.options.headers['Authorization'] = 'Bearer $token';
+    var selectedJson = itemDetails;
+
+    var response = await dio.post('${AppUrl.purchaseValidate}$partNo',
+        options: Options(headers: <String, String>{
+          'Content-Type': 'application/json',
+        }),
+        data: jsonEncode(selectedJson));
+
+    var responseData = response.data;
+
+    print(responseData['result']['successResponse']);
+
+    return responseData['result']['successResponse'];
   }
 }

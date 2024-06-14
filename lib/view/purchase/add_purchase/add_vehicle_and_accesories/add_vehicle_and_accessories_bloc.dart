@@ -2,6 +2,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:tlbilling/api_service/app_service_utils.dart';
 import 'package:tlbilling/models/get_model/get_all_category_model.dart';
+import 'package:tlbilling/models/get_model/get_all_purchase_model.dart';
+import 'package:tlbilling/models/get_model/get_purchase_report_model.dart';
 import 'package:tlbilling/models/parent_response_model.dart';
 import 'package:tlbilling/models/post_model/add_purchase_model.dart';
 import 'package:tlbilling/models/purchase_bill_data.dart';
@@ -87,7 +89,7 @@ abstract class AddVehicleAndAccessoriesBloc {
   bool get isDiscountChecked;
   Future<ParentResponseModel> getPurchasePartNoDetails(
       Function(int) statusCode);
-  Future<void> addNewPurchaseDetails(
+  Future<PurchaseBill> addNewPurchaseDetails(
       AddPurchaseModel purchaseData, Function(int) onSuccessCallBack);
 
   String? get selectedVendorId;
@@ -107,6 +109,7 @@ abstract class AddVehicleAndAccessoriesBloc {
   CategoryItems? get selectedCategory;
   Future<GetAllCategoryListModel?> getAllCategoryList();
   List<String> get gstTypeOptions;
+  Future<bool> purchaseValidate();
 }
 
 class AddVehicleAndAccessoriesBlocImpl extends AddVehicleAndAccessoriesBloc {
@@ -418,7 +421,7 @@ class AddVehicleAndAccessoriesBlocImpl extends AddVehicleAndAccessoriesBloc {
   FocusNode get vehiceNameFocusNode => _vehicleNameFocusNode;
 
   @override
-  Future<void> addNewPurchaseDetails(
+  Future<PurchaseBill> addNewPurchaseDetails(
       AddPurchaseModel purchaseData, Function(int p1) onSuccessCallBack) async {
     return await _apiServices.addNewPurchaseDetails(
         purchaseData, onSuccessCallBack);
@@ -559,5 +562,13 @@ class AddVehicleAndAccessoriesBlocImpl extends AddVehicleAndAccessoriesBloc {
 
   paymentDetailsStreamController(bool streamValue) {
     _paymentDetailsStreamController.add(streamValue);
+  }
+
+  @override
+  Future<bool> purchaseValidate() async {
+    return _apiServices.purchaseValidate({
+      "engineNo": engineNumberController.text,
+      "frameNo": frameNumberController.text
+    }, partNumberController.text);
   }
 }
