@@ -24,6 +24,8 @@ class EngineAndFrameNumberEntry extends StatefulWidget {
 
 class _EngineAndFrameNumberEntryState extends State<EngineAndFrameNumberEntry> {
   final _appColors = AppColors();
+  Set<String> enteredEngineNumbers = {};
+  Set<String> enteredFrameNumbers = {};
 
   @override
   void initState() {
@@ -243,12 +245,47 @@ class _EngineAndFrameNumberEntryState extends State<EngineAndFrameNumberEntry> {
     );
   }
 
-  _engineNumberAndFrameNumberOnSubmit() {
-    widget.addVehicleAndAccessoriesBloc.engineDetailsList.add(EngineDetails(
-        engineNo:
-            widget.addVehicleAndAccessoriesBloc.engineNumberController.text,
-        frameNo:
-            widget.addVehicleAndAccessoriesBloc.frameNumberController.text));
+  void _engineNumberAndFrameNumberOnSubmit() {
+    final engineNo =
+        widget.addVehicleAndAccessoriesBloc.engineNumberController.text;
+    final frameNo =
+        widget.addVehicleAndAccessoriesBloc.frameNumberController.text;
+
+    bool isDuplicate = false;
+
+    if (enteredEngineNumbers.contains(engineNo)) {
+      isDuplicate = true;
+    }
+
+    if (enteredFrameNumbers.contains(frameNo)) {
+      isDuplicate = true;
+    }
+
+    if (isDuplicate) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text('Duplicate Entry'),
+            content:
+                const Text('Engine number or Frame number already exists.'),
+            actions: <Widget>[
+              TextButton(
+                child: const Text('OK'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
+      return;
+    }
+
+    widget.addVehicleAndAccessoriesBloc.engineDetailsList.add(
+      EngineDetails(engineNo: engineNo, frameNo: frameNo),
+    );
     widget.addVehicleAndAccessoriesBloc.engineDetailsStreamController(true);
     widget.addVehicleAndAccessoriesBloc
         .refreshEngineDetailsListStramController(true);
@@ -256,8 +293,11 @@ class _EngineAndFrameNumberEntryState extends State<EngineAndFrameNumberEntry> {
     widget.addVehicleAndAccessoriesBloc.engineNumberController.clear();
     FocusScope.of(context)
         .requestFocus(widget.addVehicleAndAccessoriesBloc.engineNoFocusNode);
-  }
 
+    enteredEngineNumbers.add(engineNo);
+    enteredFrameNumbers.add(frameNo);
+    updateTotalValue();
+  }
   // void _getAndSetValuesForInputFields(ParentResponseModel partDetails) {
   //   var vehchileById = partDetails.result?.purchaseByPartNo;
 

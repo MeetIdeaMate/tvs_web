@@ -233,7 +233,19 @@ class _PurchaseViewState extends State<PurchaseView>
         if (currentPage < 0) currentPage = 0;
         _purchaseViewBloc.currentPage = currentPage;
         return FutureBuilder(
-          future: _purchaseViewBloc.getAllPurchaseList(),
+          future: _purchaseViewBloc.getAllPurchaseList(categoryName: () {
+            switch (
+                _purchaseViewBloc.vehicleAndAccessoriesTabController.index) {
+              case 0:
+                return 'vehicle';
+
+              case 1:
+                return 'Accessories';
+
+              default:
+                return '';
+            }
+          }()),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return Center(child: AppWidgetUtils.buildLoading());
@@ -341,7 +353,11 @@ class _PurchaseViewState extends State<PurchaseView>
                   context: context,
                   builder: (context) {
                     return VehicleDetailsDialog(
-                        purchaseBills: entry.value.itemDetails);
+                      purchaseBills: entry.value.itemDetails,
+                      showDetailsTable: _purchaseViewBloc
+                              .vehicleAndAccessoriesTabController.index ==
+                          0,
+                    );
                   },
                 );
                 break;
@@ -373,7 +389,8 @@ class _PurchaseViewState extends State<PurchaseView>
                         actions: [
                           CustomActionButtons(
                               onPressed: () {
-                                PurchaseInvoicePrint().printDocument(entry.value);
+                                PurchaseInvoicePrint()
+                                    .printDocument(entry.value);
                               },
                               buttonText: AppConstants.print),
                         ]);

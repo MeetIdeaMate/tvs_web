@@ -125,7 +125,8 @@ abstract class AppServiceUtil {
   Future<ParentResponseModel> getAllCustomerList();
 
   Future<GetAllPurchaseByPageNation?> getAllPurchaseByPagenation(
-      int? currentIndex, String? invoiceNo, String? partNo, String? purchaseNo);
+      int? currentIndex, String? invoiceNo, String? partNo, String? purchaseNo,
+      {String? categoryName});
 
   Future<GetAllBranchesByPaginationModel?> getBranchList(
       int currentPage, String pinCode, String branchName, String? selectedCity);
@@ -518,10 +519,8 @@ class AppServiceUtilImpl extends AppServiceUtil {
 
   @override
   Future<GetAllPurchaseByPageNation?> getAllPurchaseByPagenation(
-      int? currentIndex,
-      String? invoiceNo,
-      String? partNo,
-      String? purchaseNo) async {
+      int? currentIndex, String? invoiceNo, String? partNo, String? purchaseNo,
+      {String? categoryName}) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var token = prefs.getString('token');
     dio.options.headers['Authorization'] = 'Bearer $token';
@@ -534,13 +533,15 @@ class AppServiceUtilImpl extends AppServiceUtil {
     if (purchaseNo!.isNotEmpty) {
       purchaseListUrl += '&purchaseNo==$purchaseNo';
     }
+    if (categoryName != null && categoryName.isNotEmpty && categoryName != '') {
+      purchaseListUrl += '&categoryName=$categoryName';
+    }
     print('^^^^^^^^^purchase url^^^^^^^^^^${purchaseListUrl}');
     var response = await dio.get(purchaseListUrl);
     print('^^^^^^^^^purchase sc^^^^^^^^^^${response.statusCode}');
     print('^^^^^^^^^purchase rb^^^^^^^^^^${response.data}');
 
-    final responseList =
-        parentResponseModelFromJson(jsonEncode(response.data));
+    final responseList = parentResponseModelFromJson(jsonEncode(response.data));
     return responseList.result!.getAllPurchaseByPageNation;
   }
 
