@@ -140,6 +140,7 @@ class AddVehicleAndAccessoriesBlocImpl extends AddVehicleAndAccessoriesBloc {
   List<String> selectVendor = ['Ajithkumar', 'Peter', 'Prasath'];
   late Set<String> optionsSet = {selectedPurchaseType ?? ''};
   final List<EngineDetails> _engineDetailsList = [];
+  int? editIndex;
   final _refreshEngineDetailsListStream = StreamController.broadcast();
   final _paymentDetailsStreamController = StreamController<bool>.broadcast();
   final _frameNumberFocusNode = FocusNode();

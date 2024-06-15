@@ -28,6 +28,7 @@ class PurchaseTable extends StatefulWidget {
 
 class _PurchaseTableState extends State<PurchaseTable> {
   final _appColors = AppColor();
+  final _addVehicleAndAccesoriesBloc = AddVehicleAndAccessoriesBlocImpl();
 
   @override
   void initState() {
@@ -263,7 +264,7 @@ class _PurchaseTableState extends State<PurchaseTable> {
                                 IconButton(
                                   icon: SvgPicture.asset(AppConstants.icEdit),
                                   onPressed: () {
-                                    _editPurchaseBillRow(data);
+                                    _editPurchaseBillRow(data, index);
                                   },
                                 ),
                               ],
@@ -581,13 +582,37 @@ class _PurchaseTableState extends State<PurchaseTable> {
     });
   }
 
-  void _editPurchaseBillRow(VehicleDetails data) {
+  void _editPurchaseBillRow(VehicleDetails data, int index) {
     setState(() {
+      widget.purchaseBloc.editIndex = index;
       widget.purchaseBloc.partNumberController.text = data.partNo.toString();
       widget.purchaseBloc.vehicleNameTextController.text = data.vehicleName;
       widget.purchaseBloc.hsnCodeController.text = data.hsnCode.toString();
       widget.purchaseBloc.unitRateController.text = data.unitRate.toString();
       widget.purchaseBloc.engineDetailsStreamController(true);
+      widget.purchaseBloc.totalValue = data.totalValue;
+      widget.purchaseBloc.paymentDetailsStreamController(true);
+      widget.purchaseBloc.discountTextController.text =
+          data.discountValue.toString();
+      widget.purchaseBloc.paymentDetailsStreamController(true);
+      widget.purchaseBloc.taxableValue = data.taxableValue;
+      widget.purchaseBloc.paymentDetailsStreamController(true);
+      widget.purchaseBloc.cgstAmount = data.cgstAmount;
+      widget.purchaseBloc.sgstAmount = data.sgstAmount;
+      widget.purchaseBloc.tcsvalueTextController.text =
+          data.tcsValue.toString();
+      widget.purchaseBloc.invAmount = data.invoiceValue;
+      widget.purchaseBloc.paymentDetailsStreamController(true);
+      widget.purchaseBloc.stateIncentiveTextController.text =
+          data.stateIncentive.toString();
+      widget.purchaseBloc.paymentDetailsStreamController(true);
+      widget.purchaseBloc.empsIncentiveTextController.text =
+          data.empsIncentive.toString();
+      widget.purchaseBloc.paymentDetailsStreamController(true);
+      widget.purchaseBloc.totalInvAmount = data.totalInvoiceValue;
+      widget.purchaseBloc.paymentDetailsStreamController(true);
+      _addVehicleAndAccesoriesBloc.paymentDetailsStreamController(true);
+
       for (var engineDetailsMap in data.engineDetails) {
         widget.purchaseBloc.engineDetailsList.add(engineDetailsMap);
         widget.purchaseBloc.refreshEngineDetailsListStramController(true);

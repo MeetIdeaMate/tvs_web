@@ -472,7 +472,7 @@ class _AddVehicleAndAccessoriesState extends State<AddVehicleAndAccessories> {
                   AppConstants.igstPercent) ...[
                 Flexible(
                     child: TldsInputFormField(
-               inputFormatters: TlInputFormatters.onlyAllowDecimalNumbers,
+                  inputFormatters: TlInputFormatters.onlyAllowDecimalNumbers,
                   hintText: AppConstants.igstPercent,
                   controller: widget.purchaseBloc.igstPresentageTextController,
                   onChanged: (igst) {
@@ -900,10 +900,19 @@ class _AddVehicleAndAccessoriesState extends State<AddVehicleAndAccessories> {
                     ))
                 .toList(),
           );
-          final newPurchase = PurchaseBillData(
-            vehicleDetails: [newVehicle],
-          );
-          widget.purchaseBloc.purchaseBillDataList.add(newPurchase);
+          if (widget.purchaseBloc.editIndex != null) {
+            widget.purchaseBloc
+                    .purchaseBillDataList[widget.purchaseBloc.editIndex!] =
+                PurchaseBillData(
+              vehicleDetails: [newVehicle],
+            );
+            widget.purchaseBloc.editIndex = null;
+          } else {
+            final newPurchase = PurchaseBillData(
+              vehicleDetails: [newVehicle],
+            );
+            widget.purchaseBloc.purchaseBillDataList.add(newPurchase);
+          }
           clearPurchaseDataValue();
           widget.purchaseBloc.refreshPurchaseDataTableList(true);
         } else {}

@@ -271,6 +271,7 @@ class _PurchaseViewState extends State<PurchaseView>
                             _buildVehicleTableHeader(AppConstants.branchName),
                             _buildVehicleTableHeader(
                                 AppConstants.totalInvAmount),
+                            _buildVehicleTableHeader(AppConstants.print),
                             _buildVehicleTableHeader(AppConstants.action),
                           ],
                           rows: purchasedata.asMap().entries.map((entry) {
@@ -295,12 +296,55 @@ class _PurchaseViewState extends State<PurchaseView>
                                         .value.finalTotalInvoiceAmount
                                         ?.toDouble() ??
                                     0.0)),
-                                DataCell(_purchaseViewBloc
-                                            .vehicleAndAccessoriesTabController
-                                            .index ==
-                                        0
-                                    ? _buildPopMenuItem(context, entry)
-                                    : Text('data'))
+                                DataCell(IconButton(
+                                    onPressed: () {
+                                      showDialog(
+                                        context: context,
+                                        builder: (context) {
+                                          return AlertDialog(
+                                              surfaceTintColor:
+                                                  AppColor().whiteColor,
+                                              shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          10)),
+                                              content: Column(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  Icon(
+                                                    Icons.downloading_rounded,
+                                                    color:
+                                                        AppColor().successColor,
+                                                    size: 50,
+                                                  ),
+                                                  AppWidgetUtils.buildSizedBox(
+                                                      custHeight: 10),
+                                                  const Text(
+                                                    'Are you sure you want print invoice ?',
+                                                    style:
+                                                        TextStyle(fontSize: 20),
+                                                  )
+                                                ],
+                                              ),
+                                              actions: [
+                                                CustomActionButtons(
+                                                    onPressed: () {
+                                                      PurchaseInvoicePrint()
+                                                          .printDocument(
+                                                              entry.value);
+                                                    },
+                                                    buttonText:
+                                                        AppConstants.print),
+                                              ]);
+                                        },
+                                      );
+                                    },
+                                    icon: SvgPicture.asset(
+                                      AppConstants.icPrint,
+                                      colorFilter: const ColorFilter.mode(
+                                          Colors.green, BlendMode.srcIn),
+                                    ))),
+                                DataCell(_buildPopMenuItem(context, entry)),
                               ],
                             );
                           }).toList(),
@@ -344,10 +388,10 @@ class _PurchaseViewState extends State<PurchaseView>
               value: 'option2',
               child: Text('Re-Entry'),
             ),
-            const PopupMenuItem(
-              value: 'option3',
-              child: Text('Print'),
-            ),
+            // const PopupMenuItem(
+            //   value: 'option3',
+            //   child: Text('Print'),
+            // ),
           ],
           onSelected: (value) {
             switch (value) {
@@ -366,41 +410,39 @@ class _PurchaseViewState extends State<PurchaseView>
                 break;
               case 'option2':
                 break;
-              case 'option3':
-                showDialog(
-                  context: context,
-                  builder: (context) {
-                    return AlertDialog(
-                        surfaceTintColor: AppColor().whiteColor,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10)),
-                        content: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.downloading_rounded,
-                              color: AppColor().successColor,
-                              size: 50,
-                            ),
-                            AppWidgetUtils.buildSizedBox(custHeight: 10),
-                            const Text(
-                              'Are you sure you want print invoice ?',
-                              style: TextStyle(fontSize: 20),
-                            )
-                          ],
-                        ),
-                        actions: [
-                          CustomActionButtons(
-                              onPressed: () {
-                                PurchaseInvoicePrint()
-                                    .printDocument(entry.value);
-                              },
-                              buttonText: AppConstants.print),
-                        ]);
-                  },
-                );
-
-                break;
+              // case 'option3':
+              //   showDialog(
+              //     context: context,
+              //     builder: (context) {
+              //       return AlertDialog(
+              //           surfaceTintColor: AppColor().whiteColor,
+              //           shape: RoundedRectangleBorder(
+              //               borderRadius: BorderRadius.circular(10)),
+              //           content: Column(
+              //             mainAxisSize: MainAxisSize.min,
+              //             children: [
+              //               Icon(
+              //                 Icons.downloading_rounded,
+              //                 color: AppColor().successColor,
+              //                 size: 50,
+              //               ),
+              //               AppWidgetUtils.buildSizedBox(custHeight: 10),
+              //               const Text(
+              //                 'Are you sure you want print invoice ?',
+              //                 style: TextStyle(fontSize: 20),
+              //               )
+              //             ],
+              //           ),
+              //           actions: [
+              //             CustomActionButtons(
+              //                 onPressed: () {
+              //                   PurchaseInvoicePrint()
+              //                       .printDocument(entry.value);
+              //                 },
+              //                 buttonText: AppConstants.print),
+              //           ]);
+              //     },
+              //   );
             }
           },
         ),

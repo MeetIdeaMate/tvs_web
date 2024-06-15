@@ -171,7 +171,7 @@ class PurchaseInvoicePrint {
                                 incentive.incentiveName ==
                                 'EMPS 2024 Incentive',
                             orElse: () => Incentive(
-                                incentiveName: '', incentiveAmount: 1))
+                                incentiveName: '', incentiveAmount: 0))
                         .incentiveAmount!;
 
                     double stateIncentive = item.incentives!
@@ -179,7 +179,7 @@ class PurchaseInvoicePrint {
                             (incentive) =>
                                 incentive.incentiveName == 'StateIncentive',
                             orElse: () => Incentive(
-                                incentiveName: '', incentiveAmount: 1))
+                                incentiveName: '', incentiveAmount: 0))
                         .incentiveAmount!;
 
                     double tcsValue = item.taxes!

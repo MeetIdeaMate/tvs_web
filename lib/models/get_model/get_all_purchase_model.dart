@@ -227,8 +227,9 @@ class ItemDetail {
         itemName: json["itemName"],
         mainSpecValues: json["mainSpecValues"] == null
             ? null
-            : List<VehicleDetails>.from(
-                json["mainSpecValues"].map((x) => VehicleDetails.fromJson(x))),
+            : List<VehicleDetails>.from(json["mainSpecValues"].map((x) {
+                return VehicleDetails.fromJson(x);
+              })),
         partNo: json["partNo"],
         quantity: json["quantity"],
         specificationsValue: json["specificationsValue"] == null
@@ -299,7 +300,7 @@ class VehicleDetails {
 class GstDetail {
   double? gstAmount;
   String? gstName;
-  int? percentage;
+  double? percentage;
 
   GstDetail({
     this.gstAmount,
