@@ -14,6 +14,7 @@ class AppConstants {
   static const deleteMsg = 'Are you Sure you want to delete the employee?';
   static const hasiniTvs = 'HASINI TVS';
   static const noData = 'No data';
+  static const ttfPoppinsRegular = 'fonts/ttf_poppins_regular.ttf';
 
   //SharedPreference
   static const designation = 'designation';
@@ -452,7 +453,6 @@ class AppConstants {
   static const String engineDeatilsHint =
       'Enter Engine & Frame No, Press Enter Button to add in a list';
 
- 
   static const String totalValueA = '(a)';
   static const String discountB = '(b)';
   static const String taxableValueAB = '(i)(a-b)';

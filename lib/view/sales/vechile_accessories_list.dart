@@ -11,9 +11,9 @@ import 'package:tlbilling/view/sales/add_sales_bloc.dart';
 import 'package:tlds_flutter/components/tlds_input_form_field.dart';
 
 class VehicleAccessoriesList extends StatefulWidget {
-  AddSalesBlocImpl addSalesBloc;
-  Function(List<Widget>)? selectedItems;
-  VehicleAccessoriesList(
+  final AddSalesBlocImpl addSalesBloc;
+  final Function(List<Widget>)? selectedItems;
+  const VehicleAccessoriesList(
       {super.key, required this.addSalesBloc, this.selectedItems});
 
   @override

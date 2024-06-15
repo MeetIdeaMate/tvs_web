@@ -187,26 +187,27 @@ class ItemDetail {
   bool? cancelled;
   bool? stockUpdated;
 
-  ItemDetail(
-      {this.categoryId,
-      this.categoryName,
-      this.discount,
-      this.finalInvoiceValue,
-      this.gstDetails,
-      this.hsnSacCode,
-      this.incentives,
-      this.invoiceValue,
-      this.itemName,
-      this.mainSpecValues,
-      this.partNo,
-      this.quantity,
-      this.specificationsValue,
-      this.taxableValue,
-      this.taxes,
-      this.unitRate,
-      this.value,
-      this.cancelled,
-      this.stockUpdated});
+  ItemDetail({
+    this.categoryId,
+    this.categoryName,
+    this.discount,
+    this.finalInvoiceValue,
+    this.gstDetails,
+    this.hsnSacCode,
+    this.incentives,
+    this.invoiceValue,
+    this.itemName,
+    this.mainSpecValues,
+    this.partNo,
+    this.quantity,
+    this.specificationsValue,
+    this.taxableValue,
+    this.taxes,
+    this.unitRate,
+    this.value,
+    this.cancelled,
+    this.stockUpdated,
+  });
 
   factory ItemDetail.fromJson(Map<String, dynamic> json) => ItemDetail(
         categoryId: json["categoryId"],
@@ -216,18 +217,19 @@ class ItemDetail {
         gstDetails: json["gstDetails"] == null
             ? []
             : List<GstDetail>.from(
-                json["gstDetails"]!.map((x) => GstDetail.fromJson(x))),
+                json["gstDetails"].map((x) => GstDetail.fromJson(x))),
         hsnSacCode: json["hsnSacCode"],
         incentives: json["incentives"] == null
             ? []
             : List<Incentive>.from(
-                json["incentives"]!.map((x) => Incentive.fromJson(x))),
+                json["incentives"].map((x) => Incentive.fromJson(x))),
         invoiceValue: json["invoiceValue"],
         itemName: json["itemName"],
         mainSpecValues: json["mainSpecValues"] == null
-            ? []
-            : List<VehicleDetails>.from(
-                json["mainSpecValues"]!.map((x) => VehicleDetails.fromJson(x))),
+            ? null
+            : List<VehicleDetails>.from(json["mainSpecValues"].map((x) {
+                return VehicleDetails.fromJson(x);
+              })),
         partNo: json["partNo"],
         quantity: json["quantity"],
         specificationsValue: json["specificationsValue"] == null
@@ -236,7 +238,7 @@ class ItemDetail {
         taxableValue: json["taxableValue"],
         taxes: json["taxes"] == null
             ? []
-            : List<Tax>.from(json["taxes"]!.map((x) => Tax.fromJson(x))),
+            : List<Tax>.from(json["taxes"].map((x) => Tax.fromJson(x))),
         unitRate: json["unitRate"],
         value: json["value"],
         cancelled: json["cancelled"],
@@ -247,8 +249,6 @@ class ItemDetail {
         "categoryId": categoryId,
         "categoryName": categoryName,
         "discount": discount,
-         "cancelled": cancelled,
-         "stockUpdated": stockUpdated,
         "finalInvoiceValue": finalInvoiceValue,
         "gstDetails": gstDetails == null
             ? []
@@ -271,13 +271,36 @@ class ItemDetail {
             : List<dynamic>.from(taxes!.map((x) => x.toJson())),
         "unitRate": unitRate,
         "value": value,
+        "cancelled": cancelled,
+        "stockUpdated": stockUpdated,
       };
+}
+
+class VehicleDetails {
+  String? engineNumber;
+  String? frameNumber;
+
+  VehicleDetails({this.engineNumber, this.frameNumber});
+
+  factory VehicleDetails.fromJson(Map<String, dynamic> json) {
+    return VehicleDetails(
+      engineNumber: json['engineNo'],
+      frameNumber: json['frameNo'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'engineNo': engineNumber,
+      'frameNo': frameNumber,
+    };
+  }
 }
 
 class GstDetail {
   double? gstAmount;
   String? gstName;
-  int? percentage;
+  double? percentage;
 
   GstDetail({
     this.gstAmount,
@@ -320,27 +343,6 @@ class Incentive {
         "incentiveName": incentiveName,
         "percentage": percentage,
       };
-}
-
-class VehicleDetails {
-  String? engineNumber;
-  String? frameNumber;
-
-  VehicleDetails({this.engineNumber, this.frameNumber});
-
-  factory VehicleDetails.fromJson(Map<String, dynamic> json) {
-    return VehicleDetails(
-      engineNumber: json['engineNo'],
-      frameNumber: json['frameNo'],
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'engineNo': engineNumber,
-      'frameNo': frameNumber,
-    };
-  }
 }
 
 class Tax {

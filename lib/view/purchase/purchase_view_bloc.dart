@@ -23,7 +23,8 @@ abstract class PurchaseViewBloc {
 
   Stream get purchaseRefSearchFieldControllerStream;
 
-  Future<GetAllPurchaseByPageNation?> getAllPurchaseList();
+  Future<GetAllPurchaseByPageNation?> getAllPurchaseList(
+      {String? categoryName});
 
   int get currentPage;
   Stream<int> get pageNumberStream;
@@ -100,12 +101,14 @@ class PurchaseViewBlocImpl extends PurchaseViewBloc {
   }
 
   @override
-  Future<GetAllPurchaseByPageNation?> getAllPurchaseList() async {
+  Future<GetAllPurchaseByPageNation?> getAllPurchaseList(
+      {String? categoryName}) async {
     return await _apiCalls.getAllPurchaseByPagenation(
         _currentPage,
         invoiceSearchFieldController.text,
         partNoSearchFieldController.text,
-        purchaseRefSearchFieldController.text);
+        purchaseRefSearchFieldController.text,
+        categoryName: categoryName);
   }
 
   @override

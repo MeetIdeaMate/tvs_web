@@ -182,9 +182,8 @@ class ResultObj {
         vendorById: json["vendor"] != null
             ? GetVendorById.fromJson(json["vendor"])
             : null,
-      getAllPurchaseByPageNation: json['purchasesWithPage'] != null
-            ? GetAllPurchaseByPageNation.fromJson(
-                json['purchasesWithPage'])
+        getAllPurchaseByPageNation: json['purchasesWithPage'] != null
+            ? GetAllPurchaseByPageNation.fromJson(json['purchasesWithPage'])
             : null,
         getAllVendorNameList: json['vendors'] != null
             ? List<GetAllVendorNameList>.from(
@@ -208,8 +207,8 @@ class ResultObj {
         getBranchId: json["branchResponse"] != null
             ? GetBranchById.fromJson(json["branchResponse"])
             : null,
-        getPurchaseReport: json['purchasesWithPage'] != null
-            ? GetAllpurchaseReport.fromJson(json['purchasesWithPage'])
+        getPurchaseReport: json['purchasesReportWithPage'] != null
+            ? GetAllpurchaseReport.fromJson(json['purchasesReportWithPage'])
             : null,
         purchaseByPartNo: json['ItemDetailByPartNo'] != null
             ? PurchaseByPartNoModel.fromJson(json['ItemDetailByPartNo'])

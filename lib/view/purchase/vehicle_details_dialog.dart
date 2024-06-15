@@ -5,9 +5,12 @@ import 'package:tlds_flutter/util/app_colors.dart';
 
 class VehicleDetailsDialog extends StatelessWidget {
   final List<ItemDetail>? purchaseBills;
-
-  VehicleDetailsDialog({Key? key, required this.purchaseBills})
-      : super(key: key);
+  final bool showDetailsTable;
+  const VehicleDetailsDialog({
+    super.key,
+    required this.purchaseBills,
+    required this.showDetailsTable,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -43,38 +46,41 @@ class VehicleDetailsDialog extends StatelessWidget {
                 subtitle: Text(purchaseBill.partNo ?? 'N/A'),
                 expandedAlignment: Alignment.topLeft,
                 dense: true,
-                children: [
-                  DataTable(
-                    columns: [
-                      const DataColumn(
-                        label: Text(
-                          AppConstants.sno,
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                children: showDetailsTable
+                    ? [
+                        DataTable(
+                          columns: [
+                            const DataColumn(
+                              label: Text(
+                                AppConstants.sno,
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                            _buildVehicleTableHeader(AppConstants.engineNumber),
+                            _buildVehicleTableHeader(AppConstants.frameNumber),
+                          ],
+                          rows: purchaseBill.mainSpecValues!
+                              .asMap()
+                              .entries
+                              .map((entry) {
+                            final index = entry.key;
+                            final value = entry.value;
+                            return DataRow(
+                              color: MaterialStateColor.resolveWith((states) {
+                                return entry.key % 2 == 0
+                                    ? Colors.white
+                                    : AppColor().transparentBlueColor;
+                              }),
+                              cells: [
+                                _buildTableRow((index + 1).toString()),
+                                _buildTableRow(value.engineNumber),
+                                _buildTableRow(value.frameNumber),
+                              ],
+                            );
+                          }).toList(),
                         ),
-                      ),
-                      _buildVehicleTableHeader(AppConstants.engineNumber),
-                      _buildVehicleTableHeader(AppConstants.frameNumber),
-                    ],
-                    rows: purchaseBill.mainSpecValues!
-                        .asMap()
-                        .entries
-                        .map((entry) {
-                      final index = entry.key;
-                      final value = entry.value;
-                      return DataRow(
-                          color: MaterialStateColor.resolveWith((states) {
-                            return entry.key % 2 == 0
-                                ? Colors.white
-                                : AppColor().transparentBlueColor;
-                          }),
-                          cells: [
-                            _buildTableRow((index + 1).toString()),
-                            _buildTableRow(value.engineNumber),
-                            _buildTableRow(value.frameNumber),
-                          ]);
-                    }).toList(),
-                  ),
-                ],
+                      ]
+                    : [],
               );
             }).toList(),
           ),
@@ -92,8 +98,10 @@ class VehicleDetailsDialog extends StatelessWidget {
     );
   }
 
-  DataCell _buildTableRow(String? text) => DataCell(Text(
-        text ?? '',
-        style: const TextStyle(fontSize: 14),
-      ));
+  DataCell _buildTableRow(String? text) => DataCell(
+        Text(
+          text ?? '',
+          style: const TextStyle(fontSize: 14),
+        ),
+      );
 }

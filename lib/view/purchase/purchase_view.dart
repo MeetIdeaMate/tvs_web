@@ -233,7 +233,19 @@ class _PurchaseViewState extends State<PurchaseView>
         if (currentPage < 0) currentPage = 0;
         _purchaseViewBloc.currentPage = currentPage;
         return FutureBuilder(
-          future: _purchaseViewBloc.getAllPurchaseList(),
+          future: _purchaseViewBloc.getAllPurchaseList(categoryName: () {
+            switch (
+                _purchaseViewBloc.vehicleAndAccessoriesTabController.index) {
+              case 0:
+                return 'vehicle';
+
+              case 1:
+                return 'Accessories';
+
+              default:
+                return '';
+            }
+          }()),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return Center(child: AppWidgetUtils.buildLoading());
@@ -259,6 +271,7 @@ class _PurchaseViewState extends State<PurchaseView>
                             _buildVehicleTableHeader(AppConstants.branchName),
                             _buildVehicleTableHeader(
                                 AppConstants.totalInvAmount),
+                            _buildVehicleTableHeader(AppConstants.print),
                             _buildVehicleTableHeader(AppConstants.action),
                           ],
                           rows: purchasedata.asMap().entries.map((entry) {
@@ -276,16 +289,62 @@ class _PurchaseViewState extends State<PurchaseView>
                                 _buildTableRow(AppUtils.apiToAppDateFormat(
                                     entry.value.pInvoiceDate.toString())),
                                 _buildTableRow(entry.value.vendorName),
-                                _buildTableRow(entry.value.totalQty.toString()),
+                                _buildTableRow(entry.value.itemDetails?.length.toString()),
                                 _buildTableRow(
                                     entry.value.branchName.toString()),
                                 _buildTableRow(AppUtils.formatCurrency(entry
                                         .value.finalTotalInvoiceAmount
                                         ?.toDouble() ??
                                     0.0)),
-                                DataCell(
-                                  _buildPopMenuItem(context, entry),
-                                )
+                                DataCell(IconButton(
+                                    onPressed: () {
+                                      showDialog(
+                                        context: context,
+                                        builder: (context) {
+                                          return AlertDialog(
+                                              surfaceTintColor:
+                                                  AppColor().whiteColor,
+                                              shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          10)),
+                                              content: Column(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  Icon(
+                                                    Icons.downloading_rounded,
+                                                    color:
+                                                        AppColor().successColor,
+                                                    size: 50,
+                                                  ),
+                                                  AppWidgetUtils.buildSizedBox(
+                                                      custHeight: 10),
+                                                  const Text(
+                                                    'Are you sure you want print invoice ?',
+                                                    style:
+                                                        TextStyle(fontSize: 20),
+                                                  )
+                                                ],
+                                              ),
+                                              actions: [
+                                                CustomActionButtons(
+                                                    onPressed: () {
+                                                      PurchaseInvoicePrint()
+                                                          .printDocument(
+                                                              entry.value);
+                                                    },
+                                                    buttonText:
+                                                        AppConstants.print),
+                                              ]);
+                                        },
+                                      );
+                                    },
+                                    icon: SvgPicture.asset(
+                                      AppConstants.icPrint,
+                                      colorFilter: const ColorFilter.mode(
+                                          Colors.green, BlendMode.srcIn),
+                                    ))),
+                                DataCell(_buildPopMenuItem(context, entry)),
                               ],
                             );
                           }).toList(),
@@ -329,10 +388,10 @@ class _PurchaseViewState extends State<PurchaseView>
               value: 'option2',
               child: Text('Re-Entry'),
             ),
-            const PopupMenuItem(
-              value: 'option3',
-              child: Text('Print'),
-            ),
+            // const PopupMenuItem(
+            //   value: 'option3',
+            //   child: Text('Print'),
+            // ),
           ],
           onSelected: (value) {
             switch (value) {
@@ -341,46 +400,49 @@ class _PurchaseViewState extends State<PurchaseView>
                   context: context,
                   builder: (context) {
                     return VehicleDetailsDialog(
-                        purchaseBills: entry.value.itemDetails);
+                      purchaseBills: entry.value.itemDetails,
+                      showDetailsTable: _purchaseViewBloc
+                              .vehicleAndAccessoriesTabController.index ==
+                          0,
+                    );
                   },
                 );
                 break;
               case 'option2':
                 break;
-              case 'option3':
-                showDialog(
-                  context: context,
-                  builder: (context) {
-                    return AlertDialog(
-                        surfaceTintColor: AppColor().whiteColor,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10)),
-                        content: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.downloading_rounded,
-                              color: AppColor().successColor,
-                              size: 50,
-                            ),
-                            AppWidgetUtils.buildSizedBox(custHeight: 10),
-                            const Text(
-                              'Are you sure you want print invoice ?',
-                              style: TextStyle(fontSize: 20),
-                            )
-                          ],
-                        ),
-                        actions: [
-                          CustomActionButtons(
-                              onPressed: () {
-                                PurchaseInvoicePrint().printDocument(entry.value);
-                              },
-                              buttonText: AppConstants.print),
-                        ]);
-                  },
-                );
-
-                break;
+              // case 'option3':
+              //   showDialog(
+              //     context: context,
+              //     builder: (context) {
+              //       return AlertDialog(
+              //           surfaceTintColor: AppColor().whiteColor,
+              //           shape: RoundedRectangleBorder(
+              //               borderRadius: BorderRadius.circular(10)),
+              //           content: Column(
+              //             mainAxisSize: MainAxisSize.min,
+              //             children: [
+              //               Icon(
+              //                 Icons.downloading_rounded,
+              //                 color: AppColor().successColor,
+              //                 size: 50,
+              //               ),
+              //               AppWidgetUtils.buildSizedBox(custHeight: 10),
+              //               const Text(
+              //                 'Are you sure you want print invoice ?',
+              //                 style: TextStyle(fontSize: 20),
+              //               )
+              //             ],
+              //           ),
+              //           actions: [
+              //             CustomActionButtons(
+              //                 onPressed: () {
+              //                   PurchaseInvoicePrint()
+              //                       .printDocument(entry.value);
+              //                 },
+              //                 buttonText: AppConstants.print),
+              //           ]);
+              //     },
+              //   );
             }
           },
         ),
