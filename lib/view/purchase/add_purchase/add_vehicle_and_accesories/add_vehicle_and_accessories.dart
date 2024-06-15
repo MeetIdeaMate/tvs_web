@@ -868,7 +868,7 @@ class _AddVehicleAndAccessoriesState extends State<AddVehicleAndAccessories> {
             igstAmount: widget.purchaseBloc.igstAmount,
             discountPresentage: double.tryParse(
                 widget.purchaseBloc.discountTextController.text),
-            discountValue: widget.purchaseBloc.discountValue,
+            discountValue:double.tryParse( widget.purchaseBloc.discountTextController.text),
             cgstPercentage: double.tryParse(
                 widget.purchaseBloc.cgstPresentageTextController.text),
             sgstPercentage: double.tryParse(
