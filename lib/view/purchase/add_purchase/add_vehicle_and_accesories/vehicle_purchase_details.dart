@@ -151,13 +151,16 @@ class _EngineAndFrameNumberEntryState extends State<EngineAndFrameNumberEntry> {
                 inputFormatters: TlInputFormatters.onlyAllowAlphabetAndNumber,
                 focusNode:
                     widget.addVehicleAndAccessoriesBloc.frameNumberFocusNode,
-                onSubmit: (p0) {
-                  if (widget.addVehicleAndAccessoriesBloc.engineNumberController
-                      .text.isNotEmpty) {
-                    _engineNumberAndFrameNumberOnSubmit();
-                    updateTotalValue();
-                  }
-                },
+                onSubmit: widget.addVehicleAndAccessoriesBloc
+                        .engineNumberController.text.isNotEmpty
+                    ? (p0) {
+                        if (widget.addVehicleAndAccessoriesBloc
+                            .engineNumberController.text.isNotEmpty) {
+                          _engineNumberAndFrameNumberOnSubmit();
+                          updateTotalValue();
+                        }
+                      }
+                    : null,
                 labelText: AppConstants.frameNumber,
                 hintText: AppConstants.frameNumber,
                 controller:

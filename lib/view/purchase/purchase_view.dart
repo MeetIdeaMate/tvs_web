@@ -289,7 +289,7 @@ class _PurchaseViewState extends State<PurchaseView>
                                 _buildTableRow(AppUtils.apiToAppDateFormat(
                                     entry.value.pInvoiceDate.toString())),
                                 _buildTableRow(entry.value.vendorName),
-                                _buildTableRow(entry.value.totalQty.toString()),
+                                _buildTableRow(entry.value.itemDetails?.length.toString()),
                                 _buildTableRow(
                                     entry.value.branchName.toString()),
                                 _buildTableRow(AppUtils.formatCurrency(entry

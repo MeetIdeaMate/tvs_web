@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/svg.dart';
@@ -7,14 +6,13 @@ import 'package:tlbilling/components/custom_action_button.dart';
 import 'package:tlbilling/components/custom_elevated_button.dart';
 import 'package:tlbilling/models/post_model/add_purchase_model.dart';
 import 'package:tlbilling/models/purchase_bill_data.dart';
-import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/utils/app_colors.dart';
+import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/utils/app_utils.dart';
 import 'package:tlbilling/view/purchase/add_purchase/add_vehicle_and_accesories/add_vehicle_and_accessories_bloc.dart';
 import 'package:tlbilling/view/purchase/add_purchase/add_vehicle_and_accesories/purchase_table_preview.dart';
 import 'package:tlbilling/view/purchase/add_purchase/purchase_invoice_pdf.dart';
 import 'package:tlds_flutter/export.dart';
-import 'package:tlds_flutter/util/app_colors.dart';
 import 'package:toastification/toastification.dart';
 
 class PurchaseTable extends StatefulWidget {
@@ -381,21 +379,24 @@ class _PurchaseTableState extends State<PurchaseTable> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        CustomElevatedButton(
-          text: AppConstants.preview,
-          fontSize: 16,
-          buttonBackgroundColor: _appColors.primaryColor,
-          fontColor: _appColors.whiteColor,
-          onPressed: () {
-            Navigator.push(
-                context,
-                PageRouteBuilder(
-                  pageBuilder: (context, animation, secondaryAnimation) =>
-                      PurchaseTablePreview(
-                    purchaseBloc: widget.purchaseBloc,
-                  ),
-                ));
-          },
+        Visibility(
+          visible: false,
+          child: CustomElevatedButton(
+            text: AppConstants.preview,
+            fontSize: 16,
+            buttonBackgroundColor: _appColors.primaryColor,
+            fontColor: _appColors.whiteColor,
+            onPressed: () {
+              Navigator.push(
+                  context,
+                  PageRouteBuilder(
+                    pageBuilder: (context, animation, secondaryAnimation) =>
+                        PurchaseTablePreview(
+                      purchaseBloc: widget.purchaseBloc,
+                    ),
+                  ));
+            },
+          ),
         ),
         CustomActionButtons(
             onPressed: () {
@@ -476,6 +477,7 @@ class _PurchaseTableState extends State<PurchaseTable> {
   AddPurchaseModel _purchasePostData() {
     SpecificationsValue _specValue = SpecificationsValue(specs: {});
     List<Map<String, dynamic>> _mainSpecInfos = [];
+
     // Collecting engine details
     for (var mainSpecValue in widget.purchaseBloc.purchaseBillDataList) {
       for (var vehicle in mainSpecValue.vehicleDetails!) {
@@ -487,48 +489,80 @@ class _PurchaseTableState extends State<PurchaseTable> {
         }
       }
     }
+
     final List<GstDetail> gstDetailsList = [];
     final List<Incentive> incentivesList = [];
     final List<Tax> taxDetailsList = [];
+
+    // Function to add GST detail to the list with duplication check
+    void addGstDetail(List<GstDetail> list, GstDetail detail) {
+      // Find the index of an existing item with the same gstName
+      int existingIndex =
+          list.indexWhere((item) => item.gstName == detail.gstName);
+
+      // If found, remove the existing item
+      if (existingIndex != -1) {
+        list.removeAt(existingIndex);
+      }
+
+      // Add the new item
+      list.add(detail);
+    }
+
     // Collecting GST, Tax and Incentive details
     for (var gstDetails in widget.purchaseBloc.purchaseBillDataList) {
       for (var vehicle in gstDetails.vehicleDetails!) {
         if (vehicle.gstType == AppConstants.gstPercent) {
-          gstDetailsList.add(GstDetail(
+          addGstDetail(
+            gstDetailsList,
+            GstDetail(
               gstAmount: vehicle.cgstAmount ?? 0.0,
               gstName: "CGST",
-              percentage: vehicle.cgstPercentage ?? 0.0));
-          gstDetailsList.add(GstDetail(
+              percentage: vehicle.cgstPercentage ?? 0.0,
+            ),
+          );
+          addGstDetail(
+            gstDetailsList,
+            GstDetail(
               gstAmount: vehicle.sgstAmount ?? 0.0,
               gstName: "SGST",
-              percentage: vehicle.sgstPercentage ?? 0.0));
+              percentage: vehicle.sgstPercentage ?? 0.0,
+            ),
+          );
         }
         if (vehicle.gstType == AppConstants.igstPercent) {
-          gstDetailsList.add(GstDetail(
+          addGstDetail(
+            gstDetailsList,
+            GstDetail(
               gstAmount: vehicle.igstAmount ?? 0.0,
               gstName: "IGST",
-              percentage: vehicle.igstPercentage ?? 0.0));
+              percentage: vehicle.igstPercentage ?? 0.0,
+            ),
+          );
         }
 
         if (vehicle.incentiveType == AppConstants.empsIncetive) {
           incentivesList.add(Incentive(
-              incentiveAmount: vehicle.empsIncentive ?? 0.0,
-              incentiveName: 'EMPS 2024 INCENTIVE',
-              percentage: 0));
+            incentiveAmount: vehicle.empsIncentive ?? 0.0,
+            incentiveName: 'EMPS 2024 INCENTIVE',
+            percentage: 0,
+          ));
         }
 
         if (vehicle.incentiveType == AppConstants.stateIncetive) {
           incentivesList.add(Incentive(
-              incentiveAmount: vehicle.stateIncentive ?? 0.0,
-              incentiveName: 'STATE INCENTIVE',
-              percentage: 0));
+            incentiveAmount: vehicle.stateIncentive ?? 0.0,
+            incentiveName: 'STATE INCENTIVE',
+            percentage: 0,
+          ));
         }
 
         if (vehicle.tcsValue != null) {
           taxDetailsList.add(Tax(
-              percentage: 0,
-              taxAmount: vehicle.tcsValue ?? 0.0,
-              taxName: 'TCS VALUE'));
+            percentage: 0,
+            taxAmount: vehicle.tcsValue ?? 0.0,
+            taxName: 'TCS VALUE',
+          ));
         }
       }
     }
@@ -540,8 +574,8 @@ class _PurchaseTableState extends State<PurchaseTable> {
         final _itemDetail = ItemDetail(
           categoryId: vehicleData.categoryId.toString(),
           discount: 0,
-          gstDetails: gstDetailsList,
-          incentives: incentivesList,
+          gstDetails: List.from(gstDetailsList),
+          incentives: List.from(incentivesList),
           itemName: vehicleData.vehicleName,
           mainSpecInfos: widget.purchaseBloc.selectedPurchaseType !=
                   AppConstants.accessories
@@ -553,7 +587,7 @@ class _PurchaseTableState extends State<PurchaseTable> {
                   AppConstants.accessories
               ? _specValue
               : null,
-          taxes: taxDetailsList,
+          taxes: List.from(taxDetailsList),
           unitRate: vehicleData.unitRate,
         );
         _itemDetailsList.add(_itemDetail);

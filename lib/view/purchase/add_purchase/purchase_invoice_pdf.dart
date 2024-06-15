@@ -1,11 +1,13 @@
 // ignore_for_file: deprecated_member_use
 
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import 'package:tlbilling/models/get_model/get_all_purchase_model.dart';
 import 'package:tlbilling/utils/app_constants.dart';
+import 'package:tlbilling/utils/app_util_widgets.dart';
 import 'package:tlbilling/utils/app_utils.dart';
 
 class PurchaseInvoicePrint {
@@ -30,13 +32,14 @@ class PurchaseInvoicePrint {
         build: (pw.Context context) {
           return [
             pw.Column(
-              crossAxisAlignment: pw.CrossAxisAlignment.center,
-              mainAxisAlignment: pw.MainAxisAlignment.center,
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              mainAxisAlignment: pw.MainAxisAlignment.start,
               children: [
                 pw.Row(
                   children: [
                     pw.Expanded(
                       child: pw.Container(
+                        height: 60,
                         padding: const pw.EdgeInsets.all(5),
                         decoration: pw.BoxDecoration(
                           border: pw.Border.all(color: PdfColors.black),
@@ -62,9 +65,9 @@ class PurchaseInvoicePrint {
                         ),
                       ),
                     ),
-                    pw.SizedBox(width: 20),
                     pw.Expanded(
                       child: pw.Container(
+                        height: 60,
                         padding: const pw.EdgeInsets.all(5),
                         decoration: pw.BoxDecoration(
                           border: pw.Border.all(color: PdfColors.black),
@@ -87,9 +90,9 @@ class PurchaseInvoicePrint {
                         ),
                       ),
                     ),
-                    pw.SizedBox(width: 20),
                     pw.Expanded(
                       child: pw.Container(
+                        height: 60,
                         padding: const pw.EdgeInsets.all(5),
                         decoration: pw.BoxDecoration(
                           border: pw.Border.all(color: PdfColors.black),
@@ -107,7 +110,7 @@ class PurchaseInvoicePrint {
                                 style: pw.TextStyle(
                                     fontSize: 8, font: regularFont)),
                             pw.Text(
-                                'Invoice Date: ${purchaseData.pInvoiceDate?.toIso8601String() ?? ''}',
+                                'Invoice Date: ${AppUtils.apiToAppDateFormat(purchaseData.pInvoiceDate.toString())}',
                                 style: pw.TextStyle(
                                     fontSize: 8, font: regularFont)),
                             pw.Text(
@@ -229,7 +232,9 @@ class PurchaseInvoicePrint {
                   }).toList(),
                 ),
                 pw.SizedBox(height: 40),
-                pw.Text('Vehicle dtails', style: pw.TextStyle(fontSize: 13)),
+                pw.Text('Vehicle Details',
+                    style: pw.TextStyle(
+                        fontSize: 13, fontWeight: pw.FontWeight.bold)),
                 pw.SizedBox(height: 20),
                 pw.Wrap(
                   spacing: 50,
@@ -237,9 +242,6 @@ class PurchaseInvoicePrint {
                   children: purchaseData.itemDetails!.map((item) {
                     return pw.Container(
                       width: 400,
-                      decoration: pw.BoxDecoration(
-                        border: pw.Border.all(color: PdfColors.black),
-                      ),
                       child: pw.Column(
                         crossAxisAlignment: pw.CrossAxisAlignment.start,
                         children: [
@@ -248,7 +250,7 @@ class PurchaseInvoicePrint {
                             children: [
                               pw.Text(item.itemName ?? '',
                                   style: pw.TextStyle(
-                                      fontSize: 8,
+                                      fontSize: 10,
                                       fontWeight: pw.FontWeight.bold,
                                       font: regularFont)),
                               pw.SizedBox(width: 10),
@@ -265,6 +267,7 @@ class PurchaseInvoicePrint {
                               'S.No',
                               'Engine No',
                               'Frame No',
+                              '',
                             ],
                             cellAlignment: pw.Alignment.center,
                             headerStyle: pw.TextStyle(
@@ -283,6 +286,7 @@ class PurchaseInvoicePrint {
                                 '$index',
                                 (spec.engineNumber ?? ''),
                                 (spec.frameNumber ?? ''),
+                                (''),
                               ];
                             }).toList(),
                           ),
