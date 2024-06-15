@@ -627,21 +627,21 @@ class _PurchaseTableState extends State<PurchaseTable> {
       widget.purchaseBloc.totalValue = data.totalValue;
       widget.purchaseBloc.paymentDetailsStreamController(true);
       widget.purchaseBloc.discountTextController.text =
-          data.discountValue.toString();
+          (data.discountValue ?? 0).toString();
       widget.purchaseBloc.paymentDetailsStreamController(true);
       widget.purchaseBloc.taxableValue = data.taxableValue;
       widget.purchaseBloc.paymentDetailsStreamController(true);
       widget.purchaseBloc.cgstAmount = data.cgstAmount;
       widget.purchaseBloc.sgstAmount = data.sgstAmount;
       widget.purchaseBloc.tcsvalueTextController.text =
-          data.tcsValue.toString();
+          (data.tcsValue ?? 0).toString();
       widget.purchaseBloc.invAmount = data.invoiceValue;
       widget.purchaseBloc.paymentDetailsStreamController(true);
       widget.purchaseBloc.stateIncentiveTextController.text =
-          data.stateIncentive.toString();
+          (data.stateIncentive ?? 0).toString();
       widget.purchaseBloc.paymentDetailsStreamController(true);
       widget.purchaseBloc.empsIncentiveTextController.text =
-          data.empsIncentive.toString();
+          (data.empsIncentive ?? 0.0).toString();
       widget.purchaseBloc.paymentDetailsStreamController(true);
       widget.purchaseBloc.totalInvAmount = data.totalInvoiceValue;
       widget.purchaseBloc.paymentDetailsStreamController(true);
