@@ -14,6 +14,7 @@ class AppConstants {
   static const deleteMsg = 'Are you Sure you want to delete the employee?';
   static const hasiniTvs = 'HASINI TVS';
   static const noData = 'No data';
+  static const submit = 'Submit';
   static const ttfPoppinsRegular = 'fonts/ttf_poppins_regular.ttf';
 
   //SharedPreference
@@ -428,6 +429,7 @@ class AppConstants {
   static const partPayment = 'part payment';
 
   static const String approved = 'Approved';
+  static const String approve = 'Approve';
   static const String notApproved = 'Not Approved';
 
   //Purchase Validation ErrorMessage

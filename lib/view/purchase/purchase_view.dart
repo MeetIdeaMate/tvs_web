@@ -507,7 +507,7 @@ class _PurchaseViewState extends State<PurchaseView>
                   }
                 });
               },
-              buttonText: AppConstants.print),
+              buttonText: AppConstants.cancel),
         ]);
   }
 
@@ -568,7 +568,7 @@ class _PurchaseViewState extends State<PurchaseView>
                   }
                 });
               },
-              buttonText: AppConstants.save),
+              buttonText: AppConstants.approve),
         ]);
   }
 
