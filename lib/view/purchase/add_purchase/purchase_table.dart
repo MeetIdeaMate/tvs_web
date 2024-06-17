@@ -626,20 +626,29 @@ class _PurchaseTableState extends State<PurchaseTable> {
       widget.purchaseBloc.engineDetailsStreamController(true);
       widget.purchaseBloc.totalValue = data.totalValue;
       widget.purchaseBloc.paymentDetailsStreamController(true);
-      widget.purchaseBloc.discountTextController.text =
-          data.discountValue.toString();
+      // widget.purchaseBloc.discountTextController.text =
+      //     data.discountValue.toString();
       widget.purchaseBloc.paymentDetailsStreamController(true);
+      widget.purchaseBloc.engineDetailsStreamController(true);
+      // widget.purchaseBloc.discountValue = data.discountValue;
+      widget.purchaseBloc.paymentDetailsStreamController(true);
+      widget.purchaseBloc.engineDetailsStreamController(true);
       widget.purchaseBloc.taxableValue = data.taxableValue;
       widget.purchaseBloc.paymentDetailsStreamController(true);
+      widget.purchaseBloc.engineDetailsStreamController(true);
       widget.purchaseBloc.cgstAmount = data.cgstAmount;
+      widget.purchaseBloc.paymentDetailsStreamController(true);
+      widget.purchaseBloc.engineDetailsStreamController(true);
       widget.purchaseBloc.sgstAmount = data.sgstAmount;
       widget.purchaseBloc.tcsvalueTextController.text =
           data.tcsValue.toString();
       widget.purchaseBloc.invAmount = data.invoiceValue;
       widget.purchaseBloc.paymentDetailsStreamController(true);
+      widget.purchaseBloc.engineDetailsStreamController(true);
       widget.purchaseBloc.stateIncentiveTextController.text =
           data.stateIncentive.toString();
       widget.purchaseBloc.paymentDetailsStreamController(true);
+      widget.purchaseBloc.engineDetailsStreamController(true);
       widget.purchaseBloc.empsIncentiveTextController.text =
           data.empsIncentive.toString();
       widget.purchaseBloc.paymentDetailsStreamController(true);
