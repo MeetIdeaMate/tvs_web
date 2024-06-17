@@ -151,16 +151,14 @@ class _EngineAndFrameNumberEntryState extends State<EngineAndFrameNumberEntry> {
                 inputFormatters: TlInputFormatters.onlyAllowAlphabetAndNumber,
                 focusNode:
                     widget.addVehicleAndAccessoriesBloc.frameNumberFocusNode,
-                onSubmit: widget.addVehicleAndAccessoriesBloc
-                        .engineNumberController.text.isNotEmpty
-                    ? (p0) {
-                        if (widget.addVehicleAndAccessoriesBloc
-                            .engineNumberController.text.isNotEmpty) {
-                          _engineNumberAndFrameNumberOnSubmit();
-                          updateTotalValue();
-                        }
-                      }
-                    : null,
+                onSubmit: (p0) {
+                  if (widget.addVehicleAndAccessoriesBloc.engineNumberController
+                      .text.isNotEmpty) {
+                    _engineNumberAndFrameNumberOnSubmit();
+                    // updateTotalValue();
+                    _purchaseTableAmountCalculation();
+                  }
+                },
                 labelText: AppConstants.frameNumber,
                 hintText: AppConstants.frameNumber,
                 controller:
@@ -200,24 +198,23 @@ class _EngineAndFrameNumberEntryState extends State<EngineAndFrameNumberEntry> {
                           _buildTextWidget(frameNo),
                           IconButton(
                               onPressed: () {
-                                updateTotalValue();
-
-                                widget.addVehicleAndAccessoriesBloc
+                                final removedDetails = widget
+                                    .addVehicleAndAccessoriesBloc
                                     .engineDetailsList
                                     .removeAt(index);
+                                enteredEngineNumbers
+                                    .remove(removedDetails.engineNo);
+                                enteredFrameNumbers
+                                    .remove(removedDetails.frameNo);
+
                                 widget.addVehicleAndAccessoriesBloc
                                     .engineDetailsStreamController(true);
                                 widget.addVehicleAndAccessoriesBloc
-                                    .frameNumberController
-                                    .clear();
-                                widget.addVehicleAndAccessoriesBloc
-                                    .engineNumberController
-                                    .clear();
-                                widget.addVehicleAndAccessoriesBloc
                                     .refreshEngineDetailsListStramController(
                                         true);
-                                enteredEngineNumbers.remove(engineNo);
-                                enteredFrameNumbers.remove(frameNo);
+                                _purchaseTableAmountCalculation();
+                                widget.addVehicleAndAccessoriesBloc
+                                    .paymentDetailsStreamController(true);
                               },
                               icon: Icon(
                                 Icons.cancel,
@@ -304,7 +301,10 @@ class _EngineAndFrameNumberEntryState extends State<EngineAndFrameNumberEntry> {
 
         enteredEngineNumbers.add(engineNo);
         enteredFrameNumbers.add(frameNo);
-        updateTotalValue();
+
+        _purchaseTableAmountCalculation();
+        widget.addVehicleAndAccessoriesBloc
+            .selectedPurchaseTypeStreamController(true);
       }
     });
   }
@@ -384,18 +384,133 @@ class _EngineAndFrameNumberEntryState extends State<EngineAndFrameNumberEntry> {
 
   void updateTotalValue() {
     double? unitRate = double.tryParse(
-        widget.addVehicleAndAccessoriesBloc.unitRateController.text);
+            widget.addVehicleAndAccessoriesBloc.unitRateController.text) ??
+        0;
     widget.addVehicleAndAccessoriesBloc.paymentDetailsStreamController(true);
     double totalQty =
         widget.addVehicleAndAccessoriesBloc.engineDetailsList.length.toDouble();
+    widget.addVehicleAndAccessoriesBloc
+        .refreshEngineDetailsListStramController(true);
+
     widget.addVehicleAndAccessoriesBloc.paymentDetailsStreamController(true);
-    widget.addVehicleAndAccessoriesBloc.totalValue = (unitRate ?? 0) * totalQty;
+    widget.addVehicleAndAccessoriesBloc.totalValue = (unitRate) * totalQty;
     widget.addVehicleAndAccessoriesBloc.paymentDetailsStreamController(true);
     widget.addVehicleAndAccessoriesBloc.paymentDetailsStreamController(true);
-    widget.addVehicleAndAccessoriesBloc.taxableValue =
-        (unitRate ?? 0) * totalQty;
-    widget.addVehicleAndAccessoriesBloc.invAmount = (unitRate ?? 0) * totalQty;
-    widget.addVehicleAndAccessoriesBloc.totalInvAmount =
-        (unitRate ?? 0) * totalQty;
+    widget.addVehicleAndAccessoriesBloc.taxableValue = (unitRate) * totalQty;
+    widget.addVehicleAndAccessoriesBloc.invAmount = (unitRate) * totalQty;
+    widget.addVehicleAndAccessoriesBloc.totalInvAmount = (unitRate) * totalQty;
+
+    var qty = double.tryParse(widget
+            .addVehicleAndAccessoriesBloc.engineDetailsList.length
+            .toString()) ??
+        0.0;
+
+    var totalValue = qty * unitRate;
+    if (widget.addVehicleAndAccessoriesBloc.selectedPurchaseType ==
+        'Accessories') {
+      totalValue = (int.tryParse(widget
+                  .addVehicleAndAccessoriesBloc.quantityController.text) ??
+              0) *
+          unitRate;
+    }
+    widget.addVehicleAndAccessoriesBloc.totalValue = totalValue;
+    var discount = double.tryParse(
+            widget.addVehicleAndAccessoriesBloc.discountTextController.text) ??
+        0.0;
+    var taxableValue = totalValue - discount;
+    widget.addVehicleAndAccessoriesBloc.taxableValue = taxableValue;
+    var discountPercentage = double.tryParse(
+            widget.addVehicleAndAccessoriesBloc.discountTextController.text) ??
+        0.0;
+    var discountValue = totalValue * (discountPercentage / 100);
+    widget.addVehicleAndAccessoriesBloc.discountValue = discountValue;
+    var tcsValue = double.tryParse(
+            widget.addVehicleAndAccessoriesBloc.tcsvalueTextController.text) ??
+        0.0;
+    double gstAmount = 0.0;
+
+    if (widget.addVehicleAndAccessoriesBloc.selectedGstType == 'GST %') {
+      var cgstPercentage = double.tryParse(widget.addVehicleAndAccessoriesBloc
+              .cgstPresentageTextController.text) ??
+          0.0;
+      var sgstPercentage = double.tryParse(widget.addVehicleAndAccessoriesBloc
+              .cgstPresentageTextController.text) ??
+          0.0;
+      var cgstAmount = taxableValue * (cgstPercentage / 100);
+      var sgstAmount = taxableValue * (sgstPercentage / 100);
+      widget.addVehicleAndAccessoriesBloc.cgstAmount = cgstAmount;
+      widget.addVehicleAndAccessoriesBloc.sgstAmount = sgstAmount;
+      gstAmount = cgstAmount + sgstAmount;
+    } else if (widget.addVehicleAndAccessoriesBloc.selectedGstType ==
+        'IGST %') {
+      var igstPercentage = double.tryParse(widget.addVehicleAndAccessoriesBloc
+              .igstPresentageTextController.text) ??
+          0.0;
+      gstAmount = taxableValue * (igstPercentage / 100);
+    }
+  }
+
+  void _purchaseTableAmountCalculation() {
+    var qty = double.tryParse(widget
+            .addVehicleAndAccessoriesBloc.engineDetailsList.length
+            .toString()) ??
+        0.0;
+    var unitRate = double.tryParse(
+            widget.addVehicleAndAccessoriesBloc.unitRateController.text) ??
+        0.0;
+    var totalValue = qty * unitRate;
+    if (widget.addVehicleAndAccessoriesBloc.selectedPurchaseType ==
+        'Accessories') {
+      totalValue = (int.tryParse(widget
+                  .addVehicleAndAccessoriesBloc.quantityController.text) ??
+              0) *
+          unitRate;
+    }
+    widget.addVehicleAndAccessoriesBloc.totalValue = totalValue;
+    var discount = double.tryParse(
+            widget.addVehicleAndAccessoriesBloc.discountTextController.text) ??
+        0.0;
+    var taxableValue = totalValue - discount;
+    widget.addVehicleAndAccessoriesBloc.taxableValue = taxableValue;
+    var discountPercentage = double.tryParse(
+            widget.addVehicleAndAccessoriesBloc.discountTextController.text) ??
+        0.0;
+    var discountValue = totalValue * (discountPercentage / 100);
+    widget.addVehicleAndAccessoriesBloc.discountValue = discountValue;
+    var tcsValue = double.tryParse(
+            widget.addVehicleAndAccessoriesBloc.tcsvalueTextController.text) ??
+        0.0;
+    double gstAmount = 0.0;
+
+    if (widget.addVehicleAndAccessoriesBloc.selectedGstType == 'GST %') {
+      var cgstPercentage = double.tryParse(widget.addVehicleAndAccessoriesBloc
+              .cgstPresentageTextController.text) ??
+          0.0;
+      var sgstPercentage = double.tryParse(widget.addVehicleAndAccessoriesBloc
+              .cgstPresentageTextController.text) ??
+          0.0;
+      var cgstAmount = taxableValue * (cgstPercentage / 100);
+      var sgstAmount = taxableValue * (sgstPercentage / 100);
+      widget.addVehicleAndAccessoriesBloc.cgstAmount = cgstAmount;
+      widget.addVehicleAndAccessoriesBloc.sgstAmount = sgstAmount;
+      gstAmount = cgstAmount + sgstAmount;
+    } else if (widget.addVehicleAndAccessoriesBloc.selectedGstType ==
+        'IGST %') {
+      var igstPercentage = double.tryParse(widget.addVehicleAndAccessoriesBloc
+              .igstPresentageTextController.text) ??
+          0.0;
+      gstAmount = taxableValue * (igstPercentage / 100);
+    }
+    var invoiceValue = taxableValue + gstAmount;
+    widget.addVehicleAndAccessoriesBloc.invAmount = invoiceValue + tcsValue;
+    var empsIncentive = double.tryParse(widget
+            .addVehicleAndAccessoriesBloc.empsIncentiveTextController.text) ??
+        0.0;
+    var stateIncentive = double.tryParse(widget
+            .addVehicleAndAccessoriesBloc.stateIncentiveTextController.text) ??
+        0.0;
+    var totalIncentive = empsIncentive + stateIncentive;
+    var totalInvoiceAmount = invoiceValue - totalIncentive;
+    widget.addVehicleAndAccessoriesBloc.totalInvAmount = totalInvoiceAmount;
   }
 }

@@ -174,9 +174,8 @@ abstract class AppServiceUtil {
   Future<ParentResponseModel> getPurchasePartNoDetails(
       String? partNo, Function(int) statusCode);
 
-  Future<PurchaseBill> addNewPurchaseDetails(
-      AddPurchaseModel purchaseData, Function(int p1) onSuccessCallBack);
-
+  Future<void> addNewPurchaseDetails(AddPurchaseModel purchaseData,
+      Function(int p1, PurchaseBill response) onSuccessCallBack);
   Future<GetAllCategoryListModel?> getAllCategoryList();
 
   Future<List<GetAllStocksWithoutPaginationModel>?> getAllStockList();
@@ -940,33 +939,24 @@ class AppServiceUtilImpl extends AppServiceUtil {
   }
 
   @override
-  Future<PurchaseBill> addNewPurchaseDetails(
-      AddPurchaseModel purchaseData, Function(int p1) onSuccessCallBack) async {
-    print('*********OBJ********${purchaseData.toJson()}');
-
+  Future<void> addNewPurchaseDetails(AddPurchaseModel purchaseData,
+      Function(int p1, PurchaseBill response) onSuccessCallBack) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var token = prefs.getString('token');
-
-    if (token == null) {
-      throw Exception("Token not found");
-    }
-
     dio.options.headers['Authorization'] = 'Bearer $token';
-    var jsonData = json.encode(purchaseData.toJson());
-    var response = await dio.post(AppUrl.purchase, data: jsonData);
+    var jsonData = json.encode(purchaseData);
 
-    print('*********URL********${AppUrl.purchase}');
-    print('*********RD********${response.data}');
+    var response = await dio.post(AppUrl.purchase, data: jsonData);
     var responseData = response.data;
 
     if (response.statusCode == 200 || response.statusCode == 201) {
-      onSuccessCallBack(response.statusCode!);
+      PurchaseBill purchaseBill =
+          PurchaseBill.fromJson(responseData['result']['purchase']);
+      onSuccessCallBack(response.statusCode ?? 0, purchaseBill);
     } else {
-      onSuccessCallBack(response.statusCode ?? 0);
+      onSuccessCallBack(
+          response.statusCode ?? 0, responseData['result']['purchase']);
     }
-    print(responseData['result']['purchasesWithPage']['content']);
-
-    return responseData['result']['purchasesWithPage']['content'];
   }
 
   @override

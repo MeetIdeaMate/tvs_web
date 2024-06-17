@@ -1049,25 +1049,28 @@ class _AddVehicleAndAccessoriesState extends State<AddVehicleAndAccessories> {
       widget.purchaseBloc.unitRateController.text =
           vehchileById?.unitRate.toString() ?? '';
       // Set GST values
-      // for (var gstDetail in vehchileById?.gstDetails ?? []) {
-      //   if (gstDetail.gstName == 'CGST' || gstDetail.gstName == 'SGST') {
-      //     widget.purchaseBloc.selectedGstType = AppConstants.gstPercent;
-      //     widget.purchaseBloc.gstRadioBtnRefreshStreamController(true);
-      //     widget.purchaseBloc.cgstPresentageTextController.text =
-      //         gstDetail.percentage?.toString() ?? '';
-      //     widget.purchaseBloc.sgstPresentageTextController.text =
-      //         gstDetail.percentage?.toString() ?? '';
-      //     widget.purchaseBloc.gstRadioBtnRefreshStreamController(true);
-      //     widget.purchaseBloc.paymentDetailsStreamController(true);
-      //   } else {
-      //     widget.purchaseBloc.selectedGstType = AppConstants.igstPercent;
-      //     widget.purchaseBloc.gstRadioBtnRefreshStreamController(true);
-      //     widget.purchaseBloc.igstPresentageTextController.text =
-      //         gstDetail.percentage?.toString() ?? '';
-      //     widget.purchaseBloc.gstRadioBtnRefreshStreamController(true);
-      //     widget.purchaseBloc.paymentDetailsStreamController(true);
-      //   }
-      // }
+      for (var gstDetail in vehchileById?.gstDetails ?? []) {
+        if (gstDetail.gstName == 'CGST' || gstDetail.gstName == 'SGST') {
+          widget.purchaseBloc.selectedGstType = AppConstants.gstPercent;
+          widget.purchaseBloc.gstRadioBtnRefreshStreamController(true);
+          widget.purchaseBloc.cgstPresentageTextController.text =
+              gstDetail.percentage?.toString() ?? '';
+          widget.purchaseBloc.sgstPresentageTextController.text =
+              gstDetail.percentage?.toString() ?? '';
+          // _purchaseTableAmountCalculation();
+
+          widget.purchaseBloc.engineDetailsStreamController(true);
+          widget.purchaseBloc.gstRadioBtnRefreshStreamController(true);
+          widget.purchaseBloc.paymentDetailsStreamController(true);
+        } else {
+          widget.purchaseBloc.selectedGstType = AppConstants.igstPercent;
+          widget.purchaseBloc.gstRadioBtnRefreshStreamController(true);
+          widget.purchaseBloc.igstPresentageTextController.text =
+              gstDetail.percentage?.toString() ?? '';
+          widget.purchaseBloc.gstRadioBtnRefreshStreamController(true);
+          widget.purchaseBloc.paymentDetailsStreamController(true);
+        }
+      }
       // Set incentives
       // for (var incentive in vehchileById?.incentives ?? []) {
       //   if (incentive.incentiveName == 'StateIncentive') {
