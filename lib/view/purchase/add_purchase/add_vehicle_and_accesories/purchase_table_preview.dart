@@ -37,24 +37,48 @@ class _PurchaseTablePreviewState extends State<PurchaseTablePreview> {
             ),
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
-              itemCount: 1,
+              itemCount: widget.purchaseBloc.purchaseBillDataList.length,
               itemBuilder: (BuildContext context, int index) {
+                final billData =
+                    widget.purchaseBloc.purchaseBillDataList[index];
                 return Column(
                   children: [
-                    const ListTile(
-                      title: Text('vehicleName'),
-                      subtitle: Text('partNumber'),
+                    ListTile(
+                      title: Text(
+                          billData.vehicleDetails?.first.vehicleName ?? ''),
+                      subtitle:
+                          Text(billData.vehicleDetails?.first.partNo ?? ''),
                     ),
                     Container(
-                        height:
-                            100, // Set a fixed height for the nested ListView
-                        child: DataTable(columns: [], rows: [])),
+                      height: 100, // Set a fixed height for the nested ListView
+                      child: DataTable(
+                        columns: [
+                          DataColumn(label: Text('S.No')),
+                          DataColumn(label: Text('Engine No')),
+                          DataColumn(label: Text('Frame No')),
+                        ],
+                        rows: billData.vehicleDetails?.expand((vehicle) {
+                              return vehicle.engineDetails
+                                  .asMap()
+                                  .entries
+                                  .map((entry) {
+                                final engineDetail = entry.value;
+                                final sNo = entry.key + 1;
+                                return DataRow(cells: [
+                                  DataCell(Text(sNo.toString())),
+                                  DataCell(Text(engineDetail.engineNo)),
+                                  DataCell(Text(engineDetail.frameNo)),
+                                ]);
+                              }).toList();
+                            }).toList() ??
+                            [],
+                      ),
+                    ),
                   ],
                 );
               },
             ),
           ),
-       
         ],
       ),
     );
