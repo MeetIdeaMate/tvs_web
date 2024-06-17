@@ -348,6 +348,10 @@ class AppConstants {
   static const vendorCreate = 'Vendor created';
   static const vendorUpdateSuccessfully = 'Vendor Update  successfully';
   static const vendorCreatedSuccessfully = 'Vendor Create successfully';
+  static const stockUpdatedSuccessfully = 'Stock Updated successfully';
+  static const stockNotCreated = 'Stock Not Created';
+  static const stockUpdatedDesc = 'Stock updated and approved';
+  static const stockErrorDesc = 'Stock Not Updated Something went wrong';
 
   static const purchaseBillEmpty = 'Invoice Data Empty';
   static const purchaseBillDesEmptycerr =

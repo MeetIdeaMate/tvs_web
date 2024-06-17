@@ -28,6 +28,8 @@ abstract class PurchaseViewBloc {
 
   int get currentPage;
   Stream<int> get pageNumberStream;
+  Future<void> createStockFromPurchase(String? purchaseId,
+      List<String>? partNumbersList, Function(int)? statusCode);
 }
 
 class PurchaseViewBlocImpl extends PurchaseViewBloc {
@@ -122,5 +124,12 @@ class PurchaseViewBlocImpl extends PurchaseViewBloc {
 
   pageNumberUpdateStreamController(int streamValue) {
     _pageNumberStreamController.add(streamValue);
+  }
+
+  @override
+  Future<void> createStockFromPurchase(String? purchaseId,
+      List<String>? partNumbersList, Function(int)? statusCode) async {
+    return _apiCalls.createStockFromPurchase(
+        purchaseId, partNumbersList, statusCode);
   }
 }

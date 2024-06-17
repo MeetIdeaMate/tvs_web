@@ -15,6 +15,7 @@ import 'package:tlbilling/view/purchase/purchase_view_bloc.dart';
 import 'package:tlbilling/view/purchase/vehicle_details_dialog.dart';
 import 'package:tlds_flutter/components/tlds_input_form_field.dart';
 import 'package:tlds_flutter/util/app_colors.dart';
+import 'package:toastification/toastification.dart';
 
 class PurchaseView extends StatefulWidget {
   const PurchaseView({super.key});
@@ -271,6 +272,7 @@ class _PurchaseViewState extends State<PurchaseView>
                             _buildVehicleTableHeader(AppConstants.branchName),
                             _buildVehicleTableHeader(
                                 AppConstants.totalInvAmount),
+                            _buildVehicleTableHeader(AppConstants.status),
                             _buildVehicleTableHeader(AppConstants.print),
                             _buildVehicleTableHeader(AppConstants.action),
                           ],
@@ -289,13 +291,32 @@ class _PurchaseViewState extends State<PurchaseView>
                                 _buildTableRow(AppUtils.apiToAppDateFormat(
                                     entry.value.pInvoiceDate.toString())),
                                 _buildTableRow(entry.value.vendorName),
-                                _buildTableRow(entry.value.itemDetails?.length.toString()),
+                                _buildTableRow(
+                                    entry.value.itemDetails?.length.toString()),
                                 _buildTableRow(
                                     entry.value.branchName.toString()),
                                 _buildTableRow(AppUtils.formatCurrency(entry
                                         .value.finalTotalInvoiceAmount
                                         ?.toDouble() ??
                                     0.0)),
+                                DataCell(Chip(
+                                    backgroundColor:
+                                        entry.value.stockUpdated == true
+                                            ? _appColors.successLightColor
+                                            : _appColors.errorLightColor,
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(50)),
+                                    label: Text(
+                                      entry.value.stockUpdated == true
+                                          ? 'Aproved'
+                                          : 'Not Approved',
+                                      style: TextStyle(
+                                          color:
+                                              entry.value.stockUpdated == true
+                                                  ? _appColors.successColor
+                                                  : _appColors.errorColor),
+                                    ))),
                                 DataCell(IconButton(
                                     onPressed: () {
                                       showDialog(
@@ -388,10 +409,14 @@ class _PurchaseViewState extends State<PurchaseView>
               value: 'option2',
               child: Text('Re-Entry'),
             ),
-            // const PopupMenuItem(
-            //   value: 'option3',
-            //   child: Text('Print'),
-            // ),
+            const PopupMenuItem(
+              value: 'option3',
+              child: Text('Cancel'),
+            ),
+            const PopupMenuItem(
+              value: 'option4',
+              child: Text('Approve'),
+            ),
           ],
           onSelected: (value) {
             switch (value) {
@@ -410,39 +435,145 @@ class _PurchaseViewState extends State<PurchaseView>
                 break;
               case 'option2':
                 break;
-              // case 'option3':
-              //   showDialog(
-              //     context: context,
-              //     builder: (context) {
-              //       return AlertDialog(
-              //           surfaceTintColor: AppColor().whiteColor,
-              //           shape: RoundedRectangleBorder(
-              //               borderRadius: BorderRadius.circular(10)),
-              //           content: Column(
-              //             mainAxisSize: MainAxisSize.min,
-              //             children: [
-              //               Icon(
-              //                 Icons.downloading_rounded,
-              //                 color: AppColor().successColor,
-              //                 size: 50,
-              //               ),
-              //               AppWidgetUtils.buildSizedBox(custHeight: 10),
-              //               const Text(
-              //                 'Are you sure you want print invoice ?',
-              //                 style: TextStyle(fontSize: 20),
-              //               )
-              //             ],
-              //           ),
-              //           actions: [
-              //             CustomActionButtons(
-              //                 onPressed: () {
-              //                   PurchaseInvoicePrint()
-              //                       .printDocument(entry.value);
-              //                 },
-              //                 buttonText: AppConstants.print),
-              //           ]);
-              //     },
-              //   );
+              case 'option3':
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return AlertDialog(
+                        surfaceTintColor: AppColor().whiteColor,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10)),
+                        content: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.cancel,
+                              color: AppColor().errorColor,
+                              size: 50,
+                            ),
+                            AppWidgetUtils.buildSizedBox(custHeight: 10),
+                            const Text(
+                              'Are you sure you want to Cancel the purchase bill',
+                              style: TextStyle(fontSize: 20),
+                            )
+                          ],
+                        ),
+                        actions: [
+                          CustomActionButtons(
+                              onPressed: () {
+                                List<String> _partNumbersList = [];
+                                for (ItemDetail itemDetails
+                                    in entry.value.itemDetails ?? []) {
+                                  _partNumbersList
+                                      .add(itemDetails.partNo ?? '');
+                                }
+                                print(
+                                    '**************Partno list : $_partNumbersList');
+                                _purchaseViewBloc.createStockFromPurchase(
+                                    entry.value.purchaseId, _partNumbersList,
+                                    (statusCode) {
+                                  if (statusCode == 200 || statusCode == 201) {
+                                    AppWidgetUtils.buildToast(
+                                        context,
+                                        ToastificationType.success,
+                                        AppConstants.stockUpdatedSuccessfully,
+                                        Icon(
+                                          Icons.check_circle_outline_rounded,
+                                          color: _appColors.successColor,
+                                        ),
+                                        AppConstants.stockUpdatedDesc,
+                                        _appColors.successLightColor);
+                                  } else {
+                                    AppWidgetUtils.buildToast(
+                                        context,
+                                        ToastificationType.error,
+                                        AppConstants.stockNotCreated,
+                                        Icon(
+                                          Icons.error_outline_outlined,
+                                          color: _appColors.errorColor,
+                                        ),
+                                        AppConstants.stockErrorDesc,
+                                        _appColors.errorLightColor);
+                                  }
+                                });
+                              },
+                              buttonText: AppConstants.print),
+                        ]);
+                  },
+                );
+
+                break;
+              case 'option4':
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return AlertDialog(
+                        surfaceTintColor: AppColor().whiteColor,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10)),
+                        content: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.cloud_done,
+                              color: AppColor().successColor,
+                              size: 50,
+                            ),
+                            AppWidgetUtils.buildSizedBox(custHeight: 10),
+                            const Text(
+                              'Are you sure you want to Approve and move to stock',
+                              style: TextStyle(fontSize: 20),
+                            )
+                          ],
+                        ),
+                        actions: [
+                          CustomActionButtons(
+                              onPressed: () {
+                                List<String> _partNumbersList = [];
+                                for (ItemDetail itemDetails
+                                    in entry.value.itemDetails ?? []) {
+                                  _partNumbersList
+                                      .add(itemDetails.partNo ?? '');
+                                }
+                                print(
+                                    '**************Partno list : $_partNumbersList');
+                                _purchaseViewBloc.createStockFromPurchase(
+                                    entry.value.purchaseId, _partNumbersList,
+                                    (statusCode) {
+                                  if (statusCode == 200 || statusCode == 201) {
+                                    Navigator.pop(context);
+                                    AppWidgetUtils.buildToast(
+                                        context,
+                                        ToastificationType.success,
+                                        AppConstants.stockUpdatedSuccessfully,
+                                        Icon(
+                                          Icons.check_circle_outline_rounded,
+                                          color: _appColors.successColor,
+                                        ),
+                                        AppConstants.stockUpdatedDesc,
+                                        _appColors.successLightColor);
+                                  } else {
+                                    AppWidgetUtils.buildToast(
+                                        context,
+                                        ToastificationType.error,
+                                        AppConstants.stockNotCreated,
+                                        Icon(
+                                          Icons.error_outline_outlined,
+                                          color: _appColors.errorColor,
+                                        ),
+                                        AppConstants.stockErrorDesc,
+                                        _appColors.errorLightColor);
+                                  }
+                                }).then((value) {
+                                  _purchaseViewBloc.getAllPurchaseList();
+                                  _purchaseViewBloc
+                                      .pageNumberUpdateStreamController(0);
+                                });
+                              },
+                              buttonText: AppConstants.save),
+                        ]);
+                  },
+                );
             }
           },
         ),

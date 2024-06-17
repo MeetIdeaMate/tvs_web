@@ -379,24 +379,21 @@ class _PurchaseTableState extends State<PurchaseTable> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Visibility(
-          visible: false,
-          child: CustomElevatedButton(
-            text: AppConstants.preview,
-            fontSize: 16,
-            buttonBackgroundColor: _appColors.primaryColor,
-            fontColor: _appColors.whiteColor,
-            onPressed: () {
-              Navigator.push(
-                  context,
-                  PageRouteBuilder(
-                    pageBuilder: (context, animation, secondaryAnimation) =>
-                        PurchaseTablePreview(
-                      purchaseBloc: widget.purchaseBloc,
-                    ),
-                  ));
-            },
-          ),
+        CustomElevatedButton(
+          text: AppConstants.preview,
+          fontSize: 16,
+          buttonBackgroundColor: _appColors.primaryColor,
+          fontColor: _appColors.whiteColor,
+          onPressed: () {
+            Navigator.push(
+                context,
+                PageRouteBuilder(
+                  pageBuilder: (context, animation, secondaryAnimation) =>
+                      PurchaseTablePreview(
+                    purchaseBloc: widget.purchaseBloc,
+                  ),
+                ));
+          },
         ),
         CustomActionButtons(
             onPressed: () {
@@ -631,6 +628,8 @@ class _PurchaseTableState extends State<PurchaseTable> {
       widget.purchaseBloc.paymentDetailsStreamController(true);
       widget.purchaseBloc.engineDetailsStreamController(true);
       // widget.purchaseBloc.discountValue = data.discountValue;
+      widget.purchaseBloc.discountTextController.text =
+          (data.discountValue ?? 0).toString();
       widget.purchaseBloc.paymentDetailsStreamController(true);
       widget.purchaseBloc.engineDetailsStreamController(true);
       widget.purchaseBloc.taxableValue = data.taxableValue;
@@ -641,16 +640,16 @@ class _PurchaseTableState extends State<PurchaseTable> {
       widget.purchaseBloc.engineDetailsStreamController(true);
       widget.purchaseBloc.sgstAmount = data.sgstAmount;
       widget.purchaseBloc.tcsvalueTextController.text =
-          data.tcsValue.toString();
+          (data.tcsValue ?? 0).toString();
       widget.purchaseBloc.invAmount = data.invoiceValue;
       widget.purchaseBloc.paymentDetailsStreamController(true);
       widget.purchaseBloc.engineDetailsStreamController(true);
       widget.purchaseBloc.stateIncentiveTextController.text =
-          data.stateIncentive.toString();
+          (data.stateIncentive ?? 0).toString();
       widget.purchaseBloc.paymentDetailsStreamController(true);
       widget.purchaseBloc.engineDetailsStreamController(true);
       widget.purchaseBloc.empsIncentiveTextController.text =
-          data.empsIncentive.toString();
+          (data.empsIncentive ?? 0.0).toString();
       widget.purchaseBloc.paymentDetailsStreamController(true);
       widget.purchaseBloc.totalInvAmount = data.totalInvoiceValue;
       widget.purchaseBloc.paymentDetailsStreamController(true);
