@@ -267,36 +267,8 @@ class _EngineAndFrameNumberEntryState extends State<EngineAndFrameNumberEntry> {
       isDuplicate = true;
     }
 
-    // Check for duplicates
-    if (isDuplicate) {
-      showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            backgroundColor: _appColors.whiteColor,
-            surfaceTintColor: _appColors.whiteColor,
-            contentPadding: const EdgeInsets.all(10),
-            title: const Text('Duplicate Entry'),
-            content:
-                const Text('Engine number or Frame number already exists.'),
-            actions: <Widget>[
-              TextButton(
-                child: const Text('OK'),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-            ],
-          );
-        },
-      );
-      return; // Stop further execution
-    }
-
-    // Perform purchase validation
     widget.addVehicleAndAccessoriesBloc.purchaseValidate().then((value) {
-      if (value) {
-        // If validation fails (duplicate entry detected)
+      if (isDuplicate || value) {
         showDialog(
           context: context,
           builder: (context) {
@@ -319,7 +291,6 @@ class _EngineAndFrameNumberEntryState extends State<EngineAndFrameNumberEntry> {
           },
         );
       } else {
-        // If validation succeeds (no duplicate), proceed with adding to list and clearing fields
         widget.addVehicleAndAccessoriesBloc.engineDetailsList.add(
           EngineDetails(engineNo: engineNo, frameNo: frameNo),
         );
@@ -414,9 +385,12 @@ class _EngineAndFrameNumberEntryState extends State<EngineAndFrameNumberEntry> {
   void updateTotalValue() {
     double? unitRate = double.tryParse(
         widget.addVehicleAndAccessoriesBloc.unitRateController.text);
+    widget.addVehicleAndAccessoriesBloc.paymentDetailsStreamController(true);
     double totalQty =
         widget.addVehicleAndAccessoriesBloc.engineDetailsList.length.toDouble();
+    widget.addVehicleAndAccessoriesBloc.paymentDetailsStreamController(true);
     widget.addVehicleAndAccessoriesBloc.totalValue = (unitRate ?? 0) * totalQty;
+    widget.addVehicleAndAccessoriesBloc.paymentDetailsStreamController(true);
     widget.addVehicleAndAccessoriesBloc.paymentDetailsStreamController(true);
     widget.addVehicleAndAccessoriesBloc.taxableValue =
         (unitRate ?? 0) * totalQty;

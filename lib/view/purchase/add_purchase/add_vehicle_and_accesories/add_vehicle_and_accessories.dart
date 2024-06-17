@@ -312,7 +312,7 @@ class _AddVehicleAndAccessoriesState extends State<AddVehicleAndAccessories> {
                             .purchaseBloc.empsIncentiveTextController.text);
 
                         widget.purchaseBloc.totalInvAmount =
-                            (widget.purchaseBloc.totalInvAmount ?? 0) -
+                            (widget.purchaseBloc.invAmount ?? 0) -
                                 (empsIncValue ?? 0);
 
                         widget.purchaseBloc
@@ -333,7 +333,7 @@ class _AddVehicleAndAccessoriesState extends State<AddVehicleAndAccessories> {
                             .purchaseBloc.stateIncentiveTextController.text);
 
                         widget.purchaseBloc.totalInvAmount =
-                            (widget.purchaseBloc.totalInvAmount ?? 0) -
+                            (widget.purchaseBloc.invAmount ?? 0) -
                                 (stateIncValue ?? 0);
 
                         widget.purchaseBloc
@@ -765,13 +765,8 @@ class _AddVehicleAndAccessoriesState extends State<AddVehicleAndAccessories> {
           hintText: AppConstants.rupeeHint,
           controller: widget.purchaseBloc.unitRateController,
           onChanged: (unitPrice) {
-            widget.purchaseBloc.totalValue =
-                double.tryParse(widget.purchaseBloc.unitRateController.text);
+            _purchaseTableAmountCalculation();
             widget.purchaseBloc.paymentDetailsStreamController(true);
-          },
-          onSubmit: (p0) {
-            FocusScope.of(context)
-                .requestFocus(widget.purchaseBloc.vehiceNameFocusNode);
           },
         ),
       ],
@@ -866,22 +861,46 @@ class _AddVehicleAndAccessoriesState extends State<AddVehicleAndAccessories> {
             totalInvoiceValue: widget.purchaseBloc.totalInvAmount,
             totalValue: widget.purchaseBloc.totalValue!,
             igstAmount: widget.purchaseBloc.igstAmount,
-            discountPresentage: double.tryParse(
-                widget.purchaseBloc.discountTextController.text),
-            discountValue:double.tryParse( widget.purchaseBloc.discountTextController.text),
-            cgstPercentage: double.tryParse(
-                widget.purchaseBloc.cgstPresentageTextController.text),
-            sgstPercentage: double.tryParse(
-                widget.purchaseBloc.cgstPresentageTextController.text),
-            igstPercentage: double.tryParse(
-                widget.purchaseBloc.igstPresentageTextController.text),
-            empsIncentive: double.tryParse(
-                widget.purchaseBloc.empsIncentiveTextController.text),
+            // discountPresentage:
+            // widget.purchaseBloc.discountTextController.text.isEmpty
+            //     ? double.tryParse(
+            //         widget.purchaseBloc.discountTextController.text)
+            //     : 0,
+            discountValue:
+                widget.purchaseBloc.discountTextController.text.isNotEmpty
+                    ? double.tryParse(
+                        widget.purchaseBloc.discountTextController.text)
+                    : 0,
+            cgstPercentage:
+                widget.purchaseBloc.cgstPresentageTextController.text.isNotEmpty
+                    ? double.tryParse(
+                        widget.purchaseBloc.cgstPresentageTextController.text)
+                    : 0,
+            sgstPercentage:
+                widget.purchaseBloc.cgstPresentageTextController.text.isNotEmpty
+                    ? double.tryParse(
+                        widget.purchaseBloc.cgstPresentageTextController.text)
+                    : 0,
+            igstPercentage:
+                widget.purchaseBloc.igstPresentageTextController.text.isNotEmpty
+                    ? double.tryParse(
+                        widget.purchaseBloc.igstPresentageTextController.text)
+                    : 0,
+            empsIncentive:
+                widget.purchaseBloc.empsIncentiveTextController.text.isNotEmpty
+                    ? double.tryParse(
+                        widget.purchaseBloc.empsIncentiveTextController.text)
+                    : 0,
             gstType: widget.purchaseBloc.selectedGstType,
-            stateIncentive: double.tryParse(
-                widget.purchaseBloc.stateIncentiveTextController.text),
-            tcsValue: double.tryParse(
-                widget.purchaseBloc.tcsvalueTextController.text),
+            stateIncentive:
+                widget.purchaseBloc.stateIncentiveTextController.text.isNotEmpty
+                    ? double.tryParse(
+                        widget.purchaseBloc.stateIncentiveTextController.text)
+                    : 0,
+            tcsValue: widget.purchaseBloc.tcsvalueTextController.text.isNotEmpty
+                ? double.tryParse(
+                    widget.purchaseBloc.tcsvalueTextController.text)
+                : 0,
             partNo: widget.purchaseBloc.partNumberController.text,
             vehicleName: widget.purchaseBloc.vehicleNameTextController.text,
             hsnCode: int.tryParse(widget.purchaseBloc.hsnCodeController.text),
@@ -1127,12 +1146,23 @@ class _AddVehicleAndAccessoriesState extends State<AddVehicleAndAccessories> {
   void updateTotalValue() {
     double? unitRate =
         double.tryParse(widget.purchaseBloc.unitRateController.text);
+    widget.purchaseBloc.engineDetailsStreamController(true);
+    widget.purchaseBloc.gstRadioBtnRefreshStreamController(true);
+    widget.purchaseBloc.paymentDetailsStreamController(true);
     double? totalQty =
         double.tryParse(widget.purchaseBloc.quantityController.text);
+    widget.purchaseBloc.engineDetailsStreamController(true);
+    widget.purchaseBloc.gstRadioBtnRefreshStreamController(true);
+
     widget.purchaseBloc.totalValue = (unitRate ?? 0) * (totalQty ?? 0);
-    widget.purchaseBloc.paymentDetailsStreamController(true);
+
     widget.purchaseBloc.taxableValue = (unitRate ?? 0) * (totalQty ?? 0);
+
     widget.purchaseBloc.invAmount = (unitRate ?? 0) * (totalQty ?? 0);
+
     widget.purchaseBloc.totalInvAmount = (unitRate ?? 0) * (totalQty ?? 0);
+    widget.purchaseBloc.paymentDetailsStreamController(true);
+    widget.purchaseBloc.engineDetailsStreamController(true);
+    widget.purchaseBloc.gstRadioBtnRefreshStreamController(true);
   }
 }
