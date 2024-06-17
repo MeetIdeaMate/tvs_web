@@ -188,6 +188,8 @@ abstract class AppServiceUtil {
 
   Future<void> createStockFromPurchase(String? purchaseId,
       List<String>? partNumbersList, Function(int)? statusCode);
+  Future<void> purchaseBillCancel(
+      String? purchaseId, Function(int p1)? onSuccessCallback);
 }
 
 class AppServiceUtilImpl extends AppServiceUtil {
@@ -1179,6 +1181,21 @@ class AppServiceUtilImpl extends AppServiceUtil {
     );
     if (statusCode != null) {
       statusCode(response.statusCode ?? 0);
+    }
+  }
+
+  @override
+  Future<void> purchaseBillCancel(
+      String? purchaseId, Function(int p1)? onSuccessCallback) async {
+    final dio = Dio();
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var token = prefs.getString('token');
+    dio.options.headers['Authorization'] = 'Bearer $token';
+    var response = await dio.patch(
+      '${AppUrl.purchaseCancel}$purchaseId',
+    );
+    if (onSuccessCallback != null) {
+      onSuccessCallback(response.statusCode ?? 0);
     }
   }
 }

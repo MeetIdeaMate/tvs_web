@@ -14,6 +14,7 @@ class AppConstants {
   static const deleteMsg = 'Are you Sure you want to delete the employee?';
   static const hasiniTvs = 'HASINI TVS';
   static const noData = 'No data';
+  static const submit = 'Submit';
   static const ttfPoppinsRegular = 'fonts/ttf_poppins_regular.ttf';
 
   //SharedPreference
@@ -427,6 +428,10 @@ class AppConstants {
   static const loan = 'loan';
   static const partPayment = 'part payment';
 
+  static const String approved = 'Approved';
+  static const String approve = 'Approve';
+  static const String notApproved = 'Not Approved';
+
   //Purchase Validation ErrorMessage
   static const selectVendorName = 'Please Select Vendor Name';
   static const enterInvoiceNo = 'Please Enter Invoice No';
@@ -470,4 +475,24 @@ class AppConstants {
   static const String stateIncentiveSix = '(vi)';
   static const String totalInvoiceAmount = 'Total Invoice Amount';
   static const String totalInvoiceAmountCal = 'iv - (v+vi)';
+
+  static const String cancelDialogMessage =
+      'Are you sure you want to Cancel the purchase bill';
+  static const String purchaseCancelSuccess =
+      'The Purchase bill canceled successfully';
+  static const String purchaseCancelSuccessDesc = 'The Purchase bill canceled';
+  static const String purchaseCancelError = 'The Purchase bill Not Canceled';
+  static const String purchaseCancelErrorDesc =
+      'The Purchase bill Not Canceled something went wrong';
+
+  static const String purchaseApproveDialogMessage =
+      'Are you sure you want to Approve and move to stock';
+
+  static const String purchaseApproveSuccess =
+      'The Purchase bill Approved successfully';
+  static const String purchaseApproveSuccessDesc = 'The Purchase bill Approved';
+  static const String printInvoice = 'Are you sure you want print invoice ?';
+  static const String purchaseApproveError = 'The Purchase bill Not Approved';
+  static const String purchaseApproveErrorDesc =
+      'The Purchase bill Not Approved something went wrong';
 }

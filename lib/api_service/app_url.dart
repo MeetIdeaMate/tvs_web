@@ -25,5 +25,6 @@ class AppUrl {
   static const purchaseByPartNo = '${baseUrl}purchase/ByPartNo/';
   static const category = '${baseUrl}category/page?page=0&size=10';
   static const stock = '${baseUrl}stock';
+  static const purchaseCancel = '${baseUrl}purchase/cancel/';
   static const purchaseValidate = '${baseUrl}purchase/validate?partNo=';
 }

@@ -30,6 +30,9 @@ abstract class PurchaseViewBloc {
   Stream<int> get pageNumberStream;
   Future<void> createStockFromPurchase(String? purchaseId,
       List<String>? partNumbersList, Function(int)? statusCode);
+
+  Future<void> purchaseBillCancel(
+      String? purchaseId, Function(int)? onSuccessCallback);
 }
 
 class PurchaseViewBlocImpl extends PurchaseViewBloc {
@@ -131,5 +134,11 @@ class PurchaseViewBlocImpl extends PurchaseViewBloc {
       List<String>? partNumbersList, Function(int)? statusCode) async {
     return _apiCalls.createStockFromPurchase(
         purchaseId, partNumbersList, statusCode);
+  }
+
+  @override
+  Future<void> purchaseBillCancel(
+      String? purchaseId, Function(int p1)? onSuccessCallback) async {
+    return await _apiCalls.purchaseBillCancel(purchaseId, onSuccessCallback);
   }
 }

@@ -160,7 +160,6 @@ class _PurchaseViewState extends State<PurchaseView>
       suffixIcon: IconButton(
         onPressed: iconData == Icons.search
             ? () {
-                //add search cont here
                 _checkController(hintText);
               }
             : () {
@@ -173,7 +172,6 @@ class _PurchaseViewState extends State<PurchaseView>
         ),
       ),
       onSubmit: (p0) {
-        //add search cont here
         _checkController(hintText);
       },
     );
@@ -238,11 +236,9 @@ class _PurchaseViewState extends State<PurchaseView>
             switch (
                 _purchaseViewBloc.vehicleAndAccessoriesTabController.index) {
               case 0:
-                return 'vehicle';
-
+                return AppConstants.vehicle;
               case 1:
-                return 'Accessories';
-
+                return AppConstants.accessories;
               default:
                 return '';
             }
@@ -300,22 +296,23 @@ class _PurchaseViewState extends State<PurchaseView>
                                         ?.toDouble() ??
                                     0.0)),
                                 DataCell(Chip(
-                                    backgroundColor:
-                                        entry.value.stockUpdated == true
-                                            ? _appColors.successLightColor
-                                            : _appColors.errorLightColor,
+                                    side: BorderSide(
+                                        color: entry.value.stockUpdated == true
+                                            ? _appColors.successColor
+                                            : _appColors.yellowColor),
+                                    backgroundColor: _appColors.whiteColor,
                                     shape: RoundedRectangleBorder(
                                         borderRadius:
                                             BorderRadius.circular(50)),
                                     label: Text(
                                       entry.value.stockUpdated == true
-                                          ? 'Aproved'
-                                          : 'Not Approved',
+                                          ? AppConstants.approved
+                                          : AppConstants.pending,
                                       style: TextStyle(
                                           color:
                                               entry.value.stockUpdated == true
                                                   ? _appColors.successColor
-                                                  : _appColors.errorColor),
+                                                  : _appColors.yellowColor),
                                     ))),
                                 DataCell(IconButton(
                                     onPressed: () {
@@ -341,7 +338,7 @@ class _PurchaseViewState extends State<PurchaseView>
                                                   AppWidgetUtils.buildSizedBox(
                                                       custHeight: 10),
                                                   const Text(
-                                                    'Are you sure you want print invoice ?',
+                                                    AppConstants.printInvoice,
                                                     style:
                                                         TextStyle(fontSize: 20),
                                                   )
@@ -439,66 +436,7 @@ class _PurchaseViewState extends State<PurchaseView>
                 showDialog(
                   context: context,
                   builder: (context) {
-                    return AlertDialog(
-                        surfaceTintColor: AppColor().whiteColor,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10)),
-                        content: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.cancel,
-                              color: AppColor().errorColor,
-                              size: 50,
-                            ),
-                            AppWidgetUtils.buildSizedBox(custHeight: 10),
-                            const Text(
-                              'Are you sure you want to Cancel the purchase bill',
-                              style: TextStyle(fontSize: 20),
-                            )
-                          ],
-                        ),
-                        actions: [
-                          CustomActionButtons(
-                              onPressed: () {
-                                List<String> _partNumbersList = [];
-                                for (ItemDetail itemDetails
-                                    in entry.value.itemDetails ?? []) {
-                                  _partNumbersList
-                                      .add(itemDetails.partNo ?? '');
-                                }
-                                print(
-                                    '**************Partno list : $_partNumbersList');
-                                _purchaseViewBloc.createStockFromPurchase(
-                                    entry.value.purchaseId, _partNumbersList,
-                                    (statusCode) {
-                                  if (statusCode == 200 || statusCode == 201) {
-                                    AppWidgetUtils.buildToast(
-                                        context,
-                                        ToastificationType.success,
-                                        AppConstants.stockUpdatedSuccessfully,
-                                        Icon(
-                                          Icons.check_circle_outline_rounded,
-                                          color: _appColors.successColor,
-                                        ),
-                                        AppConstants.stockUpdatedDesc,
-                                        _appColors.successLightColor);
-                                  } else {
-                                    AppWidgetUtils.buildToast(
-                                        context,
-                                        ToastificationType.error,
-                                        AppConstants.stockNotCreated,
-                                        Icon(
-                                          Icons.error_outline_outlined,
-                                          color: _appColors.errorColor,
-                                        ),
-                                        AppConstants.stockErrorDesc,
-                                        _appColors.errorLightColor);
-                                  }
-                                });
-                              },
-                              buttonText: AppConstants.print),
-                        ]);
+                    return _showCancelDialog(entry);
                   },
                 );
 
@@ -507,71 +445,7 @@ class _PurchaseViewState extends State<PurchaseView>
                 showDialog(
                   context: context,
                   builder: (context) {
-                    return AlertDialog(
-                        surfaceTintColor: AppColor().whiteColor,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10)),
-                        content: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.cloud_done,
-                              color: AppColor().successColor,
-                              size: 50,
-                            ),
-                            AppWidgetUtils.buildSizedBox(custHeight: 10),
-                            const Text(
-                              'Are you sure you want to Approve and move to stock',
-                              style: TextStyle(fontSize: 20),
-                            )
-                          ],
-                        ),
-                        actions: [
-                          CustomActionButtons(
-                              onPressed: () {
-                                List<String> _partNumbersList = [];
-                                for (ItemDetail itemDetails
-                                    in entry.value.itemDetails ?? []) {
-                                  _partNumbersList
-                                      .add(itemDetails.partNo ?? '');
-                                }
-                                print(
-                                    '**************Partno list : $_partNumbersList');
-                                _purchaseViewBloc.createStockFromPurchase(
-                                    entry.value.purchaseId, _partNumbersList,
-                                    (statusCode) {
-                                  if (statusCode == 200 || statusCode == 201) {
-                                    Navigator.pop(context);
-                                    AppWidgetUtils.buildToast(
-                                        context,
-                                        ToastificationType.success,
-                                        AppConstants.stockUpdatedSuccessfully,
-                                        Icon(
-                                          Icons.check_circle_outline_rounded,
-                                          color: _appColors.successColor,
-                                        ),
-                                        AppConstants.stockUpdatedDesc,
-                                        _appColors.successLightColor);
-                                  } else {
-                                    AppWidgetUtils.buildToast(
-                                        context,
-                                        ToastificationType.error,
-                                        AppConstants.stockNotCreated,
-                                        Icon(
-                                          Icons.error_outline_outlined,
-                                          color: _appColors.errorColor,
-                                        ),
-                                        AppConstants.stockErrorDesc,
-                                        _appColors.errorLightColor);
-                                  }
-                                }).then((value) {
-                                  _purchaseViewBloc.getAllPurchaseList();
-                                  _purchaseViewBloc
-                                      .pageNumberUpdateStreamController(0);
-                                });
-                              },
-                              buttonText: AppConstants.save),
-                        ]);
+                    return _showApproveDialog(entry, context);
                   },
                 );
             }
@@ -579,6 +453,123 @@ class _PurchaseViewState extends State<PurchaseView>
         ),
       ],
     );
+  }
+
+  Widget _showCancelDialog(MapEntry<int, PurchaseBill> entry) {
+    return AlertDialog(
+        surfaceTintColor: AppColor().whiteColor,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.cancel,
+              color: AppColor().errorColor,
+              size: 50,
+            ),
+            AppWidgetUtils.buildSizedBox(custHeight: 10),
+            const Text(
+              AppConstants.cancelDialogMessage,
+              style: TextStyle(fontSize: 20),
+            )
+          ],
+        ),
+        actions: [
+          CustomActionButtons(
+              onPressed: () {
+                _purchaseViewBloc.purchaseBillCancel(entry.value.purchaseId,
+                    (statusCode) {
+                  if (statusCode == 200 || statusCode == 201) {
+                    Navigator.pop(context);
+                    AppWidgetUtils.buildToast(
+                        context,
+                        ToastificationType.success,
+                        AppConstants.purchaseCancelSuccess,
+                        Icon(
+                          Icons.check_circle_outline_rounded,
+                          color: _appColors.successColor,
+                        ),
+                        AppConstants.purchaseCancelSuccessDesc,
+                        _appColors.successLightColor);
+                    _purchaseViewBloc.getAllPurchaseList();
+                    _purchaseViewBloc.pageNumberUpdateStreamController(0);
+                  } else {
+                    AppWidgetUtils.buildToast(
+                        context,
+                        ToastificationType.error,
+                        AppConstants.purchaseCancelError,
+                        Icon(
+                          Icons.error_outline_outlined,
+                          color: _appColors.errorColor,
+                        ),
+                        AppConstants.purchaseCancelErrorDesc,
+                        _appColors.errorLightColor);
+                  }
+                });
+              },
+              buttonText: AppConstants.cancel),
+        ]);
+  }
+
+  Widget _showApproveDialog(
+      MapEntry<int, PurchaseBill> entry, BuildContext context) {
+    return AlertDialog(
+        surfaceTintColor: AppColor().whiteColor,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.cloud_done,
+              color: AppColor().successColor,
+              size: 50,
+            ),
+            AppWidgetUtils.buildSizedBox(custHeight: 10),
+            const Text(
+              AppConstants.purchaseApproveDialogMessage,
+              style: TextStyle(fontSize: 20),
+            )
+          ],
+        ),
+        actions: [
+          CustomActionButtons(
+              onPressed: () {
+                List<String> _partNumbersList = [];
+                for (ItemDetail itemDetails in entry.value.itemDetails ?? []) {
+                  _partNumbersList.add(itemDetails.partNo ?? '');
+                }
+                _purchaseViewBloc.createStockFromPurchase(
+                    entry.value.purchaseId, _partNumbersList, (statusCode) {
+                  if (statusCode == 200 || statusCode == 201) {
+                    Navigator.pop(context);
+                    AppWidgetUtils.buildToast(
+                        context,
+                        ToastificationType.success,
+                        AppConstants.stockUpdatedSuccessfully,
+                        Icon(
+                          Icons.check_circle_outline_rounded,
+                          color: _appColors.successColor,
+                        ),
+                        AppConstants.stockUpdatedDesc,
+                        _appColors.successLightColor);
+                    _purchaseViewBloc.getAllPurchaseList();
+                    _purchaseViewBloc.pageNumberUpdateStreamController(0);
+                  } else {
+                    AppWidgetUtils.buildToast(
+                        context,
+                        ToastificationType.error,
+                        AppConstants.stockNotCreated,
+                        Icon(
+                          Icons.error_outline_outlined,
+                          color: _appColors.errorColor,
+                        ),
+                        AppConstants.stockErrorDesc,
+                        _appColors.errorLightColor);
+                  }
+                });
+              },
+              buttonText: AppConstants.approve),
+        ]);
   }
 
   DataCell _buildTableRow(String? text) => DataCell(Text(
