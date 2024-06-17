@@ -89,9 +89,8 @@ abstract class AddVehicleAndAccessoriesBloc {
   bool get isDiscountChecked;
   Future<ParentResponseModel> getPurchasePartNoDetails(
       Function(int) statusCode);
-  Future<PurchaseBill> addNewPurchaseDetails(
-      AddPurchaseModel purchaseData, Function(int) onSuccessCallBack);
-
+  Future<void> addNewPurchaseDetails(AddPurchaseModel purchaseData,
+      Function(int p1, PurchaseBill response) onSuccessCallBack);
   String? get selectedVendorId;
   double? get totalValue;
   double? get cgstAmount;
@@ -422,8 +421,8 @@ class AddVehicleAndAccessoriesBlocImpl extends AddVehicleAndAccessoriesBloc {
   FocusNode get vehiceNameFocusNode => _vehicleNameFocusNode;
 
   @override
-  Future<PurchaseBill> addNewPurchaseDetails(
-      AddPurchaseModel purchaseData, Function(int p1) onSuccessCallBack) async {
+  Future<void> addNewPurchaseDetails(AddPurchaseModel purchaseData,
+      Function(int p1, PurchaseBill response) onSuccessCallBack) async {
     return await _apiServices.addNewPurchaseDetails(
         purchaseData, onSuccessCallBack);
   }

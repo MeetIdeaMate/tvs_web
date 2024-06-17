@@ -82,6 +82,7 @@ class _PurchaseTableState extends State<PurchaseTable> {
         }
         final totals =
             _calculateTotals(widget.purchaseBloc.purchaseBillDataList);
+
         return Expanded(
           child: SingleChildScrollView(
             scrollDirection: Axis.horizontal,
@@ -91,7 +92,7 @@ class _PurchaseTableState extends State<PurchaseTable> {
                 key: UniqueKey(),
                 dividerThickness: 0.01,
                 columns: [
-                  _buildVehicleTableHeader(AppConstants.sno),
+                  _buildVehicleTableHeader(AppConstants.sno), // S.No column
                   _buildVehicleTableHeader(AppConstants.partNo),
                   _buildVehicleTableHeader(AppConstants.vehicleName),
                   _buildVehicleTableHeader(AppConstants.hsnCode),
@@ -143,7 +144,8 @@ class _PurchaseTableState extends State<PurchaseTable> {
                         color:
                             MaterialStateColor.resolveWith((states) => color),
                         cells: [
-                          DataCell(Text((index + 1).toString())),
+                          DataCell(
+                              Text((index + 1).toString())), // Serial number
                           DataCell(Text(data.partNo ?? '')),
                           DataCell(Text(data.vehicleName)),
                           DataCell(Text(data.hsnCode.toString())),
@@ -303,8 +305,7 @@ class _PurchaseTableState extends State<PurchaseTable> {
                             AppUtils.formatCurrency(totals['igstAmount']!))),
                       DataCell(
                           Text(AppUtils.formatCurrency(totals['tcsValue']!))),
-                      DataCell(
-                          Text(AppUtils.formatCurrency(totals['totalValue']!))),
+                      const DataCell(Text('')),
                       DataCell(Text(
                           AppUtils.formatCurrency(totals['empsIncentive']!))),
                       DataCell(Text(
@@ -400,7 +401,9 @@ class _PurchaseTableState extends State<PurchaseTable> {
               if (widget.purchaseBloc.purchaseBillDataList.isNotEmpty) {
                 _isLoadingState(state: true);
                 widget.purchaseBloc.addNewPurchaseDetails(_purchasePostData(),
-                    (statusCode) {
+                    (statusCode, response) {
+                  print(statusCode);
+                  print('**********$response');
                   if (statusCode == 201 || statusCode == 200) {
                     Navigator.pop(context);
                     _isLoadingState(state: false);
@@ -412,6 +415,37 @@ class _PurchaseTableState extends State<PurchaseTable> {
                             color: _appColors.successColor),
                         AppConstants.purchaseBillDescScc,
                         _appColors.successLightColor);
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                            surfaceTintColor: AppColor().whiteColor,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10)),
+                            content: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.downloading_rounded,
+                                  color: AppColor().successColor,
+                                ),
+                                AppWidgetUtils.buildSizedBox(custHeight: 10),
+                                const Text(
+                                  'Are you sure you want print invoice ?',
+                                  style: TextStyle(fontSize: 20),
+                                )
+                              ],
+                            ),
+                            actions: [
+                              CustomActionButtons(
+                                  onPressed: () {
+                                    PurchaseInvoicePrint()
+                                        .printDocument(response);
+                                  },
+                                  buttonText: AppConstants.print),
+                            ]);
+                      },
+                    );
                   } else {
                     _isLoadingState(state: false);
                     AppWidgetUtils.buildToast(
@@ -423,37 +457,6 @@ class _PurchaseTableState extends State<PurchaseTable> {
                         AppConstants.purchaseBillDescerr,
                         _appColors.errorLightColor);
                   }
-                }).then((value) {
-                  return showDialog(
-                    context: context,
-                    builder: (context) {
-                      return AlertDialog(
-                          surfaceTintColor: AppColor().whiteColor,
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10)),
-                          content: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                Icons.downloading_rounded,
-                                color: AppColor().successColor,
-                              ),
-                              AppWidgetUtils.buildSizedBox(custHeight: 10),
-                              const Text(
-                                'Are you sure you want print invoice ?',
-                                style: TextStyle(fontSize: 20),
-                              )
-                            ],
-                          ),
-                          actions: [
-                            CustomActionButtons(
-                                onPressed: () {
-                                  PurchaseInvoicePrint().printDocument(value);
-                                },
-                                buttonText: AppConstants.print),
-                          ]);
-                    },
-                  );
                 });
               } else {
                 AppWidgetUtils.buildToast(
@@ -616,63 +619,63 @@ class _PurchaseTableState extends State<PurchaseTable> {
   void _editPurchaseBillRow(VehicleDetails data, int index) {
     setState(() {
       widget.purchaseBloc.editIndex = index;
-      widget.purchaseBloc.partNumberController.text = data.partNo.toString();
-      widget.purchaseBloc.vehicleNameTextController.text = data.vehicleName;
-      widget.purchaseBloc.hsnCodeController.text = data.hsnCode.toString();
-      widget.purchaseBloc.unitRateController.text = data.unitRate.toString();
-      widget.purchaseBloc.engineDetailsStreamController(true);
+
+      // Reset all controllers and variables
+      widget.purchaseBloc.partNumberController.text =
+          data.partNo?.toString() ?? '';
+      widget.purchaseBloc.vehicleNameTextController.text =
+          data.vehicleName ?? '';
+      widget.purchaseBloc.hsnCodeController.text =
+          data.hsnCode?.toString() ?? '';
+      widget.purchaseBloc.unitRateController.text =
+          data.unitRate?.toString() ?? '';
+      widget.purchaseBloc.gstRadioBtnRefreshStreamController(true);
+      widget.purchaseBloc.paymentDetailsStreamController(true);
+
       widget.purchaseBloc.totalValue = data.totalValue;
-      widget.purchaseBloc.paymentDetailsStreamController(true);
-      // widget.purchaseBloc.discountTextController.text =
-      //     data.discountValue.toString();
-      widget.purchaseBloc.paymentDetailsStreamController(true);
-      widget.purchaseBloc.engineDetailsStreamController(true);
-      // widget.purchaseBloc.discountValue = data.discountValue;
       widget.purchaseBloc.discountTextController.text =
           (data.discountValue ?? 0).toString();
-      widget.purchaseBloc.paymentDetailsStreamController(true);
-      widget.purchaseBloc.engineDetailsStreamController(true);
       widget.purchaseBloc.taxableValue = data.taxableValue;
-      widget.purchaseBloc.paymentDetailsStreamController(true);
-      widget.purchaseBloc.engineDetailsStreamController(true);
       widget.purchaseBloc.cgstAmount = data.cgstAmount;
-      widget.purchaseBloc.paymentDetailsStreamController(true);
-      widget.purchaseBloc.engineDetailsStreamController(true);
       widget.purchaseBloc.sgstAmount = data.sgstAmount;
       widget.purchaseBloc.tcsvalueTextController.text =
           (data.tcsValue ?? 0).toString();
-      widget.purchaseBloc.invAmount = data.invoiceValue;
+      widget.purchaseBloc.gstRadioBtnRefreshStreamController(true);
       widget.purchaseBloc.paymentDetailsStreamController(true);
-      widget.purchaseBloc.engineDetailsStreamController(true);
+      widget.purchaseBloc.invAmount = data.invoiceValue;
       widget.purchaseBloc.stateIncentiveTextController.text =
           (data.stateIncentive ?? 0).toString();
-      widget.purchaseBloc.paymentDetailsStreamController(true);
-      widget.purchaseBloc.engineDetailsStreamController(true);
       widget.purchaseBloc.empsIncentiveTextController.text =
           (data.empsIncentive ?? 0.0).toString();
-      widget.purchaseBloc.paymentDetailsStreamController(true);
       widget.purchaseBloc.totalInvAmount = data.totalInvoiceValue;
-      widget.purchaseBloc.paymentDetailsStreamController(true);
-      _addVehicleAndAccesoriesBloc.paymentDetailsStreamController(true);
 
+      widget.purchaseBloc.engineDetailsStreamController(true);
+      widget.purchaseBloc.paymentDetailsStreamController(true);
+
+      widget.purchaseBloc.engineDetailsList.clear();
       for (var engineDetailsMap in data.engineDetails) {
         widget.purchaseBloc.engineDetailsList.add(engineDetailsMap);
         widget.purchaseBloc.refreshEngineDetailsListStramController(true);
+        widget.purchaseBloc.gstRadioBtnRefreshStreamController(true);
+        widget.purchaseBloc.paymentDetailsStreamController(true);
       }
+
       widget.purchaseBloc.selectedGstType = data.gstType;
       if (data.gstType == AppConstants.gstPercent) {
-        widget.purchaseBloc.selectedGstType = data.gstType;
-        widget.purchaseBloc.gstRadioBtnRefreshStreamController(true);
         widget.purchaseBloc.cgstPresentageTextController.text =
-            data.cgstPercentage.toString();
+            data.cgstPercentage?.toString() ?? '';
         widget.purchaseBloc.sgstPresentageTextController.text =
-            data.sgstPercentage.toString();
-      } else {
-        widget.purchaseBloc.selectedGstType = data.gstType;
+            data.sgstPercentage?.toString() ?? '';
         widget.purchaseBloc.gstRadioBtnRefreshStreamController(true);
+        widget.purchaseBloc.paymentDetailsStreamController(true);
+      } else {
         widget.purchaseBloc.igstPresentageTextController.text =
-            data.igstPercentage.toString();
+            data.igstPercentage?.toString() ?? '';
+        widget.purchaseBloc.gstRadioBtnRefreshStreamController(true);
+        widget.purchaseBloc.paymentDetailsStreamController(true);
       }
+      widget.purchaseBloc.gstRadioBtnRefreshStreamController(true);
+      widget.purchaseBloc.paymentDetailsStreamController(true);
     });
   }
 }
