@@ -185,6 +185,9 @@ abstract class AppServiceUtil {
 
   Future<GetAllVendorByPagination?> getVoucharRecieptList(
       String reportId, String receiver, int currentPage);
+
+  Future<void> createStockFromPurchase(String? purchaseId,
+      List<String>? partNumbersList, Function(int)? statusCode);
 }
 
 class AppServiceUtilImpl extends AppServiceUtil {
@@ -1153,17 +1156,29 @@ class AppServiceUtilImpl extends AppServiceUtil {
     var token = prefs.getString('token');
     dio.options.headers['Authorization'] = 'Bearer $token';
     var selectedJson = itemDetails;
-
     var response = await dio.post('${AppUrl.purchaseValidate}$partNo',
         options: Options(headers: <String, String>{
           'Content-Type': 'application/json',
         }),
         data: jsonEncode(selectedJson));
-
     var responseData = response.data;
-
-    print(responseData['result']['successResponse']);
-
     return responseData['result']['successResponse'];
+  }
+
+  @override
+  Future<void> createStockFromPurchase(String? purchaseId,
+      List<String>? partNumbersList, Function(int)? statusCode) async {
+    final dio = Dio();
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var token = prefs.getString('token');
+    dio.options.headers['Authorization'] = 'Bearer $token';
+    var requestObj = {"partNos": partNumbersList};
+    var response = await dio.patch(
+      '${AppUrl.stock}/$purchaseId',
+      data: json.encode(requestObj),
+    );
+    if (statusCode != null) {
+      statusCode(response.statusCode ?? 0);
+    }
   }
 }

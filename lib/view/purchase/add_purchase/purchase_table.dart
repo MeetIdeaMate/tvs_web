@@ -379,24 +379,21 @@ class _PurchaseTableState extends State<PurchaseTable> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Visibility(
-          visible: false,
-          child: CustomElevatedButton(
-            text: AppConstants.preview,
-            fontSize: 16,
-            buttonBackgroundColor: _appColors.primaryColor,
-            fontColor: _appColors.whiteColor,
-            onPressed: () {
-              Navigator.push(
-                  context,
-                  PageRouteBuilder(
-                    pageBuilder: (context, animation, secondaryAnimation) =>
-                        PurchaseTablePreview(
-                      purchaseBloc: widget.purchaseBloc,
-                    ),
-                  ));
-            },
-          ),
+        CustomElevatedButton(
+          text: AppConstants.preview,
+          fontSize: 16,
+          buttonBackgroundColor: _appColors.primaryColor,
+          fontColor: _appColors.whiteColor,
+          onPressed: () {
+            Navigator.push(
+                context,
+                PageRouteBuilder(
+                  pageBuilder: (context, animation, secondaryAnimation) =>
+                      PurchaseTablePreview(
+                    purchaseBloc: widget.purchaseBloc,
+                  ),
+                ));
+          },
         ),
         CustomActionButtons(
             onPressed: () {

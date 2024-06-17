@@ -93,6 +93,8 @@ class PurchaseBill {
   double? totalValue;
   String? vendorId;
   String? vendorName;
+  bool? stockUpdated;
+   bool? cancelled;
 
   PurchaseBill({
     this.branchId,
@@ -113,6 +115,8 @@ class PurchaseBill {
     this.totalValue,
     this.vendorId,
     this.vendorName,
+    this.cancelled,
+    this.stockUpdated
   });
 
   factory PurchaseBill.fromJson(Map<String, dynamic> json) => PurchaseBill(
@@ -139,6 +143,8 @@ class PurchaseBill {
         totalValue: json["totalValue"],
         vendorId: json["vendorId"],
         vendorName: json["vendorName"],
+         stockUpdated: json["stockUpdated"],
+          cancelled: json["cancelled"],
       );
 
   Map<String, dynamic> toJson() => {
@@ -162,6 +168,8 @@ class PurchaseBill {
         "totalTaxAmount": totalTaxAmount,
         "totalValue": totalValue,
         "vendorId": vendorId,
+        "cancelled": cancelled,
+        "stockUpdated": stockUpdated,
         "vendorName": vendorName,
       };
 }
