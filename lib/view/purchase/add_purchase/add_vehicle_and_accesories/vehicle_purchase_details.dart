@@ -2,8 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:tlbilling/models/parent_response_model.dart';
+
 import 'package:tlbilling/models/purchase_bill_data.dart';
 import 'package:tlbilling/utils/app_colors.dart';
 import 'package:tlbilling/utils/app_constants.dart';
@@ -382,74 +381,6 @@ class _EngineAndFrameNumberEntryState extends State<EngineAndFrameNumberEntry> {
   //   });
   // }
 
-  void updateTotalValue() {
-    double? unitRate = double.tryParse(
-            widget.addVehicleAndAccessoriesBloc.unitRateController.text) ??
-        0;
-    widget.addVehicleAndAccessoriesBloc.paymentDetailsStreamController(true);
-    double totalQty =
-        widget.addVehicleAndAccessoriesBloc.engineDetailsList.length.toDouble();
-    widget.addVehicleAndAccessoriesBloc
-        .refreshEngineDetailsListStramController(true);
-
-    widget.addVehicleAndAccessoriesBloc.paymentDetailsStreamController(true);
-    widget.addVehicleAndAccessoriesBloc.totalValue = (unitRate) * totalQty;
-    widget.addVehicleAndAccessoriesBloc.paymentDetailsStreamController(true);
-    widget.addVehicleAndAccessoriesBloc.paymentDetailsStreamController(true);
-    widget.addVehicleAndAccessoriesBloc.taxableValue = (unitRate) * totalQty;
-    widget.addVehicleAndAccessoriesBloc.invAmount = (unitRate) * totalQty;
-    widget.addVehicleAndAccessoriesBloc.totalInvAmount = (unitRate) * totalQty;
-
-    var qty = double.tryParse(widget
-            .addVehicleAndAccessoriesBloc.engineDetailsList.length
-            .toString()) ??
-        0.0;
-
-    var totalValue = qty * unitRate;
-    if (widget.addVehicleAndAccessoriesBloc.selectedPurchaseType ==
-        'Accessories') {
-      totalValue = (int.tryParse(widget
-                  .addVehicleAndAccessoriesBloc.quantityController.text) ??
-              0) *
-          unitRate;
-    }
-    widget.addVehicleAndAccessoriesBloc.totalValue = totalValue;
-    var discount = double.tryParse(
-            widget.addVehicleAndAccessoriesBloc.discountTextController.text) ??
-        0.0;
-    var taxableValue = totalValue - discount;
-    widget.addVehicleAndAccessoriesBloc.taxableValue = taxableValue;
-    var discountPercentage = double.tryParse(
-            widget.addVehicleAndAccessoriesBloc.discountTextController.text) ??
-        0.0;
-    var discountValue = totalValue * (discountPercentage / 100);
-    widget.addVehicleAndAccessoriesBloc.discountValue = discountValue;
-    var tcsValue = double.tryParse(
-            widget.addVehicleAndAccessoriesBloc.tcsvalueTextController.text) ??
-        0.0;
-    double gstAmount = 0.0;
-
-    if (widget.addVehicleAndAccessoriesBloc.selectedGstType == 'GST %') {
-      var cgstPercentage = double.tryParse(widget.addVehicleAndAccessoriesBloc
-              .cgstPresentageTextController.text) ??
-          0.0;
-      var sgstPercentage = double.tryParse(widget.addVehicleAndAccessoriesBloc
-              .cgstPresentageTextController.text) ??
-          0.0;
-      var cgstAmount = taxableValue * (cgstPercentage / 100);
-      var sgstAmount = taxableValue * (sgstPercentage / 100);
-      widget.addVehicleAndAccessoriesBloc.cgstAmount = cgstAmount;
-      widget.addVehicleAndAccessoriesBloc.sgstAmount = sgstAmount;
-      gstAmount = cgstAmount + sgstAmount;
-    } else if (widget.addVehicleAndAccessoriesBloc.selectedGstType ==
-        'IGST %') {
-      var igstPercentage = double.tryParse(widget.addVehicleAndAccessoriesBloc
-              .igstPresentageTextController.text) ??
-          0.0;
-      gstAmount = taxableValue * (igstPercentage / 100);
-    }
-  }
-
   void _purchaseTableAmountCalculation() {
     var qty = double.tryParse(widget
             .addVehicleAndAccessoriesBloc.engineDetailsList.length
@@ -510,7 +441,9 @@ class _EngineAndFrameNumberEntryState extends State<EngineAndFrameNumberEntry> {
             .addVehicleAndAccessoriesBloc.stateIncentiveTextController.text) ??
         0.0;
     var totalIncentive = empsIncentive + stateIncentive;
-    var totalInvoiceAmount = invoiceValue - totalIncentive;
+
+    var totalInvoiceAmount =
+        invoiceValue + tcsValue - totalIncentive; // Update here
     widget.addVehicleAndAccessoriesBloc.totalInvAmount = totalInvoiceAmount;
   }
 }
