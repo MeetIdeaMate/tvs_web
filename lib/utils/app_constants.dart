@@ -28,6 +28,7 @@ class AppConstants {
   static const today = 'Today';
   static const pending = 'Pending';
   static const completed = 'Completed';
+
   // static const branchId = 'branchId';
 
   //LoginPage
@@ -123,6 +124,7 @@ class AppConstants {
   static const imgLoginPagebg = 'assets/images/img_tvs.png';
   static const imgTvsLogo = 'assets/images/img_tvs_logo.png';
   static const imgPdfHeader = 'images/img_pdf_header.png';
+  static const imgShied = 'images/img_shield.svg';
 
   //SideMenu
   static const purchase = 'Purchase';
@@ -220,6 +222,8 @@ class AppConstants {
   static const customerId = 'Customer id';
   static const partNo = 'Part No';
   static const vehicle = 'Vehicle';
+  static const mVehicle = 'M-Vehicle';
+  static const eVehicle = 'E-Vehicle';
   static const engineNumber = 'Engine Number';
   static const frameNumber = 'Frame Number';
   static const vehicleName = 'Vehicle Name';
@@ -278,6 +282,17 @@ class AppConstants {
   static const transporterDetails = 'Transporter Details';
   static const selectTransporter = 'Select Transporter';
   static const emailAddress = 'Email Address';
+  static const transferId = 'Transfer Id';
+  static const transferDate = 'Transfer Date';
+  static const totalQty = 'Tot Qty';
+  static const transferred = 'TRANSFERED';
+  static const received = 'RECEIVED';
+  static const allStatus = 'All Status';
+  static const allVehicles = 'All Vehicles';
+  static const transferStatus = 'transferStatus';
+  static const youWantToUpdateTheStatus = 'You want to update the status?';
+  static const stockTransferUpdate = 'Stock transfer update';
+  static const stockTransferUpdateSuccessfully = 'Stock transfer update successfully';
 
   //voucher/receipt
   static const voucher = 'Voucher';
@@ -365,6 +380,9 @@ class AppConstants {
   static const empAlreadyCreated = ' Employee already created';
   static const userCreated = 'User Created';
   static const userCreateSuccessfully = 'User create successfully';
+  static const transferRequest = 'Transfer Request';
+  static const transferRequestSuccessfully =
+      'Transfer request created successfully';
 
   //API
 
@@ -408,6 +426,7 @@ class AppConstants {
   static const String totInvVal = 'Tot Inv Value';
   static const String empsInc = 'EMPS Inc';
   static const String stateInc = 'State Inc';
+
   //Pagenation
 
   static const gstType = 'GST Type';

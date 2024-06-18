@@ -11,6 +11,7 @@ import 'package:tlbilling/utils/app_util_widgets.dart';
 import 'package:tlbilling/view/transfer/new_transfer/new_transfer_bloc.dart';
 import 'package:tlds_flutter/components/tlds_dropdown_button_form_field.dart';
 import 'package:tlds_flutter/components/tlds_input_form_field.dart';
+import 'package:toastification/toastification.dart';
 
 class TransferDetails extends StatefulWidget {
   final NewTransferBlocImpl? newTransferBloc;
@@ -36,7 +37,10 @@ class _TransferDetailsState extends State<TransferDetails> {
           padding: const EdgeInsets.all(
             12,
           ),
-          child: _buildTransferDetails(),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [_buildTransferDetails(), _buildCustomActionButtons()],
+          ),
         ));
   }
 
@@ -49,20 +53,38 @@ class _TransferDetailsState extends State<TransferDetails> {
             fontSize: 22,
             fontWeight: FontWeight.w700),
         _buildDefaultHeight(),
-        _buildSelectFromAndToBranch(),
-      ],
-    );
-  }
-
-  Widget _buildSelectFromAndToBranch() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
         _buildCustomTextWidget(AppConstants.selectFromBranchAndToBranch),
         _buildDefaultHeight(),
         _buildFromBranchAndToBranch(),
         _buildDefaultHeight(),
-        _buildTransPorterDetails(),
+      ],
+    );
+  }
+
+  Widget _buildCustomActionButtons() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // _buildTransPorterDetails(),
+        _buildDefaultHeight(),
+        CustomActionButtons(
+            onPressed: () {
+              _loadingStatus(true);
+              AddNewTransfer? addNewTransferObj;
+              if (widget.newTransferBloc?.selectedVehicleList?.isNotEmpty ==
+                  true) {
+                transferPostService(widget.newTransferBloc?.selectedVehicleList,
+                    addNewTransferObj, false);
+              } else if (widget
+                      .newTransferBloc?.filteredAccessoriesList?.isNotEmpty ==
+                  true) {
+                transferPostService(
+                    widget.newTransferBloc?.filteredAccessoriesList,
+                    addNewTransferObj,
+                    true);
+              }
+            },
+            buttonText: AppConstants.save)
       ],
     );
   }
@@ -70,20 +92,27 @@ class _TransferDetailsState extends State<TransferDetails> {
   Widget _buildFromBranchAndToBranch() {
     return FutureBuilder(
       future: _transferBloc.getBranches(),
-      builder: (context, snapshot) {
+      builder: (context, futureSnapshot) {
         List<String> branchNameList =
-            snapshot.data?.map((e) => e.branchName ?? '').toList() ?? [];
-        if (snapshot.connectionState == ConnectionState.waiting) {
+            futureSnapshot.data?.map((e) => e.branchName ?? '').toList() ?? [];
+        if (futureSnapshot.connectionState == ConnectionState.waiting) {
           return Center(
             child: AppWidgetUtils.buildLoading(),
           );
-        } else if (snapshot.hasData) {
+        } else if (futureSnapshot.hasData) {
           return Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               StreamBuilder(
                 stream: _transferBloc.fromBranchNameListStreamController,
                 builder: (context, snapshot) {
+                  for (var element in futureSnapshot.data ?? []) {
+                    if (element.branchId == widget.newTransferBloc?.branchId) {
+                      _transferBloc.selectedFromBranch = element.branchName;
+                      _transferBloc.selectedFromBranchId = element.branchId;
+                    }
+                  }
+                  _refreshToBranchList(branchNameList);
                   return TldsDropDownButtonFormField(
                     height: 40,
                     width: MediaQuery.sizeOf(context).width * 0.15,
@@ -92,15 +121,15 @@ class _TransferDetailsState extends State<TransferDetails> {
                     dropDownValue: _transferBloc.selectedFromBranch,
                     onChange: (String? newValue) async {
                       _transferBloc.selectedFromBranch = newValue ?? '';
+                      for (var element in futureSnapshot.data ?? []) {
+                        if (element.branchName == newValue) {
+                          _transferBloc.selectedFromBranchId = element.branchId;
+                        }
+                      }
                       _transferBloc.toBranchNameList = [];
                       _transferBloc.toBranchNameListStream(false);
                       await Future.delayed(Duration.zero);
-                      _transferBloc.toBranchNameList = branchNameList
-                          .where((element) =>
-                              element != _transferBloc.selectedFromBranch)
-                          .toList();
-                      _transferBloc.selectedToBranch = null;
-                      _transferBloc.toBranchNameListStream(true);
+                      _refreshToBranchList(branchNameList);
                     },
                   );
                 },
@@ -117,6 +146,11 @@ class _TransferDetailsState extends State<TransferDetails> {
                     dropDownValue: _transferBloc.selectedToBranch,
                     onChange: (String? newValue) {
                       _transferBloc.selectedToBranch = newValue ?? '';
+                      for (var element in futureSnapshot.data ?? []) {
+                        if (element.branchName == newValue) {
+                          _transferBloc.selectedToBranchId = element.branchId;
+                        }
+                      }
                     },
                   );
                 },
@@ -143,32 +177,63 @@ class _TransferDetailsState extends State<TransferDetails> {
         _buildTransporterFilterAndAddNewTransporter(),
         _buildDefaultHeight(),
         _buildTransporterDetailsCard(),
-        _buildDefaultHeight(),
-        CustomActionButtons(
-            onPressed: () {
-              AddNewTransfer? addNewTransferObj;
-              for (GetAllStocksWithoutPaginationModel element
-                  in widget.newTransferBloc?.selectedList ?? []) {
-                addNewTransferObj = AddNewTransfer(
-                    transferFromBranch:
-                        _transferBloc.selectedFromBranch,
-                    transferToBranch: _transferBloc.selectedToBranch,
-                    transferItems: [
-                      TransferItem(
-                          categoryId: element.categoryId,
-                          addNewTransferMainSpecValue:
-                              AddNewTransferMainSpecValue(
-                                  engineNo: element.mainSpecValue?.engineNo,
-                                  frameNo: element.mainSpecValue?.frameNo),
-                          partNo: element.partNo,
-                          quantity: element.quantity)
-                    ]);
-              }
-              print('************req obj********${addNewTransferObj?.toJson()}');
-              widget.newTransferBloc?.createNewTransfer(addNewTransferObj!);
-            },
-            buttonText: AppConstants.save)
       ],
+    );
+  }
+
+  void transferPostService(
+      List<GetAllStocksWithoutPaginationModel>?
+          selectedVehicleOrAccessoriesList,
+      AddNewTransfer? addNewTransferObj,
+      bool selectedQuantity) {
+    final List<TransferItem> transferItems = [];
+    for (GetAllStocksWithoutPaginationModel element
+        in selectedVehicleOrAccessoriesList ?? []) {
+      transferItems.add(TransferItem(
+          stockId: element.stockId,
+          partNo: element.partNo,
+          quantity: selectedQuantity
+              ? element.selectedQuantity
+              : element.selectedQuantity));
+    }
+    addNewTransferObj = AddNewTransfer(
+        transferFromBranch: _transferBloc.selectedFromBranchId,
+        transferToBranch: _transferBloc.selectedToBranchId,
+        transferItems: transferItems);
+    createNewTransfer(addNewTransferObj);
+  }
+
+  void createNewTransfer(AddNewTransfer? addNewTransferObj) {
+    widget.newTransferBloc?.createNewTransfer(
+      addNewTransferObj,
+      (statusCode) {
+        if (statusCode == 200 || statusCode == 201) {
+          _loadingStatus(false);
+          Navigator.pop(context);
+          AppWidgetUtils.buildToast(
+              context,
+              ToastificationType.success,
+              AppConstants.transferRequest,
+              Icon(
+                Icons.check_circle_outline_outlined,
+                color: _appColors.successColor,
+              ),
+              AppConstants.transferRequestSuccessfully,
+              _appColors.successLightColor);
+        } else {
+          _loadingStatus(false);
+          AppWidgetUtils.buildToast(
+              context,
+              ToastificationType.error,
+              AppConstants.transferRequest,
+              Icon(
+                Icons.error_outline_outlined,
+                color: _appColors.errorColor,
+              ),
+              AppConstants.somethingWentWrong,
+              _appColors.errorLightColor);
+        }
+      },
     );
   }
 
@@ -323,5 +388,19 @@ class _TransferDetailsState extends State<TransferDetails> {
   Widget _buildDefaultHeight({double? height}) {
     return AppWidgetUtils.buildSizedBox(
         custHeight: height ?? MediaQuery.sizeOf(context).height * 0.02);
+  }
+
+  void _loadingStatus(bool? status) {
+    setState(() {
+      _transferBloc.isLoading = status;
+    });
+  }
+
+  void _refreshToBranchList(List<String> branchNameList) {
+    _transferBloc.toBranchNameList = branchNameList
+        .where((element) => element != _transferBloc.selectedFromBranch)
+        .toList();
+    _transferBloc.selectedToBranch = null;
+    _transferBloc.toBranchNameListStream(true);
   }
 }

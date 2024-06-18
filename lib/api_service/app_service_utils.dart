@@ -16,6 +16,7 @@ import 'package:tlbilling/models/get_model/get_all_purchase_model.dart';
 import 'package:tlbilling/models/get_model/get_all_sales_list_model.dart';
 import 'package:tlbilling/models/get_model/get_all_stocks_model.dart';
 import 'package:tlbilling/models/get_model/get_all_stocks_without_pagination.dart';
+import 'package:tlbilling/models/get_model/get_all_transfer_model.dart';
 import 'package:tlbilling/models/get_model/get_all_vendor_by_pagination_model.dart';
 import 'package:tlbilling/models/get_model/get_configuration_list_model.dart';
 import 'package:tlbilling/models/get_model/get_configuration_model.dart';
@@ -31,6 +32,8 @@ import 'package:tlbilling/models/post_model/add_transport_model.dart';
 import 'package:tlbilling/models/update/update_branch_model.dart';
 import 'package:tlbilling/models/user_model.dart';
 import 'package:tlbilling/utils/app_constants.dart';
+import 'package:tlbilling/utils/app_utils.dart';
+
 import '../models/post_model/add_vendor_model.dart';
 
 abstract class AppServiceUtil {
@@ -94,6 +97,7 @@ abstract class AppServiceUtil {
       int currentPage, String vendorName, String city, String mobileNumber);
 
   Future<GetEmployeeById?> getEmployeeById(String employeeId);
+
   Future<GetBranchById?> getBranchById();
 
   Future<void> updateUserStatus(String? userId, String? userUpdateStatus,
@@ -178,9 +182,11 @@ abstract class AppServiceUtil {
       Function(int p1, PurchaseBill response) onSuccessCallBack);
   Future<GetAllCategoryListModel?> getAllCategoryList();
 
-  Future<List<GetAllStocksWithoutPaginationModel>?> getAllStockList();
+  Future<List<GetAllStocksWithoutPaginationModel>?> getAllStockList(
+      String? categoryName, String? branchId);
 
-  Future<void> createNewTransfer(AddNewTransfer addNewTransfer);
+  Future<void> createNewTransfer(AddNewTransfer? addNewTransfer,
+      Function(int statusCode) onSuccessCallBack);
 
   Future<GetAllVendorByPagination?> getVoucharRecieptList(
       String reportId, String receiver, int currentPage);
@@ -189,6 +195,17 @@ abstract class AppServiceUtil {
       List<String>? partNumbersList, Function(int)? statusCode);
   Future<void> purchaseBillCancel(
       String? purchaseId, Function(int p1)? onSuccessCallback);
+
+  Future<List<GetAllTransferModel>?> getTransferList(
+      String? selectedStatus,
+      String? transferStatus,
+      String? fromBranchId,
+      String? toBranchId,
+      String? fromDateTextController,
+      String? toDateTextController);
+
+  Future<void> stockTransferApproval(
+      String? branchId, String? transferId, Function(int)? onSuccessCallback);
 }
 
 class AppServiceUtilImpl extends AppServiceUtil {
@@ -983,13 +1000,15 @@ class AppServiceUtilImpl extends AppServiceUtil {
   }
 
   @override
-  Future<List<GetAllStocksWithoutPaginationModel>?> getAllStockList() async {
+  Future<List<GetAllStocksWithoutPaginationModel>?> getAllStockList(
+      String? categoryName, String? branchId) async {
     try {
       final dio = Dio();
       SharedPreferences prefs = await SharedPreferences.getInstance();
       var token = prefs.getString('token');
       dio.options.headers['Authorization'] = 'Bearer $token';
-      var response = await dio.get(AppUrl.stock);
+      var response = await dio
+          .get('${AppUrl.stock}?branchId=$branchId&categoryName=$categoryName');
       var stocksList = parentResponseModelFromJson(jsonEncode(response.data))
           .result
           ?.getAllStocksWithoutPagination;
@@ -1001,7 +1020,8 @@ class AppServiceUtilImpl extends AppServiceUtil {
   }
 
   @override
-  Future<void> createNewTransfer(AddNewTransfer addNewTransfer) async {
+  Future<void> createNewTransfer(AddNewTransfer? addNewTransfer,
+      Function(int statusCode) onSuccessCallBack) async {
     try {
       final dio = Dio();
       SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -1009,8 +1029,10 @@ class AppServiceUtilImpl extends AppServiceUtil {
       dio.options.headers['Authorization'] = 'Bearer $token';
       var response = await dio.post('${AppUrl.stock}/transfer',
           data: jsonEncode(addNewTransfer));
+      onSuccessCallBack(response.statusCode ?? 0);
     } on DioException catch (exception) {
       exception.response?.statusCode ?? 0;
+      onSuccessCallBack(exception.response?.statusCode ?? 0);
     }
   }
 
@@ -1142,6 +1164,66 @@ class AppServiceUtilImpl extends AppServiceUtil {
     return parentResponseModelFromJson(jsonEncode(response.data))
         .result
         ?.getAllStockDetails;
+  }
+
+  @override
+  Future<List<GetAllTransferModel>?> getTransferList(
+      String? selectedStatus,
+      String? transferStatus,
+      String? fromBranchId,
+      String? toBranchId,
+      String? fromDateTextController,
+      String? toDateTextController) async {
+    try {
+      final dio = Dio();
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      var token = prefs.getString('token');
+      dio.options.headers['Authorization'] = 'Bearer $token';
+      String url = '${AppUrl.stock}/transferd?transferType=$selectedStatus';
+      if(transferStatus != null) {
+        if(transferStatus == AppConstants.allStatus){
+          url;
+        }else{
+          url += '&transferStatus=$transferStatus';
+        }
+      }
+      if (fromBranchId != null) {
+        url += '&fromBranchId=$fromBranchId';
+      }
+      if (toBranchId != null) {
+        url += '&toBranchId=$toBranchId';
+      }
+      /*if (fromDateTextController != null) {
+        url +=
+            '&fromDate=${AppUtils.appToAPIDateFormat(fromDateTextController.toString())}';
+      }
+      if (toDateTextController != null) {
+        url +=
+            '&toDate=${AppUtils.appToAPIDateFormat(fromDateTextController.toString())}';
+      }*/
+      var response = await dio.get(url);
+      return parentResponseModelFromJson(jsonEncode(response.data))
+          .result
+          ?.getAllTransferModel;
+    } on DioException catch (exception) {
+      exception.response?.statusCode ?? 0;
+    }
+    return null;
+  }
+
+  @override
+  Future<void> stockTransferApproval(String? branchId, String? transferId,
+      Function(int p1)? onSuccessCallback) async {
+    final dio = Dio();
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var token = prefs.getString('token');
+    dio.options.headers['Authorization'] = 'Bearer $token';
+    var response = await dio.patch(
+      '${AppUrl.stockTransfer}?branchId=$branchId&transferId=$transferId',
+    );
+    if (onSuccessCallback != null) {
+      onSuccessCallback(response.statusCode ?? 0);
+    }
   }
 
   @override

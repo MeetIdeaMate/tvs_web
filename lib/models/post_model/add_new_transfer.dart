@@ -35,51 +35,25 @@ class AddNewTransfer {
 }
 
 class TransferItem {
-  String? categoryId;
-  AddNewTransferMainSpecValue? addNewTransferMainSpecValue;
   String? partNo;
   int? quantity;
+  String? stockId;
 
   TransferItem({
-    this.categoryId,
-    this.addNewTransferMainSpecValue,
     this.partNo,
     this.quantity,
+    this.stockId,
   });
 
   factory TransferItem.fromJson(Map<String, dynamic> json) => TransferItem(
-        categoryId: json["categoryId"],
-        addNewTransferMainSpecValue: json["mainSpecValue"] == null
-            ? null
-            : AddNewTransferMainSpecValue.fromJson(json["mainSpecValue"]),
         partNo: json["partNo"],
         quantity: json["quantity"],
+        stockId: json["stockId"],
       );
 
   Map<String, dynamic> toJson() => {
-        "categoryId": categoryId,
-        "mainSpecValue": addNewTransferMainSpecValue?.toJson(),
         "partNo": partNo,
         "quantity": quantity,
+        "stockId": stockId,
       };
-}
-
-class AddNewTransferMainSpecValue {
-  String? frameNo;
-  String? engineNo;
-
-  AddNewTransferMainSpecValue({
-    this.frameNo,
-    this.engineNo,
-  });
-
-  factory AddNewTransferMainSpecValue.fromJson(Map<String, dynamic> json) => AddNewTransferMainSpecValue(
-    frameNo: json["FrameNo"],
-    engineNo: json["EngineNo"],
-  );
-
-  Map<String, dynamic> toJson() => {
-    "FrameNo": frameNo,
-    "EngineNo": engineNo,
-  };
 }
