@@ -27,6 +27,7 @@ class PurchaseTable extends StatefulWidget {
 class _PurchaseTableState extends State<PurchaseTable> {
   final _appColors = AppColor();
   final _addVehicleAndAccesoriesBloc = AddVehicleAndAccessoriesBlocImpl();
+  int serialNumber = 1;
 
   @override
   void initState() {
@@ -55,7 +56,7 @@ class _PurchaseTableState extends State<PurchaseTable> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             _buildAddedVehicleAndAccessoriesTable(),
-            _buildPreviewAndActionButton()
+            //  _buildPreviewAndActionButton()
           ],
         ),
       ),
@@ -82,6 +83,8 @@ class _PurchaseTableState extends State<PurchaseTable> {
         }
         final totals =
             _calculateTotals(widget.purchaseBloc.purchaseBillDataList);
+
+        int serialNumber = 1; // Declare a serial number counter
 
         return Expanded(
           child: SingleChildScrollView(
@@ -130,22 +133,17 @@ class _PurchaseTableState extends State<PurchaseTable> {
                 rows: [
                   ...widget.purchaseBloc.purchaseBillDataList
                       .expand((billData) {
-                    return billData.vehicleDetails!
-                        .asMap()
-                        .entries
-                        .map((entry) {
-                      final data = entry.value;
-                      final index = entry.key;
-
-                      final color = index.isEven
+                    return billData.vehicleDetails!.map((data) {
+                      final color = serialNumber.isEven
                           ? _appColors.whiteColor
                           : _appColors.transparentBlueColor;
-                      return DataRow(
+
+                      final row = DataRow(
                         color:
                             MaterialStateColor.resolveWith((states) => color),
                         cells: [
                           DataCell(
-                              Text((index + 1).toString())), // Serial number
+                              Text(serialNumber.toString())), // Serial number
                           DataCell(Text(data.partNo ?? '')),
                           DataCell(Text(data.vehicleName)),
                           DataCell(Text(data.hsnCode.toString())),
@@ -264,7 +262,8 @@ class _PurchaseTableState extends State<PurchaseTable> {
                                 IconButton(
                                   icon: SvgPicture.asset(AppConstants.icEdit),
                                   onPressed: () {
-                                    _editPurchaseBillRow(data, index);
+                                    _editPurchaseBillRow(
+                                        data, serialNumber - 1);
                                   },
                                 ),
                               ],
@@ -272,6 +271,10 @@ class _PurchaseTableState extends State<PurchaseTable> {
                           ),
                         ],
                       );
+
+                      serialNumber++; // Increment the serial number
+
+                      return row;
                     }).toList();
                   }),
                   DataRow(
@@ -623,12 +626,10 @@ class _PurchaseTableState extends State<PurchaseTable> {
       // Reset all controllers and variables
       widget.purchaseBloc.partNumberController.text =
           data.partNo?.toString() ?? '';
-      widget.purchaseBloc.vehicleNameTextController.text =
-          data.vehicleName ?? '';
+      widget.purchaseBloc.vehicleNameTextController.text = data.vehicleName;
       widget.purchaseBloc.hsnCodeController.text =
           data.hsnCode?.toString() ?? '';
-      widget.purchaseBloc.unitRateController.text =
-          data.unitRate?.toString() ?? '';
+      widget.purchaseBloc.unitRateController.text = data.unitRate.toString();
       widget.purchaseBloc.gstRadioBtnRefreshStreamController(true);
       widget.purchaseBloc.paymentDetailsStreamController(true);
 

@@ -308,15 +308,7 @@ class _AddVehicleAndAccessoriesState extends State<AddVehicleAndAccessories> {
                       controller:
                           widget.purchaseBloc.empsIncentiveTextController,
                       onChanged: (empsInc) {
-                        double? empsIncValue = double.tryParse(widget
-                            .purchaseBloc.empsIncentiveTextController.text);
-
-                        widget.purchaseBloc.totalInvAmount =
-                            (widget.purchaseBloc.invAmount ?? 0) -
-                                (empsIncValue ?? 0);
-
-                        widget.purchaseBloc
-                            .paymentDetailsStreamController(true);
+                        _updateTotalInvoiceAmount();
                       },
                     )),
                 _buildPaymentDetailTile(
@@ -329,15 +321,7 @@ class _AddVehicleAndAccessoriesState extends State<AddVehicleAndAccessories> {
                       controller:
                           widget.purchaseBloc.stateIncentiveTextController,
                       onChanged: (stateInc) {
-                        double? stateIncValue = double.tryParse(widget
-                            .purchaseBloc.stateIncentiveTextController.text);
-
-                        widget.purchaseBloc.totalInvAmount =
-                            (widget.purchaseBloc.invAmount ?? 0) -
-                                (stateIncValue ?? 0);
-
-                        widget.purchaseBloc
-                            .paymentDetailsStreamController(true);
+                        _updateTotalInvoiceAmount();
                       },
                     )),
                 AppWidgetUtils.buildSizedBox(custHeight: 10),
@@ -955,6 +939,21 @@ class _AddVehicleAndAccessoriesState extends State<AddVehicleAndAccessories> {
       style: GoogleFonts.poppins(
           color: color, fontWeight: fontWeight, fontSize: fontSize),
     );
+  }
+
+  void _updateTotalInvoiceAmount() {
+    double? empsIncValue =
+        double.tryParse(widget.purchaseBloc.empsIncentiveTextController.text) ??
+            0.0;
+    double? stateIncValue = double.tryParse(
+            widget.purchaseBloc.stateIncentiveTextController.text) ??
+        0.0;
+
+    double totalIncentive = empsIncValue + stateIncValue;
+    widget.purchaseBloc.totalInvAmount =
+        (widget.purchaseBloc.invAmount ?? 0) - totalIncentive;
+
+    widget.purchaseBloc.paymentDetailsStreamController(true);
   }
 
   clearPurchaseDataValue() {
