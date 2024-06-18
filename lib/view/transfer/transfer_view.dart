@@ -248,7 +248,10 @@ class _TransferViewState extends State<TransferView>
             context,
             MaterialPageRoute(
               builder: (context) => const NewTransfer(),
-            ));
+            )).then((value) {
+          _transferViewBloc.tabBarStream(true);
+          _transferViewBloc.tableRefreshStream(true);
+        });
       },
     );
   }
@@ -317,41 +320,44 @@ class _TransferViewState extends State<TransferView>
   _buildTransferTableView(BuildContext context) {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
-      child: SizedBox(
-          width: MediaQuery.sizeOf(context).width,
-          child: StreamBuilder(
-            stream: _transferViewBloc.tableRefreshStreamController,
-            builder: (context, snapshot) {
-              return FutureBuilder(
-                future: _transferViewBloc.getTransferList(
-                    _transferViewBloc.transferScreenTabController.index == 0
-                        ? AppConstants.transferred
-                        : AppConstants.received),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(
-                      child: AppWidgetUtils.buildLoading(),
-                    );
-                  } else if (snapshot.hasData) {
-                    if (snapshot.data?.isEmpty == true) {
+      child: SingleChildScrollView(
+        scrollDirection: Axis.vertical,
+        child: SizedBox(
+            width: MediaQuery.sizeOf(context).width,
+            child: StreamBuilder(
+              stream: _transferViewBloc.tableRefreshStreamController,
+              builder: (context, snapshot) {
+                return FutureBuilder(
+                  future: _transferViewBloc.getTransferList(
+                      _transferViewBloc.transferScreenTabController.index == 0
+                          ? AppConstants.transferred
+                          : AppConstants.received),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
                       return Center(
-                        child: SvgPicture.asset(AppConstants.imgNoData),
+                        child: AppWidgetUtils.buildLoading(),
                       );
-                    } else {
-                      return DataTable(
-                          key: UniqueKey(),
-                          dividerThickness: 0.01,
-                          columns: _tableHeaders(),
-                          rows: _tableRows(snapshot));
+                    } else if (snapshot.hasData) {
+                      if (snapshot.data?.isEmpty == true) {
+                        return Center(
+                          child: SvgPicture.asset(AppConstants.imgNoData),
+                        );
+                      } else {
+                        return DataTable(
+                            key: UniqueKey(),
+                            dividerThickness: 0.01,
+                            columns: _tableHeaders(),
+                            rows: _tableRows(snapshot));
+                      }
                     }
-                  }
-                  return Center(
-                    child: SvgPicture.asset(AppConstants.imgNoData),
-                  );
-                },
-              );
-            },
-          )),
+                    return Center(
+                      child: SvgPicture.asset(AppConstants.imgNoData),
+                    );
+                  },
+                );
+              },
+            )),
+      ),
     );
   }
 

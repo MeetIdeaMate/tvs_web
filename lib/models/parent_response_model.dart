@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:tlbilling/models/get_model/get_all_branch_by_id_model.dart';
 import 'package:tlbilling/models/get_model/get_all_insurance_by_pagination_model.dart';
 import 'package:tlbilling/models/get_model/get_all_sales_list_model.dart';
+import 'package:tlbilling/models/get_model/get_all_stocks_by_id_model.dart';
 import 'package:tlbilling/models/get_model/get_all_stocks_model.dart';
 import 'package:tlbilling/models/get_model/get_all_stocks_without_pagination.dart';
 import 'package:tlbilling/models/get_model/get_all_transfer_model.dart';
@@ -94,6 +95,7 @@ class ResultObj {
   List<TransportDetails>? getAllTransportsWithoutPagination;
   List<GetAllStocksWithoutPaginationModel>? getAllStocksWithoutPagination;
   GetAllStockDetails? getAllStockDetails;
+  GetAllStocksByPagenation? getAllStocksByPagenation;
   List<GetAllTransferModel>? getAllTransferModel;
 
   ResultObj(
@@ -126,6 +128,7 @@ class ResultObj {
       this.getAllcategoryList,
       this.getAllStocksWithoutPagination,
       this.getAllStockDetails,
+      this.getAllStocksByPagenation,
       this.getAllTransferModel});
 
   factory ResultObj.fromJson(Map<String, dynamic> json) => ResultObj(
@@ -225,6 +228,9 @@ class ResultObj {
             : null,
         getAllStockDetails: json['stocks'] != null
             ? GetAllStockDetails.fromJson(json['stocks'])
+            : null,
+        getAllStocksByPagenation: json['stockWithPage'] != null
+            ? GetAllStocksByPagenation.fromJson(json['stockWithPage'])
             : null,
         getAllTransferModel: json['transferDetails'] != null
             ? List<GetAllTransferModel>.from(json['transferDetails']

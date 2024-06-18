@@ -397,7 +397,8 @@ class _PurchaseViewState extends State<PurchaseView>
         PopupMenuButton(
           surfaceTintColor: _appColors.whiteColor,
           icon: const Icon(Icons.more_vert),
-          itemBuilder: (BuildContext context) => <PopupMenuEntry>[
+          itemBuilder: (BuildContext context) {
+            return <PopupMenuEntry>[
             const PopupMenuItem(
               value: 'option1',
               child: Text('View'),
@@ -414,7 +415,8 @@ class _PurchaseViewState extends State<PurchaseView>
               value: 'option4',
               child: Text('Approve'),
             ),
-          ],
+          ];
+          },
           onSelected: (value) {
             switch (value) {
               case 'option1':
@@ -585,4 +587,5 @@ class _PurchaseViewState extends State<PurchaseView>
       ),
     );
   }
+
 }
