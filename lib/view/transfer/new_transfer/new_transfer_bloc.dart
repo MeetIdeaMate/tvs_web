@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:tlbilling/api_service/app_service_utils.dart';
 import 'package:tlbilling/models/get_model/get_all_branches_by_pagination.dart';
+import 'package:tlbilling/models/get_model/get_all_category_model.dart';
 import 'package:tlbilling/models/get_model/get_all_stocks_without_pagination.dart';
 import 'package:tlbilling/models/get_model/get_transport_by_pagination.dart';
 import 'package:tlbilling/models/post_model/add_new_transfer.dart';
@@ -19,7 +20,7 @@ abstract class NewTransferBloc {
 
   Stream get selectedVehicleAndAccessoriesListStream;
 
-  Stream<int> get accessoriesIncrementStream;
+  Stream get accessoriesIncrementStream;
 
   TextEditingController get vehicleAndEngineNumberController;
 
@@ -29,7 +30,11 @@ abstract class NewTransferBloc {
 
   String? get selectedFromBranch;
 
+  String? get selectedFromBranchId;
+
   String? get selectedToBranch;
+
+  String? get selectedToBranchId;
 
   String? get selectedTransporterName;
 
@@ -51,8 +56,6 @@ abstract class NewTransferBloc {
 
   List<GetAllStocksWithoutPaginationModel>? get vehicleData;
 
-  List<Widget> get selectedItems;
-
   int? get salesIndex;
 
   Stream get availableVehicleListStreamController;
@@ -69,14 +72,25 @@ abstract class NewTransferBloc {
 
   Stream get availableAccListStreamController;
 
-  Stream<Map<String, dynamic>> get filteredAccListStreamController;
+  Stream<bool> get filteredAccListStreamController;
 
-  TextEditingController get accessoriesCountController;
+  List<TextEditingController> get accessoriesCountController;
 
   Future<List<GetAllStocksWithoutPaginationModel>?>
       stockListWithOutPagination();
 
-  Future<void> createNewTransfer(AddNewTransfer addNewTransfer);
+  Future<void> createNewTransfer(AddNewTransfer addNewTransfer,
+      Function(int statusCode) onSuccessCallBack);
+
+  Future<GetAllCategoryListModel?> getCategoryList();
+
+  List<GetAllStocksWithoutPaginationModel>? get filteredVehicleData;
+
+  bool? get isLoading;
+
+  String? get branchId;
+
+  int? get quantity;
 }
 
 class NewTransferBlocImpl extends NewTransferBloc {
@@ -84,8 +98,7 @@ class NewTransferBlocImpl extends NewTransferBloc {
   final _changeVehicleAndAccessoriesListStream = StreamController.broadcast();
   final _vehicleAndEngineNumberStream = StreamController.broadcast();
   final _selectedVehicleListStream = StreamController.broadcast();
-  final StreamController<int> _accessoriesIncrementStream =
-      StreamController.broadcast();
+  final _accessoriesIncrementStream = StreamController.broadcast();
   final _selectedVehicleAndAccessoriesListStream = StreamController.broadcast();
   final _transporterDetailsStreamController = StreamController.broadcast();
   final _availableVehicleListStreamController = StreamController.broadcast();
@@ -93,60 +106,37 @@ class NewTransferBlocImpl extends NewTransferBloc {
   final _fromBranchNameListStreamController = StreamController.broadcast();
   final _toBranchNameListStreamController = StreamController.broadcast();
   final _availableAccListStreamController = StreamController.broadcast();
-  final StreamController<Map<String, dynamic>>
-      _filteredAccListStreamController = StreamController.broadcast();
+  final StreamController<bool> _filteredAccListStreamController =
+      StreamController.broadcast();
   final _dropDownFormKey = GlobalKey<FormState>();
   final _vehicleAndEngineNumberController = TextEditingController();
   final _transporterVehicleNumberController = TextEditingController();
-  final _accessoriesCountController = TextEditingController();
+  final List<TextEditingController> _accessoriesCountController = [];
   List<String>? _toBranchNameList;
   List<String> vehicleAndAccessoriesList = ['Vehicle', 'Accessories'];
-  List<Widget> selectedVehicleList = [];
-  List<GetAllStocksWithoutPaginationModel>? selectedList = [];
+  List<GetAllStocksWithoutPaginationModel>? selectedVehicleList = [];
+  List<GetAllStocksWithoutPaginationModel>? _filteredVehicleData = [];
   List<String> branch = ['Kovilpatti', 'Sattur', 'Sivakasi'];
   late Set<String> optionsSet = {selectedVehicleAndAccessories ?? ''};
   String? _selectedVehicleAndAccessories;
   String? _selectedFromBranch;
+  String? _selectedFromBranchId;
   String? _selectedToBranch;
+  String? _selectedToBranchId;
   String? _selectedTransporterName;
   String? _selectedTransporterId;
   String? _transporterMailId;
   String? _transporterMobileNumber;
   String? _transporterName;
+  String? _branchId;
+  bool? _isLoading = false;
   int initialValue = 0;
   int? _salesIndex = 0;
+  int? _quantity;
 
   List<GetAllStocksWithoutPaginationModel>? _vehicleData = [];
-  final List<Map<String, dynamic>> accessoriesList = [
-    {
-      AppConstants.accessoriesName: 'TVS-APACHE TOOL KIT',
-      AppConstants.quantity: 10,
-      AppConstants.accessoriesNumber: 'K61916321F',
-    },
-    {
-      AppConstants.accessoriesName: 'HELMET',
-      AppConstants.quantity: 20,
-      AppConstants.accessoriesNumber: 'K61916322F',
-    },
-    {
-      AppConstants.accessoriesName: 'STAR-CITY FOOT REST',
-      AppConstants.quantity: 10,
-      AppConstants.accessoriesNumber: 'K61916323F',
-    },
-    {
-      AppConstants.accessoriesName: 'XL-SUPER SEAT',
-      AppConstants.quantity: 5,
-      AppConstants.accessoriesNumber: 'K61916324F',
-    },
-    {
-      AppConstants.accessoriesName: 'SILENCER',
-      AppConstants.quantity: 2,
-      AppConstants.accessoriesNumber: 'K61916325F',
-    },
-  ];
-  final List<Map<String, dynamic>> filteredAccessoriesList = [];
-
-  final List<Widget> _selectedItems = [];
+  List<GetAllStocksWithoutPaginationModel>? accessoriesList = [];
+  final List<GetAllStocksWithoutPaginationModel>? filteredAccessoriesList = [];
 
   final _appServices = AppServiceUtilImpl();
 
@@ -210,10 +200,9 @@ class NewTransferBlocImpl extends NewTransferBloc {
   }
 
   @override
-  Stream<int> get accessoriesIncrementStream =>
-      _accessoriesIncrementStream.stream;
+  Stream get accessoriesIncrementStream => _accessoriesIncrementStream.stream;
 
-  accessoriesIncrementStreamController(int streamValue) {
+  accessoriesIncrementStreamController(bool? streamValue) {
     _accessoriesIncrementStream.add(streamValue);
   }
 
@@ -295,12 +284,10 @@ class NewTransferBlocImpl extends NewTransferBloc {
 
   @override
   List<GetAllStocksWithoutPaginationModel>? get vehicleData => _vehicleData;
-  set vehicleData(List<GetAllStocksWithoutPaginationModel>? newValue){
+
+  set vehicleData(List<GetAllStocksWithoutPaginationModel>? newValue) {
     _vehicleData = newValue;
   }
-
-  @override
-  List<Widget> get selectedItems => _selectedItems;
 
   @override
   int? get salesIndex => _salesIndex;
@@ -360,25 +347,99 @@ class NewTransferBlocImpl extends NewTransferBloc {
   }
 
   @override
-  Stream<Map<String, dynamic>> get filteredAccListStreamController =>
+  Stream<bool> get filteredAccListStreamController =>
       _filteredAccListStreamController.stream;
 
-  filteredAccListStream(Map<String, dynamic> streamValue) {
+  filteredAccListStream(bool streamValue) {
     _filteredAccListStreamController.add(streamValue);
   }
 
   @override
-  TextEditingController get accessoriesCountController =>
+  List<TextEditingController> get accessoriesCountController =>
       _accessoriesCountController;
 
   @override
   Future<List<GetAllStocksWithoutPaginationModel>?>
       stockListWithOutPagination() async {
-    return _appServices.getAllStockList();
+    return _appServices.getAllStockList(
+        selectedVehicleAndAccessories, branchId);
   }
 
   @override
-  Future<void> createNewTransfer(AddNewTransfer addNewTransfer) async{
-    return _appServices.createNewTransfer(addNewTransfer);
+  Future<void> createNewTransfer(AddNewTransfer? addNewTransfer,
+      Function(int statusCode) onSuccessCallBack) async {
+    return _appServices.createNewTransfer(addNewTransfer, onSuccessCallBack);
+  }
+
+  @override
+  Future<GetAllCategoryListModel?> getCategoryList() async {
+    return _appServices.getAllCategoryList();
+  }
+
+  @override
+  List<GetAllStocksWithoutPaginationModel>? get filteredVehicleData =>
+      _filteredVehicleData;
+
+  set filteredVehicleData(List<GetAllStocksWithoutPaginationModel>? newValue) {
+    _filteredVehicleData = newValue;
+  }
+
+  @override
+  bool? get isLoading => _isLoading;
+
+  set isLoading(bool? newValue) {
+    _isLoading = newValue;
+  }
+
+  @override
+  String? get branchId => _branchId;
+
+  set branchId(String? newValue) {
+    _branchId = newValue;
+  }
+
+  @override
+  String? get selectedFromBranchId => _selectedFromBranchId;
+
+  set selectedFromBranchId(String? newValue) {
+    _selectedFromBranchId = newValue;
+  }
+
+  @override
+  String? get selectedToBranchId => _selectedToBranchId;
+
+  set selectedToBranchId(String? newValue) {
+    _selectedToBranchId = newValue;
+  }
+
+  @override
+  int? get quantity => _quantity;
+
+  set quantity(int? newValue) {
+    _quantity = newValue;
+  }
+
+  void updateAccessoriesQuantity(
+      GetAllStocksWithoutPaginationModel? accessoriesDetails,
+      bool isQtyIncrease) {
+    for (GetAllStocksWithoutPaginationModel accessDet
+        in filteredAccessoriesList ?? []) {
+      if (accessDet.stockId == accessoriesDetails?.stockId) {
+        if (isQtyIncrease) {
+          if (accessDet.selectedQuantity != accessoriesDetails?.quantity) {
+            accessDet.selectedQuantity = (accessDet.selectedQuantity ?? 0) + 1;
+          }
+        } else {
+          if ((accessDet.selectedQuantity ?? 0) > 0) {
+            accessDet.selectedQuantity = (accessDet.selectedQuantity ?? 0) - 1;
+          } else if((accessDet.selectedQuantity ?? 0) >= 0){
+            filteredAccessoriesList?.remove(accessoriesDetails);
+            accessoriesList?.add(accessoriesDetails!);
+          }
+        }
+      }
+    }
+    filteredAccListStream(true);
+    availableAccListStream(true);
   }
 }

@@ -1,6 +1,8 @@
+import 'package:blurry_modal_progress_hud/blurry_modal_progress_hud.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tlbilling/models/get_model/get_all_stocks_without_pagination.dart';
 import 'package:tlbilling/utils/app_colors.dart';
 import 'package:tlbilling/utils/app_constants.dart';
@@ -23,8 +25,16 @@ class _NewTransferState extends State<NewTransfer> {
   @override
   void initState() {
     super.initState();
-    _newTransferBloc.selectedVehicleAndAccessories = AppConstants.vehicle;
+    _newTransferBloc.selectedVehicleAndAccessories = AppConstants.mVehicle;
     _newTransferBloc.selectedVehicleAndAccessoriesStreamController(true);
+    _getBranchId();
+  }
+
+  Future<void> _getBranchId() async {
+    setState(() async {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      _newTransferBloc.branchId = prefs.getString(AppConstants.branchId);
+    });
   }
 
   @override
@@ -33,12 +43,14 @@ class _NewTransferState extends State<NewTransfer> {
       appBar: AppBar(
         title: const Text(AppConstants.newTransfer),
       ),
-      body: Row(
-        children: [
-          _buildVehicleDetails(),
-          TransferDetails(newTransferBloc: _newTransferBloc),
-        ],
-      ),
+      body: BlurryModalProgressHUD(
+          inAsyncCall: _newTransferBloc.isLoading,
+          child: Row(
+            children: [
+              _buildVehicleDetails(),
+              TransferDetails(newTransferBloc: _newTransferBloc),
+            ],
+          )),
     );
   }
 
@@ -53,15 +65,18 @@ class _NewTransferState extends State<NewTransfer> {
           StreamBuilder(
             stream: _newTransferBloc.selectedVehicleAndAccessoriesStream,
             builder: (context, snapshot) {
-              return _newTransferBloc.selectedVehicleAndAccessories == 'Vehicle'
-                  ? _buildSelectedVehicle()
-                  : _newTransferBloc.selectedVehicleAndAccessories ==
-                          'Accessories'
-                      ? _buildSelectedAccessories()
-                      : Center(
-                          child: _buildCustomTextWidget(
-                              AppConstants.selectVehicleOrAccessories),
-                        );
+              switch (_newTransferBloc.selectedVehicleAndAccessories) {
+                case AppConstants.mVehicle:
+                  return _buildSelectedVehicle();
+                case AppConstants.accessories:
+                  return _buildSelectedAccessories();
+                case AppConstants.eVehicle:
+                  return _buildSelectedVehicle();
+              }
+              return Center(
+                child: _buildCustomTextWidget(
+                    AppConstants.selectVehicleOrAccessories),
+              );
             },
           )
         ],
@@ -80,15 +95,18 @@ class _NewTransferState extends State<NewTransfer> {
           StreamBuilder(
             stream: _newTransferBloc.changeVehicleAndAccessoriesListStream,
             builder: (context, snapshot) {
-              return _newTransferBloc.selectedVehicleAndAccessories == 'Vehicle'
-                  ? _buildAvailableVehicleList()
-                  : _newTransferBloc.selectedVehicleAndAccessories ==
-                          'Accessories'
-                      ? _buildAvailableAccessoriesList()
-                      : Center(
-                          child: _buildCustomTextWidget(
-                              AppConstants.selectVehicleOrAccessories),
-                        );
+              switch (_newTransferBloc.selectedVehicleAndAccessories) {
+                case AppConstants.mVehicle:
+                  return _buildAvailableVehicleList();
+                case AppConstants.accessories:
+                  return _buildAvailableAccessoriesList();
+                case AppConstants.eVehicle:
+                  return _buildAvailableVehicleList();
+              }
+              return Center(
+                child: _buildCustomTextWidget(
+                    AppConstants.selectVehicleOrAccessories),
+              );
             },
           )
         ],
@@ -97,50 +115,55 @@ class _NewTransferState extends State<NewTransfer> {
   }
 
   Widget _buildHeadingAndSegmentedButton() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        SizedBox(
-          width: MediaQuery.sizeOf(context).width * 0.28,
-          child: StreamBuilder(
-            stream: _newTransferBloc.selectedVehicleAndAccessoriesStream,
-            builder: (context, snapshot) {
-              return SegmentedButton(
-                multiSelectionEnabled: false,
-                segments: List.generate(
-                    _newTransferBloc.vehicleAndAccessoriesList.length,
-                    (index) => ButtonSegment(
-                        value:
-                            _newTransferBloc.vehicleAndAccessoriesList[index],
-                        label: Text(
-                          _newTransferBloc.vehicleAndAccessoriesList[index],
-                        ))),
-                selected: _newTransferBloc.optionsSet,
-                onSelectionChanged: (Set<String> newValue) {
-                  _newTransferBloc.optionsSet = newValue;
-                  _newTransferBloc.selectedVehicleAndAccessories =
-                      _newTransferBloc.optionsSet.first;
-                  _newTransferBloc.selectedVehicleAndAccessories ==
-                          'Accessories'
-                      ? _newTransferBloc.selectedVehicleList.clear()
-                      : null;
-                  _newTransferBloc
-                      .selectedVehicleAndAccessoriesStreamController(true);
-                  _newTransferBloc
-                      .changeVehicleAndAccessoriesListStreamController(true);
-                  _newTransferBloc
-                      .selectedVehicleAndAccessoriesListStreamController(true);
-                },
-                style: ButtonStyle(
-                  backgroundColor: _newTransferBloc
-                      .changeSegmentedColor(_appColors.segmentedButtonColor),
-                ),
+    return SizedBox(
+        width: MediaQuery.sizeOf(context).width,
+        child: FutureBuilder(
+          future: _newTransferBloc.getCategoryList(),
+          builder: (context, futureSnapshot) {
+            var categoryList = futureSnapshot.data?.category;
+            if (futureSnapshot.connectionState == ConnectionState.waiting) {
+              return Center(
+                child: AppWidgetUtils.buildLoading(),
               );
-            },
-          ),
-        )
-      ],
-    );
+            } else {
+              return StreamBuilder(
+                stream: _newTransferBloc.selectedVehicleAndAccessoriesStream,
+                builder: (context, snapshot) {
+                  return SegmentedButton(
+                    multiSelectionEnabled: false,
+                    segments: List.generate(categoryList?.length ?? 0, (index) {
+                      return ButtonSegment(
+                          value: categoryList?[index].categoryName ?? '',
+                          label: Text(
+                            categoryList?[index].categoryName ?? '',
+                          ));
+                    }),
+                    selected: _newTransferBloc.optionsSet,
+                    onSelectionChanged: (Set<String> newValue) {
+                      _newTransferBloc.optionsSet = newValue;
+                      _newTransferBloc.selectedVehicleAndAccessories =
+                          _newTransferBloc.optionsSet.first;
+                      _newTransferBloc.selectedVehicleList?.clear();
+                      _newTransferBloc.filteredAccessoriesList?.clear();
+                      _newTransferBloc
+                          .selectedVehicleAndAccessoriesStreamController(true);
+                      _newTransferBloc
+                          .changeVehicleAndAccessoriesListStreamController(
+                              true);
+                      _newTransferBloc
+                          .selectedVehicleAndAccessoriesListStreamController(
+                              true);
+                    },
+                    style: ButtonStyle(
+                      backgroundColor: _newTransferBloc.changeSegmentedColor(
+                          _appColors.segmentedButtonColor),
+                    ),
+                  );
+                },
+              );
+            }
+          },
+        ));
   }
 
   Widget _buildVehicleNameAndEngineNumberSearch() {
@@ -163,14 +186,22 @@ class _NewTransferState extends State<NewTransfer> {
                   ? null
                   : _newTransferBloc.vehicleAndEngineNumberController.clear();
               _newTransferBloc.vehicleAndEngineNumberStreamController(true);
+              _newTransferBloc.availableVehicleListStream(true);
+              _newTransferBloc.selectedItemStream(true);
             },
             icon: Icon(
               iconData,
               color: iconColor,
             ),
           ),
-          onSubmit: (p0) {
+          onSubmit: (vehicleAndEngineNumber) {
             _newTransferBloc.vehicleAndEngineNumberStreamController(true);
+            _newTransferBloc.availableVehicleListStream(true);
+            _newTransferBloc.selectedItemStream(true);
+          },
+          onChanged: (p0) {
+            _newTransferBloc.availableVehicleListStream(true);
+            _newTransferBloc.selectedItemStream(true);
           },
         );
       },
@@ -191,11 +222,25 @@ class _NewTransferState extends State<NewTransfer> {
             return StreamBuilder(
               stream: _newTransferBloc.availableVehicleListStreamController,
               builder: (context, streamSnapshot) {
+                String searchTerm =
+                    _newTransferBloc.vehicleAndEngineNumberController.text;
+                _newTransferBloc.filteredVehicleData = _newTransferBloc
+                    .vehicleData
+                    ?.where((vehicle) =>
+                        (vehicle.mainSpecValue?.engineNo
+                                ?.toLowerCase()
+                                .contains(searchTerm.toLowerCase()) ??
+                            false) ||
+                        (vehicle.itemName
+                                ?.toLowerCase()
+                                .contains(searchTerm.toLowerCase()) ??
+                            false))
+                    .toList();
                 return Expanded(
                     child: ListView.builder(
-                  itemCount: _newTransferBloc.vehicleData?.length,
+                  itemCount: _newTransferBloc.filteredVehicleData?.length,
                   itemBuilder: (context, index) {
-                    var vehicle = _newTransferBloc.vehicleData?[index];
+                    var vehicle = _newTransferBloc.filteredVehicleData?[index];
                     return _buildAvailableVehicleListCard(vehicle, index);
                   },
                 ));
@@ -260,9 +305,14 @@ class _NewTransferState extends State<NewTransfer> {
                     IconButton(
                         onPressed: () {
                           GetAllStocksWithoutPaginationModel? selectedVehicle =
-                              _newTransferBloc.vehicleData?.removeAt(index);
+                              _newTransferBloc.filteredVehicleData
+                                  ?.removeAt(index);
+                          _newTransferBloc.vehicleData?.remove(selectedVehicle);
                           _newTransferBloc.availableVehicleListStream(true);
-                          _newTransferBloc.selectedList?.add(selectedVehicle!);
+                          _newTransferBloc
+                              .vehicleAndEngineNumberStreamController(true);
+                          _newTransferBloc.selectedVehicleList
+                              ?.add(selectedVehicle!);
                           _newTransferBloc
                               .selectedVehicleListStreamController(true);
                           _newTransferBloc.selectedItemStream(true);
@@ -283,28 +333,43 @@ class _NewTransferState extends State<NewTransfer> {
   }
 
   Widget _buildAvailableAccessoriesList() {
-    return StreamBuilder(
-      stream: _newTransferBloc.availableAccListStreamController,
-      builder: (context, streamSnapshot) {
-        return FutureBuilder(
-          future: _newTransferBloc.getBranches(),
+    return FutureBuilder(
+      future: _newTransferBloc.stockListWithOutPagination(),
+      builder: (context, futureSnapshot) {
+        _newTransferBloc.accessoriesList = futureSnapshot.data;
+        return StreamBuilder(
+          stream: _newTransferBloc.availableAccListStreamController,
           builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
+            /*String searchTerm =
+                _newTransferBloc.vehicleAndEngineNumberController.text;
+            _newTransferBloc.filteredVehicleData = _newTransferBloc
+                .vehicleData
+                ?.where((vehicle) =>
+            (vehicle.mainSpecValue?.engineNo
+                ?.toLowerCase()
+                .contains(searchTerm.toLowerCase()) ??
+                false) ||
+                (vehicle.itemName
+                    ?.toLowerCase()
+                    .contains(searchTerm.toLowerCase()) ??
+                    false))
+                .toList();*/
+            if (futureSnapshot.connectionState == ConnectionState.waiting) {
               return Center(
                 child: AppWidgetUtils.buildLoading(),
               );
-            } else if (snapshot.hasData) {
-              if (_newTransferBloc.accessoriesList.isEmpty) {
+            } else if (futureSnapshot.hasData) {
+              if (_newTransferBloc.accessoriesList?.isEmpty == true) {
                 return Center(
                   child: SvgPicture.asset(AppConstants.imgNoData),
                 );
               } else {
                 return Expanded(
                     child: ListView.builder(
-                  itemCount: _newTransferBloc.accessoriesList.length,
+                  itemCount: _newTransferBloc.accessoriesList?.length,
                   itemBuilder: (context, index) {
-                    var accessoriesData =
-                        _newTransferBloc.accessoriesList[index];
+                    GetAllStocksWithoutPaginationModel? accessoriesData =
+                        _newTransferBloc.accessoriesList?[index];
                     return Card(
                       elevation: 0,
                       shape: OutlineInputBorder(
@@ -327,13 +392,11 @@ class _NewTransferState extends State<NewTransfer> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       _buildCustomTextWidget(
-                                          accessoriesData[
-                                              AppConstants.accessoriesName],
+                                          accessoriesData?.itemName ?? '',
                                           fontSize: 14,
                                           fontWeight: FontWeight.w500),
                                       _buildCustomTextWidget(
-                                          accessoriesData[
-                                              AppConstants.accessoriesNumber],
+                                          accessoriesData?.partNo ?? '',
                                           fontSize: 14,
                                           fontWeight: FontWeight.w500,
                                           color: _appColors.liteGrayColor),
@@ -344,7 +407,7 @@ class _NewTransferState extends State<NewTransfer> {
                                 SizedBox(
                                   width: 70,
                                   child: _buildCustomTextWidget(
-                                      'Qty - ${accessoriesData[AppConstants.quantity]}',
+                                      'Qty - ${accessoriesData?.quantity ?? ''}',
                                       fontSize: 14,
                                       fontWeight: FontWeight.w500),
                                 ),
@@ -352,13 +415,13 @@ class _NewTransferState extends State<NewTransfer> {
                                 IconButton(
                                     onPressed: () {
                                       _newTransferBloc.accessoriesList
-                                          .removeAt(index);
+                                          ?.removeAt(index);
                                       _newTransferBloc
                                           .availableAccListStream(true);
                                       _newTransferBloc.filteredAccessoriesList
-                                          .add(accessoriesData);
-                                      _newTransferBloc.filteredAccListStream(
-                                          accessoriesData);
+                                          ?.add(accessoriesData!);
+                                      _newTransferBloc
+                                          .filteredAccListStream(true);
                                     },
                                     icon: SvgPicture.asset(
                                       AppConstants.icFilledAdd,
@@ -399,16 +462,16 @@ class _NewTransferState extends State<NewTransfer> {
             child: StreamBuilder(
               stream: _newTransferBloc.selectedItemStreamController,
               builder: (context, streamSnapshot) {
-                if (_newTransferBloc.selectedList == null) {
+                if (_newTransferBloc.selectedVehicleList?.isEmpty == true) {
                   return Center(
                     child: SvgPicture.asset(AppConstants.imgNoData),
                   );
                 } else {
                   return ListView.builder(
-                    itemCount: _newTransferBloc.selectedList?.length,
+                    itemCount: _newTransferBloc.selectedVehicleList?.length,
                     itemBuilder: (BuildContext context, int index) {
-                      var selectedVehicleData =
-                          _newTransferBloc.selectedList?[index];
+                      GetAllStocksWithoutPaginationModel? selectedVehicleData =
+                          _newTransferBloc.selectedVehicleList?[index];
                       return Card(
                         color: _appColors.whiteColor,
                         elevation: 0,
@@ -469,10 +532,12 @@ class _NewTransferState extends State<NewTransfer> {
                                     children: [
                                       IconButton(
                                         onPressed: () {
-                                          _newTransferBloc.selectedList
+                                          _newTransferBloc.selectedVehicleList
                                               ?.removeAt(index);
                                           _newTransferBloc
                                               .selectedItemStream(true);
+                                          // _newTransferBloc.filteredVehicleData
+                                          //     ?.add(selectedVehicleData!);
                                           _newTransferBloc.vehicleData
                                               ?.add(selectedVehicleData!);
                                           _newTransferBloc
@@ -517,16 +582,16 @@ class _NewTransferState extends State<NewTransfer> {
               child: StreamBuilder(
             stream: _newTransferBloc.filteredAccListStreamController,
             builder: (context, snapshot) {
-              if (_newTransferBloc.filteredAccessoriesList.isEmpty) {
+              if (_newTransferBloc.filteredAccessoriesList?.isEmpty == true) {
                 return Center(
                   child: SvgPicture.asset(AppConstants.imgNoData),
                 );
               } else {
                 return ListView.builder(
-                  itemCount: _newTransferBloc.filteredAccessoriesList.length,
+                  itemCount: _newTransferBloc.filteredAccessoriesList?.length,
                   itemBuilder: (context, index) {
-                    var filteredAccessoriesListData =
-                        _newTransferBloc.filteredAccessoriesList[index];
+                    var accessoriesDetails =
+                        _newTransferBloc.filteredAccessoriesList?[index];
                     return Card(
                         elevation: 0,
                         shape: OutlineInputBorder(
@@ -536,7 +601,7 @@ class _NewTransferState extends State<NewTransfer> {
                         child: Padding(
                           padding: const EdgeInsets.all(8),
                           child: _buildSelectedAccessoriesCardDetails(
-                              filteredAccessoriesListData, index),
+                              accessoriesDetails, index),
                         ));
                   },
                 );
@@ -549,47 +614,28 @@ class _NewTransferState extends State<NewTransfer> {
   }
 
   Widget _buildSelectedAccessoriesCardDetails(
-      Map<String, dynamic> filteredAccessoriesListData, int index) {
+      GetAllStocksWithoutPaginationModel? accessoriesDetails, int index) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildCustomTextWidget(
-                filteredAccessoriesListData[AppConstants.accessoriesName],
-                fontWeight: FontWeight.w500,
-                fontSize: 14),
-            _buildCustomTextWidget(
-                filteredAccessoriesListData[AppConstants.accessoriesNumber],
+            _buildCustomTextWidget(accessoriesDetails?.itemName ?? '',
+                fontWeight: FontWeight.w500, fontSize: 14),
+            _buildCustomTextWidget(accessoriesDetails?.partNo ?? '',
                 fontWeight: FontWeight.w500,
                 fontSize: 14,
                 color: _appColors.liteGrayColor)
           ],
         ),
-        StreamBuilder<int>(
-          stream: _newTransferBloc.accessoriesIncrementStream,
-          builder: (context, snapshot) {
-            if (_newTransferBloc.accessoriesCountController.text.isEmpty) {
-              _newTransferBloc.accessoriesCountController.text =
-                  filteredAccessoriesListData[AppConstants.quantity].toString();
-            }
-            return TldsInputFormField(
-              width: 150,
-              controller: _newTransferBloc.accessoriesCountController,
-              prefixIcon: IconButton(
+        Container(
+          child: Row(
+            children: [
+              IconButton(
                 onPressed: () {
-                  int currentValue = int.tryParse(
-                          _newTransferBloc.accessoriesCountController.text) ??
-                      0;
-                  if (currentValue > 0) {
-                    filteredAccessoriesListData[AppConstants.quantity] =
-                        currentValue--;
-                    _newTransferBloc.accessoriesCountController.text =
-                        currentValue.toString();
-                    _newTransferBloc
-                        .accessoriesIncrementStreamController(currentValue);
-                  }
+                  _newTransferBloc.updateAccessoriesQuantity(
+                      accessoriesDetails, false);
                 },
                 icon: SvgPicture.asset(
                   AppConstants.icFilledMinus,
@@ -597,17 +643,11 @@ class _NewTransferState extends State<NewTransfer> {
                   height: 24,
                 ),
               ),
-              suffixIcon: IconButton(
+              Text(accessoriesDetails?.selectedQuantity.toString() ?? ''),
+              IconButton(
                 onPressed: () {
-                  int currentValue = int.tryParse(
-                          _newTransferBloc.accessoriesCountController.text) ??
-                      0;
-                  filteredAccessoriesListData[AppConstants.quantity] =
-                      currentValue++;
-                  _newTransferBloc.accessoriesCountController.text =
-                      currentValue.toString();
-                  _newTransferBloc
-                      .accessoriesIncrementStreamController(currentValue);
+                  _newTransferBloc.updateAccessoriesQuantity(
+                      accessoriesDetails, true);
                 },
                 icon: SvgPicture.asset(
                   AppConstants.icFilledAdd,
@@ -615,15 +655,14 @@ class _NewTransferState extends State<NewTransfer> {
                   height: 24,
                 ),
               ),
-            );
-          },
+            ],
+          ),
         ),
         IconButton(
             onPressed: () {
-              _newTransferBloc.filteredAccessoriesList.removeAt(index);
-              _newTransferBloc
-                  .filteredAccListStream(filteredAccessoriesListData);
-              _newTransferBloc.accessoriesList.add(filteredAccessoriesListData);
+              _newTransferBloc.filteredAccessoriesList?.removeAt(index);
+              _newTransferBloc.filteredAccListStream(true);
+              _newTransferBloc.accessoriesList?.add(accessoriesDetails!);
               _newTransferBloc.availableAccListStream(true);
             },
             icon: SvgPicture.asset(AppConstants.icFilledClose))
