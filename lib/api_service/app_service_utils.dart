@@ -529,9 +529,12 @@ class AppServiceUtilImpl extends AppServiceUtil {
       {String? categoryName}) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var token = prefs.getString('token');
+
     dio.options.headers['Authorization'] = 'Bearer $token';
     String purchaseListUrl =
         '${AppUrl.purchase}/page?page=$currentIndex&size=10';
+    // String purchaseListUrl =
+    // '${AppUrl.purchase}/page?page=$currentIndex&size=10&branchId=$branchId';
     if (invoiceNo!.isNotEmpty) {
       purchaseListUrl += '&p_invoiceNo=$invoiceNo';
     }
