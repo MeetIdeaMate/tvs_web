@@ -27,7 +27,6 @@ class PurchaseTable extends StatefulWidget {
 class _PurchaseTableState extends State<PurchaseTable> {
   final _appColors = AppColor();
   final _addVehicleAndAccesoriesBloc = AddVehicleAndAccessoriesBlocImpl();
-  int serialNumber = 1;
 
   @override
   void initState() {
@@ -56,7 +55,7 @@ class _PurchaseTableState extends State<PurchaseTable> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             _buildAddedVehicleAndAccessoriesTable(),
-            //  _buildPreviewAndActionButton()
+            _buildPreviewAndActionButton()
           ],
         ),
       ),
@@ -84,7 +83,7 @@ class _PurchaseTableState extends State<PurchaseTable> {
         final totals =
             _calculateTotals(widget.purchaseBloc.purchaseBillDataList);
 
-        int serialNumber = 1; // Declare a serial number counter
+        int serialNumber = 1;
 
         return Expanded(
           child: SingleChildScrollView(
@@ -95,7 +94,7 @@ class _PurchaseTableState extends State<PurchaseTable> {
                 key: UniqueKey(),
                 dividerThickness: 0.01,
                 columns: [
-                  _buildVehicleTableHeader(AppConstants.sno), // S.No column
+                  _buildVehicleTableHeader(AppConstants.sno),
                   _buildVehicleTableHeader(AppConstants.partNo),
                   _buildVehicleTableHeader(AppConstants.vehicleName),
                   _buildVehicleTableHeader(AppConstants.hsnCode),
@@ -142,8 +141,7 @@ class _PurchaseTableState extends State<PurchaseTable> {
                         color:
                             MaterialStateColor.resolveWith((states) => color),
                         cells: [
-                          DataCell(
-                              Text(serialNumber.toString())), // Serial number
+                          DataCell(Text(serialNumber.toString())),
                           DataCell(Text(data.partNo ?? '')),
                           DataCell(Text(data.vehicleName)),
                           DataCell(Text(data.hsnCode.toString())),
@@ -179,8 +177,8 @@ class _PurchaseTableState extends State<PurchaseTable> {
                                 data.igstAmount ?? 0.0))),
                           DataCell(Text(
                               AppUtils.formatCurrency(data.tcsValue ?? 0.0))),
-                          DataCell(Text(
-                              AppUtils.formatCurrency(data.totalValue ?? 0.0))),
+                          DataCell(Text(AppUtils.formatCurrency(
+                              data.invoiceValue ?? 0.0))),
                           DataCell(Text(AppUtils.formatCurrency(
                               data.empsIncentive ?? 0.0))),
                           DataCell(Text(AppUtils.formatCurrency(
@@ -263,7 +261,7 @@ class _PurchaseTableState extends State<PurchaseTable> {
                                   icon: SvgPicture.asset(AppConstants.icEdit),
                                   onPressed: () {
                                     _editPurchaseBillRow(
-                                        data, serialNumber - 1);
+                                        data, serialNumber - 2);
                                   },
                                 ),
                               ],
@@ -272,7 +270,7 @@ class _PurchaseTableState extends State<PurchaseTable> {
                         ],
                       );
 
-                      serialNumber++; // Increment the serial number
+                      serialNumber++;
 
                       return row;
                     }).toList();
@@ -381,24 +379,25 @@ class _PurchaseTableState extends State<PurchaseTable> {
 
   Widget _buildPreviewAndActionButton() {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      mainAxisAlignment: MainAxisAlignment.end,
       children: [
-        CustomElevatedButton(
-          text: AppConstants.preview,
-          fontSize: 16,
-          buttonBackgroundColor: _appColors.primaryColor,
-          fontColor: _appColors.whiteColor,
-          onPressed: () {
-            Navigator.push(
-                context,
-                PageRouteBuilder(
-                  pageBuilder: (context, animation, secondaryAnimation) =>
-                      PurchaseTablePreview(
-                    purchaseBloc: widget.purchaseBloc,
-                  ),
-                ));
-          },
-        ),
+        // CustomElevatedButton(
+        //   text: AppConstants.preview,
+        //   fontSize: 16,
+        //   buttonBackgroundColor: _appColors.primaryColor,
+        //   fontColor: _appColors.whiteColor,
+        //   onPressed: () {
+        //     Navigator.push(
+        //         context,
+        //         PageRouteBuilder(
+        //           pageBuilder: (context, animation, secondaryAnimation) =>
+        //               PurchaseTablePreview(
+        //             purchaseBloc: widget.purchaseBloc,
+        //           ),
+        //         ));
+        //   },
+        // ),
+        //
         CustomActionButtons(
             onPressed: () {
               if (widget.purchaseBloc.purchaseBillDataList.isNotEmpty) {
@@ -626,10 +625,12 @@ class _PurchaseTableState extends State<PurchaseTable> {
       // Reset all controllers and variables
       widget.purchaseBloc.partNumberController.text =
           data.partNo?.toString() ?? '';
-      widget.purchaseBloc.vehicleNameTextController.text = data.vehicleName;
+      widget.purchaseBloc.vehicleNameTextController.text =
+          data.vehicleName ?? '';
       widget.purchaseBloc.hsnCodeController.text =
           data.hsnCode?.toString() ?? '';
-      widget.purchaseBloc.unitRateController.text = data.unitRate.toString();
+      widget.purchaseBloc.unitRateController.text =
+          data.unitRate?.toString() ?? '';
       widget.purchaseBloc.gstRadioBtnRefreshStreamController(true);
       widget.purchaseBloc.paymentDetailsStreamController(true);
 
