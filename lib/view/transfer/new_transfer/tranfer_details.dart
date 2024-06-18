@@ -9,6 +9,7 @@ import 'package:tlbilling/utils/app_colors.dart';
 import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/utils/app_util_widgets.dart';
 import 'package:tlbilling/view/transfer/new_transfer/new_transfer_bloc.dart';
+import 'package:tlbilling/view/transfer/transfer_view_bloc.dart';
 import 'package:tlds_flutter/components/tlds_dropdown_button_form_field.dart';
 import 'package:tlds_flutter/components/tlds_input_form_field.dart';
 import 'package:toastification/toastification.dart';
@@ -25,6 +26,7 @@ class TransferDetails extends StatefulWidget {
 class _TransferDetailsState extends State<TransferDetails> {
   final _appColors = AppColors();
   final _transferBloc = NewTransferBlocImpl();
+  final _transferViewBloc = TransferViewBlocImpl();
 
   @override
   Widget build(BuildContext context) {
@@ -220,6 +222,7 @@ class _TransferDetailsState extends State<TransferDetails> {
               ),
               AppConstants.transferRequestSuccessfully,
               _appColors.successLightColor);
+          _transferViewBloc.tableRefreshStream(true);
         } else {
           _loadingStatus(false);
           AppWidgetUtils.buildToast(

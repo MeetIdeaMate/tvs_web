@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:tlbilling/api_service/app_service_utils.dart';
+import 'package:tlbilling/models/get_model/get_all_stocks_by_id_model.dart';
 
 abstract class StocksViewBloc {
   TextEditingController get partNumberSearchController;
@@ -12,6 +14,10 @@ abstract class StocksViewBloc {
   Stream get vehicleNameSearchControllerStream;
 
   TabController get stocksTableTableController;
+  Future<GetAllStocksByPagenation?> getAllStockByPagenation(String? status);
+
+  int get currentPage;
+  Stream<int> get pageNumberStream;
 }
 
 class StocksViewBlocImpl extends StocksViewBloc {
@@ -20,6 +26,9 @@ class StocksViewBlocImpl extends StocksViewBloc {
   final _partNumberSearchControllerStream = StreamController.broadcast();
   final _vehicleNameSearchControllerStream = StreamController.broadcast();
   late TabController _stocksTableTableController;
+  final _apiServices = AppServiceUtilImpl();
+  int _currentPage = 0;
+  final _pageNumberStreamController = StreamController<int>.broadcast();
 
   @override
   TextEditingController get partNumberSearchController =>
@@ -50,5 +59,28 @@ class StocksViewBlocImpl extends StocksViewBloc {
 
   set stocksTableTableController(TabController tabValue) {
     _stocksTableTableController = tabValue;
+  }
+
+  @override
+  Future<GetAllStocksByPagenation?> getAllStockByPagenation(
+      String? status) async {
+    return await _apiServices.getAllStockByPagenation(
+        currentPage,
+        _partNumberSearchController.text,
+        _vehicleNameSearchController.text,
+        status);
+  }
+
+  @override
+  int get currentPage => _currentPage;
+  set currentPage(int pageValue) {
+    _currentPage = pageValue;
+  }
+
+  @override
+  Stream<int> get pageNumberStream => _pageNumberStreamController.stream;
+
+    pageNumberUpdateStreamController(int streamValue) {
+    _pageNumberStreamController.add(streamValue);
   }
 }

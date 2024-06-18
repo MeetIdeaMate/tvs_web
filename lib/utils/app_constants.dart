@@ -15,6 +15,7 @@ class AppConstants {
   static const hasiniTvs = 'HASINI TVS';
   static const noData = 'No data';
   static const submit = 'Submit';
+  static const view = 'View';
   static const ttfPoppinsRegular = 'fonts/ttf_poppins_regular.ttf';
 
   //SharedPreference
@@ -448,7 +449,7 @@ class AppConstants {
   static const partPayment = 'part payment';
 
   static const String approved = 'Approved';
-  static const String approve = 'Approve';
+  static const String approve = 'Approved';
   static const String notApproved = 'Not Approved';
 
   //Purchase Validation ErrorMessage

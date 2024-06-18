@@ -14,6 +14,7 @@ import 'package:tlbilling/models/get_model/get_all_employee_by_pagination.dart';
 import 'package:tlbilling/models/get_model/get_all_insurance_by_pagination_model.dart';
 import 'package:tlbilling/models/get_model/get_all_purchase_model.dart';
 import 'package:tlbilling/models/get_model/get_all_sales_list_model.dart';
+import 'package:tlbilling/models/get_model/get_all_stocks_by_id_model.dart';
 import 'package:tlbilling/models/get_model/get_all_stocks_model.dart';
 import 'package:tlbilling/models/get_model/get_all_stocks_without_pagination.dart';
 import 'package:tlbilling/models/get_model/get_all_transfer_model.dart';
@@ -195,6 +196,8 @@ abstract class AppServiceUtil {
       List<String>? partNumbersList, Function(int)? statusCode);
   Future<void> purchaseBillCancel(
       String? purchaseId, Function(int p1)? onSuccessCallback);
+  Future<GetAllStocksByPagenation?> getAllStockByPagenation(int? currentIndex,
+      String? partNumber, String? vehicleName, String? status);
 
   Future<List<GetAllTransferModel>?> getTransferList(
       String? selectedStatus,
@@ -1272,5 +1275,35 @@ class AppServiceUtilImpl extends AppServiceUtil {
     if (onSuccessCallback != null) {
       onSuccessCallback(response.statusCode ?? 0);
     }
+  }
+
+  @override
+  Future<GetAllStocksByPagenation?> getAllStockByPagenation(int? currentIndex,
+      String? partNumber, String? vehicleName, String? status) async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      var token = prefs.getString('token');
+      dio.options.headers['Authorization'] = 'Bearer $token';
+
+      String url =
+          '${AppUrl.stock}/page?page=$currentIndex&size=10&categoryName=$status';
+      var response = await dio.get(url);
+
+      if (partNumber != null && partNumber.isNotEmpty) {
+        url += '&partNo=$partNumber';
+      }
+      if (vehicleName != null && vehicleName.isNotEmpty) {
+        url += '&itemName=$vehicleName';
+      }
+
+      print('*******URl Stock**********$url');
+      print('*******V Name**********$vehicleName');
+      return parentResponseModelFromJson(jsonEncode(response.data))
+          .result
+          ?.getAllStocksByPagenation;
+    } on DioException catch (e) {
+      e.response?.statusCode ?? 0;
+    }
+    return null;
   }
 }
