@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:tlbilling/api_service/app_service_utils.dart';
-import 'package:tlbilling/models/get_model/get_all_stocks_by_id_model.dart';
+import 'package:tlbilling/models/get_model/get_all_stock_with_pagination.dart';
 
 abstract class StocksViewBloc {
   TextEditingController get partNumberSearchController;
@@ -62,6 +62,12 @@ class StocksViewBlocImpl extends StocksViewBloc {
   }
 
   @override
+  int get currentPage => _currentPage;
+  set currentPage(int pageValue) {
+    _currentPage = pageValue;
+  }
+
+  @override
   Future<GetAllStocksByPagenation?> getAllStockByPagenation(
       String? status) async {
     return await _apiServices.getAllStockByPagenation(
@@ -72,15 +78,9 @@ class StocksViewBlocImpl extends StocksViewBloc {
   }
 
   @override
-  int get currentPage => _currentPage;
-  set currentPage(int pageValue) {
-    _currentPage = pageValue;
-  }
-
-  @override
   Stream<int> get pageNumberStream => _pageNumberStreamController.stream;
 
-    pageNumberUpdateStreamController(int streamValue) {
+  pageNumberUpdateStreamController(int streamValue) {
     _pageNumberStreamController.add(streamValue);
   }
 }
