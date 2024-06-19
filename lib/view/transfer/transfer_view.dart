@@ -333,6 +333,11 @@ class _TransferViewState extends State<TransferView>
                           ? AppConstants.transferred
                           : AppConstants.received),
                   builder: (context, snapshot) {
+                    _transferViewBloc.transferScreenTabController.index == 0
+                        ? _transferViewBloc.transferStatus =
+                            AppConstants.transferred
+                        : _transferViewBloc.transferStatus =
+                            AppConstants.received;
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return Center(
                         child: AppWidgetUtils.buildLoading(),
@@ -423,11 +428,12 @@ class _TransferViewState extends State<TransferView>
                             return <PopupMenuEntry>[
                               const PopupMenuItem(
                                   value: 'option0', child: Text('View')),
-                              const PopupMenuItem(
-                                  value: 'option1',
-                                  child: Text(AppConstants.cancel)),
-                              const PopupMenuItem(
-                                  value: 'option2', child: Text('Approved')),
+                              /*_transferViewBloc.transferStatus ==
+                                      AppConstants.transferred
+                                  ? null
+                                  : */const PopupMenuItem(
+                                      value: 'option1',
+                                      child: Text('Approved')),
                             ];
                           },
                           onSelected: (value) {
@@ -439,7 +445,7 @@ class _TransferViewState extends State<TransferView>
                                           entry.value.transferItems,
                                         ));
                                 break;
-                              case 'option2':
+                              case 'option1':
                                 showDialog(
                                   context: context,
                                   builder: (context) => _buildApproveDialog(

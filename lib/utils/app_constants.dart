@@ -144,6 +144,7 @@ class AppConstants {
   static const employee = 'Employee';
   static const pinCode = 'Pin Code';
   static const insurance = 'Insurance';
+  static const booking = 'Booking';
 
   //Customer
   static const addCustomer = 'Add Customer';
@@ -468,6 +469,10 @@ class AppConstants {
   static const partNoErrorDes = 'No Part Details for this';
   static const discount = 'Discount';
   static const purchaseID = 'Purchase Id';
+
+  //booking
+  static const bookingId = 'Booking Id';
+  static const payments = 'Payments';
 
   //insurnse
 

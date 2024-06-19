@@ -32,9 +32,16 @@ class _CreateBranchDialogState extends State<CreateBranchDialog> {
       _createBranchDialogBlocImpl.getBranchDetailsById(widget.branchId).then(
           (editableValueData) => _getEditBranchDetails(editableValueData));
     } else {
-      _createBranchDialogBlocImpl.selectedBranchId = AppConstants.mainBranch;
+      _createBranchDialogBlocImpl.selectedIsMainOrSub = AppConstants.mainBranch;
     }
+    _selectMainBranchStatus();
     _createBranchDialogBlocImpl.radioButtonStream(true);
+  }
+
+  _selectMainBranchStatus() {
+    _createBranchDialogBlocImpl.selectedIsMainOrSub == AppConstants.mainBranch
+        ? _createBranchDialogBlocImpl.isMainBranch = true
+        : _createBranchDialogBlocImpl.isMainBranch = false;
   }
 
   @override
@@ -278,7 +285,7 @@ class _CreateBranchDialogState extends State<CreateBranchDialog> {
         return Row(
           children: [
             Visibility(
-                visible: _createBranchDialogBlocImpl.selectedBranchId ==
+                visible: _createBranchDialogBlocImpl.selectedIsMainOrSub ==
                     AppConstants.subBranch,
                 child: Expanded(
                   child: FutureBuilder(
@@ -297,12 +304,13 @@ class _CreateBranchDialogState extends State<CreateBranchDialog> {
                         requiredLabelText: AppWidgetUtils.labelTextWithRequired(
                             AppConstants.mainBranch),
                         dropDownItems: branchNameList,
+                        dropDownValue: _createBranchDialogBlocImpl.mainBranchName,
                         hintText: AppConstants.exSelect,
                         validator: (value) {
                           return InputValidations.branchValidation(value ?? '');
                         },
                         onChange: (String? newValue) {
-                          _createBranchDialogBlocImpl.selectedBranchId =
+                          _createBranchDialogBlocImpl.mainBranchId =
                               getAllBranchList
                                   ?.firstWhere((element) =>
                                       element.branchName == newValue)
@@ -330,13 +338,11 @@ class _CreateBranchDialogState extends State<CreateBranchDialog> {
                 children: [
                   Radio(
                       value: AppConstants.mainBranch,
-                      groupValue: _createBranchDialogBlocImpl.selectedBranchId,
+                      groupValue:
+                          _createBranchDialogBlocImpl.selectedIsMainOrSub,
                       onChanged: (String? value) {
-                        _createBranchDialogBlocImpl.selectedBranchId = value;
-                        _createBranchDialogBlocImpl.selectedBranchId ==
-                                AppConstants.mainBranch
-                            ? _createBranchDialogBlocImpl.isMainBranch = true
-                            : false;
+                        _createBranchDialogBlocImpl.selectedIsMainOrSub = value;
+                        _selectMainBranchStatus();
                         _createBranchDialogBlocImpl.radioButtonStream(true);
                       }),
                   Text(AppConstants.mainBranch,
@@ -350,9 +356,10 @@ class _CreateBranchDialogState extends State<CreateBranchDialog> {
                 children: [
                   Radio(
                       value: AppConstants.subBranch,
-                      groupValue: _createBranchDialogBlocImpl.selectedBranchId,
+                      groupValue:
+                          _createBranchDialogBlocImpl.selectedIsMainOrSub,
                       onChanged: (String? value) {
-                        _createBranchDialogBlocImpl.selectedBranchId = value;
+                        _createBranchDialogBlocImpl.selectedIsMainOrSub = value;
                         _createBranchDialogBlocImpl.radioButtonStream(true);
                       }),
                   Text(AppConstants.subBranch,
@@ -371,8 +378,10 @@ class _CreateBranchDialogState extends State<CreateBranchDialog> {
       GetAllBranchList? editableValueData) async {
     _createBranchDialogBlocImpl.isMainBranch = editableValueData?.mainBranch;
     editableValueData?.mainBranch == true
-        ? _createBranchDialogBlocImpl.selectedBranchId = AppConstants.mainBranch
-        : _createBranchDialogBlocImpl.selectedBranchId = AppConstants.subBranch;
+        ? _createBranchDialogBlocImpl.selectedIsMainOrSub =
+            AppConstants.mainBranch
+        : _createBranchDialogBlocImpl.selectedIsMainOrSub =
+            AppConstants.subBranch;
     _createBranchDialogBlocImpl.radioButtonStream(true);
     _createBranchDialogBlocImpl.branchNameController.text =
         editableValueData?.branchName ?? '';
@@ -383,6 +392,13 @@ class _CreateBranchDialogState extends State<CreateBranchDialog> {
     _createBranchDialogBlocImpl.selectedCity = editableValueData?.city ?? '';
     _createBranchDialogBlocImpl.addressController.text =
         editableValueData?.address ?? '';
+    _createBranchDialogBlocImpl.mainBranchId = editableValueData?.mainBranchId;
+    _createBranchDialogBlocImpl
+        .getBranchDetailsById(_createBranchDialogBlocImpl.mainBranchId)
+        .then((value) {
+          _createBranchDialogBlocImpl.mainBranchName = value?.branchName ?? '';
+        });
+    setState(() {});
   }
 
   _isLoading(bool? isLoadingState) {

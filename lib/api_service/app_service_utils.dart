@@ -244,12 +244,15 @@ class AppServiceUtilImpl extends AppServiceUtil {
   @override
   Future<void> addBranch(AddBranchModel addBranchModel,
       Function(int? statusCode) onSuccessCallBack) async {
+    print('********************${addBranchModel.toJson()}');
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       var token = prefs.getString('token');
       dio.options.headers['Authorization'] = 'Bearer $token';
       var response =
           await dio.post(AppUrl.branch, data: jsonEncode(addBranchModel));
+      print('********************${addBranchModel.toJson()}');
+      print('********************${response.data}');
       onSuccessCallBack(response.statusCode);
     } on DioException catch (e) {
       onSuccessCallBack(e.response?.statusCode);
