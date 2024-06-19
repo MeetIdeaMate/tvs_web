@@ -21,7 +21,7 @@ abstract class CreateBranchDialogBloc {
 
   String? get selectedMainBranch;
 
-  String? get selectedBranchId;
+  String? get selectedIsMainOrSub;
 
   String? get selectedCity;
 
@@ -43,6 +43,10 @@ abstract class CreateBranchDialogBloc {
   Future<GetAllBranchList?> getBranchDetailsById(String? branchId);
 
   Future<List<String>> getCities();
+
+  String? get mainBranchId;
+
+  String? get mainBranchName;
 }
 
 class CreateBranchDialogBlocImpl extends CreateBranchDialogBloc {
@@ -55,6 +59,8 @@ class CreateBranchDialogBlocImpl extends CreateBranchDialogBloc {
   String? _selectedMainBranch;
   String? _selectedBranch;
   String? _selectCity;
+  String? _mainBranchId;
+  String? _mainBranchName;
   final _branchFormKey = GlobalKey<FormState>();
   final _appService = AppServiceUtilImpl();
   bool? _isMainBranch;
@@ -83,20 +89,20 @@ class CreateBranchDialogBlocImpl extends CreateBranchDialogBloc {
   }
 
   @override
-  String? get selectedBranchId => _selectedBranch;
+  String? get selectedIsMainOrSub => _selectedBranch;
 
   @override
   GlobalKey<FormState> get branchFormKey => _branchFormKey;
+
+  set selectedIsMainOrSub(String? newValue) {
+    _selectedBranch = newValue;
+  }
 
   @override
   String? get selectedCity => _selectCity;
 
   set selectedCity(String? newValue) {
     _selectCity = newValue;
-  }
-
-  set selectedBranchId(String? newValue) {
-    _selectedBranch = newValue;
   }
 
   @override
@@ -109,7 +115,7 @@ class CreateBranchDialogBlocImpl extends CreateBranchDialogBloc {
             mobileNo: mobileNoController.text,
             pinCode: pinCodeController.text,
             mainBranch: isMainBranch,
-            mainBranchId: selectedBranchId),
+            mainBranchId: mainBranchId),
         onSuccessCallBack);
   }
 
@@ -160,8 +166,22 @@ class CreateBranchDialogBlocImpl extends CreateBranchDialogBloc {
             mobileNo: mobileNoController.text,
             mainBranch: isMainBranch,
             pinCode: pinCodeController.text,
-            mainBranchId: branchId),
+            mainBranchId: mainBranchId),
         branchId,
         successCallBack);
+  }
+
+  @override
+  String? get mainBranchId => _mainBranchId;
+
+  set mainBranchId(String? newValue) {
+    _mainBranchId = newValue;
+  }
+
+  @override
+  String? get mainBranchName => _mainBranchName;
+
+  set mainBranchName(String? newValue) {
+    _mainBranchName = newValue;
   }
 }
