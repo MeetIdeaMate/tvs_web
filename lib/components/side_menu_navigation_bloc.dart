@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:tlbilling/api_service/app_service_utils.dart';
-import 'package:tlbilling/models/get_model/get_all_branch_by_id_model.dart';
 import 'package:tlbilling/models/get_model/get_all_branch_model.dart';
 
 abstract class SideMenuNavigationBloc {

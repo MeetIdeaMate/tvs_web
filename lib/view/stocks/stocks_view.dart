@@ -1,7 +1,9 @@
+import 'dart:html';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:tlbilling/components/custom_pagenation.dart';
-import 'package:tlbilling/models/get_model/get_all_stocks_by_id_model.dart';
+import 'package:tlbilling/models/get_model/get_all_stock_with_pagination.dart';
 import 'package:tlbilling/utils/app_colors.dart';
 import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/utils/app_util_widgets.dart';
@@ -175,24 +177,31 @@ class _StocksViewState extends State<StocksView>
         if (currentPage < 0) currentPage = 0;
         _stocksViewBloc.currentPage = currentPage;
         return FutureBuilder(
-          future: _stocksViewBloc.getAllStockByPagenation(
-              _stocksViewBloc.stocksTableTableController.index == 0
-                  ? AppConstants.vehicle
-                  : AppConstants.accessories),
+          future: _stocksViewBloc.getAllStockByPagenation(() {
+            switch (_stocksViewBloc.stocksTableTableController.index) {
+              case 0:
+                return AppConstants.vehicle;
+              case 1:
+                return AppConstants.accessories;
+              default:
+                return '';
+            }
+          }()),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return Center(child: AppWidgetUtils.buildLoading());
             } else if (snapshot.hasData) {
-              GetAllStocksByPagenation employeeListmodel = snapshot.data!;
+              GetAllStocksByPagenation stockListModel = snapshot.data!;
               List<StockDetailsList> purchasedata =
-                  snapshot.data?.content ?? [];
+                  snapshot.data?.stockDetailsList ?? [];
+
               return Column(
                 children: [
                   Expanded(
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: SizedBox(
-                        width: MediaQuery.of(context).size.width,
+                    child: SizedBox(
+                      width: MediaQuery.of(context).size.width,
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
                         child: DataTable(
                           dividerThickness: 0.01,
                           columns: [
@@ -217,15 +226,18 @@ class _StocksViewState extends State<StocksView>
                                 _buildTableRow(entry.value.partNo),
                                 _buildTableRow(entry.value.itemName),
                                 _buildTableRow(entry.value.hsnSacCode),
-                                _buildTableRow(entry.value.quantity.toString()),
+                                _buildTableRow(entry
+                                    .value.stockItems?.first.quantity
+                                    .toString()),
                                 DataCell(IconButton(
                                     onPressed: () {
-                                      // showDialog(
-                                      //   context: context,
-                                      //   builder: (context) {
-                                      //     return _buildStockDetailsDialog(entry.value);
-                                      //   },
-                                      // );
+                                      showDialog(
+                                        context: context,
+                                        builder: (context) {
+                                          return _buildStockDetailsDialog(
+                                              entry.value);
+                                        },
+                                      );
                                     },
                                     icon: Icon(
                                       Icons.table_chart_outlined,
@@ -239,10 +251,13 @@ class _StocksViewState extends State<StocksView>
                     ),
                   ),
                   CustomPagination(
-                    itemsOnLastPage: employeeListmodel.totalElements ?? 0,
+                    itemsOnLastPage: stockListModel.totalElements ?? 0,
                     currentPage: currentPage,
-                    totalPages: employeeListmodel.totalPages ?? 0,
-                    onPageChanged: (pageValue) {},
+                    totalPages: stockListModel.totalPages ?? 0,
+                    onPageChanged: (pageValue) {
+                      _stocksViewBloc
+                          .pageNumberUpdateStreamController(pageValue);
+                    },
                   ),
                 ],
               );
@@ -269,81 +284,81 @@ class _StocksViewState extends State<StocksView>
     );
   }
 
-//  Widget _buildStockDetailsDialog(StockDetailsList stockDetails) {
-//   return AlertDialog(
-//     surfaceTintColor: AppColor().whiteColor,
-//     backgroundColor: AppColor().whiteColor,
-//     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-//     title: Row(
-//       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//       children: [
-//         Text(
-//           'Vehicle Details',
-//           style: TextStyle(color: AppColor().primaryColor),
-//         ),
-//         IconButton(
-//           icon: const Icon(Icons.close),
-//           onPressed: () {
-//             Navigator.of(context).pop();
-//           },
-//         ),
-//       ],
-//     ),
-//     content: SizedBox(
-//       height: 400,
-//       width: 530,
-//       child: SingleChildScrollView(
-//         child: Column(
-//           mainAxisAlignment: MainAxisAlignment.start,
-//           crossAxisAlignment: CrossAxisAlignment.start,
-//           children: [
-//             ExpansionTile(
-//               title: Text(stockDetails.itemName ?? 'N/A'),
-//               subtitle: Text(stockDetails.partNo ?? 'N/A'),
-//               expandedAlignment: Alignment.topLeft,
-//               dense: true,
-//               children: [
-//                 DataTable(
-//                   columns: [
-//                     DataColumn(
-//                       label: Text(
-//                         AppConstants.sno,
-//                         style: TextStyle(fontWeight: FontWeight.bold),
-//                       ),
-//                     ),
-//                     _buildVehicleTableHeader(AppConstants.engineNumber),
-//                     _buildVehicleTableHeader(AppConstants.frameNumber),
-//                   ],
-//                   rows: stockDetails.mainSpecValue
-                     
-//                       .map((entry) {
-//                     final index = entry.key;
-//                     final value = entry.value;
-//                     return DataRow(
-//                       color: MaterialStateColor.resolveWith((states) {
-//                         return index % 2 == 0
-//                             ? Colors.white
-//                             : AppColor().transparentBlueColor;
-//                       }),
-//                       cells: [
-//                         _buildTableRow((index + 1).toString()),
-//                         _buildTableRow(value.engineNumber ?? 'N/A'),
-//                         _buildTableRow(value.frameNumber ?? 'N/A'),
-//                       ],
-//                     );
-//                   }).toList(),
-//                 ),
-//               ],
-//             ),
-//           ],
-//         ),
-//       ),
-//     ),
-//   );
-// }
-
-
-
-    
+  Widget _buildStockDetailsDialog(StockDetailsList stockDetails) {
+    return AlertDialog(
+      surfaceTintColor: AppColor().whiteColor,
+      backgroundColor: AppColor().whiteColor,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      title: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            'Vehicle Details',
+            style: TextStyle(color: AppColor().primaryColor),
+          ),
+          IconButton(
+            icon: const Icon(Icons.close),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
+      ),
+      content: SizedBox(
+        height: 400,
+        width: 530,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ExpansionTile(
+                title: Text(stockDetails.itemName ?? 'N/A'),
+                subtitle: Text(stockDetails.partNo ?? 'N/A'),
+                expandedAlignment: Alignment.topLeft,
+                dense: true,
+                children: _stocksViewBloc.stocksTableTableController.index == 0
+                    ? [
+                        DataTable(
+                          columns: [
+                            const DataColumn(
+                              label: Text(
+                                AppConstants.sno,
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                            _buildVehicleTableHeader(AppConstants.engineNumber),
+                            _buildVehicleTableHeader(AppConstants.frameNumber),
+                          ],
+                          rows: stockDetails.stockItems!
+                              .asMap()
+                              .entries
+                              .map((entry) {
+                            final index = entry.key;
+                            final value = entry.value;
+                            return DataRow(
+                              color: MaterialStateColor.resolveWith((states) {
+                                return index % 2 == 0
+                                    ? Colors.white
+                                    : AppColor().transparentBlueColor;
+                              }),
+                              cells: [
+                                _buildTableRow((index + 1).toString()),
+                                _buildTableRow(
+                                    value.mainSpecValue?.engineNo ?? 'N/A'),
+                                _buildTableRow(
+                                    value.mainSpecValue?.frameNo ?? 'N/A'),
+                              ],
+                            );
+                          }).toList(),
+                        )
+                      ]
+                    : [],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }
-
