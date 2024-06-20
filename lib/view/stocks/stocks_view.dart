@@ -226,9 +226,8 @@ class _StocksViewState extends State<StocksView>
                                 _buildTableRow(entry.value.partNo),
                                 _buildTableRow(entry.value.itemName),
                                 _buildTableRow(entry.value.hsnSacCode),
-                                _buildTableRow(entry
-                                    .value.stockItems?.first.quantity
-                                    .toString()),
+                                _buildTableRow(
+                                    entry.value.totalQuantity.toString()),
                                 DataCell(IconButton(
                                     onPressed: () {
                                       showDialog(

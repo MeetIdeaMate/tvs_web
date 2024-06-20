@@ -4,7 +4,6 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import 'package:tlbilling/models/get_model/get_all_purchase_model.dart';
 import 'package:tlbilling/utils/app_utils.dart';
-
 class PurchaseInvoicePrint {
   Future<void> printDocument(PurchaseBill purchaseData) async {
     try {
