@@ -187,6 +187,7 @@ class AppConstants {
   static const hintAccNo = 'Enter Account Number';
   static const ifscNo = ' IFSC Code';
   static const enterIfscCode = 'Enter IFSC Code';
+  static const purchasenodateMsg = 'Add Purchase Value to the table to view';
 
   //transport
   static const addTransport = 'Add Transport';
@@ -520,4 +521,5 @@ class AppConstants {
   static const String purchaseApproveError = 'The Purchase bill Not Approved';
   static const String purchaseApproveErrorDesc =
       'The Purchase bill Not Approved something went wrong';
+  static const String purchaseTableVerifyMsg = 'Add Purchase Value to the table to view';
 }

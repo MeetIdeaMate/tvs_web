@@ -109,6 +109,8 @@ abstract class AddVehicleAndAccessoriesBloc {
   Future<GetAllCategoryListModel?> getAllCategoryList();
   List<String> get gstTypeOptions;
   Future<bool> purchaseValidate();
+  bool? get isTableDataVerifited;
+  Stream<bool> get isTableDataVerifyedStream;
 }
 
 class AddVehicleAndAccessoriesBlocImpl extends AddVehicleAndAccessoriesBloc {
@@ -187,6 +189,9 @@ class AddVehicleAndAccessoriesBlocImpl extends AddVehicleAndAccessoriesBloc {
   String? _categoryName;
   bool _isAddPurchaseBillLoading = false;
   final List<String> _gstTypeOptions = ['GST %', 'IGST %'];
+  bool? _isTableDataVerifited = false;
+  final _isTableDataVerifyedStreamController =
+      StreamController<bool>.broadcast();
 
   @override
   String? get vendorDropDownValue => _vendorDropDownValue;
@@ -570,5 +575,20 @@ class AddVehicleAndAccessoriesBlocImpl extends AddVehicleAndAccessoriesBloc {
       "engineNo": engineNumberController.text,
       "frameNo": frameNumberController.text
     }, partNumberController.text);
+  }
+
+  @override
+  bool? get isTableDataVerifited => _isTableDataVerifited;
+
+  set isTableDataVerifited(bool? verifyed) {
+    _isTableDataVerifited = verifyed;
+  }
+
+  @override
+  Stream<bool> get isTableDataVerifyedStream =>
+      _isTableDataVerifyedStreamController.stream;
+
+  isTableDataVerifyedStreamController(bool tableData) {
+    _isTableDataVerifyedStreamController.add(tableData);
   }
 }
