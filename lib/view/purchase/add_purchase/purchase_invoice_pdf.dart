@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
@@ -7,10 +8,10 @@ import 'package:tlbilling/utils/app_utils.dart';
 class PurchaseInvoicePrint {
   Future<void> printDocument(PurchaseBill purchaseData) async {
     try {
-      final regularFont = await PdfGoogleFonts.poppinsRegular();
-      final boldFont = await PdfGoogleFonts.poppinsBold();
-
       final pdf = pw.Document();
+
+      final pw.Font regularFont =
+          pw.Font.ttf(await rootBundle.load("assets/fonts/Roboto-Regular.ttf"));
 
       pdf.addPage(
         pw.MultiPage(
@@ -37,7 +38,7 @@ class PurchaseInvoicePrint {
                                   style: pw.TextStyle(
                                       fontSize: 10,
                                       fontWeight: pw.FontWeight.bold,
-                                      font: boldFont)),
+                                      font: regularFont)),
                               pw.Text('Address 1',
                                   style: pw.TextStyle(
                                       fontSize: 8, font: regularFont)),
@@ -65,7 +66,7 @@ class PurchaseInvoicePrint {
                                   style: pw.TextStyle(
                                       fontSize: 10,
                                       fontWeight: pw.FontWeight.bold,
-                                      font: boldFont)),
+                                      font: regularFont)),
                               pw.Text(
                                   'Vendor: ${purchaseData.vendorName ?? ''}',
                                   style: pw.TextStyle(
@@ -92,7 +93,7 @@ class PurchaseInvoicePrint {
                                   style: pw.TextStyle(
                                       fontSize: 10,
                                       fontWeight: pw.FontWeight.bold,
-                                      font: boldFont)),
+                                      font: regularFont)),
                               pw.Text(
                                   'Invoice No: ${purchaseData.pInvoiceNo ?? ''}',
                                   style: pw.TextStyle(
@@ -143,7 +144,7 @@ class PurchaseInvoicePrint {
                     headerStyle: pw.TextStyle(
                         fontWeight: pw.FontWeight.bold,
                         fontSize: 8,
-                        font: boldFont),
+                        font: regularFont),
                     cellStyle: pw.TextStyle(fontSize: 8, font: regularFont),
                     data:
                         purchaseData.itemDetails!.asMap().entries.map((entry) {
@@ -225,7 +226,7 @@ class PurchaseInvoicePrint {
                       style: pw.TextStyle(
                           fontSize: 13,
                           fontWeight: pw.FontWeight.bold,
-                          font: boldFont)),
+                          font: regularFont)),
                   pw.SizedBox(height: 20),
                   pw.Wrap(
                     spacing: 50,
@@ -243,13 +244,13 @@ class PurchaseInvoicePrint {
                                     style: pw.TextStyle(
                                         fontSize: 10,
                                         fontWeight: pw.FontWeight.bold,
-                                        font: boldFont)),
+                                        font: regularFont)),
                                 pw.SizedBox(width: 10),
                                 pw.Text(item.partNo ?? '',
                                     style: pw.TextStyle(
                                         fontSize: 8,
                                         fontWeight: pw.FontWeight.bold,
-                                        font: boldFont)),
+                                        font: regularFont)),
                               ],
                             ),
                             pw.SizedBox(height: 10),
@@ -264,7 +265,7 @@ class PurchaseInvoicePrint {
                               headerStyle: pw.TextStyle(
                                   fontWeight: pw.FontWeight.bold,
                                   fontSize: 8,
-                                  font: boldFont),
+                                  font: regularFont),
                               cellStyle:
                                   pw.TextStyle(fontSize: 8, font: regularFont),
                               data: item.mainSpecValues!
