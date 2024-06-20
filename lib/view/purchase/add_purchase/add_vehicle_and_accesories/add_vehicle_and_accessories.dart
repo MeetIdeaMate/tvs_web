@@ -590,6 +590,10 @@ class _AddVehicleAndAccessoriesState extends State<AddVehicleAndAccessories> {
           }
           return null;
         },
+        onSubmit: (purchaseRef) {
+          FocusScope.of(context)
+              .requestFocus(widget.purchaseBloc.partNoFocusNode);
+        },
         inputFormatters: TlInputFormatters.onlyAllowAlphabetAndNumber,
         focusNode: widget.purchaseBloc.purchaseRefFocusNode,
         labelText: AppConstants.purchaseRef,
@@ -748,6 +752,10 @@ class _AddVehicleAndAccessoriesState extends State<AddVehicleAndAccessories> {
           labelText: AppConstants.unitRate,
           hintText: AppConstants.rupeeHint,
           controller: widget.purchaseBloc.unitRateController,
+          onSubmit: (unit) {
+            FocusScope.of(context)
+                .requestFocus(widget.purchaseBloc.vehiceNameFocusNode);
+          },
           onChanged: (unitPrice) {
             _purchaseTableAmountCalculation();
             widget.purchaseBloc.paymentDetailsStreamController(true);
@@ -917,6 +925,9 @@ class _AddVehicleAndAccessoriesState extends State<AddVehicleAndAccessories> {
           }
           clearPurchaseDataValue();
           widget.purchaseBloc.refreshPurchaseDataTableList(true);
+          widget.purchaseBloc.isTableDataVerifyedStreamController(true);
+          FocusScope.of(context)
+              .requestFocus(widget.purchaseBloc.partNoFocusNode);
         } else {}
       },
     );
