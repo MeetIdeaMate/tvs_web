@@ -1,20 +1,15 @@
-import 'package:flutter/services.dart' show rootBundle;
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import 'package:tlbilling/models/get_model/get_all_purchase_model.dart';
-import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/utils/app_utils.dart';
 
 class PurchaseInvoicePrint {
-  pw.Font? regularFont;
-  pw.Font? boldFont;
-
   Future<void> printDocument(PurchaseBill purchaseData) async {
     try {
-      regularFont = pw.Font.ttf(await rootBundle.load(AppConstants.ttfPoppinsRegular));
-      boldFont = pw.Font.ttf(await rootBundle.load(AppConstants.ttfPoppinsRegular));
-      
+      final regularFont = await PdfGoogleFonts.poppinsRegular();
+      final boldFont = await PdfGoogleFonts.poppinsBold();
+
       final pdf = pw.Document();
 
       pdf.addPage(
@@ -71,10 +66,12 @@ class PurchaseInvoicePrint {
                                       fontSize: 10,
                                       fontWeight: pw.FontWeight.bold,
                                       font: boldFont)),
-                              pw.Text('Vendor: ${purchaseData.vendorName ?? ''}',
+                              pw.Text(
+                                  'Vendor: ${purchaseData.vendorName ?? ''}',
                                   style: pw.TextStyle(
                                       fontSize: 8, font: regularFont)),
-                              pw.Text('Vendor ID: ${purchaseData.vendorId ?? ''}',
+                              pw.Text(
+                                  'Vendor ID: ${purchaseData.vendorId ?? ''}',
                                   style: pw.TextStyle(
                                       fontSize: 8, font: regularFont)),
                             ],
@@ -148,7 +145,8 @@ class PurchaseInvoicePrint {
                         fontSize: 8,
                         font: boldFont),
                     cellStyle: pw.TextStyle(fontSize: 8, font: regularFont),
-                    data: purchaseData.itemDetails!.asMap().entries.map((entry) {
+                    data:
+                        purchaseData.itemDetails!.asMap().entries.map((entry) {
                       final index = entry.key + 1;
                       final item = entry.value;
 
@@ -225,7 +223,9 @@ class PurchaseInvoicePrint {
                   pw.SizedBox(height: 40),
                   pw.Text('Vehicle Details',
                       style: pw.TextStyle(
-                          fontSize: 13, fontWeight: pw.FontWeight.bold, font: boldFont)),
+                          fontSize: 13,
+                          fontWeight: pw.FontWeight.bold,
+                          font: boldFont)),
                   pw.SizedBox(height: 20),
                   pw.Wrap(
                     spacing: 50,
