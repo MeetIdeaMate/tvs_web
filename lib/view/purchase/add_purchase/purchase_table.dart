@@ -418,10 +418,12 @@ class _PurchaseTableState extends State<PurchaseTable> {
       );
 
   Widget _buildPreviewAndActionButton() {
+
     return StreamBuilder<bool>(
         stream: widget.purchaseBloc.isTableDataVerifyedStream,
         builder: (context, snapshot) {
           return Row(
+            
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               // CustomElevatedButton(
