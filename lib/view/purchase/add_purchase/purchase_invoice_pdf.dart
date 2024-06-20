@@ -4,6 +4,7 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import 'package:tlbilling/models/get_model/get_all_purchase_model.dart';
 import 'package:tlbilling/utils/app_utils.dart';
+
 class PurchaseInvoicePrint {
   Future<void> printDocument(PurchaseBill purchaseData) async {
     try {
@@ -145,80 +146,86 @@ class PurchaseInvoicePrint {
                         fontSize: 8,
                         font: regularFont),
                     cellStyle: pw.TextStyle(fontSize: 8, font: regularFont),
-                    data:
-                        purchaseData.itemDetails!.asMap().entries.map((entry) {
-                      final index = entry.key + 1;
-                      final item = entry.value;
+                    data: purchaseData.itemDetails
+                            ?.asMap()
+                            .entries
+                            .map((entry) {
+                          final index = entry.key + 1;
+                          final item = entry.value;
 
-                      double cgstPercent = 0;
-                      double cgstValue = 0;
-                      double sgstPercent = 0;
-                      double sgstValue = 0;
-                      double igstPercent = 0;
-                      double igstValue = 0;
+                          double cgstPercent = 0;
+                          double cgstValue = 0;
+                          double sgstPercent = 0;
+                          double sgstValue = 0;
+                          double igstPercent = 0;
+                          double igstValue = 0;
 
-                      double empsIncentive = item.incentives!
-                          .firstWhere(
-                              (incentive) =>
-                                  incentive.incentiveName ==
-                                  'EMPS 2024 Incentive',
-                              orElse: () => Incentive(
-                                  incentiveName: '', incentiveAmount: 0))
-                          .incentiveAmount!;
+                          double empsIncentive = item.incentives?.firstWhere(
+                                      (incentive) =>
+                                          incentive.incentiveName ==
+                                          'EMPS 2024 Incentive',
+                                      orElse: () => Incentive(
+                                          incentiveName: '',
+                                          incentiveAmount: 0))
+                                  .incentiveAmount ??
+                              0.0;
+                          double stateIncentive = item.incentives
+                                  ?.firstWhere(
+                                      (incentive) =>
+                                          incentive.incentiveName ==
+                                          'StateIncentive',
+                                      orElse: () => Incentive(
+                                          incentiveName: '',
+                                          incentiveAmount: 0))
+                                  .incentiveAmount ??
+                              0.0;
 
-                      double stateIncentive = item.incentives!
-                          .firstWhere(
-                              (incentive) =>
-                                  incentive.incentiveName == 'StateIncentive',
-                              orElse: () => Incentive(
-                                  incentiveName: '', incentiveAmount: 0))
-                          .incentiveAmount!;
+                          double tcsValue = item.taxes?.firstWhere((tax) => tax.taxName == 'TcsValue',
+                                  orElse: () => Tax(taxName: '', taxAmount: 0))
+                              .taxAmount ?? 0.0;
 
-                      double tcsValue = item.taxes!
-                          .firstWhere((tax) => tax.taxName == 'TcsValue',
-                              orElse: () => Tax(taxName: '', taxAmount: 0))
-                          .taxAmount!;
-
-                      if (item.gstDetails != null) {
-                        for (var gstDetail in item.gstDetails!) {
-                          if (gstDetail.gstName == 'CGST') {
-                            cgstPercent = gstDetail.percentage!.toDouble();
-                            cgstValue = gstDetail.gstAmount!;
-                          } else if (gstDetail.gstName == 'SGST') {
-                            sgstPercent = gstDetail.percentage!.toDouble();
-                            sgstValue = gstDetail.gstAmount!;
-                          } else if (gstDetail.gstName == 'IGST') {
-                            igstPercent = gstDetail.percentage!.toDouble();
-                            igstValue = gstDetail.gstAmount!;
+                          if (item.gstDetails != null) {
+                            for (var gstDetail in item.gstDetails ?? []) {
+                              if (gstDetail.gstName == 'CGST') {
+                                cgstPercent = gstDetail.percentage ?? 0;
+                                cgstValue = gstDetail.gstAmount ?? 0;
+                              } else if (gstDetail.gstName == 'SGST') {
+                                sgstPercent = gstDetail.percentage ?? 0;
+                                sgstValue = gstDetail.gstAmount ?? 0;
+                              } else if (gstDetail.gstName == 'IGST') {
+                                igstPercent = gstDetail.percentage ?? 0;
+                                igstValue = gstDetail.gstAmount ?? 0;
+                              }
+                            }
                           }
-                        }
-                      }
 
-                      return [
-                        '$index',
-                        item.partNo ?? '',
-                        item.itemName ?? '',
-                        item.hsnSacCode ?? '',
-                        '${item.quantity ?? ''}',
-                        AppUtils.formatCurrency(item.unitRate!.toDouble()),
-                        AppUtils.formatCurrency(item.quantity!.toDouble() *
-                            item.unitRate!.toDouble()),
-                        AppUtils.formatCurrency(item.discount!.toDouble()),
-                        AppUtils.formatCurrency(item.taxableValue!.toDouble()),
-                        '$cgstPercent %',
-                        AppUtils.formatCurrency(cgstValue),
-                        '$sgstPercent %',
-                        AppUtils.formatCurrency(sgstValue),
-                        '$igstPercent %',
-                        AppUtils.formatCurrency(igstValue),
-                        AppUtils.formatCurrency(tcsValue),
-                        AppUtils.formatCurrency(item.invoiceValue!),
-                        AppUtils.formatCurrency(empsIncentive),
-                        AppUtils.formatCurrency(stateIncentive),
-                        AppUtils.formatCurrency(
-                            item.finalInvoiceValue!.toDouble()),
-                      ];
-                    }).toList(),
+                          return [
+                            '$index',
+                            item.partNo ?? '',
+                            item.itemName ?? '',
+                            item.hsnSacCode ?? '',
+                            '${item.quantity ?? ''}',
+                            AppUtils.formatCurrency(item.unitRate ?? 0),
+                            AppUtils.formatCurrency((item.quantity ?? 0) *
+                               ( item.unitRate ?? 0)),
+                            AppUtils.formatCurrency(item.discount ?? 0),
+                            AppUtils.formatCurrency(
+                                item.taxableValue ?? 0),
+                            '$cgstPercent %',
+                            AppUtils.formatCurrency(cgstValue),
+                            '$sgstPercent %',
+                            AppUtils.formatCurrency(sgstValue),
+                            '$igstPercent %',
+                            AppUtils.formatCurrency(igstValue),
+                            AppUtils.formatCurrency(tcsValue),
+                            AppUtils.formatCurrency(item.invoiceValue ?? 0),
+                            AppUtils.formatCurrency(empsIncentive),
+                            AppUtils.formatCurrency(stateIncentive),
+                            AppUtils.formatCurrency(
+                                item.finalInvoiceValue ?? 0),
+                          ];
+                        }).toList() ??
+                        [],
                   ),
                   pw.SizedBox(height: 40),
                   pw.Text('Vehicle Details',
@@ -230,7 +237,7 @@ class PurchaseInvoicePrint {
                   pw.Wrap(
                     spacing: 50,
                     runSpacing: 30,
-                    children: purchaseData.itemDetails!.map((item) {
+                    children: purchaseData.itemDetails?.map((item) {
                       return pw.Container(
                         width: 400,
                         child: pw.Column(
@@ -267,8 +274,7 @@ class PurchaseInvoicePrint {
                                   font: regularFont),
                               cellStyle:
                                   pw.TextStyle(fontSize: 8, font: regularFont),
-                              data: item.mainSpecValues!
-                                  .asMap()
+                              data: item.mainSpecValues?.asMap()
                                   .entries
                                   .map((entry) {
                                 final index = entry.key + 1;
@@ -279,13 +285,13 @@ class PurchaseInvoicePrint {
                                   (spec.frameNumber ?? ''),
                                   (''),
                                 ];
-                              }).toList(),
+                              }).toList() ?? [],
                             ),
                             pw.SizedBox(height: 10),
                           ],
                         ),
                       );
-                    }).toList(),
+                    }).toList() ?? [],
                   ),
                 ],
               )
