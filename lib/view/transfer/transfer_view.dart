@@ -428,12 +428,13 @@ class _TransferViewState extends State<TransferView>
                             return <PopupMenuEntry>[
                               const PopupMenuItem(
                                   value: 'option0', child: Text('View')),
-                              /*_transferViewBloc.transferStatus ==
+                              PopupMenuItem(
+                                enabled: _transferViewBloc.transferStatus ==
                                       AppConstants.transferred
-                                  ? null
-                                  : */const PopupMenuItem(
+                                  ? false
+                                  : true,
                                       value: 'option1',
-                                      child: Text('Approved')),
+                                      child: const Text('Approved')),
                             ];
                           },
                           onSelected: (value) {

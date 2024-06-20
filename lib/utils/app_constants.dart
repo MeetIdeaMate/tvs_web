@@ -473,6 +473,11 @@ class AppConstants {
   //booking
   static const bookingId = 'Booking Id';
   static const payments = 'Payments';
+  static const additionalInfo = 'Additional Info';
+  static const executiveName = 'Executive Name';
+  static const targetInvDate = 'Target Inv Date';
+  static const addBook = 'Add Book';
+  static const newBooking = 'New Booking';
 
   //insurnse
 

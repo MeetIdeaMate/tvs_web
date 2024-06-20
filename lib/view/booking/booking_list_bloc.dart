@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:tlbilling/api_service/app_service_utils.dart';
+import 'package:tlbilling/models/get_model/get_all_booking_list_with_pagination.dart';
 import 'package:tlbilling/models/get_model/get_configuration_model.dart';
 import 'package:tlbilling/utils/app_constants.dart';
 
@@ -19,6 +20,8 @@ abstract class BookingListBloc {
   String? get selectedPaymentType;
 
   Future<GetConfigurationModel?> getPaymentsList();
+
+  Future<GetBookingListWithPagination?> getBookingListWithPagination();
 }
 
 class BookingListBlocImpl extends BookingListBloc {
@@ -70,5 +73,10 @@ class BookingListBlocImpl extends BookingListBloc {
 
   set selectedPaymentType(String? newPaymentValue) {
     _selectedPaymentType = newPaymentValue;
+  }
+
+  @override
+  Future<GetBookingListWithPagination?> getBookingListWithPagination() async{
+    return await _appServices.getBookingListWithPagination();
   }
 }

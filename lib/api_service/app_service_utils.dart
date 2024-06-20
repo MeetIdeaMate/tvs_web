@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tlbilling/api_service/app_url.dart';
 import 'package:tlbilling/models/get_employee_by_id.dart';
+import 'package:tlbilling/models/get_model/get_all_booking_list_with_pagination.dart';
 import 'package:tlbilling/models/get_model/get_all_branch_by_id_model.dart';
 import 'package:tlbilling/models/get_model/get_all_branch_model.dart';
 import 'package:tlbilling/models/get_model/get_all_branches_by_pagination.dart';
@@ -208,6 +209,8 @@ abstract class AppServiceUtil {
 
   Future<void> stockTransferApproval(
       String? branchId, String? transferId, Function(int)? onSuccessCallback);
+
+  Future<GetBookingListWithPagination?> getBookingListWithPagination();
 }
 
 class AppServiceUtilImpl extends AppServiceUtil {
@@ -227,6 +230,7 @@ class AppServiceUtilImpl extends AppServiceUtil {
         var userId = response.data['result']['login']['userId'];
         var useRefId = response.data['result']['login']['useRefId'] ?? '';
         var branchId = response.data['result']['login']['branchId'] ?? '';
+        print('************loign branch id********${branchId}');
         SharedPreferences prefs = await SharedPreferences.getInstance();
         prefs.setString(AppConstants.token, token);
         prefs.setString(AppConstants.designation, designation);
@@ -244,15 +248,12 @@ class AppServiceUtilImpl extends AppServiceUtil {
   @override
   Future<void> addBranch(AddBranchModel addBranchModel,
       Function(int? statusCode) onSuccessCallBack) async {
-    print('********************${addBranchModel.toJson()}');
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       var token = prefs.getString('token');
       dio.options.headers['Authorization'] = 'Bearer $token';
       var response =
           await dio.post(AppUrl.branch, data: jsonEncode(addBranchModel));
-      print('********************${addBranchModel.toJson()}');
-      print('********************${response.data}');
       onSuccessCallBack(response.statusCode);
     } on DioException catch (e) {
       onSuccessCallBack(e.response?.statusCode);
@@ -1013,6 +1014,7 @@ class AppServiceUtilImpl extends AppServiceUtil {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       var token = prefs.getString('token');
       dio.options.headers['Authorization'] = 'Bearer $token';
+      print('***********url is*********${AppUrl.stock}?branchId=$branchId&categoryName=$categoryName');
       var response = await dio
           .get('${AppUrl.stock}?branchId=$branchId&categoryName=$categoryName');
       var stocksList = parentResponseModelFromJson(jsonEncode(response.data))
@@ -1310,6 +1312,24 @@ class AppServiceUtilImpl extends AppServiceUtil {
       return responseList.result?.getAllStocksByPagenation;
     } on DioException catch (e) {
       e.response?.statusCode ?? 0;
+    }
+    return null;
+  }
+
+  @override
+  Future<GetBookingListWithPagination?> getBookingListWithPagination() async{
+    try {
+      final dio = Dio();
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      var token = prefs.getString('token');
+      dio.options.headers['Authorization'] = 'Bearer $token';
+      String url = '${AppUrl.booking}/page?page=0&size=10';
+      var response = await dio.get(url);
+      return parentResponseModelFromJson(jsonEncode(response.data))
+          .result
+          ?.getAllBookingListWithPagination;
+    } on DioException catch (exception) {
+      exception.response?.statusCode ?? 0;
     }
     return null;
   }

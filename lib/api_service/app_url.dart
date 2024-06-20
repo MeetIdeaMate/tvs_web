@@ -28,4 +28,5 @@ class AppUrl {
   static const stockTransfer = '${baseUrl}stock/transfer/approve';
   static const purchaseCancel = '${baseUrl}purchase/cancel/';
   static const purchaseValidate = '${baseUrl}purchase/validate?partNo=';
+  static const booking = '${baseUrl}booking';
 }
