@@ -3,8 +3,10 @@ import 'dart:convert';
 import 'package:tlbilling/models/get_model/get_all_branch_by_id_model.dart';
 import 'package:tlbilling/models/get_model/get_all_insurance_by_pagination_model.dart';
 import 'package:tlbilling/models/get_model/get_all_sales_list_model.dart';
+import 'package:tlbilling/models/get_model/get_all_stocks_by_id_model.dart';
 import 'package:tlbilling/models/get_model/get_all_stocks_model.dart';
 import 'package:tlbilling/models/get_model/get_all_stocks_without_pagination.dart';
+import 'package:tlbilling/models/get_model/get_all_transfer_model.dart';
 import 'package:tlbilling/models/get_model/get_all_vendorName_List.dart';
 import 'package:tlbilling/models/get_model/get_all_branch_model.dart';
 import 'package:tlbilling/models/get_model/get_all_branches_by_pagination.dart';
@@ -94,6 +96,8 @@ class ResultObj {
   List<TransportDetails>? getAllTransportsWithoutPagination;
   List<GetAllStocksWithoutPaginationModel>? getAllStocksWithoutPagination;
   List<GetAllStockDetails>? getAllStockDetails;
+  GetAllStocksByPagenation? getAllStocksByPagenation;
+  List<GetAllTransferModel>? getAllTransferModel;
 
   ResultObj(
       {this.getAllVendorByPagination,
@@ -125,6 +129,8 @@ class ResultObj {
       this.getAllcategoryList,
       this.getAllStocksWithoutPagination,
       this.getAllStockDetails,
+      this.getAllStocksByPagenation,
+      this.getAllTransferModel,
       this.getCustomerById});
 
   factory ResultObj.fromJson(Map<String, dynamic> json) => ResultObj(
@@ -209,8 +215,8 @@ class ResultObj {
         getBranchId: json["branchResponse"] != null
             ? GetBranchById.fromJson(json["branchResponse"])
             : null,
-        getPurchaseReport: json['purchasesWithPage'] != null
-            ? GetAllpurchaseReport.fromJson(json['purchasesWithPage'])
+        getPurchaseReport: json['purchasesReportWithPage'] != null
+            ? GetAllpurchaseReport.fromJson(json['purchasesReportWithPage'])
             : null,
         purchaseByPartNo: json['ItemDetailByPartNo'] != null
             ? PurchaseByPartNoModel.fromJson(json['ItemDetailByPartNo'])
@@ -228,6 +234,13 @@ class ResultObj {
             : null,
         getCustomerById: json["customer"] != null
             ? GetAllCustomersModel.fromJson(json["customer"])
+            : null,
+        getAllStocksByPagenation: json['stockWithPage'] != null
+            ? GetAllStocksByPagenation.fromJson(json['stockWithPage'])
+            : null,
+        getAllTransferModel: json['transferDetails'] != null
+            ? List<GetAllTransferModel>.from(json['transferDetails']
+                .map((x) => GetAllTransferModel.fromJson(x)))
             : null,
       );
 

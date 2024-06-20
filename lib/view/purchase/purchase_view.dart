@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:tlbilling/components/custom_action_button.dart';
 import 'package:tlbilling/components/custom_elevated_button.dart';
 import 'package:tlbilling/components/custom_pagenation.dart';
 import 'package:tlbilling/models/get_model/get_all_purchase_model.dart';
@@ -9,9 +10,12 @@ import 'package:tlbilling/utils/app_util_widgets.dart';
 import 'package:tlbilling/utils/app_utils.dart';
 import 'package:tlbilling/utils/input_formates.dart';
 import 'package:tlbilling/view/purchase/add_purchase/add_purchase.dart';
+import 'package:tlbilling/view/purchase/add_purchase/purchase_invoice_pdf.dart';
 import 'package:tlbilling/view/purchase/purchase_view_bloc.dart';
+import 'package:tlbilling/view/purchase/vehicle_details_dialog.dart';
 import 'package:tlds_flutter/components/tlds_input_form_field.dart';
 import 'package:tlds_flutter/util/app_colors.dart';
+import 'package:toastification/toastification.dart';
 
 class PurchaseView extends StatefulWidget {
   const PurchaseView({super.key});
@@ -129,7 +133,10 @@ class _PurchaseViewState extends State<PurchaseView>
                     context,
                     MaterialPageRoute(
                       builder: (context) => const AddPurchase(),
-                    ));
+                    )).then((value) {
+                  _purchaseViewBloc.getAllPurchaseList();
+                  _purchaseViewBloc.pageNumberUpdateStreamController(0);
+                });
               },
             )
           ],
@@ -153,7 +160,6 @@ class _PurchaseViewState extends State<PurchaseView>
       suffixIcon: IconButton(
         onPressed: iconData == Icons.search
             ? () {
-                //add search cont here
                 _checkController(hintText);
               }
             : () {
@@ -166,7 +172,6 @@ class _PurchaseViewState extends State<PurchaseView>
         ),
       ),
       onSubmit: (p0) {
-        //add search cont here
         _checkController(hintText);
       },
     );
@@ -227,7 +232,17 @@ class _PurchaseViewState extends State<PurchaseView>
         if (currentPage < 0) currentPage = 0;
         _purchaseViewBloc.currentPage = currentPage;
         return FutureBuilder(
-          future: _purchaseViewBloc.getAllPurchaseList(),
+          future: _purchaseViewBloc.getAllPurchaseList(categoryName: () {
+            switch (
+                _purchaseViewBloc.vehicleAndAccessoriesTabController.index) {
+              case 0:
+                return AppConstants.vehicle;
+              case 1:
+                return AppConstants.accessories;
+              default:
+                return '';
+            }
+          }()),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return Center(child: AppWidgetUtils.buildLoading());
@@ -245,16 +260,16 @@ class _PurchaseViewState extends State<PurchaseView>
                           columns: [
                             _buildVehicleTableHeader(AppConstants.sno),
                             _buildVehicleTableHeader(AppConstants.purchaseID),
-                            _buildVehicleTableHeader(
-                                AppConstants.purchaseRef),
+                            _buildVehicleTableHeader(AppConstants.purchaseRef),
                             _buildVehicleTableHeader(AppConstants.invoiceNo),
-                            _buildVehicleTableHeader(
-                                AppConstants.invoiceDate),
+                            _buildVehicleTableHeader(AppConstants.invoiceDate),
                             _buildVehicleTableHeader(AppConstants.vendorName),
                             _buildVehicleTableHeader(AppConstants.quantity),
-                            _buildVehicleTableHeader(AppConstants.gstType),
+                            _buildVehicleTableHeader(AppConstants.branchName),
                             _buildVehicleTableHeader(
                                 AppConstants.totalInvAmount),
+                            _buildVehicleTableHeader(AppConstants.status),
+                            _buildVehicleTableHeader(AppConstants.print),
                             _buildVehicleTableHeader(AppConstants.action),
                           ],
                           rows: purchasedata.asMap().entries.map((entry) {
@@ -273,24 +288,81 @@ class _PurchaseViewState extends State<PurchaseView>
                                     entry.value.pInvoiceDate.toString())),
                                 _buildTableRow(entry.value.vendorName),
                                 _buildTableRow(
-                                    entry.value.totalQty.toString()),
+                                    entry.value.itemDetails?.length.toString()),
                                 _buildTableRow(
-                                    entry.value.gstType.toString()),
+                                    entry.value.branchName.toString()),
                                 _buildTableRow(AppUtils.formatCurrency(entry
-                                    .value.finalTotalInvoiceAmount
-                                    ?.toDouble() ??
+                                        .value.finalTotalInvoiceAmount
+                                        ?.toDouble() ??
                                     0.0)),
-                                DataCell(
-                                  Row(
-                                    children: [
-                                      IconButton(
-                                        icon: SvgPicture.asset(
-                                            AppConstants.icEdit),
-                                        onPressed: () {},
-                                      ),
-                                    ],
-                                  ),
-                                ),
+                                DataCell(Chip(
+                                    side: BorderSide(
+                                        color: entry.value.stockUpdated == true
+                                            ? _appColors.successColor
+                                            : _appColors.yellowColor),
+                                    backgroundColor: _appColors.whiteColor,
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(50)),
+                                    label: Text(
+                                      entry.value.stockUpdated == true
+                                          ? AppConstants.approved
+                                          : AppConstants.pending,
+                                      style: TextStyle(
+                                          color:
+                                              entry.value.stockUpdated == true
+                                                  ? _appColors.successColor
+                                                  : _appColors.yellowColor),
+                                    ))),
+                                DataCell(IconButton(
+                                    onPressed: () {
+                                      showDialog(
+                                        context: context,
+                                        builder: (context) {
+                                          return AlertDialog(
+                                              surfaceTintColor:
+                                                  AppColor().whiteColor,
+                                              shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          10)),
+                                              content: Column(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  Icon(
+                                                    Icons.downloading_rounded,
+                                                    color:
+                                                        AppColor().successColor,
+                                                    size: 50,
+                                                  ),
+                                                  AppWidgetUtils.buildSizedBox(
+                                                      custHeight: 10),
+                                                  const Text(
+                                                    AppConstants.printInvoice,
+                                                    style:
+                                                        TextStyle(fontSize: 20),
+                                                  )
+                                                ],
+                                              ),
+                                              actions: [
+                                                CustomActionButtons(
+                                                    onPressed: () {
+                                                      PurchaseInvoicePrint()
+                                                          .printDocument(
+                                                              entry.value);
+                                                    },
+                                                    buttonText:
+                                                        AppConstants.print),
+                                              ]);
+                                        },
+                                      );
+                                    },
+                                    icon: SvgPicture.asset(
+                                      AppConstants.icPrint,
+                                      colorFilter: const ColorFilter.mode(
+                                          Colors.green, BlendMode.srcIn),
+                                    ))),
+                                DataCell(_buildPopMenuItem(context, entry)),
                               ],
                             );
                           }).toList(),
@@ -318,6 +390,190 @@ class _PurchaseViewState extends State<PurchaseView>
     );
   }
 
+  Widget _buildPopMenuItem(
+      BuildContext context, MapEntry<int, PurchaseBill> entry) {
+    return Row(
+      children: [
+        PopupMenuButton(
+          surfaceTintColor: _appColors.whiteColor,
+          icon: const Icon(Icons.more_vert),
+          itemBuilder: (BuildContext context) {
+            return <PopupMenuEntry>[
+            const PopupMenuItem(
+              value: 'option1',
+              child: Text('View'),
+            ),
+            const PopupMenuItem(
+              value: 'option2',
+              child: Text('Re-Entry'),
+            ),
+            const PopupMenuItem(
+              value: 'option3',
+              child: Text('Cancel'),
+            ),
+            const PopupMenuItem(
+              value: 'option4',
+              child: Text('Approve'),
+            ),
+          ];
+          },
+          onSelected: (value) {
+            switch (value) {
+              case 'option1':
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return VehicleDetailsDialog(
+                      purchaseBills: entry.value.itemDetails,
+                      showDetailsTable: _purchaseViewBloc
+                              .vehicleAndAccessoriesTabController.index ==
+                          0,
+                    );
+                  },
+                );
+                break;
+              case 'option2':
+                break;
+              case 'option3':
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return _showCancelDialog(entry);
+                  },
+                );
+
+                break;
+              case 'option4':
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return _showApproveDialog(entry, context);
+                  },
+                );
+            }
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _showCancelDialog(MapEntry<int, PurchaseBill> entry) {
+    return AlertDialog(
+        surfaceTintColor: AppColor().whiteColor,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.cancel,
+              color: AppColor().errorColor,
+              size: 50,
+            ),
+            AppWidgetUtils.buildSizedBox(custHeight: 10),
+            const Text(
+              AppConstants.cancelDialogMessage,
+              style: TextStyle(fontSize: 20),
+            )
+          ],
+        ),
+        actions: [
+          CustomActionButtons(
+              onPressed: () {
+                _purchaseViewBloc.purchaseBillCancel(entry.value.purchaseId,
+                    (statusCode) {
+                  if (statusCode == 200 || statusCode == 201) {
+                    Navigator.pop(context);
+                    AppWidgetUtils.buildToast(
+                        context,
+                        ToastificationType.success,
+                        AppConstants.purchaseCancelSuccess,
+                        Icon(
+                          Icons.check_circle_outline_rounded,
+                          color: _appColors.successColor,
+                        ),
+                        AppConstants.purchaseCancelSuccessDesc,
+                        _appColors.successLightColor);
+                    _purchaseViewBloc.getAllPurchaseList();
+                    _purchaseViewBloc.pageNumberUpdateStreamController(0);
+                  } else {
+                    AppWidgetUtils.buildToast(
+                        context,
+                        ToastificationType.error,
+                        AppConstants.purchaseCancelError,
+                        Icon(
+                          Icons.error_outline_outlined,
+                          color: _appColors.errorColor,
+                        ),
+                        AppConstants.purchaseCancelErrorDesc,
+                        _appColors.errorLightColor);
+                  }
+                });
+              },
+              buttonText: AppConstants.cancel),
+        ]);
+  }
+
+  Widget _showApproveDialog(
+      MapEntry<int, PurchaseBill> entry, BuildContext context) {
+    return AlertDialog(
+        surfaceTintColor: AppColor().whiteColor,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.cloud_done,
+              color: AppColor().successColor,
+              size: 50,
+            ),
+            AppWidgetUtils.buildSizedBox(custHeight: 10),
+            const Text(
+              AppConstants.purchaseApproveDialogMessage,
+              style: TextStyle(fontSize: 20),
+            )
+          ],
+        ),
+        actions: [
+          CustomActionButtons(
+              onPressed: () {
+                List<String> _partNumbersList = [];
+                for (ItemDetail itemDetails in entry.value.itemDetails ?? []) {
+                  _partNumbersList.add(itemDetails.partNo ?? '');
+                }
+                _purchaseViewBloc.createStockFromPurchase(
+                    entry.value.purchaseId, _partNumbersList, (statusCode) {
+                  if (statusCode == 200 || statusCode == 201) {
+                    Navigator.pop(context);
+                    AppWidgetUtils.buildToast(
+                        context,
+                        ToastificationType.success,
+                        AppConstants.stockUpdatedSuccessfully,
+                        Icon(
+                          Icons.check_circle_outline_rounded,
+                          color: _appColors.successColor,
+                        ),
+                        AppConstants.stockUpdatedDesc,
+                        _appColors.successLightColor);
+                    _purchaseViewBloc.getAllPurchaseList();
+                    _purchaseViewBloc.pageNumberUpdateStreamController(0);
+                  } else {
+                    AppWidgetUtils.buildToast(
+                        context,
+                        ToastificationType.error,
+                        AppConstants.stockNotCreated,
+                        Icon(
+                          Icons.error_outline_outlined,
+                          color: _appColors.errorColor,
+                        ),
+                        AppConstants.stockErrorDesc,
+                        _appColors.errorLightColor);
+                  }
+                });
+              },
+              buttonText: AppConstants.approve),
+        ]);
+  }
+
   DataCell _buildTableRow(String? text) => DataCell(Text(
         text ?? '',
         style: const TextStyle(fontSize: 14),
@@ -331,4 +587,5 @@ class _PurchaseViewState extends State<PurchaseView>
       ),
     );
   }
+
 }

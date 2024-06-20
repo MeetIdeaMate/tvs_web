@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 class AddSalesModel {
   String billType;
   String branchId;

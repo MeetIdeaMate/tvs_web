@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tlbilling/components/custom_action_button.dart';
 import 'package:tlbilling/components/custom_elevated_button.dart';
 import 'package:tlbilling/models/post_model/add_purchase_model.dart';
 import 'package:tlbilling/models/purchase_bill_data.dart';
-import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/utils/app_colors.dart';
+import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/utils/app_utils.dart';
 import 'package:tlbilling/view/purchase/add_purchase/add_vehicle_and_accesories/add_vehicle_and_accessories_bloc.dart';
+import 'package:tlbilling/view/purchase/add_purchase/add_vehicle_and_accesories/purchase_table_preview.dart';
+import 'package:tlbilling/view/purchase/add_purchase/purchase_invoice_pdf.dart';
 import 'package:tlds_flutter/export.dart';
 import 'package:toastification/toastification.dart';
 
@@ -23,6 +26,7 @@ class PurchaseTable extends StatefulWidget {
 
 class _PurchaseTableState extends State<PurchaseTable> {
   final _appColors = AppColor();
+  final _addVehicleAndAccesoriesBloc = AddVehicleAndAccessoriesBlocImpl();
 
   @override
   void initState() {
@@ -78,6 +82,9 @@ class _PurchaseTableState extends State<PurchaseTable> {
         }
         final totals =
             _calculateTotals(widget.purchaseBloc.purchaseBillDataList);
+
+        int serialNumber = 1;
+
         return Expanded(
           child: SingleChildScrollView(
             scrollDirection: Axis.horizontal,
@@ -94,15 +101,26 @@ class _PurchaseTableState extends State<PurchaseTable> {
                   _buildVehicleTableHeader(AppConstants.quantity),
                   _buildVehicleTableHeader(AppConstants.unitRate),
                   _buildVehicleTableHeader(AppConstants.totalValue),
-                  _buildVehicleTableHeader(AppConstants.discountPresentage),
                   _buildVehicleTableHeader(AppConstants.discountAmount),
                   _buildVehicleTableHeader(AppConstants.taxableValue),
-                  _buildVehicleTableHeader(AppConstants.cgstPercent),
-                  _buildVehicleTableHeader(AppConstants.cgstAmount),
-                  _buildVehicleTableHeader(AppConstants.sgstPercent),
-                  _buildVehicleTableHeader(AppConstants.sgstAmount),
-                  _buildVehicleTableHeader(AppConstants.igstPercent),
-                  _buildVehicleTableHeader(AppConstants.igstAmount),
+                  if (widget.purchaseBloc.selectedGstType !=
+                      AppConstants.igstAmount)
+                    _buildVehicleTableHeader(AppConstants.cgstPercent),
+                  if (widget.purchaseBloc.selectedGstType !=
+                      AppConstants.igstAmount)
+                    _buildVehicleTableHeader(AppConstants.cgstAmount),
+                  if (widget.purchaseBloc.selectedGstType !=
+                      AppConstants.igstAmount)
+                    _buildVehicleTableHeader(AppConstants.sgstPercent),
+                  if (widget.purchaseBloc.selectedGstType !=
+                      AppConstants.igstAmount)
+                    _buildVehicleTableHeader(AppConstants.sgstAmount),
+                  if (widget.purchaseBloc.selectedGstType !=
+                      AppConstants.gstPercent)
+                    _buildVehicleTableHeader(AppConstants.igstPercent),
+                  if (widget.purchaseBloc.selectedGstType !=
+                      AppConstants.gstPercent)
+                    _buildVehicleTableHeader(AppConstants.igstAmount),
                   _buildVehicleTableHeader(AppConstants.tcsValue),
                   _buildVehicleTableHeader(AppConstants.invValue),
                   _buildVehicleTableHeader(AppConstants.empsInc),
@@ -114,21 +132,16 @@ class _PurchaseTableState extends State<PurchaseTable> {
                 rows: [
                   ...widget.purchaseBloc.purchaseBillDataList
                       .expand((billData) {
-                    return billData.vehicleDetails!
-                        .asMap()
-                        .entries
-                        .map((entry) {
-                      final data = entry.value;
-                      final index = entry.key;
-
-                      final color = index.isEven
+                    return billData.vehicleDetails!.map((data) {
+                      final color = serialNumber.isEven
                           ? _appColors.whiteColor
                           : _appColors.transparentBlueColor;
-                      return DataRow(
+
+                      final row = DataRow(
                         color:
                             MaterialStateColor.resolveWith((states) => color),
                         cells: [
-                          DataCell(Text((index + 1).toString())),
+                          DataCell(Text(serialNumber.toString())),
                           DataCell(Text(data.partNo ?? '')),
                           DataCell(Text(data.vehicleName)),
                           DataCell(Text(data.hsnCode.toString())),
@@ -137,44 +150,118 @@ class _PurchaseTableState extends State<PurchaseTable> {
                               Text(AppUtils.formatCurrency(data.unitRate))),
                           DataCell(Text(AppUtils.formatCurrency(
                               data.totalValue?.toDouble() ?? 0.0))),
-                          DataCell(Text(data.discountPresentage.toString())),
                           DataCell(Text(AppUtils.formatCurrency(
                               data.discountValue ?? 0.0))),
                           DataCell(Text(AppUtils.formatCurrency(
                               data.taxableValue ?? 0.0))),
-                          DataCell(Text(data.cgstPercentage.toString())),
-                          DataCell(Text(
-                              AppUtils.formatCurrency(data.cgstAmount ?? 0.0))),
-                          DataCell(Text(data.sgstPercentage.toString())),
-                          DataCell(Text(
-                              AppUtils.formatCurrency(data.sgstAmount ?? 0.0))),
-                          DataCell(Text(data.igstPercentage.toString())),
-                          DataCell(Text(
-                              AppUtils.formatCurrency(data.igstAmount ?? 0.0))),
+                          if (widget.purchaseBloc.selectedGstType !=
+                              AppConstants.igstAmount)
+                            DataCell(Text(data.cgstPercentage.toString())),
+                          if (widget.purchaseBloc.selectedGstType !=
+                              AppConstants.igstAmount)
+                            DataCell(Text(AppUtils.formatCurrency(
+                                data.cgstAmount ?? 0.0))),
+                          if (widget.purchaseBloc.selectedGstType !=
+                              AppConstants.igstAmount)
+                            DataCell(Text(data.sgstPercentage.toString())),
+                          if (widget.purchaseBloc.selectedGstType !=
+                              AppConstants.igstAmount)
+                            DataCell(Text(AppUtils.formatCurrency(
+                                data.sgstAmount ?? 0.0))),
+                          if (widget.purchaseBloc.selectedGstType !=
+                              AppConstants.gstPercent)
+                            DataCell(Text(data.igstPercentage.toString())),
+                          if (widget.purchaseBloc.selectedGstType !=
+                              AppConstants.gstPercent)
+                            DataCell(Text(AppUtils.formatCurrency(
+                                data.igstAmount ?? 0.0))),
                           DataCell(Text(
                               AppUtils.formatCurrency(data.tcsValue ?? 0.0))),
-                          DataCell(Text(
-                              AppUtils.formatCurrency(data.totalValue ?? 0.0))),
+                          DataCell(Text(AppUtils.formatCurrency(
+                              data.invoiceValue ?? 0.0))),
                           DataCell(Text(AppUtils.formatCurrency(
                               data.empsIncentive ?? 0.0))),
                           DataCell(Text(AppUtils.formatCurrency(
                               data.stateIncentive ?? 0.0))),
                           DataCell(Text(AppUtils.formatCurrency(
                               data.totalInvoiceValue ?? 0.0))),
-                          DataCell(IconButton(
-                            onPressed: () {},
-                            icon: Icon(
-                              Icons.table_chart_outlined,
-                              color: _appColors.primaryColor,
+                          DataCell(
+                            IconButton(
+                              onPressed: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (context) {
+                                    return AlertDialog.adaptive(
+                                      surfaceTintColor: AppColors().whiteColor,
+                                      backgroundColor: AppColors().whiteColor,
+                                      title: const Text(
+                                          AppConstants.engineDetails),
+                                      content: ConstrainedBox(
+                                        constraints: BoxConstraints(
+                                          maxHeight: MediaQuery.of(context)
+                                                  .size
+                                                  .height *
+                                              0.8,
+                                        ),
+                                        child: SingleChildScrollView(
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              SizedBox(
+                                                width: double.infinity,
+                                                child: DataTable(
+                                                  columns: const [
+                                                    DataColumn(
+                                                        label: Text('S.No')),
+                                                    DataColumn(
+                                                        label: Text(
+                                                            'Engine Number')),
+                                                    DataColumn(
+                                                        label: Text(
+                                                            'Frame Number')),
+                                                  ],
+                                                  rows: List.generate(
+                                                    data.engineDetails.length,
+                                                    (index) => DataRow(
+                                                      cells: [
+                                                        DataCell(Text(
+                                                            (index + 1)
+                                                                .toString())),
+                                                        DataCell(Text(data
+                                                            .engineDetails[
+                                                                index]
+                                                            .engineNo)),
+                                                        DataCell(Text(data
+                                                            .engineDetails[
+                                                                index]
+                                                            .frameNo)),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                );
+                              },
+                              icon: Icon(
+                                Icons.table_chart_outlined,
+                                color: _appColors.primaryColor,
+                              ),
                             ),
-                          )),
+                          ),
                           DataCell(
                             Row(
                               children: [
                                 IconButton(
                                   icon: SvgPicture.asset(AppConstants.icEdit),
                                   onPressed: () {
-                                    _editPurchaseBillRow(data);
+                                    _editPurchaseBillRow(
+                                        data, serialNumber - 2);
                                   },
                                 ),
                               ],
@@ -182,6 +269,10 @@ class _PurchaseTableState extends State<PurchaseTable> {
                           ),
                         ],
                       );
+
+                      serialNumber++;
+
+                      return row;
                     }).toList();
                   }),
                   DataRow(
@@ -196,7 +287,6 @@ class _PurchaseTableState extends State<PurchaseTable> {
                       const DataCell(Text('')),
                       DataCell(
                           Text(AppUtils.formatCurrency(totals['totalValue']!))),
-                      const DataCell(Text('')),
                       DataCell(Text(
                           AppUtils.formatCurrency(totals['discountValue']!))),
                       DataCell(Text(
@@ -207,13 +297,16 @@ class _PurchaseTableState extends State<PurchaseTable> {
                       const DataCell(Text('')),
                       DataCell(
                           Text(AppUtils.formatCurrency(totals['sgstAmount']!))),
-                      const DataCell(Text('')),
-                      DataCell(
-                          Text(AppUtils.formatCurrency(totals['igstAmount']!))),
+                      if (widget.purchaseBloc.selectedGstType !=
+                          AppConstants.gstPercent)
+                        const DataCell(Text('')),
+                      if (widget.purchaseBloc.selectedGstType !=
+                          AppConstants.gstPercent)
+                        DataCell(Text(
+                            AppUtils.formatCurrency(totals['igstAmount']!))),
                       DataCell(
                           Text(AppUtils.formatCurrency(totals['tcsValue']!))),
-                      DataCell(
-                          Text(AppUtils.formatCurrency(totals['totalValue']!))),
+                      const DataCell(Text('')),
                       DataCell(Text(
                           AppUtils.formatCurrency(totals['empsIncentive']!))),
                       DataCell(Text(
@@ -286,46 +379,98 @@ class _PurchaseTableState extends State<PurchaseTable> {
 
   Widget _buildPreviewAndActionButton() {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      mainAxisAlignment: MainAxisAlignment.end,
       children: [
-        CustomElevatedButton(
-          text: AppConstants.preview,
-          fontSize: 16,
-          buttonBackgroundColor: _appColors.primaryColor,
-          fontColor: _appColors.whiteColor,
-        ),
+        // CustomElevatedButton(
+        //   text: AppConstants.preview,
+        //   fontSize: 16,
+        //   buttonBackgroundColor: _appColors.primaryColor,
+        //   fontColor: _appColors.whiteColor,
+        //   onPressed: () {
+        //     Navigator.push(
+        //         context,
+        //         PageRouteBuilder(
+        //           pageBuilder: (context, animation, secondaryAnimation) =>
+        //               PurchaseTablePreview(
+        //             purchaseBloc: widget.purchaseBloc,
+        //           ),
+        //         ));
+        //   },
+        // ),
+        //
         CustomActionButtons(
-            onPressed: widget.purchaseBloc.purchaseBillDataList.isEmpty
-                ? () {
-                    _isLoadingState(state: true);
-
-                    widget.purchaseBloc.addNewPurchaseDetails(
-                        _purchasePostData(), (statusCode) {
-                      if (statusCode == 201 || statusCode == 200) {
-                        Navigator.pop(context);
-                        _isLoadingState(state: false);
-                        AppWidgetUtils.buildToast(
-                            context,
-                            ToastificationType.success,
-                            AppConstants.purchaseBillScc,
-                            Icon(Icons.check_circle_outline_rounded,
-                                color: _appColors.successColor),
-                            AppConstants.purchaseBillDescScc,
-                            _appColors.successLightColor);
-                      } else {
-                        _isLoadingState(state: false);
-                        AppWidgetUtils.buildToast(
-                            context,
-                            ToastificationType.error,
-                            AppConstants.purchaseBillerr,
-                            Icon(Icons.not_interested_rounded,
-                                color: _appColors.errorColor),
-                            AppConstants.purchaseBillDescerr,
-                            _appColors.errorLightColor);
-                      }
-                    });
+            onPressed: () {
+              if (widget.purchaseBloc.purchaseBillDataList.isNotEmpty) {
+                _isLoadingState(state: true);
+                widget.purchaseBloc.addNewPurchaseDetails(_purchasePostData(),
+                    (statusCode, response) {
+                  print(statusCode);
+                  print('**********$response');
+                  if (statusCode == 201 || statusCode == 200) {
+                    Navigator.pop(context);
+                    _isLoadingState(state: false);
+                    AppWidgetUtils.buildToast(
+                        context,
+                        ToastificationType.success,
+                        AppConstants.purchaseBillScc,
+                        Icon(Icons.check_circle_outline_rounded,
+                            color: _appColors.successColor),
+                        AppConstants.purchaseBillDescScc,
+                        _appColors.successLightColor);
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                            surfaceTintColor: AppColor().whiteColor,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10)),
+                            content: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.downloading_rounded,
+                                  color: AppColor().successColor,
+                                ),
+                                AppWidgetUtils.buildSizedBox(custHeight: 10),
+                                const Text(
+                                  'Are you sure you want print invoice ?',
+                                  style: TextStyle(fontSize: 20),
+                                )
+                              ],
+                            ),
+                            actions: [
+                              CustomActionButtons(
+                                  onPressed: () {
+                                    PurchaseInvoicePrint()
+                                        .printDocument(response);
+                                  },
+                                  buttonText: AppConstants.print),
+                            ]);
+                      },
+                    );
+                  } else {
+                    _isLoadingState(state: false);
+                    AppWidgetUtils.buildToast(
+                        context,
+                        ToastificationType.error,
+                        AppConstants.purchaseBillerr,
+                        Icon(Icons.not_interested_rounded,
+                            color: _appColors.errorColor),
+                        AppConstants.purchaseBillDescerr,
+                        _appColors.errorLightColor);
                   }
-                : () {},
+                });
+              } else {
+                AppWidgetUtils.buildToast(
+                    context,
+                    ToastificationType.error,
+                    AppConstants.purchaseBillEmpty,
+                    Icon(Icons.not_interested_rounded,
+                        color: _appColors.errorColor),
+                    AppConstants.purchaseBillDesEmptycerr,
+                    _appColors.errorLightColor);
+              }
+            },
             buttonText: AppConstants.save)
       ],
     );
@@ -334,6 +479,7 @@ class _PurchaseTableState extends State<PurchaseTable> {
   AddPurchaseModel _purchasePostData() {
     SpecificationsValue _specValue = SpecificationsValue(specs: {});
     List<Map<String, dynamic>> _mainSpecInfos = [];
+
     // Collecting engine details
     for (var mainSpecValue in widget.purchaseBloc.purchaseBillDataList) {
       for (var vehicle in mainSpecValue.vehicleDetails!) {
@@ -345,48 +491,80 @@ class _PurchaseTableState extends State<PurchaseTable> {
         }
       }
     }
+
     final List<GstDetail> gstDetailsList = [];
     final List<Incentive> incentivesList = [];
     final List<Tax> taxDetailsList = [];
+
+    // Function to add GST detail to the list with duplication check
+    void addGstDetail(List<GstDetail> list, GstDetail detail) {
+      // Find the index of an existing item with the same gstName
+      int existingIndex =
+          list.indexWhere((item) => item.gstName == detail.gstName);
+
+      // If found, remove the existing item
+      if (existingIndex != -1) {
+        list.removeAt(existingIndex);
+      }
+
+      // Add the new item
+      list.add(detail);
+    }
+
     // Collecting GST, Tax and Incentive details
     for (var gstDetails in widget.purchaseBloc.purchaseBillDataList) {
       for (var vehicle in gstDetails.vehicleDetails!) {
         if (vehicle.gstType == AppConstants.gstPercent) {
-          gstDetailsList.add(GstDetail(
+          addGstDetail(
+            gstDetailsList,
+            GstDetail(
               gstAmount: vehicle.cgstAmount ?? 0.0,
               gstName: "CGST",
-              percentage: vehicle.cgstPercentage ?? 0.0));
-          gstDetailsList.add(GstDetail(
+              percentage: vehicle.cgstPercentage ?? 0.0,
+            ),
+          );
+          addGstDetail(
+            gstDetailsList,
+            GstDetail(
               gstAmount: vehicle.sgstAmount ?? 0.0,
               gstName: "SGST",
-              percentage: vehicle.sgstPercentage ?? 0.0));
+              percentage: vehicle.sgstPercentage ?? 0.0,
+            ),
+          );
         }
         if (vehicle.gstType == AppConstants.igstPercent) {
-          gstDetailsList.add(GstDetail(
+          addGstDetail(
+            gstDetailsList,
+            GstDetail(
               gstAmount: vehicle.igstAmount ?? 0.0,
               gstName: "IGST",
-              percentage: vehicle.igstPercentage ?? 0.0));
+              percentage: vehicle.igstPercentage ?? 0.0,
+            ),
+          );
         }
 
         if (vehicle.incentiveType == AppConstants.empsIncetive) {
           incentivesList.add(Incentive(
-              incentiveAmount: vehicle.empsIncentive ?? 0.0,
-              incentiveName: 'EMPS 2024 INCENTIVE',
-              percentage: 0));
+            incentiveAmount: vehicle.empsIncentive ?? 0.0,
+            incentiveName: 'EMPS 2024 INCENTIVE',
+            percentage: 0,
+          ));
         }
 
         if (vehicle.incentiveType == AppConstants.stateIncetive) {
           incentivesList.add(Incentive(
-              incentiveAmount: vehicle.stateIncentive ?? 0.0,
-              incentiveName: 'STATE INCENTIVE',
-              percentage: 0));
+            incentiveAmount: vehicle.stateIncentive ?? 0.0,
+            incentiveName: 'STATE INCENTIVE',
+            percentage: 0,
+          ));
         }
 
         if (vehicle.tcsValue != null) {
           taxDetailsList.add(Tax(
-              percentage: 0,
-              taxAmount: vehicle.tcsValue ?? 0.0,
-              taxName: 'TCS VALUE'));
+            percentage: 0,
+            taxAmount: vehicle.tcsValue ?? 0.0,
+            taxName: 'TCS VALUE',
+          ));
         }
       }
     }
@@ -398,14 +576,20 @@ class _PurchaseTableState extends State<PurchaseTable> {
         final _itemDetail = ItemDetail(
           categoryId: vehicleData.categoryId.toString(),
           discount: 0,
-          gstDetails: gstDetailsList,
-          incentives: incentivesList,
+          gstDetails: List.from(gstDetailsList),
+          incentives: List.from(incentivesList),
           itemName: vehicleData.vehicleName,
-          mainSpecInfos: _mainSpecInfos,
+          mainSpecInfos: widget.purchaseBloc.selectedPurchaseType !=
+                  AppConstants.accessories
+              ? _mainSpecInfos
+              : null,
           partNo: vehicleData.partNo.toString(),
           quantity: vehicleData.qty,
-          specificationsValue: _specValue,
-          taxes: taxDetailsList,
+          specificationsValue: widget.purchaseBloc.selectedPurchaseType !=
+                  AppConstants.accessories
+              ? _specValue
+              : null,
+          taxes: List.from(taxDetailsList),
           unitRate: vehicleData.unitRate,
         );
         _itemDetailsList.add(_itemDetail);
@@ -434,32 +618,66 @@ class _PurchaseTableState extends State<PurchaseTable> {
     });
   }
 
-  void _editPurchaseBillRow(VehicleDetails data) {
+  void _editPurchaseBillRow(VehicleDetails data, int index) {
     setState(() {
-      widget.purchaseBloc.partNumberController.text = data.partNo.toString();
-      widget.purchaseBloc.vehicleNameTextController.text = data.vehicleName;
-      widget.purchaseBloc.hsnCodeController.text = data.hsnCode.toString();
-      widget.purchaseBloc.unitRateController.text = data.unitRate.toString();
+      widget.purchaseBloc.editIndex = index;
+
+      // Reset all controllers and variables
+      widget.purchaseBloc.partNumberController.text =
+          data.partNo?.toString() ?? '';
+      widget.purchaseBloc.vehicleNameTextController.text =
+          data.vehicleName ?? '';
+      widget.purchaseBloc.hsnCodeController.text =
+          data.hsnCode?.toString() ?? '';
+      widget.purchaseBloc.unitRateController.text =
+          data.unitRate?.toString() ?? '';
+      widget.purchaseBloc.gstRadioBtnRefreshStreamController(true);
+      widget.purchaseBloc.paymentDetailsStreamController(true);
+
+      widget.purchaseBloc.totalValue = data.totalValue;
+      widget.purchaseBloc.discountTextController.text =
+          (data.discountValue ?? 0).toString();
+      widget.purchaseBloc.taxableValue = data.taxableValue;
+      widget.purchaseBloc.cgstAmount = data.cgstAmount;
+      widget.purchaseBloc.sgstAmount = data.sgstAmount;
+      widget.purchaseBloc.tcsvalueTextController.text =
+          (data.tcsValue ?? 0).toString();
+      widget.purchaseBloc.gstRadioBtnRefreshStreamController(true);
+      widget.purchaseBloc.paymentDetailsStreamController(true);
+      widget.purchaseBloc.invAmount = data.invoiceValue;
+      widget.purchaseBloc.stateIncentiveTextController.text =
+          (data.stateIncentive ?? 0).toString();
+      widget.purchaseBloc.empsIncentiveTextController.text =
+          (data.empsIncentive ?? 0.0).toString();
+      widget.purchaseBloc.totalInvAmount = data.totalInvoiceValue;
+
       widget.purchaseBloc.engineDetailsStreamController(true);
+      widget.purchaseBloc.paymentDetailsStreamController(true);
+
+      widget.purchaseBloc.engineDetailsList.clear();
       for (var engineDetailsMap in data.engineDetails) {
         widget.purchaseBloc.engineDetailsList.add(engineDetailsMap);
         widget.purchaseBloc.refreshEngineDetailsListStramController(true);
+        widget.purchaseBloc.gstRadioBtnRefreshStreamController(true);
+        widget.purchaseBloc.paymentDetailsStreamController(true);
       }
+
       widget.purchaseBloc.selectedGstType = data.gstType;
-      print('*****************GST Type = > ${data.gstType}');
       if (data.gstType == AppConstants.gstPercent) {
-        widget.purchaseBloc.selectedGstType = data.gstType;
-        widget.purchaseBloc.gstRadioBtnRefreshStreamController(true);
         widget.purchaseBloc.cgstPresentageTextController.text =
-            data.cgstPercentage.toString();
+            data.cgstPercentage?.toString() ?? '';
         widget.purchaseBloc.sgstPresentageTextController.text =
-            data.sgstPercentage.toString();
-      } else {
-        widget.purchaseBloc.selectedGstType = data.gstType;
+            data.sgstPercentage?.toString() ?? '';
         widget.purchaseBloc.gstRadioBtnRefreshStreamController(true);
+        widget.purchaseBloc.paymentDetailsStreamController(true);
+      } else {
         widget.purchaseBloc.igstPresentageTextController.text =
-            data.igstPercentage.toString();
+            data.igstPercentage?.toString() ?? '';
+        widget.purchaseBloc.gstRadioBtnRefreshStreamController(true);
+        widget.purchaseBloc.paymentDetailsStreamController(true);
       }
+      widget.purchaseBloc.gstRadioBtnRefreshStreamController(true);
+      widget.purchaseBloc.paymentDetailsStreamController(true);
     });
   }
 }

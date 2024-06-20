@@ -12,8 +12,9 @@ import 'package:tlds_flutter/components/tlds_input_form_field.dart';
 
 class VehicleAccessoriesList extends StatefulWidget {
   final AddSalesBlocImpl addSalesBloc;
-
-  const VehicleAccessoriesList({super.key, required this.addSalesBloc});
+  final Function(List<Widget>)? selectedItems;
+  const VehicleAccessoriesList(
+      {super.key, required this.addSalesBloc, this.selectedItems});
 
   @override
   State<VehicleAccessoriesList> createState() => _VehicleAccessoriesListState();

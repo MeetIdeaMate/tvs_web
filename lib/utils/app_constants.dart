@@ -14,6 +14,9 @@ class AppConstants {
   static const deleteMsg = 'Are you Sure you want to delete the employee?';
   static const hasiniTvs = 'HASINI TVS';
   static const noData = 'No data';
+  static const submit = 'Submit';
+  static const view = 'View';
+  static const ttfPoppinsRegular = 'fonts/ttf_poppins_regular.ttf';
 
   //SharedPreference
   static const designation = 'designation';
@@ -26,6 +29,7 @@ class AppConstants {
   static const today = 'Today';
   static const pending = 'Pending';
   static const completed = 'Completed';
+
   // static const branchId = 'branchId';
 
   //LoginPage
@@ -108,6 +112,7 @@ class AppConstants {
   static const icLastPage = 'assets/icons/ic_last_page.svg';
   static const icNextPage = 'assets/icons/ic_next_page.svg';
   static const icPrevPage = 'assets/icons/ic_prev_page.svg';
+  static const icInfo = 'assets/icons/ic_info.svg';
 
   //json
   static const jsonLoader = 'assets/json/json_loading_animation.json';
@@ -120,6 +125,7 @@ class AppConstants {
   static const imgLoginPagebg = 'assets/images/img_tvs.png';
   static const imgTvsLogo = 'assets/images/img_tvs_logo.png';
   static const imgPdfHeader = 'images/img_pdf_header.png';
+  static const imgShied = 'images/img_shield.svg';
 
   //SideMenu
   static const purchase = 'Purchase';
@@ -217,12 +223,15 @@ class AppConstants {
   static const customerId = 'Customer id';
   static const partNo = 'Part No';
   static const vehicle = 'Vehicle';
+  static const mVehicle = 'M-Vehicle';
+  static const eVehicle = 'E-Vehicle';
   static const engineNumber = 'Engine Number';
   static const frameNumber = 'Frame Number';
   static const vehicleName = 'Vehicle Name';
   static const vehicleType = 'Vehicle Type';
   static const vehicleDescription = 'Vehicle Description';
   static const vehicleDetails = 'Vehicle Details';
+  static const details = 'Details';
   static const hsnCode = 'HSN Code';
   static const addPurchase = 'Add Purchase';
   static const addSales = 'Add Sales';
@@ -237,7 +246,9 @@ class AppConstants {
   static const purchaseRef = 'Purchase Ref';
   static const purchaseOrderRef = 'Purchase Order Ref';
   static const gstPercent = 'GST %';
-  static const unitRate = 'Unit Rate (Rs)';
+  static const unitRate = 'Unit Rate (₹)';
+  static const rupeeHint = '₹0.0';
+  static const partNoTxtHint = 'Ex : 3456789RTYUIOP';
   static const carrier = 'Carrier';
   static const carrierNumber = 'Carrier Number';
   static const selectPurchaseType = 'Select Purchase Type';
@@ -272,6 +283,18 @@ class AppConstants {
   static const transporterDetails = 'Transporter Details';
   static const selectTransporter = 'Select Transporter';
   static const emailAddress = 'Email Address';
+  static const transferId = 'Transfer Id';
+  static const transferDate = 'Transfer Date';
+  static const totalQty = 'Tot Qty';
+  static const transferred = 'TRANSFERED';
+  static const received = 'RECEIVED';
+  static const allStatus = 'All Status';
+  static const allVehicles = 'All Vehicles';
+  static const transferStatus = 'transferStatus';
+  static const youWantToUpdateTheStatus = 'You want to update the status?';
+  static const stockTransferUpdate = 'Stock transfer update';
+  static const stockTransferUpdateSuccessfully =
+      'Stock transfer update successfully';
 
   //voucher/receipt
   static const voucher = 'Voucher';
@@ -343,6 +366,14 @@ class AppConstants {
   static const vendorCreate = 'Vendor created';
   static const vendorUpdateSuccessfully = 'Vendor Update  successfully';
   static const vendorCreatedSuccessfully = 'Vendor Create successfully';
+  static const stockUpdatedSuccessfully = 'Stock Updated successfully';
+  static const stockNotCreated = 'Stock Not Created';
+  static const stockUpdatedDesc = 'Stock updated and approved';
+  static const stockErrorDesc = 'Stock Not Updated Something went wrong';
+
+  static const purchaseBillEmpty = 'Invoice Data Empty';
+  static const purchaseBillDesEmptycerr =
+      'Cant save the purchase bill its empty';
 
   static const selectDiffrentUser =
       'Please select different name to create user.';
@@ -351,6 +382,9 @@ class AppConstants {
   static const empAlreadyCreated = ' Employee already created';
   static const userCreated = 'User Created';
   static const userCreateSuccessfully = 'User create successfully';
+  static const transferRequest = 'Transfer Request';
+  static const transferRequestSuccessfully =
+      'Transfer request created successfully';
 
   //API
 
@@ -394,6 +428,7 @@ class AppConstants {
   static const String totInvVal = 'Tot Inv Value';
   static const String empsInc = 'EMPS Inc';
   static const String stateInc = 'State Inc';
+
   //Pagenation
 
   static const gstType = 'GST Type';
@@ -413,6 +448,10 @@ class AppConstants {
   static const credit = 'credit';
   static const loan = 'loan';
   static const partPayment = 'part payment';
+
+  static const String approved = 'Approved';
+  static const String approve = 'Approved';
+  static const String notApproved = 'Not Approved';
 
   //Purchase Validation ErrorMessage
   static const selectVendorName = 'Please Select Vendor Name';
@@ -437,4 +476,58 @@ class AppConstants {
   static const String customerID = 'Customer ID';
 
   static const String mobileNo = 'Mobile No';
+
+  static const String partNoHint =
+      'Enter Part No and Hit Enter to Get the Vehicle Details if it had any previous entry ';
+
+  static const String engineDeatilsHint =
+      'Enter Engine & Frame No, Press Enter Button to add in a list';
+
+  static const String totalValueA = '(a)';
+  static const String discountB = '(b)';
+  static const String taxableValueAB = '(i)(a-b)';
+  static const String gstThree = 'GST (ii)';
+  static const String tcsValueThree = '(iii)';
+  static const String invoiceValueFour = '(iv) i + ii + iii';
+  static const String invoiceValue = 'Invoice Value';
+  static const String empsIncentive = 'Emps Incentive';
+  static const String stateIncentive = 'State Incentive';
+  static const String empsIncentiveFive = '(v)';
+  static const String stateIncentiveSix = '(vi)';
+  static const String totalInvoiceAmount = 'Total Invoice Amount';
+  static const String totalInvoiceAmountCal = 'iv - (v+vi)';
+
+  static const String cancelDialogMessage =
+      'Are you sure you want to Cancel the purchase bill';
+  static const String purchaseCancelSuccess =
+      'The Purchase bill canceled successfully';
+  static const String purchaseCancelSuccessDesc = 'The Purchase bill canceled';
+  static const String purchaseCancelError = 'The Purchase bill Not Canceled';
+  static const String purchaseCancelErrorDesc =
+      'The Purchase bill Not Canceled something went wrong';
+
+  static const String purchaseApproveDialogMessage =
+      'Are you sure you want to Approve and move to stock';
+
+  static const String purchaseApproveSuccess =
+      'The Purchase bill Approved successfully';
+  static const String purchaseApproveSuccessDesc = 'The Purchase bill Approved';
+  static const String printInvoice = 'Are you sure you want print invoice ?';
+  static const String purchaseApproveError = 'The Purchase bill Not Approved';
+  static const String purchaseApproveErrorDesc =
+      'The Purchase bill Not Approved something went wrong';
+
+//sales
+  static const String batteryName = 'Battery Name';
+  static const String batteryCapacity = 'Battery Capacity';
+  static const String eVehicleConponents = 'E-Vehicle Components';
+  static const String tools = 'Tools';
+  static const String manualHardCopy = ' Manual Book HardCopy';
+  static const dupicateKey = 'Duplicate keys';
+  static const String hintBatteryName = 'ex: Lion battery';
+  static const String hintBatteryCapacity = 'ex: 6vt';
+  static const String mandatoryAddons = 'Mandatory Add-ons';
+  static const String bookAdvAmt = 'Booking Advance Amt';
+  static const String toBePayed = 'To be payed';
+  static const String splitPayment = 'Split Payment';
 }

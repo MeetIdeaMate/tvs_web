@@ -20,10 +20,19 @@ abstract class AddSalesBloc {
   Stream get selectedItemStreamController;
   Stream get availableAccListStreamController;
   Stream<List<GetAllStockDetails>> get filteredAccListStreamController;
+  Stream get paymentDetailsStream;
+  Stream<bool> get paymentOptionStream;
+  Stream<bool> get isSplitPaymentStream;
 
   TextEditingController get discountTextController;
   TextEditingController get transporterVehicleNumberController;
   TextEditingController get vehicleNoAndEngineNoSearchController;
+  List<TextEditingController> get unitRateControllers;
+  TextEditingController get hsnCodeTextController;
+  TextEditingController get betteryNameTextController;
+  TextEditingController get batteryCapacityTextController;
+  TextEditingController get empsIncentiveTextController;
+  TextEditingController get stateIncentiveTextController;
 
   String? get selectedVehicleAndAccessories;
   String? get selectedBranch;
@@ -37,9 +46,23 @@ abstract class AddSalesBloc {
 
   int get salesIndex;
 
-  String get selectedGstType;
+  double? get totalValue;
+  double? get taxableValue;
+  double? get totalInvAmount;
+  double? get invAmount;
+  double? get igstAmount;
+  double? get cgstAmount;
+  double? get sgstAmount;
+  double? get totalUnitRate;
+
+  String get selectedTypeTools;
+  String get selectedTypeManualBook;
+  String get selectedTypeDuplicateKeys;
+  String? get selectedGstType;
+
   bool get isDiscountChecked;
   bool get isInsurenceChecked;
+  bool get isSplitPayment;
   String? get selectedPaymentOption;
   Future<GetAllCustomersModel?> getCustomerById();
 
@@ -49,11 +72,15 @@ abstract class AddSalesBloc {
 
   Future<List<String>> getPaymentmethods();
   Stream<List<GetAllStockDetails>> get vehicleListStream;
-  // List<Map<String, String>> get vehicleData;
+// List<Map<String, String>> get vehicleData;
   List<GetAllStockDetails> get filteredVehicleData;
   String? get selectedCustomerId;
 
   Future<List<GetAllStockDetails>?> getStockDetails();
+  List<String> get gstTypeOptions;
+  Stream<bool> get gstRadioBtnRefreashStream;
+  TextEditingController get cgstPresentageTextController;
+  TextEditingController get igstPresentageTextController;
 }
 
 class AddSalesBlocImpl extends AddSalesBloc {
@@ -68,10 +95,23 @@ class AddSalesBlocImpl extends AddSalesBloc {
   final _discountTextController = TextEditingController();
   final _transporterVehicleNumberController = TextEditingController();
   final _vehicleNoAndEngineNoSearchController = TextEditingController();
+  final List<TextEditingController> _unitRateControllers = [];
+  final _hsnCodeTextController = TextEditingController();
+  final _cgstPresentageTextController = TextEditingController();
+  final _igstPresentageTextController = TextEditingController();
+  final _empsInsentivetextEditController = TextEditingController();
+  final _stateInsentivetextEditController = TextEditingController();
   final _availableVehicleListStreamController = StreamController.broadcast();
   final __availableAccListStreamController = StreamController.broadcast();
   final _filteredAccListStreamController =
       StreamController<List<GetAllStockDetails>>.broadcast();
+  final _paymentDetailsStream = StreamController.broadcast();
+
+  final _betteryNameTextController = TextEditingController();
+  final _batteryCapacityTextController = TextEditingController();
+  final _gstRadioBtnRefreashStream = StreamController<bool>.broadcast();
+  final _paymentOptionStream = StreamController<bool>.broadcast();
+  final _isSplitPaymentStream = StreamController<bool>.broadcast();
 
   List<String> selectedVehicleList = [];
 
@@ -87,12 +127,17 @@ class AddSalesBlocImpl extends AddSalesBloc {
   int initialValue = 0;
   final List<Widget> _selectedItems = [];
   int? _salesIndex = 0;
-  String _selectedGstType = 'GST';
+  String? _selectedGstType = AppConstants.gstPercent;
   bool _isDiscountChecked = false;
   bool _isInsurenceChecked = false;
   List<GetAllStockDetails>? _vehicleDatas = [];
   List<GetAllStockDetails>? _accessoriesData = [];
   ValueNotifier<int> initialValueNotifier = ValueNotifier<int>(0);
+
+  final List<String> _gstTypeOptions = ['GST %', 'IGST %'];
+  @override
+  List<String> get gstTypeOptions => _gstTypeOptions;
+
   void incrementInitialValue() {
     initialValueNotifier.value++;
   }
@@ -110,6 +155,15 @@ class AddSalesBlocImpl extends AddSalesBloc {
   final _selectedCustomerDetailsViewStream = StreamController.broadcast();
   String? _selectedPaymentOption;
   String? _selectedCustomerId;
+  double? _taxableValue;
+  double? _totalValue;
+  double? _totalInvAmount;
+  double? _invAmount;
+  double? _igstAmount;
+  double? _cgstAmount;
+  double? _sgstAmount;
+  double? _totalUnitRate;
+  bool _isSplitPayment = false;
   final _vehicleListStreamController =
       StreamController<List<GetAllStockDetails>>.broadcast();
   final List<Map<String, dynamic>> accessoriesList = [
@@ -269,13 +323,6 @@ class AddSalesBlocImpl extends AddSalesBloc {
   }
 
   @override
-  String get selectedGstType => _selectedGstType;
-
-  set selectedGstType(String value) {
-    _selectedGstType = value;
-  }
-
-  @override
   bool get isDiscountChecked => _isDiscountChecked;
 
   set isDiscountChecked(bool discountValue) {
@@ -332,8 +379,8 @@ class AddSalesBlocImpl extends AddSalesBloc {
     _selectedVehiclesListStream.add(streamValue);
   }
 
-  // @override
-  // List<Map<String, String>> get vehicleData => _vehicleData;
+// @override
+// List<Map<String, String>> get vehicleData => _vehicleData;
 
   @override
   List<GetAllStockDetails> get filteredVehicleData => _filteredVehicleData;
@@ -385,5 +432,149 @@ class AddSalesBlocImpl extends AddSalesBloc {
 
   selectedAccessoriesListStreamController(bool newValue) {
     _selectedAccessoriesListStream.add(newValue);
+  }
+
+  String _selectedTypeTools = 'YES';
+  String _selectedTypeManualBook = 'YES';
+  String _selectedTypeDuplicateKeys = 'YES';
+
+  @override
+  String get selectedTypeTools => _selectedTypeTools;
+
+  set selectedTypeTools(String value) {
+    _selectedTypeTools = value;
+  }
+
+  @override
+  String get selectedTypeManualBook => _selectedTypeManualBook;
+
+  set selectedTypeManualBook(String value) {
+    _selectedTypeManualBook = value;
+  }
+
+  @override
+  String? get selectedGstType => _selectedGstType;
+  set selectedGstType(String? value) {
+    _selectedGstType = value;
+  }
+
+  @override
+  String get selectedTypeDuplicateKeys => _selectedTypeDuplicateKeys;
+
+  set selectedTypeDuplicateKeys(String value) {
+    _selectedTypeDuplicateKeys = value;
+  }
+
+  @override
+  TextEditingController get batteryCapacityTextController =>
+      _batteryCapacityTextController;
+
+  @override
+  TextEditingController get betteryNameTextController =>
+      _betteryNameTextController;
+
+  @override
+  Stream<bool> get gstRadioBtnRefreashStream =>
+      _gstRadioBtnRefreashStream.stream;
+
+  gstRadioBtnRefreashStreamController(bool newValue) {
+    _gstRadioBtnRefreashStream.add(newValue);
+  }
+
+  @override
+  TextEditingController get cgstPresentageTextController =>
+      _cgstPresentageTextController;
+
+  @override
+  TextEditingController get igstPresentageTextController =>
+      _igstPresentageTextController;
+
+  @override
+  TextEditingController get hsnCodeTextController => _hsnCodeTextController;
+
+  @override
+  Stream get paymentDetailsStream => _paymentDetailsStream.stream;
+  paymentDetailsStreamController(bool newValue) {
+    _paymentDetailsStream.add(newValue);
+  }
+
+  @override
+  double? get cgstAmount => _cgstAmount;
+
+  set cgstAmount(double? cgst) {
+    _cgstAmount = cgst;
+  }
+
+  @override
+  TextEditingController get empsIncentiveTextController =>
+      _empsInsentivetextEditController;
+
+  @override
+  double? get igstAmount => _igstAmount;
+  set igstAmount(double? igst) {
+    _igstAmount = igst;
+  }
+
+  @override
+  double? get invAmount => _invAmount;
+  set invAmount(double? inv) {
+    _invAmount = inv;
+  }
+
+  @override
+  double? get sgstAmount => _sgstAmount;
+  set sgstAmount(double? sgst) {
+    _sgstAmount = sgst;
+  }
+
+  @override
+  TextEditingController get stateIncentiveTextController =>
+      _stateInsentivetextEditController;
+
+  @override
+  double? get taxableValue => _taxableValue;
+  set taxableValue(double? value) {
+    _taxableValue = value;
+  }
+
+  @override
+  double? get totalInvAmount => _totalInvAmount;
+  set totalInvAmount(double? value) {
+    _totalInvAmount = value;
+  }
+
+  @override
+  double? get totalValue => _totalValue;
+  set totalValue(double? value) {
+    _totalValue = value;
+  }
+
+  @override
+  Stream<bool> get paymentOptionStream => _paymentOptionStream.stream;
+
+  paymentOptionStreamController(bool newValue) {
+    _paymentOptionStream.add(newValue);
+  }
+
+  @override
+  bool get isSplitPayment => _isSplitPayment;
+  set isSplitPayment(bool value) {
+    _isSplitPayment = value;
+  }
+
+  @override
+  Stream<bool> get isSplitPaymentStream => _isSplitPaymentStream.stream;
+  isSplitPaymentStreamController(bool newValue) {
+    _isSplitPaymentStream.add(newValue);
+  }
+
+  @override
+  List<TextEditingController> get unitRateControllers => _unitRateControllers;
+  ValueNotifier<double> totalValueNotifier = ValueNotifier<double>(0.0);
+
+  @override
+  double? get totalUnitRate => _totalUnitRate;
+  set totalUnitRate(double? value) {
+    _totalUnitRate = value;
   }
 }

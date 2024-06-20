@@ -76,59 +76,52 @@ class GetAllPurchaseByPageNation {
 
 class PurchaseBill {
   String? branchId;
-  String? createdBy;
-  DateTime? createdDateTime;
-  int? finalTotalInvoiceAmount;
-  String? gstType;
+  String? branchName;
+  double? finalTotalInvoiceAmount;
   String? id;
   List<ItemDetail>? itemDetails;
   DateTime? pInvoiceDate;
   String? pInvoiceNo;
   String? pOrderRefNo;
+  String? purchaseId;
   String? purchaseNo;
-  int? totalGstAmount;
-  int? totalIncentiveAmount;
-  int? totalInvoiceAmount;
+  double? totalGstAmount;
+  double? totalIncentiveAmount;
+  double? totalInvoiceAmount;
   int? totalQty;
-  int? totalTaxAmount;
-  int? totalValue;
-  String? updatedBy;
-  DateTime? updatedDateTime;
+  double? totalTaxAmount;
+  double? totalValue;
   String? vendorId;
   String? vendorName;
+  bool? stockUpdated;
+  bool? cancelled;
 
-  PurchaseBill({
-    this.branchId,
-    this.createdBy,
-    this.createdDateTime,
-    this.finalTotalInvoiceAmount,
-    this.gstType,
-    this.id,
-    this.itemDetails,
-    this.pInvoiceDate,
-    this.pInvoiceNo,
-    this.pOrderRefNo,
-    this.purchaseNo,
-    this.totalGstAmount,
-    this.totalIncentiveAmount,
-    this.totalInvoiceAmount,
-    this.totalQty,
-    this.totalTaxAmount,
-    this.totalValue,
-    this.updatedBy,
-    this.updatedDateTime,
-    this.vendorId,
-    this.vendorName
-  });
+  PurchaseBill(
+      {this.branchId,
+      this.branchName,
+      this.finalTotalInvoiceAmount,
+      this.id,
+      this.itemDetails,
+      this.pInvoiceDate,
+      this.pInvoiceNo,
+      this.pOrderRefNo,
+      this.purchaseId,
+      this.purchaseNo,
+      this.totalGstAmount,
+      this.totalIncentiveAmount,
+      this.totalInvoiceAmount,
+      this.totalQty,
+      this.totalTaxAmount,
+      this.totalValue,
+      this.vendorId,
+      this.vendorName,
+      this.cancelled,
+      this.stockUpdated});
 
   factory PurchaseBill.fromJson(Map<String, dynamic> json) => PurchaseBill(
         branchId: json["branchId"],
-        createdBy: json["createdBy"],
-        createdDateTime: json["createdDateTime"] == null
-            ? null
-            : DateTime.parse(json["createdDateTime"]),
+        branchName: json["branchName"],
         finalTotalInvoiceAmount: json["finalTotalInvoiceAmount"],
-        gstType: json["gstType"],
         id: json["id"],
         itemDetails: json["itemDetails"] == null
             ? []
@@ -139,6 +132,7 @@ class PurchaseBill {
             : DateTime.parse(json["p_invoiceDate"]),
         pInvoiceNo: json["p_invoiceNo"],
         pOrderRefNo: json["p_orderRefNo"],
+        purchaseId: json["purchaseId"],
         purchaseNo: json["purchaseNo"],
         totalGstAmount: json["totalGstAmount"],
         totalIncentiveAmount: json["totalIncentiveAmount"],
@@ -146,20 +140,16 @@ class PurchaseBill {
         totalQty: json["totalQty"],
         totalTaxAmount: json["totalTaxAmount"],
         totalValue: json["totalValue"],
-        updatedBy: json["updatedBy"],
-        updatedDateTime: json["updatedDateTime"] == null
-            ? null
-            : DateTime.parse(json["updatedDateTime"]),
         vendorId: json["vendorId"],
-         vendorName: json["vendorName"],
+        vendorName: json["vendorName"],
+        stockUpdated: json["stockUpdated"],
+        cancelled: json["cancelled"],
       );
 
   Map<String, dynamic> toJson() => {
         "branchId": branchId,
-        "createdBy": createdBy,
-        "createdDateTime": createdDateTime?.toIso8601String(),
+        "branchName": branchName,
         "finalTotalInvoiceAmount": finalTotalInvoiceAmount,
-        "gstType": gstType,
         "id": id,
         "itemDetails": itemDetails == null
             ? []
@@ -168,6 +158,7 @@ class PurchaseBill {
             "${pInvoiceDate!.year.toString().padLeft(4, '0')}-${pInvoiceDate!.month.toString().padLeft(2, '0')}-${pInvoiceDate!.day.toString().padLeft(2, '0')}",
         "p_invoiceNo": pInvoiceNo,
         "p_orderRefNo": pOrderRefNo,
+        "purchaseId": purchaseId,
         "purchaseNo": purchaseNo,
         "totalGstAmount": totalGstAmount,
         "totalIncentiveAmount": totalIncentiveAmount,
@@ -175,107 +166,148 @@ class PurchaseBill {
         "totalQty": totalQty,
         "totalTaxAmount": totalTaxAmount,
         "totalValue": totalValue,
-        "updatedBy": updatedBy,
-        "updatedDateTime": updatedDateTime?.toIso8601String(),
         "vendorId": vendorId,
-         "vendorName": vendorName,
+        "cancelled": cancelled,
+        "stockUpdated": stockUpdated,
+        "vendorName": vendorName,
       };
 }
 
 class ItemDetail {
   String? categoryId;
-  int? discount;
-  int? finalInvoiceValue;
+  String? categoryName;
+  double? discount;
+  double? finalInvoiceValue;
   List<GstDetail>? gstDetails;
+  String? hsnSacCode;
   List<Incentive>? incentives;
-  int? invoiceValue;
-  String? itemId;
+  double? invoiceValue;
+  String? itemName;
+  List<VehicleDetails>? mainSpecValues;
   String? partNo;
-  PrimarySpecification? primarySpecification;
   int? quantity;
-  PrimarySpecification? specifications;
-  int? taxableValue;
+  VehicleDetails? specificationsValue;
+  double? taxableValue;
   List<Tax>? taxes;
-  int? unitRate;
-  int? value;
+  double? unitRate;
+  double? value;
+  bool? cancelled;
+  bool? stockUpdated;
 
   ItemDetail({
     this.categoryId,
+    this.categoryName,
     this.discount,
     this.finalInvoiceValue,
     this.gstDetails,
+    this.hsnSacCode,
     this.incentives,
     this.invoiceValue,
-    this.itemId,
+    this.itemName,
+    this.mainSpecValues,
     this.partNo,
-    this.primarySpecification,
     this.quantity,
-    this.specifications,
+    this.specificationsValue,
     this.taxableValue,
     this.taxes,
     this.unitRate,
     this.value,
+    this.cancelled,
+    this.stockUpdated,
   });
 
   factory ItemDetail.fromJson(Map<String, dynamic> json) => ItemDetail(
         categoryId: json["categoryId"],
+        categoryName: json["categoryName"],
         discount: json["discount"],
         finalInvoiceValue: json["finalInvoiceValue"],
         gstDetails: json["gstDetails"] == null
             ? []
             : List<GstDetail>.from(
-                json["gstDetails"]!.map((x) => GstDetail.fromJson(x))),
+                json["gstDetails"].map((x) => GstDetail.fromJson(x))),
+        hsnSacCode: json["hsnSacCode"],
         incentives: json["incentives"] == null
             ? []
             : List<Incentive>.from(
-                json["incentives"]!.map((x) => Incentive.fromJson(x))),
+                json["incentives"].map((x) => Incentive.fromJson(x))),
         invoiceValue: json["invoiceValue"],
-        itemId: json["itemId"],
+        itemName: json["itemName"],
+        mainSpecValues: json["mainSpecValues"] == null
+            ? null
+            : List<VehicleDetails>.from(json["mainSpecValues"].map((x) {
+                return VehicleDetails.fromJson(x);
+              })),
         partNo: json["partNo"],
-        primarySpecification: json["primarySpecification"] == null
-            ? null
-            : PrimarySpecification.fromJson(json["primarySpecification"]),
         quantity: json["quantity"],
-        specifications: json["specifications"] == null
+        specificationsValue: json["specificationsValue"] == null
             ? null
-            : PrimarySpecification.fromJson(json["specifications"]),
+            : VehicleDetails.fromJson(json["specificationsValue"]),
         taxableValue: json["taxableValue"],
         taxes: json["taxes"] == null
             ? []
-            : List<Tax>.from(json["taxes"]!.map((x) => Tax.fromJson(x))),
+            : List<Tax>.from(json["taxes"].map((x) => Tax.fromJson(x))),
         unitRate: json["unitRate"],
         value: json["value"],
+        cancelled: json["cancelled"],
+        stockUpdated: json["stockUpdated"],
       );
 
   Map<String, dynamic> toJson() => {
         "categoryId": categoryId,
+        "categoryName": categoryName,
         "discount": discount,
         "finalInvoiceValue": finalInvoiceValue,
         "gstDetails": gstDetails == null
             ? []
             : List<dynamic>.from(gstDetails!.map((x) => x.toJson())),
+        "hsnSacCode": hsnSacCode,
         "incentives": incentives == null
             ? []
             : List<dynamic>.from(incentives!.map((x) => x.toJson())),
         "invoiceValue": invoiceValue,
-        "itemId": itemId,
+        "itemName": itemName,
+        "mainSpecValues": mainSpecValues == null
+            ? []
+            : List<dynamic>.from(mainSpecValues!.map((x) => x.toJson())),
         "partNo": partNo,
-        "primarySpecification": primarySpecification?.toJson(),
         "quantity": quantity,
-        "specifications": specifications?.toJson(),
+        "specificationsValue": specificationsValue?.toJson(),
         "taxableValue": taxableValue,
         "taxes": taxes == null
             ? []
             : List<dynamic>.from(taxes!.map((x) => x.toJson())),
         "unitRate": unitRate,
         "value": value,
+        "cancelled": cancelled,
+        "stockUpdated": stockUpdated,
       };
 }
 
+class VehicleDetails {
+  String? engineNumber;
+  String? frameNumber;
+
+  VehicleDetails({this.engineNumber, this.frameNumber});
+
+  factory VehicleDetails.fromJson(Map<String, dynamic> json) {
+    return VehicleDetails(
+      engineNumber: json['engineNo'],
+      frameNumber: json['frameNo'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'engineNo': engineNumber,
+      'frameNo': frameNumber,
+    };
+  }
+}
+
 class GstDetail {
-  int? gstAmount;
+  double? gstAmount;
   String? gstName;
-  int? percentage;
+  double? percentage;
 
   GstDetail({
     this.gstAmount,
@@ -297,9 +329,9 @@ class GstDetail {
 }
 
 class Incentive {
-  int? incentiveAmount;
+  double? incentiveAmount;
   String? incentiveName;
-  int? percentage;
+  double? percentage;
 
   Incentive({
     this.incentiveAmount,
@@ -320,34 +352,9 @@ class Incentive {
       };
 }
 
-class PrimarySpecification {
-  String? additionalProp1;
-  String? additionalProp2;
-  String? additionalProp3;
-
-  PrimarySpecification({
-    this.additionalProp1,
-    this.additionalProp2,
-    this.additionalProp3,
-  });
-
-  factory PrimarySpecification.fromJson(Map<String, dynamic> json) =>
-      PrimarySpecification(
-        additionalProp1: json["additionalProp1"],
-        additionalProp2: json["additionalProp2"],
-        additionalProp3: json["additionalProp3"],
-      );
-
-  Map<String, dynamic> toJson() => {
-        "additionalProp1": additionalProp1,
-        "additionalProp2": additionalProp2,
-        "additionalProp3": additionalProp3,
-      };
-}
-
 class Tax {
-  int? percentage;
-  int? taxAmount;
+  double? percentage;
+  double? taxAmount;
   String? taxName;
 
   Tax({

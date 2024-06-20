@@ -6,7 +6,8 @@ import 'package:tlbilling/view/purchase/add_purchase/add_vehicle_and_accesories/
 import 'package:tlds_flutter/export.dart';
 
 class AccessoriesPurchaseDetails extends StatefulWidget {
-  const AccessoriesPurchaseDetails({super.key});
+  AddVehicleAndAccessoriesBlocImpl purchaseBloc;
+  AccessoriesPurchaseDetails({super.key, required this.purchaseBloc});
 
   @override
   State<AccessoriesPurchaseDetails> createState() =>
@@ -43,16 +44,14 @@ class _AccessoriesPurchaseDetailsState
                 height: 40,
                 labelText: AppConstants.materialNumber,
                 hintText: AppConstants.materialNumber,
-                controller:
-                    _addVehicleAndAccessoriesBloc.materialNumberController)),
+                controller: widget.purchaseBloc.partNumberController)),
         _buildDefaultWidth(),
         Expanded(
             child: TldsInputFormField(
                 height: 40,
                 labelText: AppConstants.materialName,
                 hintText: AppConstants.materialName,
-                controller:
-                    _addVehicleAndAccessoriesBloc.materialNameController)),
+                controller: widget.purchaseBloc.vehicleNameTextController)),
       ],
     );
   }
@@ -62,17 +61,18 @@ class _AccessoriesPurchaseDetailsState
       children: [
         Expanded(
             child: TldsInputFormField(
+                enabled: false,
                 height: 40,
                 labelText: AppConstants.hsnCode,
                 hintText: AppConstants.hsnCode,
-                controller: _addVehicleAndAccessoriesBloc.hsnCodeController)),
+                controller: widget.purchaseBloc.hsnCodeController)),
         _buildDefaultWidth(),
         Expanded(
             child: TldsInputFormField(
                 height: 40,
                 labelText: AppConstants.quantity,
                 hintText: AppConstants.quantity,
-                controller: _addVehicleAndAccessoriesBloc.quantityController)),
+                controller: widget.purchaseBloc.quantityController)),
       ],
     );
   }
@@ -85,7 +85,7 @@ class _AccessoriesPurchaseDetailsState
                 height: 40,
                 labelText: AppConstants.unitRate,
                 hintText: AppConstants.unitRate,
-                controller: _addVehicleAndAccessoriesBloc.unitRateController)),
+                controller: widget.purchaseBloc.unitRateController)),
       ],
     );
   }

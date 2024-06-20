@@ -40,54 +40,25 @@ class _CustomerDetailsState extends State<CustomerDetails> {
         AppWidgetUtils.buildSizedBox(custHeight: 10),
         _buildSelectCustomerAndAddCustomer(),
         AppWidgetUtils.buildSizedBox(custHeight: 10),
+        //  if (widget.addSalesBloc.selectedCustomer != null)
         _buildSelectedCustomerDetails(),
-        AppWidgetUtils.buildSizedBox(custHeight: 10),
-        Text(
-          AppConstants.paymentDetails,
-          style: TextStyle(
-              color: _appColors.primaryColor,
-              fontSize: 17,
-              fontWeight: FontWeight.bold),
-        ),
-        AppWidgetUtils.buildSizedBox(custHeight: 7),
-        _buildPaymentMethodSelection(context),
-        const Spacer(),
-        CustomActionButtons(
-            onPressed: () {
-              if (widget.addSalesBloc.selectedPaymentOption != null ||
-                  widget.addSalesBloc.selectedCustomer != null) {}
-            },
-            buttonText: AppConstants.save)
-      ],
-    );
-  }
-
-  Widget _buildPaymentMethodSelection(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-        _buildPaymentOptions(),
-        if (widget.addSalesBloc.selectedPaymentOption == AppConstants.credit)
-          Expanded(
-            child: TldsDropDownButtonFormField(
-              height: 40,
-              width: MediaQuery.sizeOf(context).width * 0.21,
-              hintText: AppConstants.creditType,
-              dropDownItems: const [],
-              onChange: (String? newValue) {},
-            ),
-          ),
-        if (widget.addSalesBloc.selectedPaymentOption == AppConstants.loan)
-          Expanded(
-            child: TldsDropDownButtonFormField(
-              height: 40,
-              width: MediaQuery.sizeOf(context).width * 0.21,
-              hintText: AppConstants.selectBank,
-              dropDownItems: const [],
-              onChange: (String? newValue) {},
-            ),
-          ),
+        // AppWidgetUtils.buildSizedBox(custHeight: 10),
+        // Text(
+        //   AppConstants.paymentDetails,
+        //   style: TextStyle(
+        //       color: _appColors.primaryColor,
+        //       fontSize: 17,
+        //       fontWeight: FontWeight.bold),
+        // ),
+        // AppWidgetUtils.buildSizedBox(custHeight: 7),
+        // _buildPaymentMethodSelection(context),
+        // const Spacer(),
+        // CustomActionButtons(
+        //     onPressed: () {
+        //       if (widget.addSalesBloc.selectedPaymentOption != null ||
+        //           widget.addSalesBloc.selectedCustomer != null) {}
+        //     },
+        //     buttonText: AppConstants.save)
       ],
     );
   }
@@ -95,8 +66,6 @@ class _CustomerDetailsState extends State<CustomerDetails> {
   Widget _buildSelectedCustomerDetails() {
     return Container(
       padding: const EdgeInsets.all(15),
-      height: 200,
-      width: 450,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
         color: _appColors.whiteColor,
@@ -112,7 +81,7 @@ class _CustomerDetailsState extends State<CustomerDetails> {
                 } else if (snapshot.hasError) {
                   return const Center(child: Text(AppConstants.errorLoading));
                 } else if (!snapshot.hasData || snapshot.data == null) {
-                  return const Center(child: Text(AppConstants.selectCustomer));
+                  return const Center(child: Text(''));
                 }
 
                 GetAllCustomersModel? customer = snapshot.data;

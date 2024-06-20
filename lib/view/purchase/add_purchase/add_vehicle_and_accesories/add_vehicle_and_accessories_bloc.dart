@@ -2,6 +2,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:tlbilling/api_service/app_service_utils.dart';
 import 'package:tlbilling/models/get_model/get_all_category_model.dart';
+import 'package:tlbilling/models/get_model/get_all_purchase_model.dart';
+import 'package:tlbilling/models/get_model/get_purchase_report_model.dart';
 import 'package:tlbilling/models/parent_response_model.dart';
 import 'package:tlbilling/models/post_model/add_purchase_model.dart';
 import 'package:tlbilling/models/purchase_bill_data.dart';
@@ -44,7 +46,7 @@ abstract class AddVehicleAndAccessoriesBloc {
   String? get vendorDropDownValue;
 
   String? get selectedPurchaseType;
-  List<EngineDetails > get engineDetailsList;
+  List<EngineDetails> get engineDetailsList;
 
   Stream get updateEngineDetailsStream;
   Stream get refreshEngineListStream;
@@ -70,6 +72,7 @@ abstract class AddVehicleAndAccessoriesBloc {
   Stream<bool> get gstRadioBtnRefreashStream;
   Stream<bool> get incentiveCheckBoxStream;
   Stream<bool> get taxValueCheckBoxStream;
+  Stream<bool> get paymentDetailsStream;
 
   TextEditingController get cgstPresentageTextController;
   TextEditingController get sgstPresentageTextController;
@@ -86,9 +89,8 @@ abstract class AddVehicleAndAccessoriesBloc {
   bool get isDiscountChecked;
   Future<ParentResponseModel> getPurchasePartNoDetails(
       Function(int) statusCode);
-  Future<void> addNewPurchaseDetails(
-      AddPurchaseModel purchaseData, Function(int) onSuccessCallBack);
-
+  Future<void> addNewPurchaseDetails(AddPurchaseModel purchaseData,
+      Function(int p1, PurchaseBill response) onSuccessCallBack);
   String? get selectedVendorId;
   double? get totalValue;
   double? get cgstAmount;
@@ -106,6 +108,7 @@ abstract class AddVehicleAndAccessoriesBloc {
   CategoryItems? get selectedCategory;
   Future<GetAllCategoryListModel?> getAllCategoryList();
   List<String> get gstTypeOptions;
+  Future<bool> purchaseValidate();
 }
 
 class AddVehicleAndAccessoriesBlocImpl extends AddVehicleAndAccessoriesBloc {
@@ -135,8 +138,10 @@ class AddVehicleAndAccessoriesBlocImpl extends AddVehicleAndAccessoriesBloc {
   String? _selectedPurchaseType;
   List<String> selectVendor = ['Ajithkumar', 'Peter', 'Prasath'];
   late Set<String> optionsSet = {selectedPurchaseType ?? ''};
-  final List<EngineDetails > _engineDetailsList = [];
+  final List<EngineDetails> _engineDetailsList = [];
+  int? editIndex;
   final _refreshEngineDetailsListStream = StreamController.broadcast();
+  final _paymentDetailsStreamController = StreamController<bool>.broadcast();
   final _frameNumberFocusNode = FocusNode();
   final _inVoiceDateFocusNode = FocusNode();
   final _purchaseRefFocusNode = FocusNode();
@@ -416,8 +421,8 @@ class AddVehicleAndAccessoriesBlocImpl extends AddVehicleAndAccessoriesBloc {
   FocusNode get vehiceNameFocusNode => _vehicleNameFocusNode;
 
   @override
-  Future<void> addNewPurchaseDetails(
-      AddPurchaseModel purchaseData, Function(int p1) onSuccessCallBack) async {
+  Future<void> addNewPurchaseDetails(AddPurchaseModel purchaseData,
+      Function(int p1, PurchaseBill response) onSuccessCallBack) async {
     return await _apiServices.addNewPurchaseDetails(
         purchaseData, onSuccessCallBack);
   }
@@ -549,5 +554,21 @@ class AddVehicleAndAccessoriesBlocImpl extends AddVehicleAndAccessoriesBloc {
 
   taxValueCheckboxStreamController(bool streamValue) {
     _taxValueCheckboxStreamController.add(streamValue);
+  }
+
+  @override
+  Stream<bool> get paymentDetailsStream =>
+      _paymentDetailsStreamController.stream;
+
+  paymentDetailsStreamController(bool streamValue) {
+    _paymentDetailsStreamController.add(streamValue);
+  }
+
+  @override
+  Future<bool> purchaseValidate() async {
+    return _apiServices.purchaseValidate({
+      "engineNo": engineNumberController.text,
+      "frameNo": frameNumberController.text
+    }, partNumberController.text);
   }
 }

@@ -23,10 +23,16 @@ abstract class PurchaseViewBloc {
 
   Stream get purchaseRefSearchFieldControllerStream;
 
-  Future<GetAllPurchaseByPageNation?> getAllPurchaseList();
+  Future<GetAllPurchaseByPageNation?> getAllPurchaseList(
+      {String? categoryName});
 
   int get currentPage;
   Stream<int> get pageNumberStream;
+  Future<void> createStockFromPurchase(String? purchaseId,
+      List<String>? partNumbersList, Function(int)? statusCode);
+
+  Future<void> purchaseBillCancel(
+      String? purchaseId, Function(int)? onSuccessCallback);
 }
 
 class PurchaseViewBlocImpl extends PurchaseViewBloc {
@@ -100,12 +106,14 @@ class PurchaseViewBlocImpl extends PurchaseViewBloc {
   }
 
   @override
-  Future<GetAllPurchaseByPageNation?> getAllPurchaseList() async {
+  Future<GetAllPurchaseByPageNation?> getAllPurchaseList(
+      {String? categoryName}) async {
     return await _apiCalls.getAllPurchaseByPagenation(
         _currentPage,
         invoiceSearchFieldController.text,
         partNoSearchFieldController.text,
-        purchaseRefSearchFieldController.text);
+        purchaseRefSearchFieldController.text,
+        categoryName: categoryName);
   }
 
   @override
@@ -119,5 +127,18 @@ class PurchaseViewBlocImpl extends PurchaseViewBloc {
 
   pageNumberUpdateStreamController(int streamValue) {
     _pageNumberStreamController.add(streamValue);
+  }
+
+  @override
+  Future<void> createStockFromPurchase(String? purchaseId,
+      List<String>? partNumbersList, Function(int)? statusCode) async {
+    return _apiCalls.createStockFromPurchase(
+        purchaseId, partNumbersList, statusCode);
+  }
+
+  @override
+  Future<void> purchaseBillCancel(
+      String? purchaseId, Function(int p1)? onSuccessCallback) async {
+    return await _apiCalls.purchaseBillCancel(purchaseId, onSuccessCallback);
   }
 }
