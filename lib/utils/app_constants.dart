@@ -274,6 +274,7 @@ class AppConstants {
   static const toBranch = 'To Branch';
   static const status = 'status';
   static const newTransfer = 'New Transfer';
+  static const transferItems = 'Transfer Items';
   static const vehicleList = 'Vehicle list';
   static const vehicleNameAndEngineNumber = 'Vehicle Name / Engine Number';
   static const selectVehicleOrAccessories = 'Select Vehicle Or Accessories';

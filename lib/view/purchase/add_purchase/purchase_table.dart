@@ -1,6 +1,5 @@
-import 'package:flutter/cupertino.dart';
+import 'package:blurry_modal_progress_hud/blurry_modal_progress_hud.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tlbilling/components/custom_action_button.dart';
@@ -8,10 +7,11 @@ import 'package:tlbilling/models/post_model/add_purchase_model.dart';
 import 'package:tlbilling/models/purchase_bill_data.dart';
 import 'package:tlbilling/utils/app_colors.dart';
 import 'package:tlbilling/utils/app_constants.dart';
+import 'package:tlbilling/utils/app_util_widgets.dart';
 import 'package:tlbilling/utils/app_utils.dart';
 import 'package:tlbilling/view/purchase/add_purchase/add_vehicle_and_accesories/add_vehicle_and_accessories_bloc.dart';
 import 'package:tlbilling/view/purchase/add_purchase/purchase_invoice_pdf.dart';
-import 'package:tlds_flutter/export.dart';
+import 'package:tlds_flutter/util/app_colors.dart';
 import 'package:toastification/toastification.dart';
 
 class PurchaseTable extends StatefulWidget {
@@ -25,8 +25,6 @@ class PurchaseTable extends StatefulWidget {
 
 class _PurchaseTableState extends State<PurchaseTable> {
   final _appColors = AppColor();
-  final _addVehicleAndAccesoriesBloc = AddVehicleAndAccessoriesBlocImpl();
-
   @override
   void initState() {
     super.initState();
@@ -40,22 +38,26 @@ class _PurchaseTableState extends State<PurchaseTable> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: MediaQuery.sizeOf(context).width * 0.64,
-      decoration: BoxDecoration(
-        border: Border(
-          right: BorderSide(color: _appColors.greyColor),
-          top: BorderSide(color: _appColors.greyColor),
+    return BlurryModalProgressHUD(
+      inAsyncCall: widget.purchaseBloc.isAddPurchseBillLoading,
+      progressIndicator: AppWidgetUtils.buildLoading(),
+      child: Container(
+        width: MediaQuery.sizeOf(context).width * 0.64,
+        decoration: BoxDecoration(
+          border: Border(
+            right: BorderSide(color: _appColors.greyColor),
+            top: BorderSide(color: _appColors.greyColor),
+          ),
         ),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            _buildAddedVehicleAndAccessoriesTable(),
-            _buildPreviewAndActionButton()
-          ],
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              _buildAddedVehicleAndAccessoriesTable(),
+              _buildPreviewAndActionButton()
+            ],
+          ),
         ),
       ),
     );
@@ -418,12 +420,10 @@ class _PurchaseTableState extends State<PurchaseTable> {
       );
 
   Widget _buildPreviewAndActionButton() {
-
     return StreamBuilder<bool>(
         stream: widget.purchaseBloc.isTableDataVerifyedStream,
         builder: (context, snapshot) {
           return Row(
-            
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               // CustomElevatedButton(
@@ -442,7 +442,7 @@ class _PurchaseTableState extends State<PurchaseTable> {
               //         ));
               //   },
               // ),
-              
+
               StreamBuilder<bool>(
                   stream: widget.purchaseBloc.isTableDataVerifyedStream,
                   builder: (context, snapshot) {
@@ -677,8 +677,6 @@ class _PurchaseTableState extends State<PurchaseTable> {
   void _editPurchaseBillRow(VehicleDetails data, int index) {
     setState(() {
       widget.purchaseBloc.editIndex = index;
-
-      // Reset all controllers and variables
       widget.purchaseBloc.partNumberController.text =
           data.partNo?.toString() ?? '';
       widget.purchaseBloc.vehicleNameTextController.text =
@@ -686,10 +684,9 @@ class _PurchaseTableState extends State<PurchaseTable> {
       widget.purchaseBloc.hsnCodeController.text =
           data.hsnCode?.toString() ?? '';
       widget.purchaseBloc.unitRateController.text =
-          data.unitRate?.toString() ?? '';
+          data.unitRate.toString() ?? '';
       widget.purchaseBloc.gstRadioBtnRefreshStreamController(true);
       widget.purchaseBloc.paymentDetailsStreamController(true);
-
       widget.purchaseBloc.totalValue = data.totalValue;
       widget.purchaseBloc.discountTextController.text =
           (data.discountValue ?? 0).toString();

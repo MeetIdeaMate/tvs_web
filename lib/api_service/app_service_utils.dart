@@ -195,8 +195,12 @@ abstract class AppServiceUtil {
       List<String>? partNumbersList, Function(int)? statusCode);
   Future<void> purchaseBillCancel(
       String? purchaseId, Function(int p1)? onSuccessCallback);
-  Future<GetAllStocksByPagenation?> getAllStockByPagenation(int? currentIndex,
-      String? partNumber, String? vehicleName, String? status);
+  Future<GetAllStocksByPagenation?> getAllStockByPagenation(
+      int? currentIndex,
+      String? partNumber,
+      String? vehicleName,
+      String? status,
+      String? branchId);
 
   Future<List<GetAllTransferModel>?> getTransferList(
       String? selectedStatus,
@@ -1015,6 +1019,9 @@ class AppServiceUtilImpl extends AppServiceUtil {
       dio.options.headers['Authorization'] = 'Bearer $token';
       var response = await dio
           .get('${AppUrl.stock}?branchId=$branchId&categoryName=$categoryName');
+
+          print('********STock Url ${AppUrl.stock}?branchId=$branchId&categoryName=$categoryName');
+          print('***S R B***${response.data}');
       var stocksList = parentResponseModelFromJson(jsonEncode(response.data))
           .result
           ?.getAllStocksWithoutPagination;
@@ -1199,6 +1206,7 @@ class AppServiceUtilImpl extends AppServiceUtil {
       if (toBranchId != null) {
         url += '&toBranchId=$toBranchId';
       }
+      print('*****Transfer  url*********$url');
       /*if (fromDateTextController != null) {
         url +=
             '&fromDate=${AppUtils.appToAPIDateFormat(fromDateTextController.toString())}';
@@ -1281,8 +1289,12 @@ class AppServiceUtilImpl extends AppServiceUtil {
   }
 
   @override
-  Future<GetAllStocksByPagenation?> getAllStockByPagenation(int? currentIndex,
-      String? partNumber, String? vehicleName, String? status) async {
+  Future<GetAllStocksByPagenation?> getAllStockByPagenation(
+      int? currentIndex,
+      String? partNumber,
+      String? vehicleName,
+      String? status,
+      String? branchId) async {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       var token = prefs.getString('token');
@@ -1297,6 +1309,9 @@ class AppServiceUtilImpl extends AppServiceUtil {
         }
         if (vehicleName != null && vehicleName.isNotEmpty) {
           url += '&itemName=$vehicleName';
+        }
+        if (branchId != null && branchId.isNotEmpty) {
+          url += '&branchId=$branchId';
         }
       }
       var response = await dio.get(url);

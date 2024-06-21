@@ -28,6 +28,7 @@ class _AddPurchaseState extends State<AddPurchase> {
       ),
       body: BlurryModalProgressHUD(
         inAsyncCall: _purchaseBloc.isAddPurchseBillLoading,
+        progressIndicator: const CircularProgressIndicator(),
         child: Row(
           children: [
             PurchaseTable(

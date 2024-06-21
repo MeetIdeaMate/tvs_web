@@ -1,14 +1,14 @@
-import 'dart:html';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tlbilling/components/custom_pagenation.dart';
+import 'package:tlbilling/models/get_model/get_all_branches_by_pagination.dart';
 import 'package:tlbilling/models/get_model/get_all_stock_with_pagination.dart';
 import 'package:tlbilling/utils/app_colors.dart';
 import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/utils/app_util_widgets.dart';
-import 'package:tlbilling/view/purchase/vehicle_details_dialog.dart';
 import 'package:tlbilling/view/stocks/stocks_view_bloc.dart';
+import 'package:tlds_flutter/components/tlds_dropdown_button_form_field.dart';
 import 'package:tlds_flutter/components/tlds_input_form_field.dart';
 import 'package:tlds_flutter/util/app_colors.dart';
 
@@ -29,6 +29,21 @@ class _StocksViewState extends State<StocksView>
     super.initState();
     _stocksViewBloc.stocksTableTableController =
         TabController(length: 2, vsync: this);
+    getBranchId();
+  }
+
+  Future<void> getBranchId() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    _stocksViewBloc.branchId = prefs.getString('branchId') ?? '';
+    _stocksViewBloc.getBranchesList().then((value) {
+      for (BranchDetail element in value ?? []) {
+        if (_stocksViewBloc.branchId == element.branchId) {
+          setState(() {
+            _stocksViewBloc.selectedBranch = element.branchName;
+          });
+        }
+      }
+    });
   }
 
   @override
@@ -128,7 +143,55 @@ class _StocksViewState extends State<StocksView>
             );
           },
         ),
+        _buildDefaultWidth(),
+        _buildBranchList()
       ],
+    );
+  }
+
+  Widget _buildBranchList() {
+    return FutureBuilder(
+      future: _stocksViewBloc.getBranchesList(),
+      builder: (context, futureSnapshot) {
+        if (futureSnapshot.connectionState == ConnectionState.waiting) {
+          return Center(
+            child: AppWidgetUtils.buildLoading(),
+          );
+        } else if (futureSnapshot.hasData) {
+          List<BranchDetail> branches = futureSnapshot.data ?? [];
+          List<String> branchNameList =
+              branches.map((e) => e.branchName ?? '').toList();
+          return Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              StreamBuilder(
+                stream: _stocksViewBloc.branchNameDropdownStream,
+                builder: (context, snapshot) {
+                  return TldsDropDownButtonFormField(
+                    height: 40,
+                    width: 300,
+                    hintText: AppConstants.fromBranch,
+                    dropDownItems: branchNameList,
+                    dropDownValue: _stocksViewBloc.selectedBranch,
+                    onChange: (String? newValue) async {
+                      _stocksViewBloc.selectedBranch = newValue ?? '';
+                      BranchDetail? selectedBranch = branches.firstWhere(
+                        (branch) => branch.branchName == newValue,
+                      );
+                      _stocksViewBloc.branchId = selectedBranch.branchId ?? '';
+                      _stocksViewBloc.branchNameDropdownStreamController(true);
+                      _stocksViewBloc.pageNumberUpdateStreamController(0);
+                    },
+                  );
+                },
+              ),
+            ],
+          );
+        }
+        return Center(
+          child: SvgPicture.asset(AppConstants.imgNoData),
+        );
+      },
     );
   }
 

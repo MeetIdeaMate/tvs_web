@@ -1,3 +1,4 @@
+import 'package:blurry_modal_progress_hud/blurry_modal_progress_hud.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -30,20 +31,24 @@ class _TransferDetailsState extends State<TransferDetails> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-        decoration: BoxDecoration(
-            border: Border(top: BorderSide(color: _appColors.greyColor)),
-            color: _appColors.transferDetailsContainerColor),
-        width: MediaQuery.sizeOf(context).width * 0.36,
-        child: Padding(
-          padding: const EdgeInsets.all(
-            12,
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [_buildTransferDetails(), _buildCustomActionButtons()],
-          ),
-        ));
+    return BlurryModalProgressHUD(
+      inAsyncCall: widget.newTransferBloc?.isLoading ?? false,
+      progressIndicator: CircularProgressIndicator(),
+      child: Container(
+          decoration: BoxDecoration(
+              border: Border(top: BorderSide(color: _appColors.greyColor)),
+              color: _appColors.transferDetailsContainerColor),
+          width: MediaQuery.sizeOf(context).width * 0.36,
+          child: Padding(
+            padding: const EdgeInsets.all(
+              12,
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [_buildTransferDetails(), _buildCustomActionButtons()],
+            ),
+          )),
+    );
   }
 
   Widget _buildTransferDetails() {

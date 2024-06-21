@@ -51,6 +51,7 @@ dependencies:
     git:
       url: https://github.com/metIdeamate/tlds_flutter.git
       ref: main
+  loading_animation_widget: ^1.2.1
   
 dev_dependencies:
   flutter_test:
