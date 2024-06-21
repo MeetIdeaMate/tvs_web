@@ -87,6 +87,8 @@ class VehicleDetailsDialog extends StatelessWidget {
         ),
       ),
     );
+ 
+ 
   }
 
   DataColumn _buildVehicleTableHeader(String headerValue) {

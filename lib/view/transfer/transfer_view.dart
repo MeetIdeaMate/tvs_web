@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -6,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tlbilling/components/custom_action_button.dart';
 import 'package:tlbilling/components/custom_elevated_button.dart';
+import 'package:tlbilling/models/get_model/get_all_branches_by_pagination.dart';
 import 'package:tlbilling/models/get_model/get_all_transfer_model.dart';
 import 'package:tlbilling/utils/app_colors.dart';
 import 'package:tlbilling/utils/app_constants.dart';
@@ -35,14 +35,29 @@ class _TransferViewState extends State<TransferView>
     super.initState();
     _transferViewBloc.transferScreenTabController =
         TabController(length: 2, vsync: this);
-    _getBranchId();
+    getBranchId();
+    _transferViewBloc.getBranchesList().then((value) {
+      for (BranchDetail element in value ?? []) {
+        if (_transferViewBloc.branchId == element.branchId) {
+          setState(() {
+            _transferViewBloc.selectedFromBranch = element.branchName;
+          });
+        }
+      }
+    });
   }
 
-  Future<void> _getBranchId() async {
-    setState(() async {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      _transferViewBloc.sharePrefBranchId =
-          prefs.getString(AppConstants.branchId);
+  Future<void> getBranchId() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    _transferViewBloc.branchId = prefs.getString('branchId') ?? '';
+    _transferViewBloc.getBranchesList().then((value) {
+      for (BranchDetail element in value ?? []) {
+        if (_transferViewBloc.branchId == element.branchId) {
+          setState(() {
+            _transferViewBloc.selectedFromBranch = element.branchName;
+          });
+        }
+      }
     });
   }
 
@@ -108,8 +123,9 @@ class _TransferViewState extends State<TransferView>
     return FutureBuilder(
       future: _transferViewBloc.getBranchesList(),
       builder: (context, futureSnapshot) {
-        List<String> branchNameList =
-            futureSnapshot.data?.map((e) => e.branchName ?? '').toList() ?? [];
+        List<String> branchNameList = ['All Branch'];
+        branchNameList.addAll(
+            futureSnapshot.data?.map((e) => e.branchName ?? '').toList() ?? []);
         if (futureSnapshot.connectionState == ConnectionState.waiting) {
           return Center(
             child: AppWidgetUtils.buildLoading(),
@@ -128,25 +144,31 @@ class _TransferViewState extends State<TransferView>
                     }
                   }
                   _refreshToBranchList(branchNameList);
-                  return TldsDropDownButtonFormField(
-                    height: 40,
-                    width: 150,
-                    hintText: AppConstants.fromBranch,
-                    dropDownItems: branchNameList,
-                    dropDownValue: _transferViewBloc.selectedFromBranch,
-                    onChange: (String? newValue) async {
-                      _transferViewBloc.selectedFromBranch = newValue ?? '';
-                      for (var element in futureSnapshot.data ?? []) {
-                        if (element.branchName == newValue) {
-                          _transferViewBloc.fromBranchId = element.branchId;
+                  return IgnorePointer(
+                    child: TldsDropDownButtonFormField(
+                      height: 40,
+                      width: 150,
+                      hintText: AppConstants.fromBranch,
+                      dropDownItems: branchNameList,
+                      dropDownValue: _transferViewBloc.selectedFromBranch,
+                      onChange: (String? newValue) async {
+                        _transferViewBloc.selectedFromBranch = newValue ?? '';
+                        if (newValue == 'All Branch') {
+                          _transferViewBloc.fromBranchId = null;
+                        } else {
+                          for (var element in futureSnapshot.data ?? []) {
+                            if (element.branchName == newValue) {
+                              _transferViewBloc.fromBranchId = element.branchId;
+                            }
+                          }
                         }
-                      }
-                      _transferViewBloc.toBranchList = [];
-                      _transferViewBloc.toBranchNameListStream(false);
-                      await Future.delayed(Duration.zero);
-                      _refreshToBranchList(branchNameList);
-                      _transferViewBloc.tableRefreshStream(true);
-                    },
+                        _transferViewBloc.toBranchList = [];
+                        _transferViewBloc.toBranchNameListStream(false);
+                        await Future.delayed(Duration.zero);
+                        _refreshToBranchList(branchNameList);
+                        _transferViewBloc.tableRefreshStream(true);
+                      },
+                    ),
                   );
                 },
               ),
@@ -162,9 +184,13 @@ class _TransferViewState extends State<TransferView>
                     dropDownValue: _transferViewBloc.selectedToBranch,
                     onChange: (String? newValue) {
                       _transferViewBloc.selectedToBranch = newValue ?? '';
-                      for (var element in futureSnapshot.data ?? []) {
-                        if (element.branchName == newValue) {
-                          _transferViewBloc.toBranchId = element.branchId;
+                      if (newValue == 'All Branch') {
+                        _transferViewBloc.toBranchId = null;
+                      } else {
+                        for (var element in futureSnapshot.data ?? []) {
+                          if (element.branchName == newValue) {
+                            _transferViewBloc.toBranchId = element.branchId;
+                          }
                         }
                       }
                       _transferViewBloc.tableRefreshStream(true);
@@ -320,48 +346,48 @@ class _TransferViewState extends State<TransferView>
   _buildTransferTableView(BuildContext context) {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
-      child: SingleChildScrollView(
-        scrollDirection: Axis.vertical,
-        child: SizedBox(
-            width: MediaQuery.sizeOf(context).width,
-            child: StreamBuilder(
-              stream: _transferViewBloc.tableRefreshStreamController,
-              builder: (context, snapshot) {
-                return FutureBuilder(
-                  future: _transferViewBloc.getTransferList(
-                      _transferViewBloc.transferScreenTabController.index == 0
-                          ? AppConstants.transferred
-                          : AppConstants.received),
-                  builder: (context, snapshot) {
-                    _transferViewBloc.transferScreenTabController.index == 0
-                        ? _transferViewBloc.transferStatus =
-                            AppConstants.transferred
-                        : _transferViewBloc.transferStatus =
-                            AppConstants.received;
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return Center(
-                        child: AppWidgetUtils.buildLoading(),
-                      );
-                    } else if (snapshot.hasData) {
-                      if (snapshot.data?.isEmpty == true) {
-                        return Center(
-                          child: SvgPicture.asset(AppConstants.imgNoData),
-                        );
-                      } else {
-                        return DataTable(
-                            key: UniqueKey(),
-                            dividerThickness: 0.01,
-                            columns: _tableHeaders(),
-                            rows: _tableRows(snapshot));
-                      }
-                    }
-                    return Center(
-                      child: SvgPicture.asset(AppConstants.imgNoData),
-                    );
-                  },
+      child: StreamBuilder(
+        stream: _transferViewBloc.tableRefreshStreamController,
+        builder: (context, snapshot) {
+          return FutureBuilder(
+            future: _transferViewBloc.getTransferList(() {
+              switch (_transferViewBloc.transferScreenTabController.index) {
+                case 0:
+                  return AppConstants.transferred;
+                case 1:
+                  return AppConstants.received;
+                default:
+                  return '';
+              }
+            }()),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return Center(
+                  child: AppWidgetUtils.buildLoading(),
                 );
-              },
-            )),
+              } else if (snapshot.hasData) {
+                if (snapshot.data?.isEmpty == true) {
+                  return Center(
+                    child: SvgPicture.asset(AppConstants.imgNoData),
+                  );
+                } else {
+                  return SingleChildScrollView(
+                    scrollDirection: Axis.vertical,
+                    child: DataTable(
+                      key: UniqueKey(),
+                      dividerThickness: 0.01,
+                      columns: _tableHeaders(),
+                      rows: _tableRows(snapshot),
+                    ),
+                  );
+                }
+              }
+              return Center(
+                child: SvgPicture.asset(AppConstants.imgNoData),
+              );
+            },
+          );
+        },
       ),
     );
   }
@@ -431,9 +457,9 @@ class _TransferViewState extends State<TransferView>
                               /*_transferViewBloc.transferStatus ==
                                       AppConstants.transferred
                                   ? null
-                                  : */const PopupMenuItem(
-                                      value: 'option1',
-                                      child: Text('Approved')),
+                                  : */
+                              const PopupMenuItem(
+                                  value: 'option1', child: Text('Approved')),
                             ];
                           },
                           onSelected: (value) {
@@ -539,19 +565,20 @@ class _TransferViewState extends State<TransferView>
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: transferItems!.map((transferStockDet) {
-              return ExpansionTile(
-                title: Text(transferStockDet.itemName ?? 'N/A'),
-                subtitle: Text(transferStockDet.partNo ?? 'N/A'),
-                expandedAlignment: Alignment.topLeft,
-                dense: true,
-                children: [
-                  DataTable(
-                      columns: _tableHeadersForVehicleDetails(),
-                      rows: _tableRowsForVehicleDetails(transferItems)),
-                ],
-              );
-            }).toList(),
+            children: transferItems?.map((transferStockDet) {
+                  return ExpansionTile(
+                    title: Text(transferStockDet.itemName ?? 'N/A'),
+                    subtitle: Text(transferStockDet.partNo ?? 'N/A'),
+                    expandedAlignment: Alignment.topLeft,
+                    dense: true,
+                    children: [
+                      DataTable(
+                          columns: _tableHeadersForVehicleDetails(),
+                          rows: _tableRowsForVehicleDetails(transferItems)),
+                    ],
+                  );
+                }).toList() ??
+                [],
           ),
         ),
       ),
@@ -569,12 +596,17 @@ class _TransferViewState extends State<TransferView>
   }
 
   List<DataRow> _tableRowsForVehicleDetails(List<TransferItem>? transferItems) {
+    print('******Transfer items*******${transferItems}');
     return transferItems
             ?.asMap()
             .entries
             .map(
               (entry) => DataRow(
                 color: MaterialStateColor.resolveWith((states) {
+                  print(
+                      '******en************${entry.value.mainSpecValue?.engineNo ?? ''}');
+                  print(
+                      '******fn************${entry.value.mainSpecValue?.frameNo ?? ''}');
                   if (entry.key % 2 == 0) {
                     return Colors.white;
                   } else {
@@ -676,4 +708,20 @@ class _TransferViewState extends State<TransferView>
       _transferViewBloc.vehicleNameSearchStreamController(true);
     }
   }
+
+  DataColumn _buildVehicleTableHeader(String headerValue) {
+    return DataColumn(
+      label: Text(
+        headerValue,
+        style: const TextStyle(fontWeight: FontWeight.bold),
+      ),
+    );
+  }
+
+  DataCell _buildTableRow(String? text) => DataCell(
+        Text(
+          text ?? '',
+          style: const TextStyle(fontSize: 14),
+        ),
+      );
 }

@@ -25,15 +25,15 @@ class _NewTransferState extends State<NewTransfer> {
   @override
   void initState() {
     super.initState();
+    getBranchId();
     _newTransferBloc.selectedVehicleAndAccessories = AppConstants.mVehicle;
     _newTransferBloc.selectedVehicleAndAccessoriesStreamController(true);
-    _getBranchId();
   }
 
-  Future<void> _getBranchId() async {
-    setState(() async {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      _newTransferBloc.branchId = prefs.getString(AppConstants.branchId);
+  Future<void> getBranchId() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _newTransferBloc.branchId = prefs.getString('branchId') ?? '';
     });
   }
 
