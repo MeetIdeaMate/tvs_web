@@ -59,11 +59,19 @@ class _PaymentDetailsState extends State<PaymentDetails> {
   Widget _buildHsnCodeField() {
     return TldsInputFormField(
       inputFormatters: TlInputFormatters.onlyAllowNumbers,
-      hintText: AppConstants.enterHsnCode,
+      hintText: AppConstants.hsnCode,
       labelText: AppConstants.hsnCode,
       controller: widget.addSalesBloc.hsnCodeTextController,
-      onChanged: (hsn) {
-        // print('CGST changed: $cgst');
+      onChanged: (hsn) {},
+      validator: (value) {
+        if (value!.isEmpty) {
+          return AppConstants.enterHsnCode;
+        }
+        return null;
+      },
+      focusNode: widget.addSalesBloc.hsnCodeFocus,
+      onSubmit: (value) {
+        FocusScope.of(context).requestFocus(widget.addSalesBloc.cgstFocus);
       },
     );
   }
@@ -86,7 +94,10 @@ class _PaymentDetailsState extends State<PaymentDetails> {
                         onChanged: (String? value) {
                           setState(() {
                             //   print('Selected GST Type: $value');
+
                             widget.addSalesBloc.selectedGstType = value;
+                            FocusScope.of(context)
+                                .requestFocus(widget.addSalesBloc.igstFocus);
                             widget.addSalesBloc
                                 .gstRadioBtnRefreashStreamController(true);
                           });
@@ -119,12 +130,15 @@ class _PaymentDetailsState extends State<PaymentDetails> {
               inputFormatters: TlInputFormatters.onlyAllowDecimalNumbers,
               hintText: AppConstants.cgstPercent,
               controller: widget.addSalesBloc.cgstPresentageTextController,
+              focusNode: widget.addSalesBloc.cgstFocus,
               onChanged: (cgst) {
-                widget.addSalesBloc.cgstAmount = double.parse(cgst);
-
-                // widget.addSalesBloc.cgstAmount =
-                //     widget.addSalesBloc.totalUnitRate /
-                //         print('CGST changed: $cgst');
+                setState(() {
+                  _calculateGST();
+                });
+              },
+              onSubmit: (value) {
+                FocusScope.of(context)
+                    .requestFocus(widget.addSalesBloc.discountFocus);
               },
             ),
           ),
@@ -140,6 +154,52 @@ class _PaymentDetailsState extends State<PaymentDetails> {
         ],
       ),
     );
+  }
+
+  void _calculateGST() {
+    double totalValues = widget.addSalesBloc.totalValue ?? 0;
+    double cgstPercent = double.tryParse(
+            widget.addSalesBloc.cgstPresentageTextController.text) ??
+        0;
+    double sgstPercent = double.tryParse(
+            widget.addSalesBloc.cgstPresentageTextController.text) ??
+        0;
+
+    widget.addSalesBloc.taxableValue = totalValues;
+    widget.addSalesBloc.cgstAmount = (totalValues / 100) * cgstPercent;
+    widget.addSalesBloc.sgstAmount = (totalValues / 100) * sgstPercent;
+
+    double taxableValue = widget.addSalesBloc.taxableValue ?? 0;
+    widget.addSalesBloc.invAmount =
+        taxableValue + (widget.addSalesBloc.sgstAmount ?? 0 * 2);
+    _updateTotalInvoiceAmount();
+
+    widget.addSalesBloc.paymentDetailsStreamController(true);
+    widget.addSalesBloc.gstRadioBtnRefreashStreamController(true);
+  }
+
+  void _updateTotalInvoiceAmount() {
+    double? empsIncValue =
+        double.tryParse(widget.addSalesBloc.empsIncentiveTextController.text) ??
+            0.0;
+    double? stateIncValue = double.tryParse(
+            widget.addSalesBloc.stateIncentiveTextController.text) ??
+        0.0;
+
+    double totalIncentive = empsIncValue + stateIncValue;
+
+    if ((widget.addSalesBloc.invAmount ?? 0) != -1) {
+      widget.addSalesBloc.totalInvAmount =
+          (widget.addSalesBloc.invAmount ?? 0) - totalIncentive;
+    } else {
+      widget.addSalesBloc.totalInvAmount = 0.0;
+    }
+
+    double advanceAmt = widget.addSalesBloc.advanceAmt ?? 0;
+    double totalInvAmt = widget.addSalesBloc.totalInvAmount ?? 0;
+    widget.addSalesBloc.toBePayedAmt = totalInvAmt - advanceAmt;
+
+    widget.addSalesBloc.paymentDetailsStreamController(true);
   }
 
   Widget _buildHeadingText(String text) {
@@ -161,8 +221,28 @@ class _PaymentDetailsState extends State<PaymentDetails> {
               inputFormatters: TlInputFormatters.onlyAllowDecimalNumbers,
               hintText: AppConstants.igstPercent,
               controller: widget.addSalesBloc.igstPresentageTextController,
+              focusNode: widget.addSalesBloc.igstFocus,
               onChanged: (igst) {
-                print('IGST changed: $igst');
+                double igstPersent = double.parse(igst);
+                widget.addSalesBloc.paymentDetailsStreamController(true);
+                widget.addSalesBloc.gstRadioBtnRefreashStreamController(true);
+                double unitRate = widget.addSalesBloc.totalUnitRate ?? 0;
+                widget.addSalesBloc.paymentDetailsStreamController(true);
+                widget.addSalesBloc.igstAmount = (unitRate / 10) * igstPersent;
+                widget.addSalesBloc.paymentDetailsStreamController(true);
+                double taxableValue = widget.addSalesBloc.taxableValue ?? 0;
+                widget.addSalesBloc.paymentDetailsStreamController(true);
+                widget.addSalesBloc.invAmount =
+                    taxableValue + (widget.addSalesBloc.sgstAmount ?? 0 * 2);
+                widget.addSalesBloc.paymentDetailsStreamController(true);
+                _updateTotalInvoiceAmount();
+                widget.addSalesBloc.paymentDetailsStreamController(true);
+
+                // print('IGST changed: $igst');
+              },
+              onSubmit: (value) {
+                FocusScope.of(context)
+                    .requestFocus(widget.addSalesBloc.discountFocus);
               },
             ),
           ),
@@ -202,18 +282,25 @@ class _PaymentDetailsState extends State<PaymentDetails> {
                     width: 100,
                     height: 40,
                     controller: widget.addSalesBloc.discountTextController,
+                    focusNode: widget.addSalesBloc.discountFocus,
                     onChanged: (discount) {
                       double? discountAmount = double.tryParse(discount);
 
-                      widget.addSalesBloc.taxableValue =
-                          (widget.addSalesBloc.totalValue ?? 0) -
-                              (discountAmount ?? 0);
+                      if (widget.addSalesBloc.totalValue != 0) {
+                        widget.addSalesBloc.taxableValue =
+                            (widget.addSalesBloc.totalValue ?? 0) -
+                                (discountAmount ?? 0);
 
-                      widget.addSalesBloc.totalInvAmount =
-                          ((widget.addSalesBloc.invAmount ?? 0) -
-                              (discountAmount ?? 0));
+                        widget.addSalesBloc.totalInvAmount =
+                            ((widget.addSalesBloc.invAmount ?? 0) -
+                                (discountAmount ?? 0));
+                      }
 
                       widget.addSalesBloc.paymentDetailsStreamController(true);
+                    },
+                    onSubmit: (value) {
+                      FocusScope.of(context)
+                          .requestFocus(widget.addSalesBloc.empsIncentiveFocus);
                     },
                   ),
                 ),
@@ -282,7 +369,7 @@ class _PaymentDetailsState extends State<PaymentDetails> {
                 AppWidgetUtils.buildSizedBox(custHeight: 10),
                 _buildPaymentDetailTile(
                     AppConstants.invoiceValue,
-                    subTitle: AppConstants.invoiceValueFour,
+                    subTitle: AppConstants.invoiceValueThree,
                     Text(
                       AppUtils.formatCurrency(
                           widget.addSalesBloc.invAmount ?? 0.0),
@@ -291,29 +378,39 @@ class _PaymentDetailsState extends State<PaymentDetails> {
                     )),
                 _buildPaymentDetailTile(
                     AppConstants.empsIncentive,
-                    subTitle: AppConstants.empsIncentiveFive,
+                    subTitle: AppConstants.empsIncentiveFour,
                     TldsInputFormField(
                       hintText: AppConstants.rupeeHint,
                       inputFormatters:
                           TldsInputFormatters.onlyAllowDecimalNumbers,
+                      focusNode: widget.addSalesBloc.empsIncentiveFocus,
                       width: 100,
                       height: 40,
                       controller:
                           widget.addSalesBloc.empsIncentiveTextController,
-                      onChanged: (empsInc) {},
+                      onChanged: (empsInc) {
+                        _updateTotalInvoiceAmount();
+                      },
+                      onSubmit: (value) {
+                        FocusScope.of(context).requestFocus(
+                            widget.addSalesBloc.stateIncentiveFocus);
+                      },
                     )),
                 _buildPaymentDetailTile(
                     AppConstants.stateIncentive,
-                    subTitle: AppConstants.stateIncentiveSix,
+                    subTitle: AppConstants.stateIncentiveFive,
                     TldsInputFormField(
                       hintText: AppConstants.rupeeHint,
                       inputFormatters:
                           TldsInputFormatters.onlyAllowDecimalNumbers,
+                      focusNode: widget.addSalesBloc.stateIncentiveFocus,
                       width: 100,
                       height: 40,
                       controller:
                           widget.addSalesBloc.stateIncentiveTextController,
-                      onChanged: (stateInc) {},
+                      onChanged: (stateInc) {
+                        _updateTotalInvoiceAmount();
+                      },
                     )),
                 AppWidgetUtils.buildSizedBox(custHeight: 10),
                 ListTile(
@@ -321,7 +418,7 @@ class _PaymentDetailsState extends State<PaymentDetails> {
                       style:
                           TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                   subtitle: Text(
-                    AppConstants.totalInvoiceAmountCal,
+                    AppConstants.totalInvoiceAmountCalTwo,
                     style: TextStyle(color: _appColors.grey),
                   ),
                   trailing: Text(
@@ -529,6 +626,33 @@ class _PaymentDetailsState extends State<PaymentDetails> {
   }
 
   _buildSaveBtn() {
-    return CustomActionButtons(onPressed: () {}, buttonText: AppConstants.save);
+    return CustomActionButtons(
+        onPressed: () {
+          if (widget.addSalesBloc.paymentFormKey.currentState!.validate()) {
+            if (widget.addSalesBloc.selectedVehiclesList!.isEmpty ||
+                widget.addSalesBloc.accessoriesData!.isEmpty) {
+              showDialog(
+                context: context,
+                builder: (context) {
+                  return AlertDialog(
+                    surfaceTintColor: _appColors.whiteColor,
+                    title: const Text('selected vehicle or accessories'),
+                    // content: const Text(AppConstants.alertContent),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: const Text('ok'),
+                      ),
+                    ],
+                  );
+                },
+              );
+            }
+            //  print('ok');
+          }
+        },
+        buttonText: AppConstants.save);
   }
 }

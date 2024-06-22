@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:lottie/lottie.dart';
 import 'package:tlbilling/components/custom_elevated_button.dart';
 import 'package:tlbilling/utils/app_colors.dart';
@@ -133,12 +134,19 @@ class AppWidgetUtils {
     );
   }
 
+  // static buildLoading() {
+  //   return LottieBuilder.asset(
+  //     AppConstants.jsonLoader,
+  //     height: 200,
+  //     width: 200,
+  //   );
+  // }
+
   static buildLoading() {
-    return LottieBuilder.asset(
-      AppConstants.jsonLoader,
-      height: 200,
-      width: 200,
-    );
+    return LoadingAnimationWidget.flickr(
+        rightDotColor: AppColors().primaryColor,
+        leftDotColor: AppColor().orangeColor,
+        size: 30);
   }
 
   static OutlineInputBorder outlineInputBorder({Color? color}) {

@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:tlbilling/models/get_model/get_all_branch_by_id_model.dart';
 import 'package:tlbilling/models/get_model/get_all_insurance_by_pagination_model.dart';
 import 'package:tlbilling/models/get_model/get_all_sales_list_model.dart';
-import 'package:tlbilling/models/get_model/get_all_stocks_by_id_model.dart';
+import 'package:tlbilling/models/get_model/get_all_stock_with_pagination.dart';
 import 'package:tlbilling/models/get_model/get_all_stocks_model.dart';
 import 'package:tlbilling/models/get_model/get_all_stocks_without_pagination.dart';
 import 'package:tlbilling/models/get_model/get_all_transfer_model.dart';
@@ -235,8 +235,8 @@ class ResultObj {
         getCustomerById: json["customer"] != null
             ? GetAllCustomersModel.fromJson(json["customer"])
             : null,
-        getAllStocksByPagenation: json['stockWithPage'] != null
-            ? GetAllStocksByPagenation.fromJson(json['stockWithPage'])
+        getAllStocksByPagenation: json['stockDTOWithPage'] != null
+            ? GetAllStocksByPagenation.fromJson(json['stockDTOWithPage'])
             : null,
         getAllTransferModel: json['transferDetails'] != null
             ? List<GetAllTransferModel>.from(json['transferDetails']

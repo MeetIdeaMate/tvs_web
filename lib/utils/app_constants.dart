@@ -144,6 +144,7 @@ class AppConstants {
   static const employee = 'Employee';
   static const pinCode = 'Pin Code';
   static const insurance = 'Insurance';
+  static const booking = 'Booking';
 
   //Customer
   static const addCustomer = 'Add Customer';
@@ -186,6 +187,7 @@ class AppConstants {
   static const hintAccNo = 'Enter Account Number';
   static const ifscNo = ' IFSC Code';
   static const enterIfscCode = 'Enter IFSC Code';
+  static const purchasenodateMsg = 'Add Purchase Value to the table to view';
 
   //transport
   static const addTransport = 'Add Transport';
@@ -272,6 +274,7 @@ class AppConstants {
   static const toBranch = 'To Branch';
   static const status = 'status';
   static const newTransfer = 'New Transfer';
+  static const transferItems = 'Transfer Items';
   static const vehicleList = 'Vehicle list';
   static const vehicleNameAndEngineNumber = 'Vehicle Name / Engine Number';
   static const selectVehicleOrAccessories = 'Select Vehicle Or Accessories';
@@ -470,6 +473,10 @@ class AppConstants {
   static const discount = 'Discount';
   static const purchaseID = 'Purchase Id';
 
+  //booking
+  static const bookingId = 'Booking Id';
+  static const payments = 'Payments';
+
   //insurnse
 
   static const String vehicleNo = 'Vehicle No';
@@ -489,13 +496,17 @@ class AppConstants {
   static const String gstThree = 'GST (ii)';
   static const String tcsValueThree = '(iii)';
   static const String invoiceValueFour = '(iv) i + ii + iii';
+  static const String invoiceValueThree = '(iii) i + ii ';
   static const String invoiceValue = 'Invoice Value';
   static const String empsIncentive = 'Emps Incentive';
   static const String stateIncentive = 'State Incentive';
   static const String empsIncentiveFive = '(v)';
+  static const String empsIncentiveFour = '(iv)';
   static const String stateIncentiveSix = '(vi)';
+  static const String stateIncentiveFive = '(v)';
   static const String totalInvoiceAmount = 'Total Invoice Amount';
   static const String totalInvoiceAmountCal = 'iv - (v+vi)';
+  static const String totalInvoiceAmountCalTwo = 'iii - (iv + v)';
 
   static const String cancelDialogMessage =
       'Are you sure you want to Cancel the purchase bill';
@@ -516,6 +527,8 @@ class AppConstants {
   static const String purchaseApproveError = 'The Purchase bill Not Approved';
   static const String purchaseApproveErrorDesc =
       'The Purchase bill Not Approved something went wrong';
+  static const String purchaseTableVerifyMsg =
+      'Add Purchase Value to the table to view';
 
 //sales
   static const String batteryName = 'Battery Name';

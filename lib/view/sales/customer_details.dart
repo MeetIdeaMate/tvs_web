@@ -164,6 +164,7 @@ class _CustomerDetailsState extends State<CustomerDetails> {
               List<String>? customerNamesList =
                   customerList?.map((e) => e.customerName ?? '').toList();
               return TldsDropDownButtonFormField(
+                height: 70,
                 validator: (String? value) {
                   if (value == null || value.isEmpty) {
                     return AppConstants.selectCustomer;
@@ -186,22 +187,25 @@ class _CustomerDetailsState extends State<CustomerDetails> {
           ),
         ),
         AppWidgetUtils.buildSizedBox(custWidth: 10),
-        CustomElevatedButton(
-          height: 40,
-          width: MediaQuery.sizeOf(context).width * 0.12,
-          text: AppConstants.addNew,
-          fontSize: 16,
-          buttonBackgroundColor: _appColors.primaryColor,
-          fontColor: _appColors.whiteColor,
-          suffixIcon: SvgPicture.asset(AppConstants.icHumanAdd),
-          onPressed: () {
-            showDialog(
-              context: context,
-              builder: (context) {
-                return const CreateCustomerDialog();
-              },
-            );
-          },
+        Padding(
+          padding: const EdgeInsets.only(top: 5),
+          child: CustomElevatedButton(
+            height: 40,
+            width: MediaQuery.sizeOf(context).width * 0.12,
+            text: AppConstants.addNew,
+            fontSize: 16,
+            buttonBackgroundColor: _appColors.primaryColor,
+            fontColor: _appColors.whiteColor,
+            suffixIcon: SvgPicture.asset(AppConstants.icHumanAdd),
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (context) {
+                  return const CreateCustomerDialog();
+                },
+              );
+            },
+          ),
         )
       ],
     );

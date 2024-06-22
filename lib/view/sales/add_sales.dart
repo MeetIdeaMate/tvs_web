@@ -47,22 +47,25 @@ class _AddSalesState extends State<AddSales> {
   }
 
   Widget _buildAddSalesEntryBody() {
-    return Row(
-      children: [
-        Expanded(
-          flex: 1,
-          child: _buildVehicleAndAccessoriesList(),
-        ),
-        Expanded(
-          flex: 1,
-          child: _buildInvoiceEntry(),
-        ),
-        AppWidgetUtils.buildSizedBox(custWidth: 50),
-        Expanded(
-          flex: 1,
-          child: _buildCustomerAndPaymentDetails(),
-        ),
-      ],
+    return Form(
+      key: _addSalesBloc.paymentFormKey,
+      child: Row(
+        children: [
+          Expanded(
+            flex: 1,
+            child: _buildVehicleAndAccessoriesList(),
+          ),
+          Expanded(
+            flex: 1,
+            child: _buildInvoiceEntry(),
+          ),
+          AppWidgetUtils.buildSizedBox(custWidth: 50),
+          Expanded(
+            flex: 1,
+            child: _buildCustomerAndPaymentDetails(),
+          ),
+        ],
+      ),
     );
   }
 
@@ -71,11 +74,9 @@ class _AddSalesState extends State<AddSales> {
       children: [
         Expanded(
           child: Container(
-            //padding: const EdgeInsets.symmetric(horizontal: 10),
             decoration: BoxDecoration(
               border: Border.symmetric(
                   vertical: BorderSide(color: _appColors.grey)),
-              //  color: _appColors.darkHighlight,
             ),
             child: PaymentDetails(
               addSalesBloc: _addSalesBloc,

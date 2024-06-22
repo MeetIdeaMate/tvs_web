@@ -21,21 +21,6 @@ class TransportView extends StatefulWidget {
 }
 
 class _TransportViewState extends State<TransportView> {
-  List<Map<String, String>> rowData = [
-    {
-      AppConstants.sno: '1',
-      AppConstants.transportName: 'MuthuLakshmi',
-      AppConstants.mobileNumber: '1234567890',
-      AppConstants.city: 'Chennai',
-    },
-    {
-      AppConstants.sno: '2',
-      AppConstants.transportName: 'Lakshu',
-      AppConstants.mobileNumber: '9876543210',
-      AppConstants.city: 'kovilpatti',
-    },
-  ];
-
   final _appColors = AppColors();
   final _transportBlocImpl = TransportBlocImpl();
 
@@ -50,19 +35,6 @@ class _TransportViewState extends State<TransportView> {
             AppWidgetUtils.buildHeaderText(AppConstants.transport),
             AppWidgetUtils.buildSizedBox(custHeight: 26),
             _buildsearchFiltersAndAddButton(context),
-            // Center(
-            //   child: Column(
-            //     children: [
-            //       SvgPicture.asset(AppConstants.imgNoData),
-            //       _buildText(
-            //           name: AppConstants.noDataStore,
-            //           color: _appcolors.greyColor,
-            //           fontWeight: FontWeight.bold,
-            //           fontSize: 15)
-            //     ],
-            //   ),
-            // )
-
             AppWidgetUtils.buildSizedBox(custHeight: 28),
             _buildTransportTableView(context)
           ],

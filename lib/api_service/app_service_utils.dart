@@ -13,7 +13,7 @@ import 'package:tlbilling/models/get_model/get_all_employee_by_pagination.dart';
 import 'package:tlbilling/models/get_model/get_all_insurance_by_pagination_model.dart';
 import 'package:tlbilling/models/get_model/get_all_purchase_model.dart';
 import 'package:tlbilling/models/get_model/get_all_sales_list_model.dart';
-import 'package:tlbilling/models/get_model/get_all_stocks_by_id_model.dart';
+import 'package:tlbilling/models/get_model/get_all_stock_with_pagination.dart';
 import 'package:tlbilling/models/get_model/get_all_stocks_model.dart';
 import 'package:tlbilling/models/get_model/get_all_stocks_without_pagination.dart';
 import 'package:tlbilling/models/get_model/get_all_transfer_model.dart';
@@ -195,8 +195,12 @@ abstract class AppServiceUtil {
       List<String>? partNumbersList, Function(int)? statusCode);
   Future<void> purchaseBillCancel(
       String? purchaseId, Function(int p1)? onSuccessCallback);
-  Future<GetAllStocksByPagenation?> getAllStockByPagenation(int? currentIndex,
-      String? partNumber, String? vehicleName, String? status);
+  Future<GetAllStocksByPagenation?> getAllStockByPagenation(
+      int? currentIndex,
+      String? partNumber,
+      String? vehicleName,
+      String? status,
+      String? branchId);
 
   Future<List<GetAllTransferModel>?> getTransferList(
       String? selectedStatus,
@@ -244,12 +248,15 @@ class AppServiceUtilImpl extends AppServiceUtil {
   @override
   Future<void> addBranch(AddBranchModel addBranchModel,
       Function(int? statusCode) onSuccessCallBack) async {
+    print('********************${addBranchModel.toJson()}');
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       var token = prefs.getString('token');
       dio.options.headers['Authorization'] = 'Bearer $token';
       var response =
           await dio.post(AppUrl.branch, data: jsonEncode(addBranchModel));
+      print('********************${addBranchModel.toJson()}');
+      print('********************${response.data}');
       onSuccessCallBack(response.statusCode);
     } on DioException catch (e) {
       onSuccessCallBack(e.response?.statusCode);
@@ -416,6 +423,7 @@ class AppServiceUtilImpl extends AppServiceUtil {
 
     var response = await dio.get(employeeListUrl);
     final responseList = parentResponseModelFromJson(jsonEncode(response.data));
+    print(responseList.result!.getAllEmployeesByPaginationModel!);
 
     return responseList.result!.getAllEmployeesByPaginationModel!;
   }
@@ -1013,6 +1021,10 @@ class AppServiceUtilImpl extends AppServiceUtil {
       dio.options.headers['Authorization'] = 'Bearer $token';
       var response = await dio
           .get('${AppUrl.stock}?branchId=$branchId&categoryName=$categoryName');
+
+      print(
+          '********STock Url ${AppUrl.stock}?branchId=$branchId&categoryName=$categoryName');
+      print('***S R B***${response.data}');
       var stocksList = parentResponseModelFromJson(jsonEncode(response.data))
           .result
           ?.getAllStocksWithoutPagination;
@@ -1201,6 +1213,7 @@ class AppServiceUtilImpl extends AppServiceUtil {
       if (toBranchId != null) {
         url += '&toBranchId=$toBranchId';
       }
+      print('*****Transfer  url*********$url');
       /*if (fromDateTextController != null) {
         url +=
             '&fromDate=${AppUtils.appToAPIDateFormat(fromDateTextController.toString())}';
@@ -1283,27 +1296,40 @@ class AppServiceUtilImpl extends AppServiceUtil {
   }
 
   @override
-  Future<GetAllStocksByPagenation?> getAllStockByPagenation(int? currentIndex,
-      String? partNumber, String? vehicleName, String? status) async {
+  Future<GetAllStocksByPagenation?> getAllStockByPagenation(
+      int? currentIndex,
+      String? partNumber,
+      String? vehicleName,
+      String? status,
+      String? branchId) async {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       var token = prefs.getString('token');
       dio.options.headers['Authorization'] = 'Bearer $token';
+      print(currentIndex);
 
-      String url =
-          '${AppUrl.stock}/page?page=$currentIndex&size=10&categoryName=$status';
+      String url = '${AppUrl.stock}/cumulative/page?page=$currentIndex&size=10';
+      if (status != null && status.isNotEmpty) {
+        url += '&categoryName=$status';
+        if (partNumber != null && partNumber.isNotEmpty) {
+          url += '&partNo=$partNumber';
+        }
+        if (vehicleName != null && vehicleName.isNotEmpty) {
+          url += '&itemName=$vehicleName';
+        }
+        if (branchId != null && branchId.isNotEmpty) {
+          url += '&branchId=$branchId';
+        }
+      }
       var response = await dio.get(url);
 
-      if (partNumber != null && partNumber.isNotEmpty) {
-        url += '&partNo=$partNumber';
-      }
-      if (vehicleName != null && vehicleName.isNotEmpty) {
-        url += '&itemName=$vehicleName';
-      }
+      print('*******URl Stock**********${response.data}');
 
-      return parentResponseModelFromJson(jsonEncode(response.data))
-          .result
-          ?.getAllStocksByPagenation;
+      final responseList =
+          parentResponseModelFromJson(jsonEncode(response.data));
+      print(responseList);
+
+      return responseList.result?.getAllStocksByPagenation;
     } on DioException catch (e) {
       e.response?.statusCode ?? 0;
     }

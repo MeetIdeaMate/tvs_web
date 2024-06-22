@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:tlbilling/api_service/app_service_utils.dart';
 import 'package:tlbilling/models/get_model/get_all_category_model.dart';
 import 'package:tlbilling/models/get_model/get_all_customers_model.dart';
@@ -23,6 +24,8 @@ abstract class AddSalesBloc {
   Stream get paymentDetailsStream;
   Stream<bool> get paymentOptionStream;
   Stream<bool> get isSplitPaymentStream;
+  Stream<bool> get batteryDetailsRefreshStream;
+  Stream<bool> get mandatoryRefereshStream;
 
   TextEditingController get discountTextController;
   TextEditingController get transporterVehicleNumberController;
@@ -33,6 +36,9 @@ abstract class AddSalesBloc {
   TextEditingController get batteryCapacityTextController;
   TextEditingController get empsIncentiveTextController;
   TextEditingController get stateIncentiveTextController;
+  List<TextEditingController> get batteryDetailsControllers;
+
+  GlobalKey<FormState> get paymentFormKey;
 
   String? get selectedVehicleAndAccessories;
   String? get selectedBranch;
@@ -41,6 +47,7 @@ abstract class AddSalesBloc {
   List<Widget> get selectedItems;
   List<GetAllStockDetails>? get vehicleData;
   List<GetAllStockDetails>? get accessoriesData;
+  Map<String, String> get selectedMandatoryAddOns;
 
   Stream<bool> get selectedSalesStreamItems;
 
@@ -54,6 +61,8 @@ abstract class AddSalesBloc {
   double? get cgstAmount;
   double? get sgstAmount;
   double? get totalUnitRate;
+  double? get advanceAmt;
+  double? get toBePayedAmt;
 
   String get selectedTypeTools;
   String get selectedTypeManualBook;
@@ -71,6 +80,8 @@ abstract class AddSalesBloc {
   Future<GetAllCategoryListModel?> getAllCategoryList();
 
   Future<List<String>> getPaymentmethods();
+  Future<List<String>> getBatteryDetails();
+  Future<List<String>> getMandantoryAddOns();
   Stream<List<GetAllStockDetails>> get vehicleListStream;
 // List<Map<String, String>> get vehicleData;
   List<GetAllStockDetails> get filteredVehicleData;
@@ -81,6 +92,14 @@ abstract class AddSalesBloc {
   Stream<bool> get gstRadioBtnRefreashStream;
   TextEditingController get cgstPresentageTextController;
   TextEditingController get igstPresentageTextController;
+
+  FocusNode get unitRateFocus;
+  FocusNode get hsnCodeFocus;
+  FocusNode get cgstFocus;
+  FocusNode get discountFocus;
+  FocusNode get igstFocus;
+  FocusNode get stateIncentiveFocus;
+  FocusNode get empsIncentiveFocus;
 }
 
 class AddSalesBlocImpl extends AddSalesBloc {
@@ -112,6 +131,8 @@ class AddSalesBlocImpl extends AddSalesBloc {
   final _gstRadioBtnRefreashStream = StreamController<bool>.broadcast();
   final _paymentOptionStream = StreamController<bool>.broadcast();
   final _isSplitPaymentStream = StreamController<bool>.broadcast();
+  final _batteryDetailsRefreshStream = StreamController<bool>.broadcast();
+  final _mandatoryAddOnsRefreshStream = StreamController<bool>.broadcast();
 
   List<String> selectedVehicleList = [];
 
@@ -119,6 +140,8 @@ class AddSalesBlocImpl extends AddSalesBloc {
   List<GetAllStockDetails>? selectedVehiclesList = [];
 
   List<GetAllStockDetails>? slectedAccessoriesList = [];
+  final List<TextEditingController> _batteryDetailsControllers = [];
+  Map<String, String> _selectedMandatoryAddOns = {};
 
   late Set<String> optionsSet = {selectedVehicleAndAccessories ?? 'M-vehicle'};
   String? _selectedVehicleAndAccessories;
@@ -153,6 +176,8 @@ class AddSalesBlocImpl extends AddSalesBloc {
   final _selectedAccessoriesListStream = StreamController.broadcast();
 
   final _selectedCustomerDetailsViewStream = StreamController.broadcast();
+
+  final _paymentFormKey = GlobalKey<FormState>();
   String? _selectedPaymentOption;
   String? _selectedCustomerId;
   double? _taxableValue;
@@ -163,36 +188,19 @@ class AddSalesBlocImpl extends AddSalesBloc {
   double? _cgstAmount;
   double? _sgstAmount;
   double? _totalUnitRate;
+  double? _advanceAmt;
+  double? _toBePayedAmt;
+
   bool _isSplitPayment = false;
   final _vehicleListStreamController =
       StreamController<List<GetAllStockDetails>>.broadcast();
-  final List<Map<String, dynamic>> accessoriesList = [
-    {
-      AppConstants.accessoriesName: 'TVS-APACHE TOOL KIT',
-      AppConstants.quantity: 10,
-      AppConstants.accessoriesNumber: 'K61916321F',
-    },
-    {
-      AppConstants.accessoriesName: 'HELMET',
-      AppConstants.quantity: 20,
-      AppConstants.accessoriesNumber: 'K61916322F',
-    },
-    {
-      AppConstants.accessoriesName: 'STAR-CITY FOOT REST',
-      AppConstants.quantity: 10,
-      AppConstants.accessoriesNumber: 'K61916323F',
-    },
-    {
-      AppConstants.accessoriesName: 'XL-SUPER SEAT',
-      AppConstants.quantity: 5,
-      AppConstants.accessoriesNumber: 'K61916324F',
-    },
-    {
-      AppConstants.accessoriesName: 'SILENCER',
-      AppConstants.quantity: 2,
-      AppConstants.accessoriesNumber: 'K61916325F',
-    },
-  ];
+  final _unitRateFocus = FocusNode();
+  final _hsnCodeFocus = FocusNode();
+  final _cgstFocus = FocusNode();
+  final _discountFocus = FocusNode();
+  final _igstFocus = FocusNode();
+  final _stateIncentiveFocus = FocusNode();
+  final _empsIncentiveFocus = FocusNode();
 
   @override
   Stream get availableAccListStreamController =>
@@ -576,5 +584,76 @@ class AddSalesBlocImpl extends AddSalesBloc {
   double? get totalUnitRate => _totalUnitRate;
   set totalUnitRate(double? value) {
     _totalUnitRate = value;
+  }
+
+  @override
+  double? get advanceAmt => _advanceAmt;
+  set advanceAmt(double? value) {
+    _advanceAmt = value;
+  }
+
+  @override
+  double? get toBePayedAmt => _toBePayedAmt;
+  set toBePayedAmt(double? value) {
+    _toBePayedAmt = value;
+  }
+
+  @override
+  FocusNode get cgstFocus => _cgstFocus;
+
+  @override
+  FocusNode get discountFocus => _discountFocus;
+
+  @override
+  FocusNode get empsIncentiveFocus => _empsIncentiveFocus;
+
+  @override
+  FocusNode get hsnCodeFocus => _hsnCodeFocus;
+
+  @override
+  FocusNode get igstFocus => _igstFocus;
+
+  @override
+  FocusNode get stateIncentiveFocus => _stateIncentiveFocus;
+
+  @override
+  FocusNode get unitRateFocus => _unitRateFocus;
+
+  @override
+  GlobalKey<FormState> get paymentFormKey => _paymentFormKey;
+
+  @override
+  Future<List<String>> getMandantoryAddOns() async {
+    return await _apiServices.getConfigByIdModel(configId: 'mAddons');
+  }
+
+  @override
+  Stream<bool> get batteryDetailsRefreshStream =>
+      _batteryDetailsRefreshStream.stream;
+  batteryDetailsRefreshStreamController(bool newValue) {
+    _batteryDetailsRefreshStream.add(newValue);
+  }
+
+  @override
+  Stream<bool> get mandatoryRefereshStream =>
+      _mandatoryAddOnsRefreshStream.stream;
+  mandatoryRefereshStreamController(bool newValue) {
+    _mandatoryAddOnsRefreshStream.add(newValue);
+  }
+
+  @override
+  Future<List<String>> getBatteryDetails() async {
+    return await _apiServices.getConfigByIdModel(
+        configId: 'eVehicleComponents');
+  }
+
+  @override
+  List<TextEditingController> get batteryDetailsControllers =>
+      _batteryDetailsControllers;
+
+  @override
+  Map<String, String> get selectedMandatoryAddOns => _selectedMandatoryAddOns;
+  set selectedMandatoryAddOns(Map<String, String> value) {
+    _selectedMandatoryAddOns = value;
   }
 }

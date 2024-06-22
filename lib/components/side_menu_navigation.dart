@@ -6,6 +6,7 @@ import 'package:tlbilling/components/side_menu_navigation_bloc.dart';
 import 'package:tlbilling/utils/app_colors.dart';
 import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/utils/app_util_widgets.dart';
+import 'package:tlbilling/view/booking/booking_list.dart';
 import 'package:tlbilling/view/branch/branch_view.dart';
 import 'package:tlbilling/view/configuration/configuration_view.dart';
 import 'package:tlbilling/view/customer/customer_view.dart';
@@ -252,6 +253,13 @@ class _SideMenuNavigationState extends State<SideMenuNavigation> {
               ),
               _buildDrawerMenuItem(
                 AppConstants.icReport,
+                AppConstants.booking,
+                    () {
+                  _onMenuItemSelected(AppConstants.booking);
+                },
+              ),
+              _buildDrawerMenuItem(
+                AppConstants.icReport,
                 AppConstants.insurance,
                 () {
                   _onMenuItemSelected(AppConstants.insurance);
@@ -348,7 +356,8 @@ class _SideMenuNavigationState extends State<SideMenuNavigation> {
         return const ConfigurationView();
       case AppConstants.insurance:
         return const InsuranseView();
-
+      case AppConstants.booking:
+        return const BookingList();
       case AppConstants.logOut:
         return Container();
       default:

@@ -27,17 +27,6 @@ class _VehicleAccessoriesListState extends State<VehicleAccessoriesList> {
   void initState() {
     super.initState();
     widget.addSalesBloc.selectedVehicleAndAccessories = 'M-Vehicle';
-    //  Fetch vehicle data and initialize filteredVehicleData
-    _initializeVehicleData();
-  }
-
-  Future<void> _initializeVehicleData() async {
-    try {
-      final vehicleData = await widget.addSalesBloc.getStockDetails();
-      setState(() {
-        widget.addSalesBloc.filteredVehicleData = List.from(vehicleData ?? []);
-      });
-    } catch (e) {}
   }
 
   @override
@@ -320,16 +309,27 @@ class _VehicleAccessoriesListState extends State<VehicleAccessoriesList> {
                           .toList(),
                       onSelectionChanged: (Set<String> newValue) {
                         var selectedValue = newValue.first;
+                        widget.addSalesBloc
+                            .batteryDetailsRefreshStreamController(true);
 
                         widget.addSalesBloc.selectedVehicleAndAccessories =
                             selectedValue;
+                        widget.addSalesBloc
+                            .batteryDetailsRefreshStreamController(true);
                         widget.addSalesBloc.selectedVehiclesList?.clear();
                         widget.addSalesBloc.slectedAccessoriesList?.clear();
+                        widget.addSalesBloc
+                            .batteryDetailsRefreshStreamController(true);
+                        widget.addSalesBloc.selectedMandatoryAddOns.clear();
+                        widget.addSalesBloc
+                            .batteryDetailsRefreshStreamController(true);
                         widget.addSalesBloc
                             .selectedVehicleAndAccessoriesListStreamController(
                                 true);
 
                         // widget.addSalesBloc.selectedVehiclesList = [];
+                        widget.addSalesBloc
+                            .batteryDetailsRefreshStreamController(true);
                         widget.addSalesBloc.selectedItemStream(true);
                         widget.addSalesBloc
                             .selectedVehiclesListStreamController(true);
