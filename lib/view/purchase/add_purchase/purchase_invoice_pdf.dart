@@ -160,7 +160,8 @@ class PurchaseInvoicePrint {
                           double igstPercent = 0;
                           double igstValue = 0;
 
-                          double empsIncentive = item.incentives?.firstWhere(
+                          double empsIncentive = item.incentives
+                                  ?.firstWhere(
                                       (incentive) =>
                                           incentive.incentiveName ==
                                           'EMPS 2024 Incentive',
@@ -180,9 +181,13 @@ class PurchaseInvoicePrint {
                                   .incentiveAmount ??
                               0.0;
 
-                          double tcsValue = item.taxes?.firstWhere((tax) => tax.taxName == 'TcsValue',
-                                  orElse: () => Tax(taxName: '', taxAmount: 0))
-                              .taxAmount ?? 0.0;
+                          double tcsValue = item.taxes
+                                  ?.firstWhere(
+                                      (tax) => tax.taxName == 'TcsValue',
+                                      orElse: () =>
+                                          Tax(taxName: '', taxAmount: 0))
+                                  .taxAmount ??
+                              0.0;
 
                           if (item.gstDetails != null) {
                             for (var gstDetail in item.gstDetails ?? []) {
@@ -206,11 +211,10 @@ class PurchaseInvoicePrint {
                             item.hsnSacCode ?? '',
                             '${item.quantity ?? ''}',
                             AppUtils.formatCurrency(item.unitRate ?? 0),
-                            AppUtils.formatCurrency((item.quantity ?? 0) *
-                               ( item.unitRate ?? 0)),
-                            AppUtils.formatCurrency(item.discount ?? 0),
                             AppUtils.formatCurrency(
-                                item.taxableValue ?? 0),
+                                (item.quantity ?? 0) * (item.unitRate ?? 0)),
+                            AppUtils.formatCurrency(item.discount ?? 0),
+                            AppUtils.formatCurrency(item.taxableValue ?? 0),
                             '$cgstPercent %',
                             AppUtils.formatCurrency(cgstValue),
                             '$sgstPercent %',
@@ -238,60 +242,64 @@ class PurchaseInvoicePrint {
                     spacing: 50,
                     runSpacing: 30,
                     children: purchaseData.itemDetails?.map((item) {
-                      return pw.Container(
-                        width: 400,
-                        child: pw.Column(
-                          crossAxisAlignment: pw.CrossAxisAlignment.start,
-                          children: [
-                            pw.Column(
+                          return pw.Container(
+                            width: 400,
+                            child: pw.Column(
                               crossAxisAlignment: pw.CrossAxisAlignment.start,
                               children: [
-                                pw.Text(item.itemName ?? '',
-                                    style: pw.TextStyle(
-                                        fontSize: 10,
-                                        fontWeight: pw.FontWeight.bold,
-                                        font: regularFont)),
-                                pw.SizedBox(width: 10),
-                                pw.Text(item.partNo ?? '',
-                                    style: pw.TextStyle(
-                                        fontSize: 8,
-                                        fontWeight: pw.FontWeight.bold,
-                                        font: regularFont)),
+                                pw.Column(
+                                  crossAxisAlignment:
+                                      pw.CrossAxisAlignment.start,
+                                  children: [
+                                    pw.Text(item.itemName ?? '',
+                                        style: pw.TextStyle(
+                                            fontSize: 10,
+                                            fontWeight: pw.FontWeight.bold,
+                                            font: regularFont)),
+                                    pw.SizedBox(width: 10),
+                                    pw.Text(item.partNo ?? '',
+                                        style: pw.TextStyle(
+                                            fontSize: 8,
+                                            fontWeight: pw.FontWeight.bold,
+                                            font: regularFont)),
+                                  ],
+                                ),
+                                pw.SizedBox(height: 10),
+                                pw.Table.fromTextArray(
+                                  headers: [
+                                    'S.No',
+                                    'Engine No',
+                                    'Frame No',
+                                    '',
+                                  ],
+                                  cellAlignment: pw.Alignment.center,
+                                  headerStyle: pw.TextStyle(
+                                      fontWeight: pw.FontWeight.bold,
+                                      fontSize: 8,
+                                      font: regularFont),
+                                  cellStyle: pw.TextStyle(
+                                      fontSize: 8, font: regularFont),
+                                  data: item.mainSpecValues
+                                          ?.asMap()
+                                          .entries
+                                          .map((entry) {
+                                        final index = entry.key + 1;
+                                        final spec = entry.value;
+                                        return [
+                                          '$index',
+                                          (spec.engineNumber ?? ''),
+                                          (spec.frameNumber ?? ''),
+                                          (''),
+                                        ];
+                                      }).toList() ??
+                                      [],
+                                ),
+                                pw.SizedBox(height: 10),
                               ],
                             ),
-                            pw.SizedBox(height: 10),
-                            pw.Table.fromTextArray(
-                              headers: [
-                                'S.No',
-                                'Engine No',
-                                'Frame No',
-                                '',
-                              ],
-                              cellAlignment: pw.Alignment.center,
-                              headerStyle: pw.TextStyle(
-                                  fontWeight: pw.FontWeight.bold,
-                                  fontSize: 8,
-                                  font: regularFont),
-                              cellStyle:
-                                  pw.TextStyle(fontSize: 8, font: regularFont),
-                              data: item.mainSpecValues?.asMap()
-                                  .entries
-                                  .map((entry) {
-                                final index = entry.key + 1;
-                                final spec = entry.value;
-                                return [
-                                  '$index',
-                                  (spec.engineNumber ?? ''),
-                                  (spec.frameNumber ?? ''),
-                                  (''),
-                                ];
-                              }).toList() ?? [],
-                            ),
-                            pw.SizedBox(height: 10),
-                          ],
-                        ),
-                      );
-                    }).toList() ?? [],
+                          );
+                        }).toList() ??
+                        [],
                   ),
                 ],
               )
@@ -304,7 +312,6 @@ class PurchaseInvoicePrint {
         onLayout: (PdfPageFormat format) async => pdf.save(),
       );
     } catch (e) {
-      // Add error handling for debugging purposes
       print('Error generating PDF: $e');
     }
   }

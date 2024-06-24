@@ -323,7 +323,7 @@ class _PaymentDetailsState extends State<PaymentDetails> {
                 AppWidgetUtils.buildSizedBox(custHeight: 10),
                 Container(
                     decoration: BoxDecoration(
-                        color: _appColors.hightlightColor,
+                        color: _appColors.amountBgColor,
                         borderRadius: BorderRadius.circular(10)),
                     padding: const EdgeInsets.all(10),
                     child: Column(

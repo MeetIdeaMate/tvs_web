@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:pdf/src/pdf/page_format.dart';
+import 'package:pdf/pdf.dart';
 import 'package:printing/printing.dart';
 import 'package:tlbilling/components/custom_dropdown_button_form_field.dart';
 import 'package:tlbilling/components/custom_elevated_button.dart';
@@ -142,6 +142,7 @@ class _GeneratePdfDialogState extends State<GeneratePdfDialog> {
               .cast<String>()
               .toList();
 
+          // ignore: unused_local_variable
           final selectedBranch =
               branchNameList!.contains(_genratePdfDialogBlocImpl.selectedBranch)
                   ? _genratePdfDialogBlocImpl.selectedBranch

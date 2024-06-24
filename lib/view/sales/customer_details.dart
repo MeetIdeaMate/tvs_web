@@ -1,7 +1,6 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:tlbilling/components/custom_action_button.dart';
 import 'package:tlbilling/components/custom_elevated_button.dart';
 import 'package:tlbilling/models/get_model/get_all_customers_model.dart';
 import 'package:tlbilling/utils/app_colors.dart';
@@ -211,100 +210,100 @@ class _CustomerDetailsState extends State<CustomerDetails> {
     );
   }
 
-  Widget _buildCustomRadioTile({
-    required String value,
-    required String? groupValue,
-    required ValueChanged<String?> onChanged,
-    required IconData icon,
-    required String label,
-  }) {
-    bool isSelected = value == groupValue;
+  // Widget _buildCustomRadioTile({
+  //   required String value,
+  //   required String? groupValue,
+  //   required ValueChanged<String?> onChanged,
+  //   required IconData icon,
+  //   required String label,
+  // }) {
+  //   bool isSelected = value == groupValue;
 
-    return GestureDetector(
-      onTap: () {
-        onChanged(value);
-      },
-      child: Container(
-        margin: const EdgeInsets.all(8.0),
-        width: 180,
-        height: 50,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(8.0),
-          border: Border.all(
-            color: isSelected
-                ? Theme.of(context).primaryColor
-                : _appColors.greyColor,
-            width: isSelected ? 2.0 : 1.0,
-          ),
-        ),
-        child: Row(
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8.0),
-              child: Icon(
-                icon,
-                color:
-                    isSelected ? _appColors.primaryColor : _appColors.greyColor,
-              ),
-            ),
-            Expanded(
-              child: Text(
-                label,
-                style: TextStyle(
-                    fontSize: 16.0,
-                    color: isSelected
-                        ? _appColors.primaryColor
-                        : _appColors.greyColor),
-              ),
-            ),
-            Radio<String>(
-              value: value,
-              groupValue: groupValue,
-              onChanged: onChanged,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+  //   return GestureDetector(
+  //     onTap: () {
+  //       onChanged(value);
+  //     },
+  //     child: Container(
+  //       margin: const EdgeInsets.all(8.0),
+  //       width: 180,
+  //       height: 50,
+  //       decoration: BoxDecoration(
+  //         color: Colors.white,
+  //         borderRadius: BorderRadius.circular(8.0),
+  //         border: Border.all(
+  //           color: isSelected
+  //               ? Theme.of(context).primaryColor
+  //               : _appColors.greyColor,
+  //           width: isSelected ? 2.0 : 1.0,
+  //         ),
+  //       ),
+  //       child: Row(
+  //         children: [
+  //           Padding(
+  //             padding: const EdgeInsets.symmetric(horizontal: 8.0),
+  //             child: Icon(
+  //               icon,
+  //               color:
+  //                   isSelected ? _appColors.primaryColor : _appColors.greyColor,
+  //             ),
+  //           ),
+  //           Expanded(
+  //             child: Text(
+  //               label,
+  //               style: TextStyle(
+  //                   fontSize: 16.0,
+  //                   color: isSelected
+  //                       ? _appColors.primaryColor
+  //                       : _appColors.greyColor),
+  //             ),
+  //           ),
+  //           Radio<String>(
+  //             value: value,
+  //             groupValue: groupValue,
+  //             onChanged: onChanged,
+  //           ),
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // }
 
-  Widget _buildPaymentOptions() {
-    return FutureBuilder(
-      future: widget.addSalesBloc.getPaymentmethods(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
-        } else if (snapshot.hasData) {
-          return SizedBox(
-            height: 200,
-            width: 180,
-            child: ListView.separated(
-              itemCount: snapshot.data?.length ?? 0,
-              itemBuilder: (context, index) => _buildCustomRadioTile(
-                value: snapshot.data?[index].toString() ?? '',
-                groupValue: widget.addSalesBloc.selectedPaymentOption,
-                onChanged: (value) {
-                  setState(() {
-                    widget.addSalesBloc.selectedPaymentOption = value!;
-                  });
-                },
-                icon: Icons.payment,
-                label: snapshot.data?[index].toUpperCase() ?? '',
-              ),
-              separatorBuilder: (BuildContext context, int index) {
-                return AppWidgetUtils.buildSizedBox(custHeight: 8);
-              },
-            ),
-          );
-        } else {
-          return const Center(
-            child: Text('No Payment Methods Available'),
-          );
-        }
-      },
-    );
-  }
+  // Widget _buildPaymentOptions() {
+  //   return FutureBuilder(
+  //     future: widget.addSalesBloc.getPaymentmethods(),
+  //     builder: (context, snapshot) {
+  //       if (snapshot.connectionState == ConnectionState.waiting) {
+  //         return const Center(
+  //           child: CircularProgressIndicator(),
+  //         );
+  //       } else if (snapshot.hasData) {
+  //         return SizedBox(
+  //           height: 200,
+  //           width: 180,
+  //           child: ListView.separated(
+  //             itemCount: snapshot.data?.length ?? 0,
+  //             itemBuilder: (context, index) => _buildCustomRadioTile(
+  //               value: snapshot.data?[index].toString() ?? '',
+  //               groupValue: widget.addSalesBloc.selectedPaymentOption,
+  //               onChanged: (value) {
+  //                 setState(() {
+  //                   widget.addSalesBloc.selectedPaymentOption = value!;
+  //                 });
+  //               },
+  //               icon: Icons.payment,
+  //               label: snapshot.data?[index].toUpperCase() ?? '',
+  //             ),
+  //             separatorBuilder: (BuildContext context, int index) {
+  //               return AppWidgetUtils.buildSizedBox(custHeight: 8);
+  //             },
+  //           ),
+  //         );
+  //       } else {
+  //         return const Center(
+  //           child: Text('No Payment Methods Available'),
+  //         );
+  //       }
+  //     },
+  //   );
+  // }
 }

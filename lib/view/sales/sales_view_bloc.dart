@@ -16,7 +16,7 @@ abstract class SalesViewBloc {
   Stream<int> get pageNumberStream;
 
   TabController get salesTabController;
-  Future<GetAllSalesList?> getSalesList();
+  Future<GetAllSales?> getSalesList();
 }
 
 class SalesViewBlocImpl extends SalesViewBloc {
@@ -79,7 +79,7 @@ class SalesViewBlocImpl extends SalesViewBloc {
   }
 
   @override
-  Future<GetAllSalesList?> getSalesList() {
+  Future<GetAllSales?> getSalesList() {
     return _appServiceUtilBlocImpl.getSalesList(
         invoiceNoTextController.text,
         paymentTypeTextController.text,

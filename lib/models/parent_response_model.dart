@@ -11,7 +11,7 @@ import 'package:tlbilling/models/get_model/get_all_vendorName_List.dart';
 import 'package:tlbilling/models/get_model/get_all_branch_model.dart';
 import 'package:tlbilling/models/get_model/get_all_branches_by_pagination.dart';
 import 'package:tlbilling/models/get_model/get_all_category_model.dart';
-import 'package:tlbilling/models/get_model/get_all_customerName_List.dart';
+import 'package:tlbilling/models/get_model/get_all_customer_name_list.dart';
 import 'package:tlbilling/models/get_model/get_all_customer_by_pagination_model.dart';
 import 'package:tlbilling/models/get_model/get_all_customers_model.dart';
 
@@ -88,7 +88,7 @@ class ResultObj {
   TransportDetails? transportDetails;
   List<BranchDetail>? branchDetails;
   GetAllInsuranceByPaginationModel? getAllInsuranceModel;
-  GetAllSalesList? getAllSalesList;
+  GetAllSales? getAllSalesList;
   GetBranchById? getBranchId;
   GetAllpurchaseReport? getPurchaseReport;
   PurchaseByPartNoModel? purchaseByPartNo;
@@ -209,8 +209,8 @@ class ResultObj {
             ? GetAllInsuranceByPaginationModel.fromJson(
                 json['customersWithPage'])
             : null,
-        getAllSalesList: json['salesList'] != null
-            ? GetAllSalesList.fromJson(json['salesList'])
+        getAllSalesList: json['salesWithPage'] != null
+            ? GetAllSales.fromJson(json['salesWithPage'])
             : null,
         getBranchId: json["branchResponse"] != null
             ? GetBranchById.fromJson(json["branchResponse"])

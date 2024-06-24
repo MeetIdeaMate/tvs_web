@@ -11,8 +11,8 @@ import 'package:tlbilling/view/purchase/add_purchase/add_vehicle_and_accesories/
 import 'package:tlds_flutter/export.dart';
 
 class EngineAndFrameNumberEntry extends StatefulWidget {
-  AddVehicleAndAccessoriesBlocImpl addVehicleAndAccessoriesBloc;
-  EngineAndFrameNumberEntry({
+  final AddVehicleAndAccessoriesBlocImpl addVehicleAndAccessoriesBloc;
+  const EngineAndFrameNumberEntry({
     super.key,
     required this.addVehicleAndAccessoriesBloc,
   });

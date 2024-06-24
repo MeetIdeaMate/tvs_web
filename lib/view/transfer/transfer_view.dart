@@ -596,7 +596,6 @@ class _TransferViewState extends State<TransferView>
   }
 
   List<DataRow> _tableRowsForVehicleDetails(List<TransferItem>? transferItems) {
-    print('******Transfer items*******${transferItems}');
     return transferItems
             ?.asMap()
             .entries

@@ -7,7 +7,6 @@ import 'package:tlbilling/models/get_model/get_all_category_model.dart';
 import 'package:tlbilling/models/get_model/get_all_stocks_without_pagination.dart';
 import 'package:tlbilling/models/get_model/get_transport_by_pagination.dart';
 import 'package:tlbilling/models/post_model/add_new_transfer.dart';
-import 'package:tlbilling/utils/app_constants.dart';
 
 abstract class NewTransferBloc {
   Stream get selectedVehicleAndAccessoriesStream;
@@ -432,7 +431,7 @@ class NewTransferBlocImpl extends NewTransferBloc {
         } else {
           if ((accessDet.selectedQuantity ?? 0) > 0) {
             accessDet.selectedQuantity = (accessDet.selectedQuantity ?? 0) - 1;
-          } else if((accessDet.selectedQuantity ?? 0) >= 0){
+          } else if ((accessDet.selectedQuantity ?? 0) >= 0) {
             filteredAccessoriesList?.remove(accessoriesDetails);
             accessoriesList?.add(accessoriesDetails!);
           }

@@ -679,12 +679,10 @@ class _PurchaseTableState extends State<PurchaseTable> {
       widget.purchaseBloc.editIndex = index;
       widget.purchaseBloc.partNumberController.text =
           data.partNo?.toString() ?? '';
-      widget.purchaseBloc.vehicleNameTextController.text =
-          data.vehicleName ?? '';
+      widget.purchaseBloc.vehicleNameTextController.text = data.vehicleName;
       widget.purchaseBloc.hsnCodeController.text =
           data.hsnCode?.toString() ?? '';
-      widget.purchaseBloc.unitRateController.text =
-          data.unitRate.toString() ?? '';
+      widget.purchaseBloc.unitRateController.text = data.unitRate.toString();
       widget.purchaseBloc.gstRadioBtnRefreshStreamController(true);
       widget.purchaseBloc.paymentDetailsStreamController(true);
       widget.purchaseBloc.totalValue = data.totalValue;

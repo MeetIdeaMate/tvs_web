@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:tlbilling/api_service/app_service_utils.dart';
 import 'package:tlbilling/models/get_model/get_transport_by_pagination.dart';
 import 'package:tlbilling/models/post_model/add_transport_model.dart';
-import 'package:tlbilling/view/transfer/new_transfer/tranfer_details.dart';
 
 abstract class CreateTransportBloc {
   TextEditingController get transportNameController;

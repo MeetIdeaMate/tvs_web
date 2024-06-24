@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:tlbilling/api_service/app_service_utils.dart';
 import 'package:tlbilling/models/get_model/get_all_category_model.dart';
 import 'package:tlbilling/models/get_model/get_all_customers_model.dart';
@@ -31,12 +30,14 @@ abstract class AddSalesBloc {
   TextEditingController get transporterVehicleNumberController;
   TextEditingController get vehicleNoAndEngineNoSearchController;
   List<TextEditingController> get unitRateControllers;
+  List<TextEditingController> get accessoriesUnitRateControllers;
   TextEditingController get hsnCodeTextController;
   TextEditingController get betteryNameTextController;
   TextEditingController get batteryCapacityTextController;
   TextEditingController get empsIncentiveTextController;
   TextEditingController get stateIncentiveTextController;
   List<TextEditingController> get batteryDetailsControllers;
+  List<TextEditingController> get accessoriesQuantityController;
 
   GlobalKey<FormState> get paymentFormKey;
 
@@ -115,6 +116,8 @@ class AddSalesBlocImpl extends AddSalesBloc {
   final _transporterVehicleNumberController = TextEditingController();
   final _vehicleNoAndEngineNoSearchController = TextEditingController();
   final List<TextEditingController> _unitRateControllers = [];
+  final List<TextEditingController> _accessoriesQtyController = [];
+  final List<TextEditingController> _accessoriesUnitRateControllers = [];
   final _hsnCodeTextController = TextEditingController();
   final _cgstPresentageTextController = TextEditingController();
   final _igstPresentageTextController = TextEditingController();
@@ -650,10 +653,17 @@ class AddSalesBlocImpl extends AddSalesBloc {
   @override
   List<TextEditingController> get batteryDetailsControllers =>
       _batteryDetailsControllers;
+  @override
+  List<TextEditingController> get accessoriesQuantityController =>
+      _accessoriesQtyController;
 
   @override
   Map<String, String> get selectedMandatoryAddOns => _selectedMandatoryAddOns;
   set selectedMandatoryAddOns(Map<String, String> value) {
     _selectedMandatoryAddOns = value;
   }
+
+  @override
+  List<TextEditingController> get accessoriesUnitRateControllers =>
+      _accessoriesUnitRateControllers;
 }

@@ -8,6 +8,7 @@ import 'package:tlbilling/utils/app_util_widgets.dart';
 import 'package:tlbilling/utils/input_formates.dart';
 import 'package:tlbilling/view/sales/add_sales_bloc.dart';
 import 'package:tlds_flutter/components/tlds_input_form_field.dart';
+import 'package:tlds_flutter/components/tlds_input_formaters.dart';
 
 class SelectedSalesData extends StatefulWidget {
   final AddSalesBlocImpl addSalesBloc;
@@ -31,6 +32,47 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
     widget.addSalesBloc.selectedVehiclesList?.forEach((vehicle) {
       widget.addSalesBloc.unitRateControllers.add(TextEditingController());
     });
+
+    _initializeControllers();
+  }
+
+  _initializeControllers() {
+    var controller = widget.addSalesBloc.accessoriesQuantityController;
+    controller = widget.addSalesBloc.slectedAccessoriesList!.map((accessory) {
+      var controller = TextEditingController(
+          text: widget.addSalesBloc.initialValueNotifier.value.toString());
+      controller.addListener(
+          () => _validateAndSetInitialValue(controller, accessory));
+      return controller;
+    }).toList();
+    var unitRatecontroller = widget.addSalesBloc.accessoriesQuantityController;
+    unitRatecontroller =
+        widget.addSalesBloc.slectedAccessoriesList!.map((accessory) {
+      var controller = TextEditingController(
+          text: widget.addSalesBloc.initialValueNotifier.value.toString());
+
+      return controller;
+    }).toList();
+  }
+
+  void _validateAndSetInitialValue(
+      TextEditingController controller, GetAllStockDetails accessory) {
+    int? value = int.tryParse(controller.text);
+    if (value == null || value < 0) {
+      controller.text = '1';
+    } else if (value > (accessory.quantity ?? 0)) {
+      controller.text = (accessory.quantity ?? 0).toString();
+    } else {
+      widget.addSalesBloc.initialValueNotifier.value = value;
+    }
+  }
+
+  @override
+  void dispose() {
+    for (var controller in widget.addSalesBloc.accessoriesQuantityController) {
+      controller.dispose();
+    }
+    super.dispose();
   }
 
   @override
@@ -435,6 +477,14 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
 
   Widget _buildSelectedAccessoriesCardDetails(
       GetAllStockDetails accessories, int index) {
+    if (index >= widget.addSalesBloc.accessoriesQuantityController.length) {
+      var controller = TextEditingController(
+          text: widget.addSalesBloc.initialValueNotifier.value.toString());
+      controller.addListener(
+          () => _validateAndSetInitialValue(controller, accessories));
+      widget.addSalesBloc.accessoriesQuantityController.add(controller);
+    }
+
     return Card(
       elevation: 0,
       shape: OutlineInputBorder(
@@ -466,56 +516,130 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
                     ),
                   ],
                 ),
-                Container(
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                      color: _appColors.disabledColor,
-                      width: 1.0,
+                Row(
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: _appColors.disabledColor,
+                          width: 1.0,
+                        ),
+                        borderRadius: BorderRadius.circular(5.0),
+                      ),
+                      child: Row(
+                        children: [
+                          IconButton(
+                            onPressed: () {
+                              if (initialValue > 0) {
+                                widget.addSalesBloc.decrementInitialValue();
+                                int newQuantity = int.parse(widget
+                                        .addSalesBloc
+                                        .accessoriesQuantityController[index]
+                                        .text) -
+                                    1;
+                                widget
+                                    .addSalesBloc
+                                    .accessoriesQuantityController[index]
+                                    .text = newQuantity.toString();
+
+                                // Check if the new quantity is zero and remove the item if so
+                                if (newQuantity == 0) {
+                                  setState(() {
+                                    widget.addSalesBloc.slectedAccessoriesList
+                                        ?.removeAt(index);
+                                    widget.addSalesBloc
+                                        .selectedAccessoriesListStreamController(
+                                            true);
+                                    widget.addSalesBloc.accessoriesData
+                                        ?.add(accessories);
+                                    widget.addSalesBloc
+                                        .availableAccListStream(true);
+                                    widget.addSalesBloc
+                                        .accessoriesQuantityController
+                                        .removeAt(index);
+                                  });
+                                }
+                              }
+                            },
+                            icon: SvgPicture.asset(
+                              AppConstants.icFilledMinus,
+                              width: 24,
+                              height: 24,
+                            ),
+                          ),
+                          SizedBox(
+                            width: 40,
+                            child: TextField(
+                              controller: widget.addSalesBloc
+                                  .accessoriesQuantityController[index],
+                              keyboardType: TextInputType.number,
+                              inputFormatters:
+                                  TldsInputFormatters.onlyAllowNumbers,
+                              textAlign: TextAlign.center,
+                              decoration: const InputDecoration(
+                                border: InputBorder.none,
+                              ),
+                              onChanged: (value) {
+                                int? intValue = int.tryParse(value);
+                                if (intValue != null) {
+                                  widget.addSalesBloc.initialValueNotifier
+                                      .value = intValue;
+                                }
+                              },
+                            ),
+                          ),
+                          IconButton(
+                            onPressed: () {
+                              if (initialValue < (accessories.quantity ?? 0)) {
+                                widget.addSalesBloc.incrementInitialValue();
+                                widget
+                                    .addSalesBloc
+                                    .accessoriesQuantityController[index]
+                                    .text = (int.parse(widget
+                                            .addSalesBloc
+                                            .accessoriesQuantityController[
+                                                index]
+                                            .text) +
+                                        1)
+                                    .toString();
+                              }
+                            },
+                            icon: SvgPicture.asset(
+                              AppConstants.icFilledAdd,
+                              width: 24,
+                              height: 24,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                    borderRadius: BorderRadius.circular(5.0),
-                  ),
-                  child: Row(
-                    children: [
-                      IconButton(
-                        onPressed: () {
-                          if (initialValue > 0) {
-                            widget.addSalesBloc.decrementInitialValue();
-                          }
-                        },
-                        icon: SvgPicture.asset(
-                          AppConstants.icFilledMinus,
-                          width: 24,
-                          height: 24,
-                        ),
-                      ),
-                      Text('$initialValue'),
-                      IconButton(
-                        onPressed: () {
-                          if (initialValue < (accessories.quantity ?? 0)) {
-                            widget.addSalesBloc.incrementInitialValue();
-                          }
-                        },
-                        icon: SvgPicture.asset(
-                          AppConstants.icFilledAdd,
-                          width: 24,
-                          height: 24,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                IconButton(
-                  onPressed: () {
-                    setState(() {
-                      widget.addSalesBloc.slectedAccessoriesList
-                          ?.removeAt(index);
-                      widget.addSalesBloc
-                          .selectedAccessoriesListStreamController(true);
-                      widget.addSalesBloc.accessoriesData?.add(accessories);
-                      widget.addSalesBloc.availableAccListStream(true);
-                    });
-                  },
-                  icon: SvgPicture.asset(AppConstants.icFilledClose),
+                    TldsInputFormField(
+                      width: 150,
+                      controller: widget
+                          .addSalesBloc.accessoriesUnitRateControllers[index],
+                      inputFormatters:
+                          TlInputFormatters.onlyAllowDecimalNumbers,
+                      hintText: AppConstants.rupeeHint,
+                      onChanged: (value) {
+                        _buildPaymentCalculation();
+                      },
+                    ),
+                    IconButton(
+                      onPressed: () {
+                        setState(() {
+                          widget.addSalesBloc.slectedAccessoriesList
+                              ?.removeAt(index);
+                          widget.addSalesBloc
+                              .selectedAccessoriesListStreamController(true);
+                          widget.addSalesBloc.accessoriesData?.add(accessories);
+                          widget.addSalesBloc.availableAccListStream(true);
+                          widget.addSalesBloc.accessoriesQuantityController
+                              .removeAt(index);
+                        });
+                      },
+                      icon: SvgPicture.asset(AppConstants.icFilledClose),
+                    ),
+                  ],
                 ),
               ],
             );
