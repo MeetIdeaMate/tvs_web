@@ -21,7 +21,7 @@ abstract class NewReceiptBloc {
 
   GlobalKey<FormState> get formKey;
 
-  Future<ParentResponseModel> getAllCustomerList();
+  Future<List<GetAllCustomerNameList>?> getAllCustomerList();
 
   Future<ParentResponseModel> getEmployeeName();
 }
@@ -77,7 +77,7 @@ class NewReceiptBlocImpl extends NewReceiptBloc {
   GlobalKey<FormState> get formKey => _formKey;
 
   @override
-  Future<ParentResponseModel> getAllCustomerList() {
+  Future<List<GetAllCustomerNameList>?> getAllCustomerList() {
     return _apiSericeUtils.getAllCustomerList();
   }
 

@@ -368,7 +368,7 @@ class AddSalesBlocImpl extends AddSalesBloc {
       _vehicleNoAndEngineNoSearchController;
 
   @override
-  Future<ParentResponseModel> getAllCustomerList() async {
+  Future<List<GetAllCustomerNameList>?> getAllCustomerList() async {
     return await _apiServices.getAllCustomerList();
   }
 

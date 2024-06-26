@@ -159,7 +159,7 @@ class _CustomerDetailsState extends State<CustomerDetails> {
           child: FutureBuilder(
             future: widget.addSalesBloc.getAllCustomerList(),
             builder: (context, snapshot) {
-              var customerList = snapshot.data?.result?.getAllCustomerNameList;
+              var customerList = snapshot.data ;
               List<String>? customerNamesList =
                   customerList?.map((e) => e.customerName ?? '').toList();
               return TldsDropDownButtonFormField(

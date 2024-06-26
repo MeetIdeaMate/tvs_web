@@ -1,6 +1,8 @@
 import 'dart:convert';
 
+import 'package:tlbilling/models/get_model/get_all_booking_list_with_pagination.dart';
 import 'package:tlbilling/models/get_model/get_all_branch_by_id_model.dart';
+import 'package:tlbilling/models/get_model/get_all_employee_model.dart';
 import 'package:tlbilling/models/get_model/get_all_insurance_by_pagination_model.dart';
 import 'package:tlbilling/models/get_model/get_all_sales_list_model.dart';
 import 'package:tlbilling/models/get_model/get_all_stock_with_pagination.dart';
@@ -21,6 +23,7 @@ import 'package:tlbilling/models/get_employee_by_id.dart';
 import 'package:tlbilling/models/get_model/get_all_employee_by_pagination.dart';
 import 'package:tlbilling/models/get_model/get_all_purchase_model.dart';
 import 'package:tlbilling/models/get_model/get_all_vendor_by_pagination_model.dart';
+import 'package:tlbilling/models/get_model/get_booking_by_id_model.dart';
 import 'package:tlbilling/models/get_model/get_configuration_list_model.dart';
 import 'package:tlbilling/models/get_model/get_configuration_model.dart';
 import 'package:tlbilling/models/get_model/get_purchase_report_model.dart';
@@ -98,6 +101,9 @@ class ResultObj {
   List<GetAllStockDetails>? getAllStockDetails;
   GetAllStocksByPagenation? getAllStocksByPagenation;
   List<GetAllTransferModel>? getAllTransferModel;
+  GetBookingListWithPagination? getAllBookingListWithPagination;
+  List<GetAllEmployeeModel>? getAllEmployeeListWithouPagenation;
+  GetBookingDetailsByIdModel? getBookingDetailsById;
 
   ResultObj(
       {this.getAllVendorByPagination,
@@ -131,7 +137,10 @@ class ResultObj {
       this.getAllStockDetails,
       this.getAllStocksByPagenation,
       this.getAllTransferModel,
-      this.getCustomerById});
+      this.getCustomerById,
+      this.getAllBookingListWithPagination,
+      this.getAllEmployeeListWithouPagenation,
+      this.getBookingDetailsById});
 
   factory ResultObj.fromJson(Map<String, dynamic> json) => ResultObj(
         getAllCustomersByPaginationModel: json['customersWithPage'] != null
@@ -241,6 +250,16 @@ class ResultObj {
         getAllTransferModel: json['transferDetails'] != null
             ? List<GetAllTransferModel>.from(json['transferDetails']
                 .map((x) => GetAllTransferModel.fromJson(x)))
+            : null,
+        getAllBookingListWithPagination: json['bookingsWithPage'] != null
+            ? GetBookingListWithPagination.fromJson(json['bookingsWithPage'])
+            : null,
+        getAllEmployeeListWithouPagenation: json['employeeList'] != null
+            ? List<GetAllEmployeeModel>.from(json['employeeList']
+                .map((x) => GetAllEmployeeModel.fromJson(x)))
+            : null,
+        getBookingDetailsById: json['booking'] != null
+            ? GetBookingDetailsByIdModel.fromJson(json['booking'])
             : null,
       );
 

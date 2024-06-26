@@ -476,6 +476,12 @@ class AppConstants {
   //booking
   static const bookingId = 'Booking Id';
   static const payments = 'Payments';
+  static const paymentTypes = 'paymentType';
+  static const additionalInfo = 'Additional Info';
+  static const executiveName = 'Executive Name';
+  static const targetInvDate = 'Target Inv Date';
+  static const addBook = 'Add Book';
+  static const newBooking = 'New Booking';
 
   //insurnse
 
@@ -529,6 +535,13 @@ class AppConstants {
       'The Purchase bill Not Approved something went wrong';
   static const String purchaseTableVerifyMsg =
       'Add Purchase Value to the table to view';
+
+  static const String bookingCreated = 'Vehicle booked successfully';
+  static const String bookingCreatedDes =
+      'Vehicle you book is created and saved';
+  static const String bookingCreatedErr = 'Vehicle booked Not created';
+  static const String bookingCreatedErrDec =
+      'Vehicle booked Not created Somthing went wrong';
 
 //sales
   static const String batteryName = 'Battery Name';
