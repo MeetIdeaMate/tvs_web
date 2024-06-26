@@ -25,54 +25,11 @@ class SelectedSalesData extends StatefulWidget {
 class _SelectedSalesDataState extends State<SelectedSalesData> {
   final _appColors = AppColors();
   bool isEVehicle = false;
+  Map<String, String> batteryDetailsMap = {};
 
   @override
   void initState() {
     super.initState();
-    widget.addSalesBloc.selectedVehiclesList?.forEach((vehicle) {
-      widget.addSalesBloc.unitRateControllers.add(TextEditingController());
-    });
-
-    _initializeControllers();
-  }
-
-  _initializeControllers() {
-    var controller = widget.addSalesBloc.accessoriesQuantityController;
-    controller = widget.addSalesBloc.slectedAccessoriesList!.map((accessory) {
-      var controller = TextEditingController(
-          text: widget.addSalesBloc.initialValueNotifier.value.toString());
-      controller.addListener(
-          () => _validateAndSetInitialValue(controller, accessory));
-      return controller;
-    }).toList();
-    var unitRatecontroller = widget.addSalesBloc.accessoriesQuantityController;
-    unitRatecontroller =
-        widget.addSalesBloc.slectedAccessoriesList!.map((accessory) {
-      var controller = TextEditingController(
-          text: widget.addSalesBloc.initialValueNotifier.value.toString());
-
-      return controller;
-    }).toList();
-  }
-
-  void _validateAndSetInitialValue(
-      TextEditingController controller, GetAllStockDetails accessory) {
-    int? value = int.tryParse(controller.text);
-    if (value == null || value < 0) {
-      controller.text = '1';
-    } else if (value > (accessory.quantity ?? 0)) {
-      controller.text = (accessory.quantity ?? 0).toString();
-    } else {
-      widget.addSalesBloc.initialValueNotifier.value = value;
-    }
-  }
-
-  @override
-  void dispose() {
-    for (var controller in widget.addSalesBloc.accessoriesQuantityController) {
-      controller.dispose();
-    }
-    super.dispose();
   }
 
   @override
@@ -148,86 +105,80 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
     );
   }
 
-  void _updateUnitRateControllers() {
-    while (widget.addSalesBloc.unitRateControllers.length <
-        (widget.addSalesBloc.selectedVehiclesList?.length ?? 0)) {
-      widget.addSalesBloc.unitRateControllers.add(TextEditingController());
-    }
-    while (widget.addSalesBloc.unitRateControllers.length >
-        (widget.addSalesBloc.selectedVehiclesList?.length ?? 0)) {
-      widget.addSalesBloc.unitRateControllers.removeLast().dispose();
-    }
-
-    double totalValue = 0.0;
-    int qty = widget.addSalesBloc.selectedVehiclesList?.length ?? 0;
-    for (int i = 0; i < qty; i++) {
-      double unitRate =
-          double.tryParse(widget.addSalesBloc.unitRateControllers[i].text) ??
-              0.0;
-      totalValue += unitRate;
-    }
-
-    widget.addSalesBloc.totalValue = totalValue;
-    widget.addSalesBloc.paymentDetailsStreamController(true);
-  }
-
   Widget _buildBatteryDetails() {
     return Column(
       children: [
-        FutureBuilder(
-          future: widget.addSalesBloc.getBatteryDetails(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: Text(AppConstants.loading));
-            } else if (snapshot.hasError) {
-              return const Text(AppConstants.errorLoading);
-            } else if (!snapshot.hasData ||
-                (snapshot.data as List<String>).isEmpty) {
-              return const Text(AppConstants.noData);
-            } else {
-              List<String> eVehicleComponents = snapshot.data as List<String>;
+        StreamBuilder(
+            stream: widget.addSalesBloc.batteryDetailsRefreshStream,
+            builder: (context, snapshot) {
+              return FutureBuilder(
+                future: widget.addSalesBloc.getBatteryDetails(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: Text(AppConstants.loading));
+                  } else if (snapshot.hasError) {
+                    return const Text(AppConstants.errorLoading);
+                  } else if (!snapshot.hasData ||
+                      (snapshot.data as List<String>).isEmpty) {
+                    return const Text(AppConstants.noData);
+                  } else {
+                    List<String> eVehicleComponents =
+                        snapshot.data as List<String>;
 
-              while (widget.addSalesBloc.batteryDetailsControllers.length <
-                  eVehicleComponents.length) {
-                widget.addSalesBloc.batteryDetailsControllers
-                    .add(TextEditingController());
-              }
-              while (widget.addSalesBloc.batteryDetailsControllers.length >
-                  eVehicleComponents.length) {
-                widget.addSalesBloc.batteryDetailsControllers
-                    .removeLast()
-                    .dispose();
-              }
+                    // Clear existing map
+                    batteryDetailsMap.clear();
 
-              return ListView.builder(
-                shrinkWrap: true,
-                itemCount: eVehicleComponents.length,
-                itemBuilder: (context, index) {
-                  return Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(eVehicleComponents[index]),
-                      const Spacer(),
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.only(bottom: 5),
-                          child: TldsInputFormField(
-                            height: 40,
-                            controller: widget
-                                .addSalesBloc.batteryDetailsControllers[index],
-                            hintText: eVehicleComponents[index],
-                          ),
-                        ),
-                      ),
-                    ],
-                  );
+                    // Populate batteryDetailsMap with battery details
+                    for (String componentName in eVehicleComponents) {
+                      batteryDetailsMap[componentName] =
+                          ''; // Initialize with empty string
+                    }
+
+                    // Print the battery details map (for debugging purposes)
+
+                    return ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: eVehicleComponents.length,
+                      itemBuilder: (context, index) {
+                        String componentName = eVehicleComponents[index];
+                        return Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(componentName),
+                            const Spacer(),
+                            Expanded(
+                              child: Padding(
+                                padding: const EdgeInsets.only(bottom: 5),
+                                child: TldsInputFormField(
+                                  height: 40,
+                                  controller: TextEditingController(),
+                                  hintText: componentName,
+                                  onChanged: (value) {
+                                    // Update the batteryDetailsMap when value changes
+                                    batteryDetailsMap[componentName] = value;
+
+                                    printBatteryDetails();
+                                  },
+                                ),
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  }
                 },
               );
-            }
-          },
-        ),
+            }),
       ],
     );
+  }
+
+  void printBatteryDetails() {
+    // Print battery details map
+    batteryDetailsMap.forEach((key, value) {
+      print('$key: $value');
+    });
   }
 
   Widget _buildHeadingText(String text) {
@@ -255,8 +206,6 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
           bool hasAccessories = selectedAccessoriesList != null &&
               selectedAccessoriesList.isNotEmpty;
 
-          _updateUnitRateControllers();
-
           return ListView.builder(
             itemCount: widget.addSalesBloc.selectedVehicleAndAccessories ==
                     'M-Vehicle'
@@ -272,6 +221,7 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
                       'E-Vehicle') {
                 if (hasVehicles) {
                   GetAllStockDetails? vehicle = selectedVehiclesList[index];
+
                   return _buildSelectedVehicleCard(vehicle, index);
                 } else {
                   return Container();
@@ -334,6 +284,9 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
   }
 
   Widget _buildSelectedVehicleCard(GetAllStockDetails vehicle, int index) {
+    widget.addSalesBloc.unitRateControllers.text =
+        widget.addSalesBloc.unitRates[index] ?? '';
+
     return Card(
       color: _appColors.whiteColor,
       elevation: 0,
@@ -373,12 +326,15 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
                   children: [
                     TldsInputFormField(
                       width: 150,
-                      controller:
-                          widget.addSalesBloc.unitRateControllers[index],
+                      controller: TextEditingController(),
                       inputFormatters:
                           TlInputFormatters.onlyAllowDecimalNumbers,
                       hintText: AppConstants.rupeeHint,
                       onChanged: (value) {
+                        widget.addSalesBloc.unitRates[index] = value;
+
+                        print(widget.addSalesBloc.unitRates[index]);
+
                         _buildPaymentCalculation();
                       },
                     ),
@@ -386,9 +342,8 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
                       onPressed: () {
                         widget.addSalesBloc.selectedVehiclesList
                             ?.removeAt(index);
-                        widget.addSalesBloc.unitRateControllers
-                            .removeAt(index)
-                            .dispose();
+                        widget.addSalesBloc.unitRates.remove(index);
+
                         widget.addSalesBloc
                             .vehicleAndEngineNumberStreamController(true);
                         widget.addSalesBloc.selectedItemStream(true);
@@ -417,8 +372,7 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
 
     for (int i = 0; i < qty; i++) {
       double unitRate =
-          double.tryParse(widget.addSalesBloc.unitRateControllers[i].text) ??
-              0.0;
+          double.tryParse(widget.addSalesBloc.unitRates[i]!) ?? 0.0;
       totalUnitValue += unitRate;
     }
 
@@ -476,14 +430,14 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
   }
 
   Widget _buildSelectedAccessoriesCardDetails(
-      GetAllStockDetails accessories, int index) {
-    if (index >= widget.addSalesBloc.accessoriesQuantityController.length) {
-      var controller = TextEditingController(
-          text: widget.addSalesBloc.initialValueNotifier.value.toString());
-      controller.addListener(
-          () => _validateAndSetInitialValue(controller, accessories));
-      widget.addSalesBloc.accessoriesQuantityController.add(controller);
-    }
+    GetAllStockDetails accessories,
+    int index,
+  ) {
+    TextEditingController qtyController = TextEditingController();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      qtyController.text = widget.addSalesBloc.accessoriesQty[index]!;
+    });
 
     return Card(
       elevation: 0,
@@ -530,35 +484,14 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
                         children: [
                           IconButton(
                             onPressed: () {
-                              if (initialValue > 0) {
+                              int currentValue = int.tryParse(widget
+                                      .addSalesBloc.accessoriesQty[index]!) ??
+                                  1;
+                              if (currentValue > 1) {
+                                widget.addSalesBloc.accessoriesQty[index] =
+                                    (currentValue - 1).toString();
                                 widget.addSalesBloc.decrementInitialValue();
-                                int newQuantity = int.parse(widget
-                                        .addSalesBloc
-                                        .accessoriesQuantityController[index]
-                                        .text) -
-                                    1;
-                                widget
-                                    .addSalesBloc
-                                    .accessoriesQuantityController[index]
-                                    .text = newQuantity.toString();
-
-                                // Check if the new quantity is zero and remove the item if so
-                                if (newQuantity == 0) {
-                                  setState(() {
-                                    widget.addSalesBloc.slectedAccessoriesList
-                                        ?.removeAt(index);
-                                    widget.addSalesBloc
-                                        .selectedAccessoriesListStreamController(
-                                            true);
-                                    widget.addSalesBloc.accessoriesData
-                                        ?.add(accessories);
-                                    widget.addSalesBloc
-                                        .availableAccListStream(true);
-                                    widget.addSalesBloc
-                                        .accessoriesQuantityController
-                                        .removeAt(index);
-                                  });
-                                }
+                                _updateTotalValue();
                               }
                             },
                             icon: SvgPicture.asset(
@@ -570,38 +503,41 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
                           SizedBox(
                             width: 40,
                             child: TextField(
-                              controller: widget.addSalesBloc
-                                  .accessoriesQuantityController[index],
-                              keyboardType: TextInputType.number,
-                              inputFormatters:
-                                  TldsInputFormatters.onlyAllowNumbers,
+                              controller: qtyController,
                               textAlign: TextAlign.center,
                               decoration: const InputDecoration(
                                 border: InputBorder.none,
                               ),
                               onChanged: (value) {
+                                if (value.isEmpty) return;
                                 int? intValue = int.tryParse(value);
                                 if (intValue != null) {
+                                  if (intValue > (accessories.quantity ?? 0)) {
+                                    intValue = accessories.quantity ?? 0;
+                                    qtyController.text =
+                                        accessories.quantity.toString();
+                                  }
+                                  widget.addSalesBloc.accessoriesQty[index] =
+                                      intValue.toString();
                                   widget.addSalesBloc.initialValueNotifier
                                       .value = intValue;
+                                } else {
+                                  qtyController.text = '1';
                                 }
+                                _updateTotalValue();
                               },
                             ),
                           ),
                           IconButton(
                             onPressed: () {
-                              if (initialValue < (accessories.quantity ?? 0)) {
+                              int currentValue = int.tryParse(widget
+                                      .addSalesBloc.accessoriesQty[index]!) ??
+                                  0;
+                              if (currentValue < (accessories.quantity ?? 0)) {
+                                widget.addSalesBloc.accessoriesQty[index] =
+                                    (currentValue + 1).toString();
                                 widget.addSalesBloc.incrementInitialValue();
-                                widget
-                                    .addSalesBloc
-                                    .accessoriesQuantityController[index]
-                                    .text = (int.parse(widget
-                                            .addSalesBloc
-                                            .accessoriesQuantityController[
-                                                index]
-                                            .text) +
-                                        1)
-                                    .toString();
+                                _updateTotalValue();
                               }
                             },
                             icon: SvgPicture.asset(
@@ -613,29 +549,27 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
                         ],
                       ),
                     ),
+                    const SizedBox(width: 5),
                     TldsInputFormField(
-                      width: 150,
-                      controller: widget
-                          .addSalesBloc.accessoriesUnitRateControllers[index],
+                      width: 120,
+                      controller: TextEditingController(),
                       inputFormatters:
-                          TlInputFormatters.onlyAllowDecimalNumbers,
+                          TldsInputFormatters.onlyAllowDecimalNumbers,
                       hintText: AppConstants.rupeeHint,
                       onChanged: (value) {
-                        _buildPaymentCalculation();
+                        widget.addSalesBloc.unitRates[index] = value;
+                        _updateTotalValue();
                       },
                     ),
                     IconButton(
                       onPressed: () {
-                        setState(() {
-                          widget.addSalesBloc.slectedAccessoriesList
-                              ?.removeAt(index);
-                          widget.addSalesBloc
-                              .selectedAccessoriesListStreamController(true);
-                          widget.addSalesBloc.accessoriesData?.add(accessories);
-                          widget.addSalesBloc.availableAccListStream(true);
-                          widget.addSalesBloc.accessoriesQuantityController
-                              .removeAt(index);
-                        });
+                        widget.addSalesBloc.slectedAccessoriesList
+                            ?.removeAt(index);
+                        widget.addSalesBloc.selectedItemStream(true);
+                        widget.addSalesBloc
+                            .selectedAccessoriesListStreamController(true);
+                        widget.addSalesBloc.accessoriesData?.add(accessories);
+                        widget.addSalesBloc.availableAccListStream(true);
                       },
                       icon: SvgPicture.asset(AppConstants.icFilledClose),
                     ),
@@ -647,5 +581,40 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
         ),
       ),
     );
+  }
+
+  void _updateTotalValue() {
+    double totalUnitValue = 0.0;
+    int accessoriesQty =
+        widget.addSalesBloc.slectedAccessoriesList?.length ?? 0;
+
+    for (int i = 0; i < accessoriesQty; i++) {
+      print(widget.addSalesBloc.accessoriesQty[i]);
+      int qty = int.tryParse(widget.addSalesBloc.accessoriesQty[i] ?? '1') ?? 1;
+      double unitRate =
+          double.tryParse(widget.addSalesBloc.unitRates[i] ?? '0.0') ?? 0.0;
+      totalUnitValue += unitRate * qty;
+    }
+    print(totalUnitValue);
+
+    widget.addSalesBloc.totalValue = totalUnitValue * accessoriesQty;
+
+    double cgstPercent = double.tryParse(
+            widget.addSalesBloc.cgstPresentageTextController.text) ??
+        0;
+    double sgstPercent = double.tryParse(
+            widget.addSalesBloc.cgstPresentageTextController.text) ??
+        0;
+
+    widget.addSalesBloc.taxableValue = totalUnitValue;
+    widget.addSalesBloc.cgstAmount = (totalUnitValue / 100) * cgstPercent;
+    widget.addSalesBloc.sgstAmount = (totalUnitValue / 100) * sgstPercent;
+
+    double taxableValue = widget.addSalesBloc.taxableValue ?? 0;
+    widget.addSalesBloc.invAmount =
+        taxableValue + (widget.addSalesBloc.sgstAmount ?? 0) * 2;
+
+    widget.addSalesBloc.paymentDetailsStreamController(true);
+    widget.addSalesBloc.gstRadioBtnRefreashStreamController(true);
   }
 }

@@ -1,5 +1,9 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tlbilling/components/custom_action_button.dart';
+import 'package:tlbilling/models/post_model/add_sales_model.dart';
 import 'package:tlbilling/utils/app_colors.dart';
 import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/utils/app_util_widgets.dart';
@@ -8,6 +12,7 @@ import 'package:tlbilling/utils/input_formates.dart';
 import 'package:tlbilling/view/sales/add_sales_bloc.dart';
 import 'package:tlds_flutter/components/tlds_input_form_field.dart';
 import 'package:tlds_flutter/components/tlds_input_formaters.dart';
+import 'package:toastification/toastification.dart';
 
 class PaymentDetails extends StatefulWidget {
   final AddSalesBlocImpl addSalesBloc;
@@ -22,6 +27,18 @@ class PaymentDetails extends StatefulWidget {
 }
 
 class _PaymentDetailsState extends State<PaymentDetails> {
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getbranchId();
+  }
+
+  Future<void> getbranchId() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    widget.addSalesBloc.branchId = prefs.getString(AppConstants.branchId);
+  }
+
   final _appColors = AppColors();
   @override
   Widget build(BuildContext context) {
@@ -629,30 +646,99 @@ class _PaymentDetailsState extends State<PaymentDetails> {
     return CustomActionButtons(
         onPressed: () {
           if (widget.addSalesBloc.paymentFormKey.currentState!.validate()) {
-            if (widget.addSalesBloc.selectedVehiclesList!.isEmpty ||
-                widget.addSalesBloc.accessoriesData!.isEmpty) {
-              showDialog(
-                context: context,
-                builder: (context) {
-                  return AlertDialog(
-                    surfaceTintColor: _appColors.whiteColor,
-                    title: const Text('selected vehicle or accessories'),
-                    // content: const Text(AppConstants.alertContent),
-                    actions: [
-                      TextButton(
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                        child: const Text('ok'),
-                      ),
-                    ],
-                  );
-                },
-              );
-            }
-            //  print('ok');
+            print(
+                '************Sales post***************${jsonEncode(salesPostObject)}');
+            widget.addSalesBloc.addNewSalesDeatils(salesPostObject(),
+                (statusCode) {
+              if (statusCode == 200 || statusCode == 201) {
+                AppWidgetUtils.buildToast(
+                    context,
+                    ToastificationType.success,
+                    AppConstants.purchaseBillScc,
+                    Icon(Icons.check_circle_outline_rounded,
+                        color: _appColors.successColor),
+                    AppConstants.purchaseBillDescScc,
+                    _appColors.successLightColor);
+              } else {
+                AppWidgetUtils.buildToast(
+                    context,
+                    ToastificationType.error,
+                    AppConstants.purchaseBillerr,
+                    Icon(Icons.not_interested_rounded,
+                        color: _appColors.errorColor),
+                    AppConstants.purchaseBillDescerr,
+                    _appColors.errorLightColor);
+              }
+            });
           }
         },
         buttonText: AppConstants.save);
+  }
+
+  salesPostObject() {
+    List<SalesItemDetail> _itemdetails = [];
+    List<GstDetail> _gstDetails = [];
+
+    List<Incentive> _insentive = [];
+    List<Tax> tax = [];
+    for (var itemData in widget.addSalesBloc.selectedVehiclesList!) {
+      final _itemDetail = SalesItemDetail(
+          categoryId: itemData.categoryId ?? '',
+          discount: double.tryParse(
+                  widget.addSalesBloc.discountTextController.text) ??
+              0,
+          finalInvoiceValue: widget.addSalesBloc.totalInvAmount ?? 0,
+          gstDetails: _gstDetails,
+          hsnSacCode: widget.addSalesBloc.hsnCodeTextController.text,
+          incentives: _insentive,
+          invoiceValue: widget.addSalesBloc.invAmount ?? 0,
+          itemName: itemData.itemName ?? '',
+          mainSpecValue: {
+            'engineNumber': itemData.mainSpecValue?.engineNo ?? '',
+            'frameNumber': itemData.mainSpecValue?.frameNo ?? ''
+          },
+          partNo: itemData.partNo ?? '',
+          quantity: itemData.quantity ?? 0,
+          specificationsValue: {},
+          stockId: itemData.stockId ?? '',
+          taxableValue: itemData.purchaseItem?.taxableValue ?? 0,
+          taxes: tax,
+          unitRate: itemData.purchaseItem?.unitRate ?? 1,
+          value: itemData.purchaseItem?.value ?? 0);
+      _itemdetails.add(_itemDetail);
+    }
+    return AddSalesModel(
+        billType: '',
+        bookingNo: '',
+        branchId: widget.addSalesBloc.branchId ?? '',
+        customerId: widget.addSalesBloc.selectedCustomerId ?? '',
+        evBattery: EvBatteryObj(
+            evBatteryCapacity: double.tryParse(
+                    widget.addSalesBloc.batteryCapacityTextController.text) ??
+                0.0,
+            evBatteryName: widget.addSalesBloc.betteryNameTextController.text),
+        insurance: InsuranceObj(
+            expiryDate: '',
+            insuranceCompanyName: '',
+            insuranceId: '',
+            insuredAmt: 0,
+            insuredDate: '',
+            invoiceNo: ''),
+        invoiceDate: '',
+        invoiceType: '',
+        itemDetails: _itemdetails,
+        loaninfo: Loaninfo(bankName: '', loanAmt: 0, loanId: ''),
+        mandatoryAddons: {},
+        netAmt: 0,
+        paidDetails: [
+          PaidDetail(
+              paidAmount: 0, paymentDate: '', paymentId: '', paymentType: '')
+        ],
+        paymentStatus: '',
+        roundOffAmt:
+            double.parse(widget.addSalesBloc.totalInvAmount.toString()),
+        totalQty: widget.addSalesBloc.vehicleData?.length ??
+            widget.addSalesBloc.accessoriesData?.length ??
+            0);
   }
 }

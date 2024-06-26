@@ -1,56 +1,80 @@
 class GetAllStockDetails {
-  String? partNo;
-  String? itemName;
-  String? categoryId;
-  String? categoryName;
-  MainSpecValue? mainSpecValue;
-  dynamic specificationsValue;
-  int? quantity;
   String? branchId;
   String? branchName;
+  String? categoryId;
+  String? categoryName;
   String? hsnSacCode;
+  String? itemName;
+  MainSpecValue? mainSpecValue;
+  String? partNo;
+  PurchaseItem? purchaseItem;
+  int? quantity;
+  Value? specificationsValue;
+  String? stockId;
+  String? stockStatus;
 
   GetAllStockDetails({
-    this.partNo,
-    this.itemName,
-    this.categoryId,
-    this.categoryName,
-    this.mainSpecValue,
-    this.specificationsValue,
-    this.quantity,
     this.branchId,
     this.branchName,
+    this.categoryId,
+    this.categoryName,
     this.hsnSacCode,
+    this.itemName,
+    this.mainSpecValue,
+    this.partNo,
+    this.purchaseItem,
+    this.quantity,
+    this.specificationsValue,
+    this.stockId,
+    this.stockStatus,
   });
 
   factory GetAllStockDetails.fromJson(Map<String, dynamic> json) =>
       GetAllStockDetails(
-        partNo: json["partNo"],
-        itemName: json["itemName"],
+        branchId: json["branchId"],
+        branchName: json["branchName"],
         categoryId: json["categoryId"],
         categoryName: json["categoryName"],
+        hsnSacCode: json["hsnSacCode"],
+        itemName: json["itemName"],
         mainSpecValue: json["mainSpecValue"] == null
             ? null
             : MainSpecValue.fromJson(json["mainSpecValue"]),
-        specificationsValue: json["specificationsValue"],
+        partNo: json["partNo"],
+        purchaseItem: json["purchaseItem"] == null
+            ? null
+            : PurchaseItem.fromJson(json["purchaseItem"]),
         quantity: json["quantity"],
-        branchId: json["branchId"],
-        branchName: json["branchName"],
-        hsnSacCode: json["hsnSacCode"],
+        specificationsValue: json["specificationsValue"] == null
+            ? null
+            : Value.fromJson(json["specificationsValue"]),
+        stockId: json["stockId"],
+        stockStatus: json["stockStatus"],
       );
 
   Map<String, dynamic> toJson() => {
-        "partNo": partNo,
-        "itemName": itemName,
-        "categoryId": categoryId,
-        "categoryName": categoryName,
-        "mainSpecValue": mainSpecValue?.toJson(),
-        "specificationsValue": specificationsValue,
-        "quantity": quantity,
         "branchId": branchId,
         "branchName": branchName,
+        "categoryId": categoryId,
+        "categoryName": categoryName,
         "hsnSacCode": hsnSacCode,
+        "itemName": itemName,
+        "mainSpecValue": mainSpecValue?.toJson(),
+        "partNo": partNo,
+        "purchaseItem": purchaseItem?.toJson(),
+        "quantity": quantity,
+        "specificationsValue": specificationsValue?.toJson(),
+        "stockId": stockId,
+        "stockStatus": stockStatus,
       };
+}
+
+class Value {
+  Value();
+
+  factory Value.fromJson(Map<String, dynamic> json) => Value();
+
+  Map<String, dynamic> toJson() => {};
 }
 
 class MainSpecValue {
@@ -70,5 +94,139 @@ class MainSpecValue {
   Map<String, dynamic> toJson() => {
         "frameNo": frameNo,
         "engineNo": engineNo,
+      };
+}
+
+class PurchaseItem {
+  double? discount;
+  double? finalInvoiceValue;
+  List<GstDetail>? gstDetails;
+  List<Incentive>? incentives;
+  double? invoiceValue;
+  double? taxableValue;
+  List<Tax>? taxes;
+  double? unitRate;
+  double? value;
+
+  PurchaseItem({
+    this.discount,
+    this.finalInvoiceValue,
+    this.gstDetails,
+    this.incentives,
+    this.invoiceValue,
+    this.taxableValue,
+    this.taxes,
+    this.unitRate,
+    this.value,
+  });
+
+  factory PurchaseItem.fromJson(Map<String, dynamic> json) => PurchaseItem(
+        discount: json["discount"],
+        finalInvoiceValue: json["finalInvoiceValue"],
+        gstDetails: json["gstDetails"] == null
+            ? []
+            : List<GstDetail>.from(
+                json["gstDetails"]!.map((x) => GstDetail.fromJson(x))),
+        incentives: json["incentives"] == null
+            ? []
+            : List<Incentive>.from(
+                json["incentives"]!.map((x) => Incentive.fromJson(x))),
+        invoiceValue: json["invoiceValue"],
+        taxableValue: json["taxableValue"],
+        taxes: json["taxes"] == null
+            ? []
+            : List<Tax>.from(json["taxes"]!.map((x) => Tax.fromJson(x))),
+        unitRate: json["unitRate"],
+        value: json["value"],
+      );
+
+  Map<String, dynamic> toJson() => {
+        "discount": discount,
+        "finalInvoiceValue": finalInvoiceValue,
+        "gstDetails": gstDetails == null
+            ? []
+            : List<dynamic>.from(gstDetails!.map((x) => x.toJson())),
+        "incentives": incentives == null
+            ? []
+            : List<dynamic>.from(incentives!.map((x) => x.toJson())),
+        "invoiceValue": invoiceValue,
+        "taxableValue": taxableValue,
+        "taxes": taxes == null
+            ? []
+            : List<dynamic>.from(taxes!.map((x) => x.toJson())),
+        "unitRate": unitRate,
+        "value": value,
+      };
+}
+
+class GstDetail {
+  double? gstAmount;
+  String? gstName;
+  double? percentage;
+
+  GstDetail({
+    this.gstAmount,
+    this.gstName,
+    this.percentage,
+  });
+
+  factory GstDetail.fromJson(Map<String, dynamic> json) => GstDetail(
+        gstAmount: json["gstAmount"],
+        gstName: json["gstName"],
+        percentage: json["percentage"],
+      );
+
+  Map<String, dynamic> toJson() => {
+        "gstAmount": gstAmount,
+        "gstName": gstName,
+        "percentage": percentage,
+      };
+}
+
+class Incentive {
+  double? incentiveAmount;
+  String? incentiveName;
+  double? percentage;
+
+  Incentive({
+    this.incentiveAmount,
+    this.incentiveName,
+    this.percentage,
+  });
+
+  factory Incentive.fromJson(Map<String, dynamic> json) => Incentive(
+        incentiveAmount: json["incentiveAmount"],
+        incentiveName: json["incentiveName"],
+        percentage: json["percentage"],
+      );
+
+  Map<String, dynamic> toJson() => {
+        "incentiveAmount": incentiveAmount,
+        "incentiveName": incentiveName,
+        "percentage": percentage,
+      };
+}
+
+class Tax {
+  double? percentage;
+  double? taxAmount;
+  String? taxName;
+
+  Tax({
+    this.percentage,
+    this.taxAmount,
+    this.taxName,
+  });
+
+  factory Tax.fromJson(Map<String, dynamic> json) => Tax(
+        percentage: json["percentage"],
+        taxAmount: json["taxAmount"],
+        taxName: json["taxName"],
+      );
+
+  Map<String, dynamic> toJson() => {
+        "percentage": percentage,
+        "taxAmount": taxAmount,
+        "taxName": taxName,
       };
 }

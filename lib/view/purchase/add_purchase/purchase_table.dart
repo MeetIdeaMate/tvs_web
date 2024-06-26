@@ -552,22 +552,17 @@ class _PurchaseTableState extends State<PurchaseTable> {
     final List<Incentive> incentivesList = [];
     final List<Tax> taxDetailsList = [];
 
-    // Function to add GST detail to the list with duplication check
     void addGstDetail(List<GstDetail> list, GstDetail detail) {
-      // Find the index of an existing item with the same gstName
       int existingIndex =
           list.indexWhere((item) => item.gstName == detail.gstName);
 
-      // If found, remove the existing item
       if (existingIndex != -1) {
         list.removeAt(existingIndex);
       }
 
-      // Add the new item
       list.add(detail);
     }
 
-    // Collecting GST, Tax and Incentive details
     for (var gstDetails in widget.purchaseBloc.purchaseBillDataList) {
       for (var vehicle in gstDetails.vehicleDetails!) {
         if (vehicle.gstType == AppConstants.gstPercent) {

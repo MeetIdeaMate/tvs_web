@@ -1175,6 +1175,7 @@ class AppServiceUtilImpl extends AppServiceUtil {
       stocksListUrl += '?categoryName=$categoryName';
     }
     final response = await dio.get(stocksListUrl);
+    print(response.statusCode);
 
     return parentResponseModelFromJson(jsonEncode(response.data))
         .result
@@ -1326,7 +1327,7 @@ class AppServiceUtilImpl extends AppServiceUtil {
     return null;
   }
 
-  Future<void> addNewSalesDeatils(
+  Future<void> addNewSalesDetails(
       AddSalesModel salesdata, Function(int value) onSuccessCallBack) async {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -1338,13 +1339,14 @@ class AppServiceUtilImpl extends AppServiceUtil {
 
       dio.options.headers['Authorization'] = 'Bearer $token';
       var jsonData = json.encode(salesdata.toJson());
-      var response = await dio.post(AppUrl.sales, data: jsonData);
+      print('***************sales decode =>${json.decode(jsonData)};');
+      // var response = await dio.post(AppUrl.sales, data: jsonData);
 
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        onSuccessCallBack(response.statusCode!);
-      } else {
-        onSuccessCallBack(response.statusCode ?? 0);
-      }
+      // if (response.statusCode == 200 || response.statusCode == 201) {
+      //   onSuccessCallBack(response.statusCode!);
+      // } else {
+      //   onSuccessCallBack(response.statusCode ?? 0);
+      // }
     } catch (e) {
       onSuccessCallBack(0);
     }

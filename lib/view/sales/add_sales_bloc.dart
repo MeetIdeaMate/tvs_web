@@ -5,6 +5,8 @@ import 'package:tlbilling/models/get_model/get_all_category_model.dart';
 import 'package:tlbilling/models/get_model/get_all_customers_model.dart';
 import 'package:tlbilling/models/get_model/get_all_stocks_model.dart';
 import 'package:tlbilling/models/parent_response_model.dart';
+import 'package:tlbilling/models/post_model/add_sales_model.dart' as sales;
+import 'package:tlbilling/models/post_model/add_sales_model.dart';
 import 'package:tlbilling/utils/app_constants.dart';
 
 abstract class AddSalesBloc {
@@ -29,15 +31,12 @@ abstract class AddSalesBloc {
   TextEditingController get discountTextController;
   TextEditingController get transporterVehicleNumberController;
   TextEditingController get vehicleNoAndEngineNoSearchController;
-  List<TextEditingController> get unitRateControllers;
-  List<TextEditingController> get accessoriesUnitRateControllers;
+  TextEditingController get unitRateControllers;
   TextEditingController get hsnCodeTextController;
   TextEditingController get betteryNameTextController;
   TextEditingController get batteryCapacityTextController;
   TextEditingController get empsIncentiveTextController;
   TextEditingController get stateIncentiveTextController;
-  List<TextEditingController> get batteryDetailsControllers;
-  List<TextEditingController> get accessoriesQuantityController;
 
   GlobalKey<FormState> get paymentFormKey;
 
@@ -51,6 +50,9 @@ abstract class AddSalesBloc {
   Map<String, String> get selectedMandatoryAddOns;
 
   Stream<bool> get selectedSalesStreamItems;
+  Map<int, String> get unitRates;
+
+  Map<int, String> get accessoriesQty;
 
   int get salesIndex;
 
@@ -69,6 +71,7 @@ abstract class AddSalesBloc {
   String get selectedTypeManualBook;
   String get selectedTypeDuplicateKeys;
   String? get selectedGstType;
+  String? get branchId;
 
   bool get isDiscountChecked;
   bool get isInsurenceChecked;
@@ -89,6 +92,8 @@ abstract class AddSalesBloc {
   String? get selectedCustomerId;
 
   Future<List<GetAllStockDetails>?> getStockDetails();
+  Future<void> addNewSalesDeatils(
+      AddSalesModel salesdata, Function(int value) onSuccessCallBack);
   List<String> get gstTypeOptions;
   Stream<bool> get gstRadioBtnRefreashStream;
   TextEditingController get cgstPresentageTextController;
@@ -115,9 +120,10 @@ class AddSalesBlocImpl extends AddSalesBloc {
   final _discountTextController = TextEditingController();
   final _transporterVehicleNumberController = TextEditingController();
   final _vehicleNoAndEngineNoSearchController = TextEditingController();
-  final List<TextEditingController> _unitRateControllers = [];
-  final List<TextEditingController> _accessoriesQtyController = [];
-  final List<TextEditingController> _accessoriesUnitRateControllers = [];
+  final _unitRateControllers = TextEditingController();
+  final Map<int, String> _unitRate = {};
+  final Map<int, String> _accessoriesQty = {};
+
   final _hsnCodeTextController = TextEditingController();
   final _cgstPresentageTextController = TextEditingController();
   final _igstPresentageTextController = TextEditingController();
@@ -136,6 +142,7 @@ class AddSalesBlocImpl extends AddSalesBloc {
   final _isSplitPaymentStream = StreamController<bool>.broadcast();
   final _batteryDetailsRefreshStream = StreamController<bool>.broadcast();
   final _mandatoryAddOnsRefreshStream = StreamController<bool>.broadcast();
+  String? _branchId;
 
   List<String> selectedVehicleList = [];
 
@@ -143,7 +150,7 @@ class AddSalesBlocImpl extends AddSalesBloc {
   List<GetAllStockDetails>? selectedVehiclesList = [];
 
   List<GetAllStockDetails>? slectedAccessoriesList = [];
-  final List<TextEditingController> _batteryDetailsControllers = [];
+
   Map<String, String> _selectedMandatoryAddOns = {};
 
   late Set<String> optionsSet = {selectedVehicleAndAccessories ?? 'M-vehicle'};
@@ -580,7 +587,7 @@ class AddSalesBlocImpl extends AddSalesBloc {
   }
 
   @override
-  List<TextEditingController> get unitRateControllers => _unitRateControllers;
+  TextEditingController get unitRateControllers => _unitRateControllers;
   ValueNotifier<double> totalValueNotifier = ValueNotifier<double>(0.0);
 
   @override
@@ -651,19 +658,26 @@ class AddSalesBlocImpl extends AddSalesBloc {
   }
 
   @override
-  List<TextEditingController> get batteryDetailsControllers =>
-      _batteryDetailsControllers;
-  @override
-  List<TextEditingController> get accessoriesQuantityController =>
-      _accessoriesQtyController;
-
-  @override
   Map<String, String> get selectedMandatoryAddOns => _selectedMandatoryAddOns;
   set selectedMandatoryAddOns(Map<String, String> value) {
     _selectedMandatoryAddOns = value;
   }
 
   @override
-  List<TextEditingController> get accessoriesUnitRateControllers =>
-      _accessoriesUnitRateControllers;
+  Map<int, String> get unitRates => _unitRate;
+
+  @override
+  Map<int, String> get accessoriesQty => _accessoriesQty;
+
+  @override
+  Future<void> addNewSalesDeatils(
+      AddSalesModel salesdata, Function(int value) onSuccessCallBack) {
+    return _apiServices.addNewSalesDetails(salesdata, onSuccessCallBack);
+  }
+
+  @override
+  String? get branchId => _branchId;
+  set branchId(String? value) {
+    _branchId = value;
+  }
 }
