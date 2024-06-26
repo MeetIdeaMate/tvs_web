@@ -330,6 +330,7 @@ class AppConstants {
 
   //branch
   static const addBranch = 'Add branch';
+  static const updateBranch = 'Update Branch';
   static const subBranch = 'Sub Branches';
   static const mainBranch = 'Main Branch';
   static const branchDetails = 'Branch Details';

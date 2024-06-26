@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:tlbilling/api_service/app_service_utils.dart';
-import 'package:tlbilling/models/get_model/get_all_customerName_List.dart';
+import 'package:tlbilling/models/get_model/get_all_customer_name_list.dart';
 import 'package:tlbilling/models/get_model/get_all_employee_model.dart';
 import 'package:tlbilling/models/get_model/get_all_stocks_without_pagination.dart';
 import 'package:tlbilling/models/get_model/get_booking_by_id_model.dart';

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:tlbilling/api_service/app_service_utils.dart';
 import 'package:tlbilling/models/get_model/get_all_category_model.dart';
+import 'package:tlbilling/models/get_model/get_all_customer_name_list.dart';
 import 'package:tlbilling/models/get_model/get_all_customers_model.dart';
 import 'package:tlbilling/models/get_model/get_all_stocks_model.dart';
 import 'package:tlbilling/models/parent_response_model.dart';
@@ -80,7 +81,7 @@ abstract class AddSalesBloc {
   Map<String, String> get batteryDetailsMap;
   Future<GetAllCustomersModel?> getCustomerById();
 
-  Future<ParentResponseModel> getAllCustomerList();
+  Future<List<GetAllCustomerNameList>?> getAllCustomerList();
 
   Future<GetAllCategoryListModel?> getAllCategoryList();
 

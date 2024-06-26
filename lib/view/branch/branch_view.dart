@@ -213,7 +213,7 @@ class _MyWidgetState extends State<BranchView> {
                           dividerThickness: 0.01,
                           columns: [
                             _buildBranchTableHeader(AppConstants.sno),
-                            _buildBranchTableHeader(AppConstants.empName),
+                            _buildBranchTableHeader(AppConstants.branchName),
                             _buildBranchTableHeader(AppConstants.mobileNumber),
                             _buildBranchTableHeader(AppConstants.city),
                             _buildBranchTableHeader(AppConstants.pinCode),
