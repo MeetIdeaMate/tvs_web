@@ -640,6 +640,7 @@ class _AddVehicleAndAccessoriesState extends State<AddVehicleAndAccessories> {
 
                     widget.purchaseBloc.selectedPurchaseType =
                         widget.purchaseBloc.optionsSet.first;
+                    print(widget.purchaseBloc.selectedPurchaseType);
 
                     String categoryId = snapshot.data!.category!
                         .where((e) =>
@@ -978,6 +979,10 @@ class _AddVehicleAndAccessoriesState extends State<AddVehicleAndAccessories> {
     widget.purchaseBloc.discountTextController.clear();
     widget.purchaseBloc.quantityController.clear();
     widget.purchaseBloc.engineDetailsList.clear();
+    if (widget.purchaseBloc.selectedPurchaseType == 'Accessories') {
+      widget.purchaseBloc.cgstPresentageTextController.clear();
+      widget.purchaseBloc.hsnCodeController.clear();
+    }
     widget.purchaseBloc.engineDetailsStreamController(true);
     widget.purchaseBloc.refreshEngineDetailsListStramController(true);
     setState(() {
@@ -1150,6 +1155,7 @@ class _AddVehicleAndAccessoriesState extends State<AddVehicleAndAccessories> {
           widget.purchaseBloc.hsnCodeController.text =
               firstCategory.hsnSacCode ?? '';
           widget.purchaseBloc.selectedCategory = firstCategory;
+          print(widget.purchaseBloc.selectedCategory);
           widget.purchaseBloc.selectedPurchaseTypeStreamController(true);
         });
       }
