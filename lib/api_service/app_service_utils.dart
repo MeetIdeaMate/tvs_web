@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tlbilling/api_service/app_url.dart';
@@ -9,8 +8,8 @@ import 'package:tlbilling/models/get_model/get_all_branch_by_id_model.dart';
 import 'package:tlbilling/models/get_model/get_all_branch_model.dart';
 import 'package:tlbilling/models/get_model/get_all_branches_by_pagination.dart';
 import 'package:tlbilling/models/get_model/get_all_category_model.dart';
-import 'package:tlbilling/models/get_model/get_all_customerName_List.dart';
 import 'package:tlbilling/models/get_model/get_all_customer_by_pagination_model.dart';
+import 'package:tlbilling/models/get_model/get_all_customer_name_list.dart';
 import 'package:tlbilling/models/get_model/get_all_customers_model.dart';
 import 'package:tlbilling/models/get_model/get_all_employee_by_pagination.dart';
 import 'package:tlbilling/models/get_model/get_all_employee_model.dart';
@@ -33,6 +32,7 @@ import 'package:tlbilling/models/post_model/add_employee_model.dart';
 import 'package:tlbilling/models/post_model/add_new_booking_model.dart';
 import 'package:tlbilling/models/post_model/add_new_transfer.dart';
 import 'package:tlbilling/models/post_model/add_purchase_model.dart';
+import 'package:tlbilling/models/post_model/add_sales_model.dart';
 import 'package:tlbilling/models/post_model/add_transport_model.dart';
 import 'package:tlbilling/models/update/update_branch_model.dart';
 import 'package:tlbilling/models/user_model.dart';
@@ -64,10 +64,10 @@ abstract class AppServiceUtil {
   Future<void> updateVendor(String vendorId, AddVendorModel vendorObj,
       Function(int? statusCode) statusCode);
 
-  Future<GetAllSalesList?> getSalesList(String invoiceNo, String paymentType,
+  Future<GetAllSales?> getSalesList(String invoiceNo, String paymentType,
       String customerName, int currentPage);
 
-  Future<GetAllStockDetails?> getStockList();
+  Future<List<GetAllStockDetails>?> getStockList(String? categoryName);
 
   Future<GetAllVendorByPagination?> getPurchaseReport(
       String vehicleType, String fromDate, String toDate, int currentPage);
@@ -101,6 +101,10 @@ abstract class AppServiceUtil {
       int currentPage, String vendorName, String city, String mobileNumber);
 
   Future<GetEmployeeById?> getEmployeeById(String employeeId);
+  Future<void> addNewSalesDetails(
+    AddSalesModel salesdata,
+    Function(int value) onSuccessCallBack,
+  );
 
   Future<GetBranchById?> getBranchById();
 
@@ -246,7 +250,7 @@ class AppServiceUtilImpl extends AppServiceUtil {
         var userId = response.data['result']['login']['userId'];
         var useRefId = response.data['result']['login']['useRefId'] ?? '';
         var branchId = response.data['result']['login']['branchId'] ?? '';
-        print('************loign branch id********${branchId}');
+        print('************loign branch id********$branchId');
         SharedPreferences prefs = await SharedPreferences.getInstance();
         prefs.setString(AppConstants.token, token);
         prefs.setString(AppConstants.designation, designation);
@@ -350,7 +354,9 @@ class AppServiceUtilImpl extends AppServiceUtil {
       var token = prefs.getString('token');
       dio.options.headers['Authorization'] = 'Bearer $token';
       var response = await dio.get('${AppUrl.customer}/$customerId');
-      return GetAllCustomersModel.fromJson(response.data);
+      return parentResponseModelFromJson(jsonEncode(response.data))
+          .result
+          ?.getCustomerById;
     } on DioException catch (e) {
       e.response?.statusCode ?? 0;
     }
@@ -434,7 +440,6 @@ class AppServiceUtilImpl extends AppServiceUtil {
 
     var response = await dio.get(employeeListUrl);
     final responseList = parentResponseModelFromJson(jsonEncode(response.data));
-    print(responseList.result!.getAllEmployeesByPaginationModel!);
 
     return responseList.result!.getAllEmployeesByPaginationModel!;
   }
@@ -1026,19 +1031,16 @@ class AppServiceUtilImpl extends AppServiceUtil {
   Future<List<GetAllStocksWithoutPaginationModel>?> getAllStockList(
       String? categoryName, String? branchId) async {
     try {
-    print('************branch id 2 => ${branchId}');
+      print('************branch id 2 => $branchId');
 
       final dio = Dio();
       SharedPreferences prefs = await SharedPreferences.getInstance();
       var token = prefs.getString('token');
       dio.options.headers['Authorization'] = 'Bearer $token';
-    
+
       var response = await dio
           .get('${AppUrl.stock}?branchId=$branchId&categoryName=$categoryName');
 
-      print(
-          '********STock Url ${AppUrl.stock}?branchId=$branchId&categoryName=$categoryName');
-      print('***S R B***${response.data}');
       var stocksList = parentResponseModelFromJson(jsonEncode(response.data))
           .result
           ?.getAllStocksWithoutPagination;
@@ -1057,6 +1059,7 @@ class AppServiceUtilImpl extends AppServiceUtil {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       var token = prefs.getString('token');
       dio.options.headers['Authorization'] = 'Bearer $token';
+      // ignore: unused_local_variable
       var response = await dio.post('${AppUrl.stock}/transfer',
           data: jsonEncode(addNewTransfer));
       onSuccessCallBack(response.statusCode ?? 0);
@@ -1098,12 +1101,13 @@ class AppServiceUtilImpl extends AppServiceUtil {
   }
 
   @override
-  Future<GetAllSalesList?> getSalesList(String invoiceNo, String paymentType,
+  Future<GetAllSales?> getSalesList(String invoiceNo, String paymentType,
       String customerName, int currentPage) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var token = prefs.getString('token');
     dio.options.headers['Authorization'] = 'Bearer $token';
-    String salesListUrl = AppUrl.sales;
+    String salesListUrl = '${AppUrl.sales}page?page=$currentPage&size=10';
+    print(salesListUrl);
 
     if (invoiceNo.isNotEmpty) {
       salesListUrl += '&invoiceNo=$invoiceNo';
@@ -1113,6 +1117,7 @@ class AppServiceUtilImpl extends AppServiceUtil {
     }
 
     final response = await dio.get(salesListUrl);
+    print(response.statusCode);
 
     return parentResponseModelFromJson(jsonEncode(response.data))
         .result
@@ -1184,12 +1189,16 @@ class AppServiceUtilImpl extends AppServiceUtil {
   }
 
   @override
-  Future<GetAllStockDetails?> getStockList() async {
+  Future<List<GetAllStockDetails>?> getStockList(String? categoryName) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var token = prefs.getString('token');
     dio.options.headers['Authorization'] = 'Bearer $token';
-    String stocksList = AppUrl.stocks;
-    final response = await dio.get(stocksList);
+    String stocksListUrl = AppUrl.stock;
+    if (categoryName!.isNotEmpty) {
+      stocksListUrl += '?categoryName=$categoryName';
+    }
+    final response = await dio.get(stocksListUrl);
+    print(response.statusCode);
 
     return parentResponseModelFromJson(jsonEncode(response.data))
         .result
@@ -1223,7 +1232,6 @@ class AppServiceUtilImpl extends AppServiceUtil {
       if (toBranchId != null) {
         url += '&toBranchId=$toBranchId';
       }
-      print('*****Transfer  url*********$url');
       /*if (fromDateTextController != null) {
         url +=
             '&fromDate=${AppUtils.appToAPIDateFormat(fromDateTextController.toString())}';
@@ -1316,6 +1324,8 @@ class AppServiceUtilImpl extends AppServiceUtil {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       var token = prefs.getString('token');
       dio.options.headers['Authorization'] = 'Bearer $token';
+      print(currentIndex);
+
       String url = '${AppUrl.stock}/cumulative/page?page=$currentIndex&size=10';
       if (status != null && status.isNotEmpty) {
         url += '&categoryName=$status';
@@ -1330,9 +1340,11 @@ class AppServiceUtilImpl extends AppServiceUtil {
         }
       }
       var response = await dio.get(url);
+
+      print('*******URl Stock**********${response.data}');
+
       final responseList =
           parentResponseModelFromJson(jsonEncode(response.data));
-      print(responseList);
 
       return responseList.result?.getAllStocksByPagenation;
     } on DioException catch (e) {
@@ -1407,5 +1419,33 @@ class AppServiceUtilImpl extends AppServiceUtil {
     return parentResponseModelFromJson(jsonEncode(response.data))
         .result
         ?.getAllEmployeeListWithouPagenation;
+  }
+
+  @override
+  Future<void> addNewSalesDetails(
+    AddSalesModel salesdata,
+    Function(int value) onSuccessCallBack,
+  ) async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      var token = prefs.getString('token');
+
+      dio.options.headers['Authorization'] = 'Bearer $token';
+      var jsonData = json.encode(salesdata);
+
+      print(jsonData);
+
+      var response = await dio.post(AppUrl.sales, data: jsonData);
+      print('Response status code: ${response.statusCode}');
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        onSuccessCallBack(response.statusCode!);
+      } else {
+        onSuccessCallBack(response.statusCode ?? 0);
+      }
+    } catch (e) {
+      print('Error adding new sales details: $e');
+      onSuccessCallBack(0);
+    }
   }
 }

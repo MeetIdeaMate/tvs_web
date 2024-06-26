@@ -59,6 +59,8 @@ class GetTransportByPaginationModel {
         totalPages: json["totalPages"],
       );
 
+  get isEmpty => null;
+
   Map<String, dynamic> toJson() => {
         "content": transportDetails == null
             ? []

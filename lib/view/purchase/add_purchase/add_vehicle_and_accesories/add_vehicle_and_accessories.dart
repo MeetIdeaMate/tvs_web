@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -1132,6 +1131,7 @@ class _AddVehicleAndAccessoriesState extends State<AddVehicleAndAccessories> {
     if (picked != null) {
       final formattedDate = AppUtils.apiToAppDateFormat(picked.toString());
       widget.purchaseBloc.invoiceDateController.text = formattedDate;
+      // ignore: use_build_context_synchronously
       FocusScope.of(context)
           .requestFocus(widget.purchaseBloc.purchaseRefFocusNode);
     }

@@ -77,7 +77,9 @@ class _CreateBranchDialogState extends State<CreateBranchDialog> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             AppWidgetUtils.buildText(
-              text: AppConstants.addBranch,
+              text: widget.branchId != null
+                  ? AppConstants.updateBranch
+                  : AppConstants.addBranch,
               fontSize: 22,
               color: _appColors.primaryColor,
               fontWeight: FontWeight.bold,
@@ -97,7 +99,9 @@ class _CreateBranchDialogState extends State<CreateBranchDialog> {
 
   _buildSaveButton() {
     return CustomActionButtons(
-      buttonText: AppConstants.addBranch,
+      buttonText: widget.branchId != null
+          ? AppConstants.updateBranch
+          : AppConstants.addBranch,
       onPressed: () {
         if (_createBranchDialogBlocImpl.branchFormKey.currentState!
             .validate()) {
@@ -304,7 +308,8 @@ class _CreateBranchDialogState extends State<CreateBranchDialog> {
                         requiredLabelText: AppWidgetUtils.labelTextWithRequired(
                             AppConstants.mainBranch),
                         dropDownItems: branchNameList,
-                        dropDownValue: _createBranchDialogBlocImpl.mainBranchName,
+                        dropDownValue:
+                            _createBranchDialogBlocImpl.mainBranchName,
                         hintText: AppConstants.exSelect,
                         validator: (value) {
                           return InputValidations.branchValidation(value ?? '');
@@ -396,8 +401,8 @@ class _CreateBranchDialogState extends State<CreateBranchDialog> {
     _createBranchDialogBlocImpl
         .getBranchDetailsById(_createBranchDialogBlocImpl.mainBranchId)
         .then((value) {
-          _createBranchDialogBlocImpl.mainBranchName = value?.branchName ?? '';
-        });
+      _createBranchDialogBlocImpl.mainBranchName = value?.branchName ?? '';
+    });
   }
 
   _isLoading(bool? isLoadingState) {

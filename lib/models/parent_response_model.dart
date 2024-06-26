@@ -13,7 +13,7 @@ import 'package:tlbilling/models/get_model/get_all_vendorName_List.dart';
 import 'package:tlbilling/models/get_model/get_all_branch_model.dart';
 import 'package:tlbilling/models/get_model/get_all_branches_by_pagination.dart';
 import 'package:tlbilling/models/get_model/get_all_category_model.dart';
-import 'package:tlbilling/models/get_model/get_all_customerName_List.dart';
+import 'package:tlbilling/models/get_model/get_all_customer_name_list.dart';
 import 'package:tlbilling/models/get_model/get_all_customer_by_pagination_model.dart';
 import 'package:tlbilling/models/get_model/get_all_customers_model.dart';
 
@@ -72,6 +72,7 @@ class ResultObj {
   GetAllVendorByPagination? getAllVendorByPagination;
   GetAllCustomersByPaginationModel? getAllCustomersByPaginationModel;
   GetAllCustomersModel? getAllCustomersModel;
+  GetAllCustomersModel? getCustomerById;
   GetAllEmployeesByPaginationModel? getAllEmployeesByPaginationModel;
   UsersListModel? usersListModel;
   ConfigModel? getConfigModel;
@@ -90,14 +91,14 @@ class ResultObj {
   TransportDetails? transportDetails;
   List<BranchDetail>? branchDetails;
   GetAllInsuranceByPaginationModel? getAllInsuranceModel;
-  GetAllSalesList? getAllSalesList;
+  GetAllSales? getAllSalesList;
   GetBranchById? getBranchId;
   GetAllpurchaseReport? getPurchaseReport;
   PurchaseByPartNoModel? purchaseByPartNo;
   GetAllCategoryListModel? getAllcategoryList;
   List<TransportDetails>? getAllTransportsWithoutPagination;
   List<GetAllStocksWithoutPaginationModel>? getAllStocksWithoutPagination;
-  GetAllStockDetails? getAllStockDetails;
+  List<GetAllStockDetails>? getAllStockDetails;
   GetAllStocksByPagenation? getAllStocksByPagenation;
   List<GetAllTransferModel>? getAllTransferModel;
   GetBookingListWithPagination? getAllBookingListWithPagination;
@@ -136,6 +137,7 @@ class ResultObj {
       this.getAllStockDetails,
       this.getAllStocksByPagenation,
       this.getAllTransferModel,
+      this.getCustomerById,
       this.getAllBookingListWithPagination,
       this.getAllEmployeeListWithouPagenation,
       this.getBookingDetailsById});
@@ -216,8 +218,8 @@ class ResultObj {
             ? GetAllInsuranceByPaginationModel.fromJson(
                 json['customersWithPage'])
             : null,
-        getAllSalesList: json['salesList'] != null
-            ? GetAllSalesList.fromJson(json['salesList'])
+        getAllSalesList: json['salesWithPage'] != null
+            ? GetAllSales.fromJson(json['salesWithPage'])
             : null,
         getBranchId: json["branchResponse"] != null
             ? GetBranchById.fromJson(json["branchResponse"])
@@ -235,8 +237,12 @@ class ResultObj {
             ? List<GetAllStocksWithoutPaginationModel>.from(json['Stocks']
                 .map((x) => GetAllStocksWithoutPaginationModel.fromJson(x)))
             : null,
-        getAllStockDetails: json['stocks'] != null
-            ? GetAllStockDetails.fromJson(json['stocks'])
+        getAllStockDetails: json['Stocks'] != null
+            ? List<GetAllStockDetails>.from(
+                json['Stocks'].map((x) => GetAllStockDetails.fromJson(x)))
+            : null,
+        getCustomerById: json["customer"] != null
+            ? GetAllCustomersModel.fromJson(json["customer"])
             : null,
         getAllStocksByPagenation: json['stockDTOWithPage'] != null
             ? GetAllStocksByPagenation.fromJson(json['stockDTOWithPage'])

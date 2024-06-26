@@ -4,9 +4,11 @@ import 'package:flutter_svg/svg.dart';
 import 'package:pdf/pdf.dart';
 import 'package:printing/printing.dart';
 import 'package:tlbilling/components/custom_elevated_button.dart';
+import 'package:tlbilling/components/custom_pagenation.dart';
 import 'package:tlbilling/models/get_model/get_all_sales_list_model.dart';
 import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/utils/app_util_widgets.dart';
+import 'package:tlbilling/utils/input_formates.dart';
 import 'package:tlbilling/view/sales/add_sales.dart';
 import 'package:tlbilling/view/sales/sales_report_pdf.dart';
 import 'package:tlbilling/view/sales/sales_view_bloc.dart';
@@ -95,20 +97,19 @@ class _SalesViewScreenState extends State<SalesViewScreen>
                 searchStream: _salesViewBloc.invoiceNoStream,
                 searchController: _salesViewBloc.invoiceNoTextController,
                 hintText: AppConstants.invoiceNo,
-                searchStreamController: _salesViewBloc.invoiceNoStreamController
-                //inputFormatters: TlInputFormatters.onlyAllowAlphabetAndNumber,
-                ),
+                searchStreamController:
+                    _salesViewBloc.invoiceNoStreamController),
             AppWidgetUtils.buildSizedBox(
               custWidth: MediaQuery.sizeOf(context).width * 0.01,
             ),
             buildSearchField(
-                searchStream: _salesViewBloc.paymentTypeStream,
-                searchController: _salesViewBloc.paymentTypeTextController,
-                hintText: AppConstants.paymentType,
-                searchStreamController:
-                    _salesViewBloc.paymentTypeStreamController
-                //     inputFormatters: TlInputFormatters.onlyAllowAlphabets,
-                ),
+              searchStream: _salesViewBloc.paymentTypeStream,
+              searchController: _salesViewBloc.paymentTypeTextController,
+              hintText: AppConstants.paymentType,
+              searchStreamController:
+                  _salesViewBloc.paymentTypeStreamController,
+              inputFormatters: TlInputFormatters.onlyAllowAlphabets,
+            ),
             AppWidgetUtils.buildSizedBox(
               custWidth: MediaQuery.sizeOf(context).width * 0.01,
             ),
@@ -116,13 +117,13 @@ class _SalesViewScreenState extends State<SalesViewScreen>
               stream: _salesViewBloc.customerNameStream,
               builder: (context, snapshot) {
                 return buildSearchField(
-                    searchController: _salesViewBloc.customerNameTextController,
-                    hintText: AppConstants.customerName,
-                    searchStream: _salesViewBloc.customerNameStream,
-                    searchStreamController:
-                        _salesViewBloc.customerNameStreamController
-                    //  inputFormatters: TlInputFormatters.onlyAllowAlphabets,
-                    );
+                  searchController: _salesViewBloc.customerNameTextController,
+                  hintText: AppConstants.customerName,
+                  searchStream: _salesViewBloc.customerNameStream,
+                  searchStreamController:
+                      _salesViewBloc.customerNameStreamController,
+                  inputFormatters: TlInputFormatters.onlyAllowAlphabets,
+                );
               },
             ),
           ],
@@ -231,129 +232,133 @@ class _SalesViewScreenState extends State<SalesViewScreen>
     );
   }
 
-  _buildCustomerTableView(BuildContext context) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: StreamBuilder<int>(
-          stream: _salesViewBloc.pageNumberStream,
-          initialData: _salesViewBloc.currentPage,
-          builder: (context, streamSnapshot) {
-            int currentPage = streamSnapshot.data ?? 0;
-            if (currentPage < 0) currentPage = 0;
-            _salesViewBloc.currentPage = currentPage;
+  Widget _buildCustomerTableView(BuildContext context) {
+    return StreamBuilder<int>(
+      stream: _salesViewBloc.pageNumberStream,
+      initialData: _salesViewBloc.currentPage,
+      builder: (context, streamSnapshot) {
+        int currentPage = streamSnapshot.data ?? 0;
+        if (currentPage < 0) currentPage = 0;
+        _salesViewBloc.currentPage = currentPage;
+        return FutureBuilder(
+          future: _salesViewBloc.getSalesList(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(child: AppWidgetUtils.buildLoading());
+            } else if (!snapshot.hasData) {
+              return Center(child: Text('No data'));
+            }
+            List<Content> salesList = snapshot.data?.content ?? [];
+            GetAllSales salesDetails = snapshot.data!;
             return Column(
               children: [
                 Expanded(
-                  child: FutureBuilder(
-                    future: _salesViewBloc.getSalesList(),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return Center(child: AppWidgetUtils.buildLoading());
-                      } else if (!snapshot.hasData) {
-                        return Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            SvgPicture.asset(AppConstants.imgNoData),
+                  child: SizedBox(
+                    width: MediaQuery.of(context).size.width,
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.vertical,
+                        child: DataTable(
+                          key: UniqueKey(),
+                          dividerThickness: 0.01,
+                          columns: [
+                            _buildVehicleTableHeader(AppConstants.sno),
+                            _buildVehicleTableHeader(AppConstants.invoiceNo),
+                            _buildVehicleTableHeader(AppConstants.invoiceDate),
+                            _buildVehicleTableHeader(AppConstants.customerId),
+                            _buildVehicleTableHeader(AppConstants.customerName),
+                            _buildVehicleTableHeader(AppConstants.mobileNumber),
+                            _buildVehicleTableHeader(AppConstants.paymentType),
+                            _buildVehicleTableHeader(
+                                AppConstants.totalInvAmount),
+                            _buildVehicleTableHeader(
+                                AppConstants.pendingInvAmt),
+                            _buildVehicleTableHeader(AppConstants.balanceAmt),
+                            _buildVehicleTableHeader(AppConstants.status),
+                            _buildVehicleTableHeader(AppConstants.createdBy),
+                            _buildVehicleTableHeader(AppConstants.action),
+                            _buildVehicleTableHeader(AppConstants.print),
                           ],
-                        );
-                      }
-                      List<SalesList> salesList =
-                          snapshot.data?.salesList ?? [];
-                      return DataTable(
-                        key: UniqueKey(),
-                        dividerThickness: 0.01,
-                        columns: [
-                          _buildVehicleTableHeader(
-                            AppConstants.sno,
-                          ),
-                          _buildVehicleTableHeader(AppConstants.invoiceNo),
-                          _buildVehicleTableHeader(AppConstants.invoiceDate),
-                          _buildVehicleTableHeader(AppConstants.customerId),
-                          _buildVehicleTableHeader(AppConstants.customerName),
-                          _buildVehicleTableHeader(AppConstants.mobileNumber),
-                          _buildVehicleTableHeader(AppConstants.paymentType),
-                          _buildVehicleTableHeader(AppConstants.totalInvAmount),
-                          _buildVehicleTableHeader(AppConstants.pendingInvAmt),
-                          _buildVehicleTableHeader(AppConstants.balanceAmt),
-                          _buildVehicleTableHeader(AppConstants.status),
-                          _buildVehicleTableHeader(AppConstants.createdBy),
-                          _buildVehicleTableHeader(AppConstants.action),
-                          _buildVehicleTableHeader(AppConstants.print),
-                        ],
-                        rows: salesList.asMap().entries.map((entry) {
-                          return DataRow(
-                            color: MaterialStateColor.resolveWith((states) {
-                              return entry.key % 2 == 0
-                                  ? Colors.white
-                                  : _appColors.transparentBlueColor;
-                            }),
-                            cells: [
-                              DataCell(Text('${entry.key + 1}')),
-                              DataCell(Text(entry.value.invoiceNo ?? '')),
-                              DataCell(
-                                  Text(entry.value.invoiceDate.toString())),
-                              DataCell(Text(entry.value.customerId ?? '')),
-                              DataCell(Text(entry.value.customerId ?? '')),
-                              DataCell(Text(entry.value.customerId ?? '')),
-                              DataCell(Text(entry.value.totalCgst.toString())),
-                              DataCell(
-                                  Text(entry.value.totalInvoiceAmt.toString())),
-                              DataCell(Text(entry.value.totalQty.toString())),
-                              DataCell(Text(entry.value.totalSgst.toString())),
-                              DataCell(Chip(
-                                  label: Text(entry.value.billType ?? ''))),
-                              DataCell(
-                                  Text(entry.value.totalTaxableAmt.toString())),
-                              DataCell(
-                                Row(
-                                  children: [
-                                    IconButton(
-                                      icon:
-                                          SvgPicture.asset(AppConstants.icEdit),
-                                      onPressed: () {},
-                                    ),
-                                  ],
+                          rows: salesList.asMap().entries.map((entry) {
+                            return DataRow(
+                              color: MaterialStateColor.resolveWith((states) {
+                                return entry.key % 2 == 0
+                                    ? Colors.white
+                                    : _appColors.transparentBlueColor;
+                              }),
+                              cells: [
+                                DataCell(Text('${entry.key + 1}')),
+                                DataCell(Text(entry.value.invoiceNo ?? '')),
+                                DataCell(
+                                    Text(entry.value.invoiceDate.toString())),
+                                DataCell(Text(entry.value.customerId ?? '')),
+                                DataCell(Text(entry.value.customerName ?? '')),
+                                DataCell(Text(entry.value.mobileNo ?? '')),
+                                DataCell(Text(entry.value.billType.toString())),
+                                DataCell(Text(
+                                    entry.value.totalInvoiceAmt.toString())),
+                                DataCell(
+                                    Text(entry.value.pendingAmt.toString())),
+                                DataCell(
+                                    Text(entry.value.pendingAmt.toString())),
+                                DataCell(Chip(
+                                    label:
+                                        Text(entry.value.paymentStatus ?? ''))),
+                                DataCell(
+                                    Text(entry.value.branchName.toString())),
+                                DataCell(
+                                  Row(
+                                    children: [
+                                      IconButton(
+                                        icon: SvgPicture.asset(
+                                            AppConstants.icEdit),
+                                        onPressed: () {},
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                              ),
-                              DataCell(IconButton(
-                                  onPressed: () async {
-                                    final pdfData =
-                                        await SalesPdfPrinter.generatePdf();
-                                    await Printing.layoutPdf(
-                                      onLayout: (PdfPageFormat format) async {
-                                        return pdfData;
-                                      },
-                                    );
-                                  },
-                                  icon: const Icon(Icons.print))),
-                            ],
-                          );
-                        }).toList(),
-                      );
-                    },
+                                DataCell(IconButton(
+                                    onPressed: () async {
+                                      final pdfData =
+                                          await SalesPdfPrinter.generatePdf();
+                                      await Printing.layoutPdf(
+                                        onLayout: (PdfPageFormat format) async {
+                                          return pdfData;
+                                        },
+                                      );
+                                    },
+                                    icon: const Icon(Icons.print))),
+                              ],
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                    ),
                   ),
                 ),
-
-                //     CustomPagination(
-                //   itemsOnLastPage: _salesViewBloc.totalElements ?? 0,
-                //   currentPage: currentPage,
-                //   totalPages: employeeListmodel.totalPages ?? 0,
-                //   onPageChanged: (pageValue) {
-                //     _employeeViewBloc
-                //         .pageNumberUpdateStreamController(pageValue);
-                //   },
-                // ),
+                CustomPagination(
+                  itemsOnLastPage: salesDetails.totalElements ?? 0,
+                  currentPage: currentPage,
+                  totalPages: salesDetails.totalPages ?? 0,
+                  onPageChanged: (pageValue) {
+                    _salesViewBloc.pageNumberUpdateStreamController(pageValue);
+                  },
+                ),
               ],
             );
-          }),
+          },
+        );
+      },
     );
   }
 
   _buildVehicleTableHeader(String headerValue) => DataColumn(
-        label: Text(
-          headerValue,
-          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+        label: Expanded(
+          child: Text(
+            headerValue,
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+          ),
         ),
       );
 }

@@ -330,6 +330,7 @@ class AppConstants {
 
   //branch
   static const addBranch = 'Add branch';
+  static const updateBranch = 'Update Branch';
   static const subBranch = 'Sub Branches';
   static const mainBranch = 'Main Branch';
   static const branchDetails = 'Branch Details';
@@ -502,13 +503,17 @@ class AppConstants {
   static const String gstThree = 'GST (ii)';
   static const String tcsValueThree = '(iii)';
   static const String invoiceValueFour = '(iv) i + ii + iii';
+  static const String invoiceValueThree = '(iii) i + ii ';
   static const String invoiceValue = 'Invoice Value';
   static const String empsIncentive = 'Emps Incentive';
   static const String stateIncentive = 'State Incentive';
   static const String empsIncentiveFive = '(v)';
+  static const String empsIncentiveFour = '(iv)';
   static const String stateIncentiveSix = '(vi)';
+  static const String stateIncentiveFive = '(v)';
   static const String totalInvoiceAmount = 'Total Invoice Amount';
   static const String totalInvoiceAmountCal = 'iv - (v+vi)';
+  static const String totalInvoiceAmountCalTwo = 'iii - (iv + v)';
 
   static const String cancelDialogMessage =
       'Are you sure you want to Cancel the purchase bill';
@@ -538,4 +543,18 @@ class AppConstants {
   static const String bookingCreatedErr = 'Vehicle booked Not created';
   static const String bookingCreatedErrDec =
       'Vehicle booked Not created Somthing went wrong';
+
+//sales
+  static const String batteryName = 'Battery Name';
+  static const String batteryCapacity = 'Battery Capacity';
+  static const String eVehicleConponents = 'E-Vehicle Components';
+  static const String tools = 'Tools';
+  static const String manualHardCopy = ' Manual Book HardCopy';
+  static const dupicateKey = 'Duplicate keys';
+  static const String hintBatteryName = 'ex: Lion battery';
+  static const String hintBatteryCapacity = 'ex: 6vt';
+  static const String mandatoryAddons = 'Mandatory Add-ons';
+  static const String bookAdvAmt = 'Booking Advance Amt';
+  static const String toBePayed = 'To be payed';
+  static const String splitPayment = 'Split Payment';
 }

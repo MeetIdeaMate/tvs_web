@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:tlbilling/utils/app_colors.dart';
 import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/utils/app_util_widgets.dart';
 import 'package:tlbilling/view/sales/add_sales_bloc.dart';
 import 'package:tlbilling/view/sales/customer_details.dart';
+import 'package:tlbilling/view/sales/payment_details.dart';
 import 'package:tlbilling/view/sales/selected_sales_data.dart';
 import 'package:tlbilling/view/sales/vechile_accessories_list.dart';
 
@@ -17,6 +19,7 @@ class AddSales extends StatefulWidget {
 class _AddSalesState extends State<AddSales> {
   final _appColors = AppColors();
   final _addSalesBloc = AddSalesBlocImpl();
+
   @override
   void initState() {
     super.initState();
@@ -44,61 +47,87 @@ class _AddSalesState extends State<AddSales> {
   }
 
   Widget _buildAddSalesEntryBody() {
-    return Row(
-      children: [
-        _buildVehicleAndAccessoriesList(),
-        _buildInvoiceEntry(),
-        AppWidgetUtils.buildSizedBox(custWidth: 50),
-        _buildCustomerAndPaymentDetails(),
-      ],
-    );
-  }
-
-  Widget _buildCustomerAndPaymentDetails() {
-    return Expanded(
-      flex: 1,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10),
-        decoration: BoxDecoration(
-          border:
-              Border.symmetric(vertical: BorderSide(color: _appColors.grey)),
-          color: _appColors.darkHighlight,
-        ),
-        child: CustomerDetails(
-          addSalesBloc: _addSalesBloc,
-        ),
+    return Form(
+      key: _addSalesBloc.paymentFormKey,
+      child: Row(
+        children: [
+          Expanded(
+            flex: 1,
+            child: _buildVehicleAndAccessoriesList(),
+          ),
+          Expanded(
+            flex: 1,
+            child: _buildInvoiceEntry(),
+          ),
+          AppWidgetUtils.buildSizedBox(custWidth: 50),
+          Expanded(
+            flex: 1,
+            child: _buildCustomerAndPaymentDetails(),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildInvoiceEntry() {
-    return Expanded(
-      flex: 1,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 15),
-        child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10),
+  Widget _buildCustomerAndPaymentDetails() {
+    return Column(
+      children: [
+        Expanded(
+          child: Container(
             decoration: BoxDecoration(
-              border: Border.all(color: _appColors.hightlightColor),
-              borderRadius: const BorderRadius.all(Radius.circular(8)),
-              color: _appColors.lightBgColor,
+              border: Border.symmetric(
+                  vertical: BorderSide(color: _appColors.grey)),
             ),
-            child: SelectedSalesData(addSalesBloc: _addSalesBloc)),
+            child: PaymentDetails(
+              addSalesBloc: _addSalesBloc,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildInvoiceEntry() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 15),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10),
+        decoration: BoxDecoration(
+          border: Border.all(color: _appColors.hightlightColor),
+          borderRadius: const BorderRadius.all(Radius.circular(8)),
+          color: _appColors.lightBgColor,
+        ),
+        child: SelectedSalesData(addSalesBloc: _addSalesBloc),
       ),
     );
   }
 
   Widget _buildVehicleAndAccessoriesList() {
-    return Expanded(
-      flex: 1,
-      child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10),
-          decoration: BoxDecoration(
-            color: _appColors.whiteColor,
+    return Column(
+      children: [
+        Expanded(
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            decoration: BoxDecoration(
+              color: _appColors.whiteColor,
+            ),
+            child: CustomerDetails(
+              addSalesBloc: _addSalesBloc,
+            ),
           ),
-          child: VehicleAccessoriesList(
-            addSalesBloc: _addSalesBloc,
-          )),
+        ),
+        Expanded(
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            decoration: BoxDecoration(
+              color: _appColors.whiteColor,
+            ),
+            child: VehicleAccessoriesList(
+              addSalesBloc: _addSalesBloc,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

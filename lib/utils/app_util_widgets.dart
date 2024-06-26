@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
-import 'package:lottie/lottie.dart';
 import 'package:tlbilling/components/custom_elevated_button.dart';
 import 'package:tlbilling/utils/app_colors.dart';
 import 'package:tlbilling/utils/app_constants.dart';
@@ -60,10 +59,10 @@ class AppWidgetUtils {
                 ? 10
                 : null,
         counterText: '',
-        inputFormatters: (name == AppConstants.mobileNumber ||
-                name == AppConstants.pinCode)
-            ? TldsInputFormatters.onlyAllowNumbers
-            : inputFormatters ?? TldsInputFormatters.allowAlphabetsAndSpaces,
+        inputFormatters:
+            (name == AppConstants.mobileNumber || name == AppConstants.pinCode)
+                ? TldsInputFormatters.onlyAllowNumbers
+                : inputFormatters ?? inputFormatters,
         isSearch: true,
         suffixIcon: suffixIcon ??
             IconButton(

@@ -6,7 +6,7 @@ import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tlbilling/components/custom_action_button.dart';
 import 'package:tlbilling/components/custom_elevated_button.dart';
-import 'package:tlbilling/models/get_model/get_all_customerName_List.dart';
+import 'package:tlbilling/models/get_model/get_all_customer_name_list.dart';
 import 'package:tlbilling/models/get_model/get_all_employee_model.dart';
 import 'package:tlbilling/models/get_model/get_all_stocks_without_pagination.dart';
 import 'package:tlbilling/models/post_model/add_new_booking_model.dart';

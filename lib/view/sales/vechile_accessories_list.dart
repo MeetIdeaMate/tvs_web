@@ -2,8 +2,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:input_quantity/input_quantity.dart';
-
+import 'package:tlbilling/models/get_model/get_all_category_model.dart';
+import 'package:tlbilling/models/get_model/get_all_stocks_model.dart';
 import 'package:tlbilling/utils/app_colors.dart';
 import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/utils/app_util_widgets.dart';
@@ -26,8 +26,7 @@ class _VehicleAccessoriesListState extends State<VehicleAccessoriesList> {
   @override
   void initState() {
     super.initState();
-    widget.addSalesBloc.filteredVehicleData =
-        List.from(widget.addSalesBloc.vehicleData);
+    widget.addSalesBloc.selectedVehicleAndAccessories = 'M-Vehicle';
   }
 
   @override
@@ -51,240 +50,230 @@ class _VehicleAccessoriesListState extends State<VehicleAccessoriesList> {
     return StreamBuilder(
       stream: widget.addSalesBloc.changeVehicleAndAccessoriesListStream,
       builder: (context, snapshot) {
-        return widget.addSalesBloc.selectedVehicleAndAccessories == 'Vehicle'
-            ? _buildAvailableVehicleList()
-            : widget.addSalesBloc.selectedVehicleAndAccessories == 'Accessories'
-                ? _buildAvailableAccessoriesList()
-                : Center(
-                    child: _buildCustomTextWidget(
-                        AppConstants.selectVehicleOrAccessories),
-                  );
+        return widget.addSalesBloc.selectedVehicleAndAccessories == 'M-Vehicle'
+            ? _buildAvailableVehicleList(
+                widget.addSalesBloc.selectedVehicleAndAccessories)
+            : widget.addSalesBloc.selectedVehicleAndAccessories == 'E-Vehicle'
+                ? _buildAvailableVehicleList(
+                    widget.addSalesBloc.selectedVehicleAndAccessories)
+                : widget.addSalesBloc.selectedVehicleAndAccessories ==
+                        'Accessories'
+                    ? _buildAvailableAccessoriesList(
+                        widget.addSalesBloc.selectedVehicleAndAccessories)
+                    : _buildAvailableVehicleList(
+                        widget.addSalesBloc.selectedVehicleAndAccessories);
       },
     );
   }
 
-  Widget _buildAvailableVehicleList() {
-    return StreamBuilder(
-        stream: widget.addSalesBloc.vehicleListStream,
-        builder: (context, snapshot) {
-          return Expanded(
+  Widget _buildAvailableVehicleList(String? category) {
+    return FutureBuilder(
+      future: widget.addSalesBloc.getStockDetails(category: category),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: Text(AppConstants.loading));
+        } else if (snapshot.hasError) {
+          return const Center(child: Text(AppConstants.errorLoading));
+        } else if (!snapshot.hasData || snapshot.data == null) {
+          return Center(child: SvgPicture.asset(AppConstants.imgNoData));
+        }
+        widget.addSalesBloc.vehicleData = snapshot.data;
+
+        return StreamBuilder(
+          stream: widget.addSalesBloc.vehicleAndEngineNumberStream,
+          builder: (context, snapshot) {
+            String searchTerm =
+                widget.addSalesBloc.vehicleNoAndEngineNoSearchController.text;
+            List<GetAllStockDetails>? filteredVehicleData = widget
+                .addSalesBloc.vehicleData
+                ?.where((vehicle) =>
+                    (vehicle.mainSpecValue?.engineNo
+                            ?.toLowerCase()
+                            .contains(searchTerm.toLowerCase()) ??
+                        false) ||
+                    (vehicle.itemName
+                            ?.toLowerCase()
+                            .contains(searchTerm.toLowerCase()) ??
+                        false))
+                .toList();
+
+            return Expanded(
               child: ListView.builder(
-            itemCount: widget.addSalesBloc.filteredVehicleData.length,
-            itemBuilder: (context, index) {
-              var vehicle = widget.addSalesBloc.filteredVehicleData[index];
-              return Card(
-                color: _appColors.whiteColor,
-                elevation: 0,
-                shape: OutlineInputBorder(
-                    borderSide: BorderSide(color: _appColors.cardBorderColor),
-                    borderRadius: BorderRadius.circular(5)),
-                surfaceTintColor: _appColors.whiteColor,
-                child: Padding(
-                  padding: const EdgeInsets.all(8),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          _buildCustomTextWidget(
-                              '${vehicle[AppConstants.vehicleName]}',
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500),
-                          _buildCustomTextWidget(
-                              '${vehicle[AppConstants.color]}',
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500),
-                        ],
-                      ),
-                      _buildCustomTextWidget('${vehicle[AppConstants.partNo]}',
-                          color: _appColors.greyColor),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                itemCount: filteredVehicleData?.length ?? 0,
+                itemBuilder: (context, index) {
+                  var vehicle = filteredVehicleData?[index];
+                  return Card(
+                    color: _appColors.whiteColor,
+                    elevation: 0,
+                    shape: OutlineInputBorder(
+                        borderSide:
+                            BorderSide(color: _appColors.cardBorderColor),
+                        borderRadius: BorderRadius.circular(5)),
+                    surfaceTintColor: _appColors.whiteColor,
+                    child: Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              _buildCustomTextWidget(
-                                  '${vehicle[AppConstants.engineNumber]}',
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold),
-                              AppWidgetUtils.buildSizedBox(custWidth: 12),
-                              _buildCustomTextWidget(
-                                  '${vehicle[AppConstants.frameNumber]}',
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold),
+                              _buildCustomTextWidget(vehicle?.itemName ?? '',
+                                  fontSize: 14, fontWeight: FontWeight.w500),
                             ],
                           ),
+                          _buildCustomTextWidget(vehicle?.partNo ?? '',
+                              color: _appColors.greyColor),
                           Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              IconButton(
-                                  onPressed: () {
-                                    var selectedVehicle = widget
-                                        .addSalesBloc.filteredVehicleData
-                                        .removeAt(index);
-                                    widget.addSalesBloc
-                                        .vehicleListStreamController(
-                                            widget.addSalesBloc.vehicleData);
-                                    widget.addSalesBloc.selectedItems.add(
-                                        _buildSelectedVehicleCard(
-                                            selectedVehicle));
-                                    widget.addSalesBloc
-                                        .selectedSalesStreamController(true);
-                                    widget.addSalesBloc.selectedVehicleList
-                                        .add('');
-                                    widget.addSalesBloc
-                                        .selectedVehicleListStreamController(
-                                            true);
-                                  },
-                                  icon: SvgPicture.asset(
-                                    AppConstants.icFilledAdd,
-                                    height: 24,
-                                    width: 24,
-                                  ))
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  _buildCustomTextWidget(
+                                      vehicle?.mainSpecValue?.engineNo ?? '',
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold),
+                                  AppWidgetUtils.buildSizedBox(custWidth: 12),
+                                  _buildCustomTextWidget(
+                                      vehicle?.mainSpecValue?.frameNo ?? '',
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold),
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  IconButton(
+                                      onPressed: () {
+                                        var selectedVehicle =
+                                            filteredVehicleData?[index];
+
+                                        filteredVehicleData?.removeAt(index);
+
+                                        widget.addSalesBloc.vehicleData
+                                            ?.remove(selectedVehicle!);
+
+                                        widget.addSalesBloc
+                                            .vehicleAndEngineNumberStreamController(
+                                                true);
+
+                                        widget.addSalesBloc.selectedVehiclesList
+                                            ?.add(selectedVehicle!);
+
+                                        widget.addSalesBloc
+                                            .selectedItemStream(true);
+                                      },
+                                      icon: SvgPicture.asset(
+                                        AppConstants.icFilledAdd,
+                                        height: 24,
+                                        width: 24,
+                                      ))
+                                ],
+                              )
                             ],
                           )
                         ],
-                      )
-                    ],
-                  ),
-                ),
-              );
-            },
-          ));
-        });
-  }
-
-  Widget _buildAvailableAccessoriesList() {
-    return Expanded(
-        child: ListView.builder(
-      itemCount: 10,
-      itemBuilder: (context, index) {
-        return Card(
-          color: _appColors.whiteColor,
-          elevation: 0,
-          shape: OutlineInputBorder(
-              borderSide: BorderSide(color: _appColors.cardBorderColor),
-              borderRadius: BorderRadius.circular(5)),
-          surfaceTintColor: _appColors.whiteColor,
-          child: Padding(
-            padding: const EdgeInsets.all(8),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildCustomTextWidget('TVS APACHE - 200',
-                            fontSize: 14, fontWeight: FontWeight.w500),
-                        _buildCustomTextWidget('Navy Blue',
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                            color: _appColors.liteGrayColor),
-                      ],
+                      ),
                     ),
-                    _buildCustomTextWidget('Qty - 20',
-                        fontSize: 14, fontWeight: FontWeight.w500),
-                    IconButton(
-                        onPressed: () {
-                          widget.addSalesBloc.selectedItems
-                              .add(_buildSelectedAccessoriesCardDetails());
-                          widget.addSalesBloc
-                              .selectedSalesStreamController(true);
-                        },
-                        icon: SvgPicture.asset(
-                          AppConstants.icFilledAdd,
-                          width: 24,
-                          height: 24,
-                        ))
-                  ],
-                ),
-              ],
-            ),
-          ),
+                  );
+                },
+              ),
+            );
+          },
         );
       },
-    ));
+    );
   }
 
-  Widget _buildSelectedAccessoriesCardDetails() {
-    return Card(
-      elevation: 0,
-      shape: OutlineInputBorder(
-          borderSide: BorderSide(color: _appColors.cardBorderColor),
-          borderRadius: BorderRadius.circular(5)),
-      surfaceTintColor: _appColors.whiteColor,
-      child: Padding(
-        padding: const EdgeInsets.all(8),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildCustomTextWidget('Tool Kit',
-                    fontWeight: FontWeight.w500, fontSize: 14),
-                _buildCustomTextWidget('TK627856',
-                    fontWeight: FontWeight.w500,
-                    fontSize: 14,
-                    color: _appColors.liteGrayColor)
-              ],
-            ),
-            StreamBuilder(
-              stream: widget.addSalesBloc.accessoriesIncrementStream,
-              builder: (context, snapshot) {
-                return InputQty(
-                  decoration: QtyDecorationProps(
-                      constraints:
-                          const BoxConstraints(minWidth: 150, maxWidth: 150),
-                      plusBtn: IconButton(
-                          onPressed: () {
-                            setState(() {
-                              widget.addSalesBloc.initialValue++;
-                              widget.addSalesBloc
-                                  .accessoriesIncrementStreamController(true);
-                            });
-                          },
-                          icon: SvgPicture.asset(
-                            AppConstants.icFilledAdd,
-                            width: 24,
-                            height: 24,
-                          )),
-                      minusBtn: IconButton(
-                          onPressed: () {
-                            setState(() {
-                              widget.addSalesBloc.initialValue--;
-                              widget.addSalesBloc
-                                  .accessoriesIncrementStreamController(true);
-                            });
-                          },
-                          icon: SvgPicture.asset(
-                            AppConstants.icFilledMinus,
-                            width: 24,
-                            height: 24,
-                          )),
-                      border: OutlineInputBorder(
-                          borderSide: BorderSide(
-                              color: _appColors.liteBlueColor, width: 2.5),
-                          borderRadius: BorderRadius.circular(10))),
-                  initVal: widget.addSalesBloc.initialValue,
-                  steps: 1,
-                );
-              },
-            ),
-            IconButton(
-                onPressed: () {
-                  widget.addSalesBloc.selectedItems
-                      .removeAt(widget.addSalesBloc.salesIndex);
-                  widget.addSalesBloc.selectedSalesStreamController(true);
+  Widget _buildAvailableAccessoriesList(String? selectedVehicleAndAccessories) {
+    return FutureBuilder(
+      future: widget.addSalesBloc
+          .getStockDetails(category: selectedVehicleAndAccessories),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: Text(AppConstants.loading));
+        } else if (snapshot.hasError) {
+          return const Center(child: Text(AppConstants.errorLoading));
+        } else if (!snapshot.hasData) {
+          return Center(child: SvgPicture.asset(AppConstants.imgNoData));
+        }
+        widget.addSalesBloc.accessoriesData = snapshot.data;
+        return StreamBuilder(
+            stream: widget.addSalesBloc.availableAccListStreamController,
+            builder: (context, streamSnapshot) {
+              return Expanded(
+                  child: ListView.builder(
+                itemCount: widget.addSalesBloc.accessoriesData?.length ?? 0,
+                itemBuilder: (context, index) {
+                  var accessoriesData =
+                      widget.addSalesBloc.accessoriesData?[index];
+                  return Card(
+                    color: _appColors.whiteColor,
+                    elevation: 0,
+                    shape: OutlineInputBorder(
+                        borderSide:
+                            BorderSide(color: _appColors.cardBorderColor),
+                        borderRadius: BorderRadius.circular(5)),
+                    surfaceTintColor: _appColors.whiteColor,
+                    child: Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  _buildCustomTextWidget(
+                                      accessoriesData?.itemName ?? '',
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500),
+                                  _buildCustomTextWidget(
+                                      accessoriesData?.partNo ?? '',
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                      color: _appColors.liteGrayColor),
+                                ],
+                              ),
+                              _buildCustomTextWidget(
+                                  'Qty - ${accessoriesData?.quantity}',
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500),
+                              IconButton(
+                                  onPressed: () {
+                                    GetAllStockDetails? selectedAccessories =
+                                        widget.addSalesBloc.accessoriesData
+                                            ?.removeAt(index);
+
+                                    widget.addSalesBloc
+                                        .availableAccListStream(true);
+
+                                    widget.addSalesBloc.slectedAccessoriesList
+                                        ?.add(selectedAccessories!);
+                                    widget.addSalesBloc
+                                        .selectedAccessoriesListStreamController(
+                                            true);
+                                    widget.addSalesBloc
+                                        .selectedItemStream(true);
+                                  },
+                                  icon: SvgPicture.asset(
+                                    AppConstants.icFilledAdd,
+                                    width: 24,
+                                    height: 24,
+                                  ))
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
                 },
-                icon: SvgPicture.asset(AppConstants.icFilledClose))
-          ],
-        ),
-      ),
+              ));
+            });
+      },
     );
   }
 
@@ -293,43 +282,81 @@ class _VehicleAccessoriesListState extends State<VehicleAccessoriesList> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Expanded(
-          child: StreamBuilder(
-            stream: widget.addSalesBloc.selectedVehicleAndAccessoriesStream,
-            builder: (context, snapshot) {
-              return SegmentedButton(
-                selected: widget.addSalesBloc.optionsSet,
-                multiSelectionEnabled: false,
-                segments: List.generate(
-                    widget.addSalesBloc.vehicleAndAccessoriesList.length,
-                    (index) => ButtonSegment(
-                        value: widget
-                            .addSalesBloc.vehicleAndAccessoriesList[index],
-                        label: Text(
-                          widget.addSalesBloc.vehicleAndAccessoriesList[index],
-                        ))),
-                onSelectionChanged: (Set<String> newValue) {
-                  widget.addSalesBloc.optionsSet = newValue;
-                  widget.addSalesBloc.selectedVehicleAndAccessories =
-                      widget.addSalesBloc.optionsSet.first;
-                  widget.addSalesBloc.selectedVehicleAndAccessories ==
-                          'Accessories'
-                      ? widget.addSalesBloc.selectedVehicleList.clear()
-                      : null;
-                  widget.addSalesBloc
-                      .selectedVehicleAndAccessoriesStreamController(true);
-                  widget.addSalesBloc
-                      .changeVehicleAndAccessoriesListStreamController(true);
-                  widget.addSalesBloc
-                      .selectedVehicleAndAccessoriesListStreamController(true);
-                },
-                style: ButtonStyle(
-                  backgroundColor: widget.addSalesBloc
-                      .changeSegmentedColor(_appColors.segmentedButtonColor),
-                ),
-              );
+          child: FutureBuilder<GetAllCategoryListModel?>(
+            future: widget.addSalesBloc.getAllCategoryList(),
+            builder: (context, futureSnapshot) {
+              if (futureSnapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: Text(AppConstants.errorLoading));
+              } else if (futureSnapshot.hasError ||
+                  futureSnapshot.data == null) {
+                return const Center(child: Text(AppConstants.errorLoading));
+              } else {
+                var categoryList = futureSnapshot.data?.category;
+                return StreamBuilder(
+                  stream:
+                      widget.addSalesBloc.selectedVehicleAndAccessoriesStream,
+                  builder: (context, snapshot) {
+                    var selectedCategory =
+                        widget.addSalesBloc.selectedVehicleAndAccessories;
+                    return SegmentedButton(
+                      selected: {selectedCategory ?? ''},
+                      multiSelectionEnabled: false,
+                      segments: categoryList!
+                          .map((category) => ButtonSegment(
+                                value: category.categoryName ?? '',
+                                label: Text(category.categoryName ?? ''),
+                              ))
+                          .toList(),
+                      onSelectionChanged: (Set<String> newValue) {
+                        var selectedValue = newValue.first;
+                        widget.addSalesBloc
+                            .batteryDetailsRefreshStreamController(true);
+
+                        widget.addSalesBloc.selectedVehicleAndAccessories =
+                            selectedValue;
+                        widget.addSalesBloc
+                            .batteryDetailsRefreshStreamController(true);
+                        widget.addSalesBloc.selectedVehiclesList?.clear();
+                        widget.addSalesBloc.slectedAccessoriesList?.clear();
+                        widget.addSalesBloc
+                            .batteryDetailsRefreshStreamController(true);
+                        widget.addSalesBloc.selectedMandatoryAddOns.clear();
+                        widget.addSalesBloc
+                            .batteryDetailsRefreshStreamController(true);
+                        widget.addSalesBloc
+                            .selectedVehicleAndAccessoriesListStreamController(
+                                true);
+
+                        // widget.addSalesBloc.selectedVehiclesList = [];
+                        widget.addSalesBloc
+                            .batteryDetailsRefreshStreamController(true);
+                        widget.addSalesBloc.selectedItemStream(true);
+                        widget.addSalesBloc
+                            .selectedVehiclesListStreamController(true);
+
+                        widget.addSalesBloc
+                            .selectedVehicleAndAccessoriesStreamController(
+                                true);
+                        widget.addSalesBloc
+                            .changeVehicleAndAccessoriesListStreamController(
+                                true);
+                        widget.addSalesBloc
+                            .selectedVehicleAndAccessoriesListStreamController(
+                                true);
+                      },
+                      style: ButtonStyle(
+                        backgroundColor:
+                            widget.addSalesBloc.changeSegmentedColor(
+                          _appColors.segmentedButtonColor,
+                        ),
+                      ),
+                    );
+                  },
+                );
+              }
             },
           ),
-        )
+        ),
       ],
     );
   }
@@ -352,13 +379,13 @@ class _VehicleAccessoriesListState extends State<VehicleAccessoriesList> {
             hintText: AppConstants.vehicleNameAndEngineNumber,
             suffixIcon: IconButton(
               onPressed: () {
-                if (isTextEmpty) {
+                if (!isTextEmpty) {
                   widget.addSalesBloc.vehicleNoAndEngineNoSearchController
                       .clear();
-                  updateFilteredVehicleList('');
+                  widget.addSalesBloc
+                      .vehicleAndEngineNumberStreamController(true);
+                  //  updateFilteredVehicleList('');
                 }
-                widget.addSalesBloc
-                    .vehicleAndEngineNumberStreamController(true);
               },
               icon: Icon(
                 iconData,
@@ -366,7 +393,6 @@ class _VehicleAccessoriesListState extends State<VehicleAccessoriesList> {
               ),
             ),
             onChanged: (value) {
-              updateFilteredVehicleList(value);
               widget.addSalesBloc.vehicleAndEngineNumberStreamController(true);
             },
           );
@@ -389,96 +415,29 @@ class _VehicleAccessoriesListState extends State<VehicleAccessoriesList> {
         custHeight: height ?? MediaQuery.sizeOf(context).height * 0.02);
   }
 
-  Widget _buildSelectedVehicleCard(Map<String, String> vehicle) {
-    return Card(
-      color: _appColors.whiteColor,
-      elevation: 0,
-      shape: OutlineInputBorder(
-          borderSide: BorderSide(color: _appColors.cardBorderColor),
-          borderRadius: BorderRadius.circular(5)),
-      surfaceTintColor: _appColors.whiteColor,
-      child: Padding(
-        padding: const EdgeInsets.all(8),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                _buildCustomTextWidget('${vehicle[AppConstants.vehicleName]}',
-                    fontSize: 14, fontWeight: FontWeight.w500),
-                _buildCustomTextWidget('${vehicle[AppConstants.color]}',
-                    fontSize: 12, fontWeight: FontWeight.w500),
-              ],
-            ),
-            _buildCustomTextWidget('${vehicle[AppConstants.partNo]}',
-                color: _appColors.greyColor),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    _buildCustomTextWidget(
-                        '${vehicle[AppConstants.engineNumber]}',
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold),
-                    AppWidgetUtils.buildSizedBox(custWidth: 12),
-                    _buildCustomTextWidget(
-                        '${vehicle[AppConstants.frameNumber]}',
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold),
-                  ],
-                ),
-                Row(
-                  children: [
-                    IconButton(
-                        onPressed: () {
-                          widget.addSalesBloc.selectedItems
-                              .removeAt(widget.addSalesBloc.salesIndex);
-                          widget.addSalesBloc.filteredVehicleData.add(vehicle);
-                          widget.addSalesBloc
-                              .selectedSalesStreamController(true);
-                          widget.addSalesBloc.selectedVehicleList.add('');
-                          widget.addSalesBloc.vehicleListStreamController(
-                              widget.addSalesBloc.filteredVehicleData);
-                          widget.addSalesBloc
-                              .selectedSalesStreamController(true);
-                          widget.addSalesBloc
-                              .selectedVehicleListStreamController(true);
-                        },
-                        icon: SvgPicture.asset(
-                          AppConstants.icFilledClose,
-                          height: 28,
-                          width: 28,
-                        ))
-                  ],
-                )
-              ],
-            )
-          ],
-        ),
-      ),
-    );
-  }
+  // void updateFilteredVehicleList(String query) {
 
-  void updateFilteredVehicleList(String query) {
-    setState(() {
-      if (query.isEmpty) {
-        widget.addSalesBloc.filteredVehicleData =
-            List.from(widget.addSalesBloc.vehicleData);
-      } else {
-        widget.addSalesBloc.filteredVehicleData =
-            widget.addSalesBloc.vehicleData.where((vehicle) {
-          var lowerCaseQuery = query.toLowerCase();
-          return vehicle[AppConstants.engineNumber]!
-                  .toLowerCase()
-                  .contains(lowerCaseQuery) ||
-              vehicle[AppConstants.frameNumber]!
-                  .toLowerCase()
-                  .contains(lowerCaseQuery);
-        }).toList();
-      }
-    });
-  }
+  //     if (query.isEmpty) {
+  //       widget.addSalesBloc.filteredVehicleData = widget
+  //           .addSalesBloc.filteredVehicleData
+  //           .where((element) =>
+  //               element !=
+  //               widget.addSalesBloc.selectedVehicleList.contains(element))
+  //           .toList();
+  //     } else {
+  //       var lowerCaseQuery = query.toLowerCase();
+  //       widget.addSalesBloc.filteredVehicleData =
+  //           widget.addSalesBloc.vehicleData!.where((vehicle) {
+  //         return vehicle.mainSpecValue?.engineNo
+  //                 ?.toLowerCase()
+  //                 .contains(lowerCaseQuery) ??
+  //             false;
+  //         // /*vehicle.mainSpecValue?.frameNo
+  //         //                   ?.toLowerCase()
+  //         //                   .contains(vehicleAndEngineNumber.toLowerCase())
+  //         //           ??*/
+  //       }).toList();
+  //     }
+
+  // }
 }
