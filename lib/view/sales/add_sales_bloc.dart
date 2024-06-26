@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:tlbilling/api_service/app_service_utils.dart';
+import 'package:tlbilling/models/get_model/get_all_customerName_List.dart';
 import 'package:tlbilling/models/get_model/get_all_stocks_model.dart';
 import 'package:tlbilling/models/parent_response_model.dart';
 import 'package:tlbilling/utils/app_constants.dart';
@@ -33,7 +34,7 @@ abstract class AddSalesBloc {
   bool get isInsurenceChecked;
   String? get selectedPaymentOption;
 
-  Future<ParentResponseModel> getAllCustomerList();
+  Future<List<GetAllCustomerNameList>?> getAllCustomerList();
 
   Future<List<String>> getPaymentmethods();
   Stream<List<Map<String, String>>> get vehicleListStream;
@@ -276,7 +277,7 @@ class AddSalesBlocImpl extends AddSalesBloc {
       _vehicleNoAndEngineNoSearchController;
 
   @override
-  Future<ParentResponseModel> getAllCustomerList() async {
+  Future<List<GetAllCustomerNameList>?> getAllCustomerList() async {
     return await _apiServices.getAllCustomerList();
   }
 

@@ -84,7 +84,7 @@ class _NewReceiptState extends State<NewReceipt> {
                   return const Center(child: Text(AppConstants.noData));
                 }
                 final customerList =
-                    snapshot.data?.result?.getAllCustomerNameList ?? [];
+                    snapshot.data ?? [];
                 final customerNamesSet = customerList
                     .map((result) => result.customerName ?? "")
                     .toSet();
