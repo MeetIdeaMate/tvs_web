@@ -1,6 +1,3 @@
-import 'dart:convert';
-import 'dart:core';
-
 class EvBatteryObj {
   double evBatteryCapacity;
   String evBatteryName;
@@ -208,7 +205,7 @@ class AddSalesModel {
   List<SalesItemDetail> itemDetails;
   Loaninfo loaninfo;
   Map<String, String> mandatoryAddons;
-  int netAmt;
+  double netAmt;
   List<PaidDetail> paidDetails;
   String paymentStatus;
   double roundOffAmt;
@@ -251,6 +248,4 @@ class AddSalesModel {
         'roundOffAmt': roundOffAmt,
         'totalQty': totalQty,
       };
-
-  String toJsonString() => jsonEncode(toJson());
 }

@@ -77,6 +77,7 @@ abstract class AddSalesBloc {
   bool get isInsurenceChecked;
   bool get isSplitPayment;
   String? get selectedPaymentOption;
+  Map<String, String> get batteryDetailsMap;
   Future<GetAllCustomersModel?> getCustomerById();
 
   Future<ParentResponseModel> getAllCustomerList();
@@ -123,6 +124,7 @@ class AddSalesBlocImpl extends AddSalesBloc {
   final _unitRateControllers = TextEditingController();
   final Map<int, String> _unitRate = {};
   final Map<int, String> _accessoriesQty = {};
+  final Map<String, String> _batteryDetailsMap = {};
 
   final _hsnCodeTextController = TextEditingController();
   final _cgstPresentageTextController = TextEditingController();
@@ -680,4 +682,7 @@ class AddSalesBlocImpl extends AddSalesBloc {
   set branchId(String? value) {
     _branchId = value;
   }
+
+  @override
+  Map<String, String> get batteryDetailsMap => _batteryDetailsMap;
 }

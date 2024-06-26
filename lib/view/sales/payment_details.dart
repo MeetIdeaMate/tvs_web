@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tlbilling/components/custom_action_button.dart';
@@ -646,8 +644,11 @@ class _PaymentDetailsState extends State<PaymentDetails> {
     return CustomActionButtons(
         onPressed: () {
           if (widget.addSalesBloc.paymentFormKey.currentState!.validate()) {
-            print(
-                '************Sales post***************${jsonEncode(salesPostObject)}');
+            var salesObject = salesPostObject();
+
+            // Print the sales object before posting
+            print('Sales Object: $salesObject');
+
             widget.addSalesBloc.addNewSalesDeatils(salesPostObject(),
                 (statusCode) {
               if (statusCode == 200 || statusCode == 201) {
@@ -676,37 +677,112 @@ class _PaymentDetailsState extends State<PaymentDetails> {
   }
 
   salesPostObject() {
-    List<SalesItemDetail> _itemdetails = [];
-    List<GstDetail> _gstDetails = [];
-
-    List<Incentive> _insentive = [];
-    List<Tax> tax = [];
-    for (var itemData in widget.addSalesBloc.selectedVehiclesList!) {
-      final _itemDetail = SalesItemDetail(
-          categoryId: itemData.categoryId ?? '',
-          discount: double.tryParse(
-                  widget.addSalesBloc.discountTextController.text) ??
-              0,
-          finalInvoiceValue: widget.addSalesBloc.totalInvAmount ?? 0,
-          gstDetails: _gstDetails,
-          hsnSacCode: widget.addSalesBloc.hsnCodeTextController.text,
-          incentives: _insentive,
-          invoiceValue: widget.addSalesBloc.invAmount ?? 0,
-          itemName: itemData.itemName ?? '',
-          mainSpecValue: {
-            'engineNumber': itemData.mainSpecValue?.engineNo ?? '',
-            'frameNumber': itemData.mainSpecValue?.frameNo ?? ''
-          },
-          partNo: itemData.partNo ?? '',
-          quantity: itemData.quantity ?? 0,
-          specificationsValue: {},
-          stockId: itemData.stockId ?? '',
-          taxableValue: itemData.purchaseItem?.taxableValue ?? 0,
-          taxes: tax,
-          unitRate: itemData.purchaseItem?.unitRate ?? 1,
-          value: itemData.purchaseItem?.value ?? 0);
-      _itemdetails.add(_itemDetail);
+    List<SalesItemDetail> itemdetails = [];
+    List<GstDetail> gstDetails = [];
+    Map<String, String> mandatoryAddonsMap = {};
+    for (var addon in widget.addSalesBloc.selectedMandatoryAddOns.keys) {
+      mandatoryAddonsMap[addon] =
+          widget.addSalesBloc.selectedMandatoryAddOns[addon]!;
     }
+
+    if (widget.addSalesBloc.selectedGstType == 'GST %') {
+      gstDetails.add(
+        GstDetail(
+            gstAmount: widget.addSalesBloc.cgstAmount ?? 0,
+            gstName: 'CGST',
+            percentage: double.tryParse(
+                    widget.addSalesBloc.cgstPresentageTextController.text) ??
+                0),
+      );
+      gstDetails.add(
+        GstDetail(
+            gstAmount: widget.addSalesBloc.cgstAmount ?? 0,
+            gstName: 'SGST',
+            percentage: double.tryParse(
+                    widget.addSalesBloc.cgstPresentageTextController.text) ??
+                0),
+      );
+    }
+    if (widget.addSalesBloc.selectedGstType == 'IGST %') {
+      gstDetails.add(
+        GstDetail(
+            gstAmount: widget.addSalesBloc.igstAmount ?? 0,
+            gstName: 'IGST',
+            percentage: double.tryParse(
+                    widget.addSalesBloc.igstPresentageTextController.text) ??
+                0),
+      );
+    }
+
+    List<Incentive> insentive = [];
+    insentive.add(Incentive(
+        incentiveAmount: double.tryParse(
+                widget.addSalesBloc.stateIncentiveTextController.text) ??
+            0,
+        incentiveName: 'STATE INCENTIVE',
+        percentage: 0));
+    insentive.add(Incentive(
+        incentiveAmount: double.tryParse(
+                widget.addSalesBloc.stateIncentiveTextController.text) ??
+            0,
+        incentiveName: 'EMPS INCENTIVE',
+        percentage: 0));
+    List<Tax> tax = [];
+    if (widget.addSalesBloc.selectedVehiclesList!.isNotEmpty) {
+      for (var itemData in widget.addSalesBloc.selectedVehiclesList!) {
+        final itemDetail = SalesItemDetail(
+            categoryId: itemData.categoryId ?? '',
+            discount: double.tryParse(
+                    widget.addSalesBloc.discountTextController.text) ??
+                0,
+            finalInvoiceValue: widget.addSalesBloc.totalInvAmount ?? 0,
+            gstDetails: gstDetails,
+            hsnSacCode: widget.addSalesBloc.hsnCodeTextController.text,
+            incentives: insentive,
+            invoiceValue: widget.addSalesBloc.invAmount ?? 0,
+            itemName: itemData.itemName ?? '',
+            mainSpecValue: {
+              'engineNo': itemData.mainSpecValue?.engineNo ?? '',
+              'frameNo': itemData.mainSpecValue?.frameNo ?? ''
+            },
+            partNo: itemData.partNo ?? '',
+            quantity: itemData.quantity ?? 0,
+            specificationsValue: {},
+            stockId: itemData.stockId ?? '',
+            taxableValue: itemData.purchaseItem?.taxableValue ?? 0,
+            taxes: tax,
+            unitRate: itemData.purchaseItem?.unitRate ?? 1,
+            value: itemData.purchaseItem?.value ?? 0);
+        itemdetails.add(itemDetail);
+      }
+    }
+
+    if (widget.addSalesBloc.slectedAccessoriesList!.isNotEmpty) {
+      for (var itemData in widget.addSalesBloc.slectedAccessoriesList!) {
+        final itemDetail = SalesItemDetail(
+            categoryId: itemData.categoryId ?? '',
+            discount: double.tryParse(
+                    widget.addSalesBloc.discountTextController.text) ??
+                0,
+            finalInvoiceValue: widget.addSalesBloc.totalInvAmount ?? 0,
+            gstDetails: gstDetails,
+            hsnSacCode: widget.addSalesBloc.hsnCodeTextController.text,
+            incentives: insentive,
+            invoiceValue: widget.addSalesBloc.invAmount ?? 0,
+            itemName: itemData.itemName ?? '',
+            mainSpecValue: {},
+            partNo: itemData.partNo ?? '',
+            quantity: itemData.quantity ?? 0,
+            specificationsValue: {},
+            stockId: itemData.stockId ?? '',
+            taxableValue: itemData.purchaseItem?.taxableValue ?? 0,
+            taxes: tax,
+            unitRate: itemData.purchaseItem?.unitRate ?? 1,
+            value: itemData.purchaseItem?.value ?? 0);
+        itemdetails.add(itemDetail);
+      }
+    }
+
     return AddSalesModel(
         billType: '',
         bookingNo: '',
@@ -726,9 +802,9 @@ class _PaymentDetailsState extends State<PaymentDetails> {
             invoiceNo: ''),
         invoiceDate: '',
         invoiceType: '',
-        itemDetails: _itemdetails,
+        itemDetails: itemdetails,
         loaninfo: Loaninfo(bankName: '', loanAmt: 0, loanId: ''),
-        mandatoryAddons: {},
+        mandatoryAddons: mandatoryAddonsMap,
         netAmt: 0,
         paidDetails: [
           PaidDetail(
@@ -737,8 +813,8 @@ class _PaymentDetailsState extends State<PaymentDetails> {
         paymentStatus: '',
         roundOffAmt:
             double.parse(widget.addSalesBloc.totalInvAmount.toString()),
-        totalQty: widget.addSalesBloc.vehicleData?.length ??
-            widget.addSalesBloc.accessoriesData?.length ??
+        totalQty: widget.addSalesBloc.selectedVehiclesList?.length ??
+            widget.addSalesBloc.slectedAccessoriesList?.length ??
             0);
   }
 }

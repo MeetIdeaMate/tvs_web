@@ -25,7 +25,6 @@ class SelectedSalesData extends StatefulWidget {
 class _SelectedSalesDataState extends State<SelectedSalesData> {
   final _appColors = AppColors();
   bool isEVehicle = false;
-  Map<String, String> batteryDetailsMap = {};
 
   @override
   void initState() {
@@ -68,6 +67,7 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
                               itemCount: mandatoryAddOns.length,
                               itemBuilder: (context, index) {
                                 String addOn = mandatoryAddOns[index];
+
                                 return _buildMandatoryAdd(
                                   addOn,
                                   widget.addSalesBloc
@@ -125,16 +125,11 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
                     List<String> eVehicleComponents =
                         snapshot.data as List<String>;
 
-                    // Clear existing map
-                    batteryDetailsMap.clear();
+                    widget.addSalesBloc.batteryDetailsMap.clear();
 
-                    // Populate batteryDetailsMap with battery details
                     for (String componentName in eVehicleComponents) {
-                      batteryDetailsMap[componentName] =
-                          ''; // Initialize with empty string
+                      widget.addSalesBloc.batteryDetailsMap[componentName] = '';
                     }
-
-                    // Print the battery details map (for debugging purposes)
 
                     return ListView.builder(
                       shrinkWrap: true,
@@ -154,8 +149,9 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
                                   controller: TextEditingController(),
                                   hintText: componentName,
                                   onChanged: (value) {
-                                    // Update the batteryDetailsMap when value changes
-                                    batteryDetailsMap[componentName] = value;
+                                    widget.addSalesBloc
+                                            .batteryDetailsMap[componentName] =
+                                        value;
 
                                     printBatteryDetails();
                                   },
@@ -176,7 +172,7 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
 
   void printBatteryDetails() {
     // Print battery details map
-    batteryDetailsMap.forEach((key, value) {
+    widget.addSalesBloc.batteryDetailsMap.forEach((key, value) {
       print('$key: $value');
     });
   }
@@ -325,7 +321,7 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
                 Row(
                   children: [
                     TldsInputFormField(
-                      width: 150,
+                      width: 60,
                       controller: TextEditingController(),
                       inputFormatters:
                           TlInputFormatters.onlyAllowDecimalNumbers,

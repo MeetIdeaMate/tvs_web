@@ -97,6 +97,10 @@ abstract class AppServiceUtil {
       int currentPage, String vendorName, String city, String mobileNumber);
 
   Future<GetEmployeeById?> getEmployeeById(String employeeId);
+  Future<void> addNewSalesDetails(
+    AddSalesModel salesdata,
+    Function(int value) onSuccessCallBack,
+  );
 
   Future<GetBranchById?> getBranchById();
 
@@ -1327,27 +1331,30 @@ class AppServiceUtilImpl extends AppServiceUtil {
     return null;
   }
 
+  @override
   Future<void> addNewSalesDetails(
-      AddSalesModel salesdata, Function(int value) onSuccessCallBack) async {
+    AddSalesModel salesdata,
+    Function(int value) onSuccessCallBack,
+  ) async {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       var token = prefs.getString('token');
 
-      if (token == null) {
-        throw Exception("Token not found");
-      }
-
       dio.options.headers['Authorization'] = 'Bearer $token';
-      var jsonData = json.encode(salesdata.toJson());
-      print('***************sales decode =>${json.decode(jsonData)};');
-      // var response = await dio.post(AppUrl.sales, data: jsonData);
+      var jsonData = json.encode(salesdata);
 
-      // if (response.statusCode == 200 || response.statusCode == 201) {
-      //   onSuccessCallBack(response.statusCode!);
-      // } else {
-      //   onSuccessCallBack(response.statusCode ?? 0);
-      // }
+      print(jsonData);
+
+      var response = await dio.post(AppUrl.sales, data: jsonData);
+      print('Response status code: ${response.statusCode}');
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        onSuccessCallBack(response.statusCode!);
+      } else {
+        onSuccessCallBack(response.statusCode ?? 0);
+      }
     } catch (e) {
+      print('Error adding new sales details: $e');
       onSuccessCallBack(0);
     }
   }
