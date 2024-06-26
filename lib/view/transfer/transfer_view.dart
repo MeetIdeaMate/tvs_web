@@ -449,7 +449,7 @@ class _TransferViewState extends State<TransferView>
                   DataCell(
                     Row(
                       children: [
-                        PopupMenuButton(
+                          PopupMenuButton(
                           itemBuilder: (context) {
                             return <PopupMenuEntry>[
                               const PopupMenuItem(

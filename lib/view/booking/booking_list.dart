@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:tlbilling/components/custom_elevated_button.dart';
+import 'package:tlbilling/components/custom_pagenation.dart';
+import 'package:tlbilling/models/get_model/get_all_booking_list_with_pagination.dart';
 import 'package:tlbilling/utils/app_colors.dart';
 import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/utils/app_util_widgets.dart';
+import 'package:tlbilling/utils/app_utils.dart';
+import 'package:tlbilling/view/booking/add_booking/add_booking_dialog.dart';
 import 'package:tlbilling/view/booking/booking_list_bloc.dart';
 import 'package:tlds_flutter/components/tlds_dropdown_button_form_field.dart';
 import 'package:tlds_flutter/components/tlds_input_form_field.dart';
@@ -22,15 +28,17 @@ class _BookingListState extends State<BookingList> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: AppWidgetUtils.buildCustomDmSansTextWidget(AppConstants.booking),
-      ),
       body: Padding(
         padding: const EdgeInsets.all(18),
         child: Center(
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              AppWidgetUtils.buildHeaderText(AppConstants.booking),
+              AppWidgetUtils.buildSizedBox(custHeight: 26),
               _buildSearchFieldsAndAddBookButton(),
+              _buildDefaultHeight(),
+              _buildBookingListTable(),
             ],
           ),
         ),
@@ -40,12 +48,18 @@ class _BookingListState extends State<BookingList> {
 
   Widget _buildSearchFieldsAndAddBookButton() {
     return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        _bookingIdField(),
-        _buildDefaultWidth(),
-        _buildCustomerNameField(),
-        _buildDefaultWidth(),
-        _buildPaymentTypeDropdown(),
+        Row(
+          children: [
+            _bookingIdField(),
+            _buildDefaultWidth(),
+            _buildCustomerNameField(),
+            _buildDefaultWidth(),
+            _buildPaymentTypeDropdown(),
+          ],
+        ),
+        _buildAddBookButton(),
       ],
     );
   }
@@ -80,7 +94,15 @@ class _BookingListState extends State<BookingList> {
     return FutureBuilder(
       future: _bookingListBloc.getPaymentsList(),
       builder: (context, snapshot) {
-        List<String> paymentTypesList = snapshot.data?.configuration ?? [];
+        List<String> paymentTypesList = ['All'];
+        if (snapshot.hasData) {
+          paymentTypesList.addAll(snapshot.data?.configuration ?? []);
+        }
+
+        if (_bookingListBloc.selectedPaymentType?.isEmpty ?? false) {
+          _bookingListBloc.selectedPaymentType = 'All';
+        }
+
         return TldsDropDownButtonFormField(
           height: 40,
           width: 203,
@@ -89,8 +111,29 @@ class _BookingListState extends State<BookingList> {
           dropDownValue: _bookingListBloc.selectedPaymentType,
           onChange: (String? newValue) {
             _bookingListBloc.selectedPaymentType = newValue ?? '';
+            _bookingListBloc.pageNumberUpdateStreamController(0);
           },
         );
+      },
+    );
+  }
+
+  Widget _buildAddBookButton() {
+    return CustomElevatedButton(
+      height: 40,
+      width: 189,
+      text: AppConstants.addBook,
+      fontSize: 14,
+      buttonBackgroundColor: _appColors.primaryColor,
+      fontColor: _appColors.whiteColor,
+      suffixIcon: SvgPicture.asset(AppConstants.icAdd),
+      onPressed: () {
+        showDialog(
+          context: context,
+          builder: (context) => const AddBookingDialog(),
+        ).then((value) {
+          _bookingListBloc.pageNumberUpdateStreamController(0);
+        });
       },
     );
   }
@@ -130,7 +173,9 @@ class _BookingListState extends State<BookingList> {
     );
   }
 
-  void _searchFilters() {}
+  void _searchFilters() {
+    _bookingListBloc.pageNumberUpdateStreamController(0);
+  }
 
   void _checkController(String hintText) {
     if (AppConstants.bookingId == hintText) {
@@ -139,6 +184,152 @@ class _BookingListState extends State<BookingList> {
       _bookingListBloc.customerFieldStream(true);
     }
   }
+
+  Widget _buildBookingListTable() {
+    return StreamBuilder(
+      stream: _bookingListBloc.pageNumberStream,
+      builder: (context, streamSnapShot) {
+        int currentPage = streamSnapShot.data ?? 0;
+        if (currentPage < 0) currentPage = 0;
+        _bookingListBloc.currentPage = currentPage;
+        return FutureBuilder(
+          future: _bookingListBloc.getBookingListWithPagination(),
+          builder: (context, snapshot) {
+            List<BookingDetails> bookingDetails =
+                snapshot.data?.bookingDetails ?? [];
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Expanded(
+                  child: Center(child: AppWidgetUtils.buildLoading()));
+            } else if (snapshot.hasData) {
+              GetBookingListWithPagination? bookingList = snapshot.data;
+
+              return Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    SingleChildScrollView(
+                      scrollDirection: Axis.vertical,
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: DataTable(
+                            columns: _buildBookingListTableColumns(),
+                            rows: _buildBookingListTableRows(bookingDetails)),
+                      ),
+                    ),
+                    CustomPagination(
+                      itemsOnLastPage: bookingList?.totalElements ?? 0,
+                      currentPage: currentPage,
+                      totalPages: bookingList?.totalPages ?? 0,
+                      onPageChanged: (pageValue) {
+                        _bookingListBloc
+                            .pageNumberUpdateStreamController(pageValue);
+                      },
+                    ),
+                  ],
+                ),
+              );
+            } else {
+              return Expanded(
+                  child:
+                      Center(child: SvgPicture.asset(AppConstants.imgNoData)));
+            }
+          },
+        );
+      },
+    );
+  }
+
+  List<DataColumn> _buildBookingListTableColumns() {
+    return [
+      _buildTableHeader(AppConstants.sno, flex: 1),
+      _buildTableHeader(AppConstants.bookingId, flex: 2),
+      _buildTableHeader(AppConstants.date, flex: 2),
+      _buildTableHeader(AppConstants.customerName, flex: 2),
+      _buildTableHeader(AppConstants.vehicleName, flex: 2),
+      _buildTableHeader(AppConstants.additionalInfo, flex: 2),
+      _buildTableHeader(AppConstants.paymentType, flex: 2),
+      _buildTableHeader(AppConstants.amount, flex: 2),
+      _buildTableHeader(AppConstants.executiveName, flex: 2),
+      _buildTableHeader(AppConstants.targetInvDate, flex: 2),
+      _buildTableHeader(AppConstants.action, flex: 2),
+    ];
+  }
+
+  List<DataRow> _buildBookingListTableRows(
+      List<BookingDetails> bookingDetails) {
+    return bookingDetails.asMap().entries.map((entry) {
+      return DataRow(
+        color: MaterialStateColor.resolveWith((states) {
+          if (entry.key % 2 == 0) {
+            return Colors.white;
+          } else {
+            return _appColors.transparentBlueColor;
+          }
+        }),
+        cells: [
+          DataCell(Text('${entry.key + 1}')),
+          DataCell(Text(entry.value.bookingNo ?? '')),
+          DataCell(Text(
+              AppUtils.apiToAppDateFormat(entry.value.bookingDate.toString()))),
+          DataCell(Text(entry.value.customerName ?? '')),
+          DataCell(Text(entry.value.itemName ?? '')),
+          DataCell(Text(entry.value.additionalInfo ?? '')),
+          DataCell(Text(entry.value.paidDetail?.paymentType ?? '')),
+          DataCell(Text(AppUtils.formatCurrency(
+              entry.value.paidDetail?.paidAmount?.toDouble() ?? 0))),
+          DataCell(Text(entry.value.executiveName ?? '')),
+          DataCell(Text(
+              AppUtils.apiToAppDateFormat(entry.value.bookingDate.toString()))),
+          DataCell(_buildPopMenuItem(context, entry)),
+        ],
+      );
+    }).toList();
+  }
+
+  Widget _buildPopMenuItem(
+    BuildContext context,
+    MapEntry<int, BookingDetails> entry,
+  ) {
+    return Row(
+      children: [
+        PopupMenuButton(
+          surfaceTintColor: _appColors.whiteColor,
+          icon: const Icon(Icons.more_vert),
+          itemBuilder: (BuildContext context) {
+            return <PopupMenuEntry>[
+              const PopupMenuItem(
+                value: 'option1',
+                child: Text('View'),
+              ),
+              const PopupMenuItem(
+                value: 'option2',
+                child: Text('Edit'),
+              ),
+            ];
+          },
+          onSelected: (value) {
+            switch (value) {
+              case 'option1':
+                break;
+              case 'option2':
+                break;
+            }
+          },
+        ),
+      ],
+    );
+  }
+
+  DataColumn _buildTableHeader(String headerValue, {int flex = 1}) =>
+      DataColumn(
+        label: Expanded(
+          child: Text(
+            headerValue,
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+        ),
+      );
 
   Widget _buildDefaultWidth({double? width}) {
     return AppWidgetUtils.buildSizedBox(

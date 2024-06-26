@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:tlbilling/api_service/app_service_utils.dart';
+import 'package:tlbilling/models/get_model/get_all_booking_list_with_pagination.dart';
 import 'package:tlbilling/models/get_model/get_configuration_model.dart';
 import 'package:tlbilling/utils/app_constants.dart';
 
@@ -19,6 +20,14 @@ abstract class BookingListBloc {
   String? get selectedPaymentType;
 
   Future<GetConfigurationModel?> getPaymentsList();
+
+  Future<GetBookingListWithPagination?> getBookingListWithPagination();
+
+  Stream<bool> get bookingTableStream;
+
+  int get currentPage;
+
+  Stream<int> get pageNumberStream;
 }
 
 class BookingListBlocImpl extends BookingListBloc {
@@ -28,7 +37,10 @@ class BookingListBlocImpl extends BookingListBloc {
   final _bookingIdFieldStreamController = StreamController.broadcast();
   final _customerFieldStreamController = StreamController.broadcast();
   final _paymentTypeFieldStreamController = StreamController.broadcast();
+  final _bookingTableStreamController = StreamController<bool>.broadcast();
   String? _selectedPaymentType;
+  int _currentPage = 0;
+  final _pageNumberStreamController = StreamController<int>.broadcast();
 
   @override
   Stream get bookingIdFieldStreamController =>
@@ -70,5 +82,35 @@ class BookingListBlocImpl extends BookingListBloc {
 
   set selectedPaymentType(String? newPaymentValue) {
     _selectedPaymentType = newPaymentValue;
+  }
+
+  @override
+  Future<GetBookingListWithPagination?> getBookingListWithPagination() async {
+    return await _appServices.getBookingListWithPagination(
+        _currentPage,
+        bookingIdTextController.text,
+        customerTextController.text,
+        selectedPaymentType);
+  }
+
+  @override
+  Stream<bool> get bookingTableStream => _bookingTableStreamController.stream;
+
+  bookingTableStreamControler(bool value) {
+    _bookingTableStreamController.add(value);
+  }
+
+  @override
+  int get currentPage => _currentPage;
+
+  set currentPage(int value) {
+    _currentPage = value;
+  }
+
+  @override
+  Stream<int> get pageNumberStream => _pageNumberStreamController.stream;
+
+  pageNumberUpdateStreamController(int streamValue) {
+    _pageNumberStreamController.add(streamValue);
   }
 }

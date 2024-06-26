@@ -398,7 +398,6 @@ class _CreateBranchDialogState extends State<CreateBranchDialog> {
         .then((value) {
           _createBranchDialogBlocImpl.mainBranchName = value?.branchName ?? '';
         });
-    setState(() {});
   }
 
   _isLoading(bool? isLoadingState) {

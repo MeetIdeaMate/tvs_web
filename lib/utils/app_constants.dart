@@ -296,7 +296,8 @@ class AppConstants {
   static const transferStatus = 'transferStatus';
   static const youWantToUpdateTheStatus = 'You want to update the status?';
   static const stockTransferUpdate = 'Stock transfer update';
-  static const stockTransferUpdateSuccessfully = 'Stock transfer update successfully';
+  static const stockTransferUpdateSuccessfully =
+      'Stock transfer update successfully';
 
   //voucher/receipt
   static const voucher = 'Voucher';
@@ -475,6 +476,12 @@ class AppConstants {
   //booking
   static const bookingId = 'Booking Id';
   static const payments = 'Payments';
+  static const paymentTypes = 'paymentType';
+  static const additionalInfo = 'Additional Info';
+  static const executiveName = 'Executive Name';
+  static const targetInvDate = 'Target Inv Date';
+  static const addBook = 'Add Book';
+  static const newBooking = 'New Booking';
 
   //insurnse
 
@@ -522,5 +529,13 @@ class AppConstants {
   static const String purchaseApproveError = 'The Purchase bill Not Approved';
   static const String purchaseApproveErrorDesc =
       'The Purchase bill Not Approved something went wrong';
-  static const String purchaseTableVerifyMsg = 'Add Purchase Value to the table to view';
+  static const String purchaseTableVerifyMsg =
+      'Add Purchase Value to the table to view';
+
+  static const String bookingCreated = 'Vehicle booked successfully';
+  static const String bookingCreatedDes =
+      'Vehicle you book is created and saved';
+  static const String bookingCreatedErr = 'Vehicle booked Not created';
+  static const String bookingCreatedErrDec =
+      'Vehicle booked Not created Somthing went wrong';
 }
