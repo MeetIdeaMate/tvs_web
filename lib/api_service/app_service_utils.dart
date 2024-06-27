@@ -34,6 +34,7 @@ import 'package:tlbilling/models/post_model/add_new_transfer.dart';
 import 'package:tlbilling/models/post_model/add_purchase_model.dart';
 import 'package:tlbilling/models/post_model/add_sales_model.dart';
 import 'package:tlbilling/models/post_model/add_transport_model.dart';
+import 'package:tlbilling/models/post_model/add_vouchar_model.dart';
 import 'package:tlbilling/models/update/update_branch_model.dart';
 import 'package:tlbilling/models/user_model.dart';
 import 'package:tlbilling/utils/app_constants.dart';
@@ -125,6 +126,8 @@ abstract class AppServiceUtil {
 
   Future<void> onboardNewEmployee(
       AddEmployeeModel empObj, Function(int? statusCode) statusCode);
+  Future<void> addNewVouchar(
+      AddVocuhar voucharObj, Function(int? statusCode) statusCode);
 
   Future<void> addVendor(
       AddVendorModel vendorObj, Function(int? statusCode) statusCode);
@@ -1446,6 +1449,37 @@ class AppServiceUtilImpl extends AppServiceUtil {
     } catch (e) {
       print('Error adding new sales details: $e');
       onSuccessCallBack(0);
+    }
+  }
+
+  @override
+  Future<void> addNewVouchar(
+      AddVocuhar voucharObj, Function(int? statusCode) statusCode) async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      var token = prefs.getString('token');
+      dio.options.headers['Authorization'] = 'Bearer $token';
+
+      // Log the token for debugging purposes (be cautious with sensitive info in production)
+      print('Token: $token');
+
+      var response =
+          await dio.post(AppUrl.newVouchar, data: jsonEncode(voucharObj));
+
+      // Detailed logging
+      print('Request Data: ${jsonEncode(voucharObj)}');
+      print('Request URL: ${AppUrl.newVouchar}');
+      print('Response Status Code: ${response.statusCode}');
+      print('Response Data: ${response.data}');
+
+      statusCode(response.statusCode);
+    } on DioException catch (e) {
+      // Detailed error logging
+      print('Error Status Code: ${e.response?.statusCode}');
+      print('Error Response Data: ${e.response?.data}');
+      print('Error Message: ${e.message}');
+
+      statusCode(e.response?.statusCode);
     }
   }
 }

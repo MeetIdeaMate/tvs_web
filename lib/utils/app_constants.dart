@@ -378,6 +378,10 @@ class AppConstants {
   static const stockNotCreated = 'Stock Not Created';
   static const stockUpdatedDesc = 'Stock updated and approved';
   static const stockErrorDesc = 'Stock Not Updated Something went wrong';
+  static const VoucharCreate = 'Vouchar Create';
+  static const voucherCreatedSuccessfully = 'Voucher created successfully';
+  static const voucherUpdate = 'Voucher Update';
+  static const voucherUpdatedSuccessfully = 'Voucher updated successfully';
 
   static const purchaseBillEmpty = 'Invoice Data Empty';
   static const purchaseBillDesEmptycerr =

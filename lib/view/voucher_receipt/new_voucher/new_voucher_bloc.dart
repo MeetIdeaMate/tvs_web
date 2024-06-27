@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:tlbilling/api_service/app_service_utils.dart';
 import 'package:tlbilling/models/parent_response_model.dart';
+import 'package:tlbilling/models/post_model/add_vouchar_model.dart';
+import 'package:tlbilling/utils/app_utils.dart';
 
 abstract class NewVoucherBloc {
   TextEditingController get payToTextController;
@@ -14,8 +16,11 @@ abstract class NewVoucherBloc {
   TextEditingController get amountTextController;
 
   Future<ParentResponseModel> getEmployeeName();
+  Future<void> addNewVouchar(Function(int? statusCode) statusCode);
   Stream<bool> get payToTextStream;
   Stream<bool> get giverTextStream;
+
+  GlobalKey<FormState> get formKey;
 }
 
 class NewVoucherBlocImpl extends NewVoucherBloc {
@@ -26,6 +31,7 @@ class NewVoucherBlocImpl extends NewVoucherBloc {
   final _appServiceUtilsImpl = AppServiceUtilImpl();
   final _payToTextStream = StreamController<bool>.broadcast();
   final _giverTextStream = StreamController<bool>.broadcast();
+  final _formKey = GlobalKey<FormState>();
 
   @override
   TextEditingController get payToTextController => _payToTextController;
@@ -58,4 +64,19 @@ class NewVoucherBlocImpl extends NewVoucherBloc {
   giverTextStreamController(bool newValue) {
     _giverTextStream.add(newValue);
   }
+
+  @override
+  Future<void> addNewVouchar(Function(int? statusCode) statusCode) {
+    return _appServiceUtilsImpl.addNewVouchar(
+        AddVocuhar(
+            approvedPay: 'peter',
+            paidAmount: double.tryParse(amountTextController.text) ?? 1000,
+            paidTo: 'prasath',
+            reason: '',
+            voucherDate: '27-06-2024'),
+        statusCode);
+  }
+
+  @override
+  GlobalKey<FormState> get formKey => _formKey;
 }
