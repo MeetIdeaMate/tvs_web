@@ -54,6 +54,10 @@ abstract class AddSalesBloc {
   Stream<bool> get selectedSalesStreamItems;
   Map<int, String> get unitRates;
 
+  Map<int, String> get splitPaymentAmt;
+
+  Map<int, String> get paymentName;
+
   Map<int, String> get accessoriesQty;
 
   int get salesIndex;
@@ -128,6 +132,7 @@ class AddSalesBlocImpl extends AddSalesBloc {
   final Map<int, String> _unitRate = {};
   final Map<int, String> _accessoriesQty = {};
   final Map<String, String> _batteryDetailsMap = {};
+  final Map<int, String> _paymentName = {};
 
   final _hsnCodeTextController = TextEditingController();
   final _cgstPresentageTextController = TextEditingController();
@@ -150,6 +155,8 @@ class AddSalesBlocImpl extends AddSalesBloc {
   String? _branchId;
 
   List<String> selectedVehicleList = [];
+
+  final Map<int, String> _splitPaymentAmt = {};
 
   final _selectedItemStreamController = StreamController.broadcast();
   List<GetAllStockDetails>? selectedVehiclesList = [];
@@ -693,4 +700,10 @@ class AddSalesBlocImpl extends AddSalesBloc {
   Future<GetConfigurationModel?> getPaymentsList() async {
     return await _apiServices.getConfigById(AppConstants.paymentTypes);
   }
+
+  @override
+  Map<int, String> get splitPaymentAmt => _splitPaymentAmt;
+
+  @override
+  Map<int, String> get paymentName => _paymentName;
 }
