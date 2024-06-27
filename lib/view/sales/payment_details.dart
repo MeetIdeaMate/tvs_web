@@ -715,18 +715,24 @@ class _PaymentDetailsState extends State<PaymentDetails> {
     }
 
     List<Incentive> insentive = [];
-    insentive.add(Incentive(
-        incentiveAmount: double.tryParse(
-                widget.addSalesBloc.stateIncentiveTextController.text) ??
-            0,
-        incentiveName: 'STATE INCENTIVE',
-        percentage: 0));
-    insentive.add(Incentive(
-        incentiveAmount: double.tryParse(
-                widget.addSalesBloc.stateIncentiveTextController.text) ??
-            0,
-        incentiveName: 'EMPS INCENTIVE',
-        percentage: 0));
+    if (widget.addSalesBloc.stateIncentiveTextController.text.isNotEmpty) {
+      insentive.add(Incentive(
+          incentiveAmount: double.tryParse(
+                  widget.addSalesBloc.stateIncentiveTextController.text) ??
+              0,
+          incentiveName: 'STATE INCENTIVE',
+          percentage: 0));
+    }
+
+    if (widget.addSalesBloc.empsIncentiveTextController.text.isNotEmpty) {
+      insentive.add(Incentive(
+          incentiveAmount: double.tryParse(
+                  widget.addSalesBloc.empsIncentiveTextController.text) ??
+              0,
+          incentiveName: 'EMPS INCENTIVE',
+          percentage: 0));
+    }
+
     List<Tax> tax = [];
     if (widget.addSalesBloc.selectedVehiclesList!.isNotEmpty) {
       for (var itemData in widget.addSalesBloc.selectedVehiclesList!) {
@@ -784,7 +790,7 @@ class _PaymentDetailsState extends State<PaymentDetails> {
     }
 
     return AddSalesModel(
-        billType: '',
+        billType: 'Credit',
         bookingNo: '',
         branchId: widget.addSalesBloc.branchId ?? '',
         customerId: widget.addSalesBloc.selectedCustomerId ?? '',
@@ -800,17 +806,20 @@ class _PaymentDetailsState extends State<PaymentDetails> {
             insuredAmt: 0,
             insuredDate: '',
             invoiceNo: ''),
-        invoiceDate: '',
-        invoiceType: '',
+        invoiceDate: DateTime.now().toIso8601String(),
+        invoiceType: widget.addSalesBloc.selectedVehicleAndAccessories,
         itemDetails: itemdetails,
         loaninfo: Loaninfo(bankName: '', loanAmt: 0, loanId: ''),
         mandatoryAddons: mandatoryAddonsMap,
         netAmt: 0,
         paidDetails: [
           PaidDetail(
-              paidAmount: 0, paymentDate: '', paymentId: '', paymentType: '')
+              paidAmount:
+                  double.parse(widget.addSalesBloc.totalInvAmount.toString()),
+              paymentDate: DateTime.now().toIso8601String(),
+              paymentType: 'CASH')
         ],
-        paymentStatus: '',
+        paymentStatus: 'COMPLETED',
         roundOffAmt:
             double.parse(widget.addSalesBloc.totalInvAmount.toString()),
         totalQty: widget.addSalesBloc.selectedVehiclesList?.length ??

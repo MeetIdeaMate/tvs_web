@@ -1,10 +1,10 @@
 class EvBatteryObj {
-  double evBatteryCapacity;
-  String evBatteryName;
+  double? evBatteryCapacity;
+  String? evBatteryName;
 
   EvBatteryObj({
-    required this.evBatteryCapacity,
-    required this.evBatteryName,
+    this.evBatteryCapacity,
+    this.evBatteryName,
   });
 
   Map<String, dynamic> toJson() => {
@@ -14,20 +14,20 @@ class EvBatteryObj {
 }
 
 class InsuranceObj {
-  String expiryDate;
-  String insuranceCompanyName;
-  String insuranceId;
-  double insuredAmt;
-  String insuredDate;
-  String invoiceNo;
+  String? expiryDate;
+  String? insuranceCompanyName;
+  String? insuranceId;
+  double? insuredAmt;
+  String? insuredDate;
+  String? invoiceNo;
 
   InsuranceObj({
-    required this.expiryDate,
-    required this.insuranceCompanyName,
-    required this.insuranceId,
-    required this.insuredAmt,
-    required this.insuredDate,
-    required this.invoiceNo,
+    this.expiryDate,
+    this.insuranceCompanyName,
+    this.insuranceId,
+    this.insuredAmt,
+    this.insuredDate,
+    this.invoiceNo,
   });
 
   Map<String, dynamic> toJson() => {
@@ -41,14 +41,14 @@ class InsuranceObj {
 }
 
 class GstDetail {
-  double gstAmount;
-  String gstName;
-  double percentage;
+  double? gstAmount;
+  String? gstName;
+  double? percentage;
 
   GstDetail({
-    required this.gstAmount,
-    required this.gstName,
-    required this.percentage,
+    this.gstAmount,
+    this.gstName,
+    this.percentage,
   });
 
   Map<String, dynamic> toJson() => {
@@ -59,14 +59,14 @@ class GstDetail {
 }
 
 class Incentive {
-  double incentiveAmount;
-  String incentiveName;
-  double percentage;
+  double? incentiveAmount;
+  String? incentiveName;
+  double? percentage;
 
   Incentive({
-    required this.incentiveAmount,
-    required this.incentiveName,
-    required this.percentage,
+    this.incentiveAmount,
+    this.incentiveName,
+    this.percentage,
   });
 
   Map<String, dynamic> toJson() => {
@@ -77,51 +77,51 @@ class Incentive {
 }
 
 class SalesItemDetail {
-  String categoryId;
-  double discount;
-  double finalInvoiceValue;
-  List<GstDetail> gstDetails;
-  String hsnSacCode;
-  List<Incentive> incentives;
-  double invoiceValue;
-  String itemName;
-  Map<String, String> mainSpecValue;
-  String partNo;
-  int quantity;
-  Map<String, String> specificationsValue;
-  String stockId;
-  double taxableValue;
-  List<Tax> taxes;
-  double unitRate;
-  double value;
+  String? categoryId;
+  double? discount;
+  double? finalInvoiceValue;
+  List<GstDetail>? gstDetails;
+  String? hsnSacCode;
+  List<Incentive>? incentives;
+  double? invoiceValue;
+  String? itemName;
+  Map<String, String>? mainSpecValue;
+  String? partNo;
+  int? quantity;
+  Map<String, String>? specificationsValue;
+  String? stockId;
+  double? taxableValue;
+  List<Tax>? taxes;
+  double? unitRate;
+  double? value;
 
   SalesItemDetail({
-    required this.categoryId,
-    required this.discount,
-    required this.finalInvoiceValue,
-    required this.gstDetails,
-    required this.hsnSacCode,
-    required this.incentives,
-    required this.invoiceValue,
-    required this.itemName,
-    required this.mainSpecValue,
-    required this.partNo,
-    required this.quantity,
-    required this.specificationsValue,
-    required this.stockId,
-    required this.taxableValue,
-    required this.taxes,
-    required this.unitRate,
-    required this.value,
+    this.categoryId,
+    this.discount,
+    this.finalInvoiceValue,
+    this.gstDetails,
+    this.hsnSacCode,
+    this.incentives,
+    this.invoiceValue,
+    this.itemName,
+    this.mainSpecValue,
+    this.partNo,
+    this.quantity,
+    this.specificationsValue,
+    this.stockId,
+    this.taxableValue,
+    this.taxes,
+    this.unitRate,
+    this.value,
   });
 
   Map<String, dynamic> toJson() => {
         'categoryId': categoryId,
         'discount': discount,
         'finalInvoiceValue': finalInvoiceValue,
-        'gstDetails': gstDetails.map((x) => x.toJson()).toList(),
+        'gstDetails': gstDetails?.map((x) => x.toJson()).toList(),
         'hsnSacCode': hsnSacCode,
-        'incentives': incentives.map((x) => x.toJson()).toList(),
+        'incentives': incentives?.map((x) => x.toJson()).toList(),
         'invoiceValue': invoiceValue,
         'itemName': itemName,
         'mainSpecValue': mainSpecValue,
@@ -130,21 +130,21 @@ class SalesItemDetail {
         'specificationsValue': specificationsValue,
         'stockId': stockId,
         'taxableValue': taxableValue,
-        'taxes': taxes.map((x) => x.toJson()).toList(),
+        'taxes': taxes?.map((x) => x.toJson()).toList(),
         'unitRate': unitRate,
         'value': value,
       };
 }
 
 class Tax {
-  double percentage;
-  double taxAmount;
-  String taxName;
+  double? percentage;
+  double? taxAmount;
+  String? taxName;
 
   Tax({
-    required this.percentage,
-    required this.taxAmount,
-    required this.taxName,
+    this.percentage,
+    this.taxAmount,
+    this.taxName,
   });
 
   Map<String, dynamic> toJson() => {
@@ -155,14 +155,14 @@ class Tax {
 }
 
 class Loaninfo {
-  String bankName;
-  double loanAmt;
-  String loanId;
+  String? bankName;
+  double? loanAmt;
+  String? loanId;
 
   Loaninfo({
-    required this.bankName,
-    required this.loanAmt,
-    required this.loanId,
+    this.bankName,
+    this.loanAmt,
+    this.loanId,
   });
 
   Map<String, dynamic> toJson() => {
@@ -173,16 +173,16 @@ class Loaninfo {
 }
 
 class PaidDetail {
-  double paidAmount;
-  String paymentDate;
-  String paymentId;
-  String paymentType;
+  double? paidAmount;
+  String? paymentDate;
+  String? paymentId;
+  String? paymentType;
 
   PaidDetail({
-    required this.paidAmount,
-    required this.paymentDate,
-    required this.paymentId,
-    required this.paymentType,
+    this.paidAmount,
+    this.paymentDate,
+    this.paymentId,
+    this.paymentType,
   });
 
   Map<String, dynamic> toJson() => {
@@ -194,40 +194,40 @@ class PaidDetail {
 }
 
 class AddSalesModel {
-  String billType;
-  String bookingNo;
-  String branchId;
-  String customerId;
-  EvBatteryObj evBattery;
-  InsuranceObj insurance;
-  String invoiceDate;
-  String invoiceType;
-  List<SalesItemDetail> itemDetails;
-  Loaninfo loaninfo;
-  Map<String, String> mandatoryAddons;
-  double netAmt;
-  List<PaidDetail> paidDetails;
-  String paymentStatus;
-  double roundOffAmt;
-  int totalQty;
+  String? billType;
+  String? bookingNo;
+  String? branchId;
+  String? customerId;
+  EvBatteryObj? evBattery;
+  InsuranceObj? insurance;
+  String? invoiceDate;
+  String? invoiceType;
+  List<SalesItemDetail>? itemDetails;
+  Loaninfo? loaninfo;
+  Map<String, String>? mandatoryAddons;
+  double? netAmt;
+  List<PaidDetail>? paidDetails;
+  String? paymentStatus;
+  double? roundOffAmt;
+  int? totalQty;
 
   AddSalesModel({
-    required this.billType,
-    required this.bookingNo,
-    required this.branchId,
-    required this.customerId,
-    required this.evBattery,
-    required this.insurance,
-    required this.invoiceDate,
-    required this.invoiceType,
-    required this.itemDetails,
-    required this.loaninfo,
-    required this.mandatoryAddons,
-    required this.netAmt,
-    required this.paidDetails,
-    required this.paymentStatus,
-    required this.roundOffAmt,
-    required this.totalQty,
+    this.billType,
+    this.bookingNo,
+    this.branchId,
+    this.customerId,
+    this.evBattery,
+    this.insurance,
+    this.invoiceDate,
+    this.invoiceType,
+    this.itemDetails,
+    this.loaninfo,
+    this.mandatoryAddons,
+    this.netAmt,
+    this.paidDetails,
+    this.paymentStatus,
+    this.roundOffAmt,
+    this.totalQty,
   });
 
   Map<String, dynamic> toJson() => {
@@ -235,15 +235,15 @@ class AddSalesModel {
         'bookingNo': bookingNo,
         'branchId': branchId,
         'customerId': customerId,
-        'evBattery': evBattery.toJson(),
-        'insurance': insurance.toJson(),
+        'evBattery': evBattery?.toJson(),
+        'insurance': insurance?.toJson(),
         'invoiceDate': invoiceDate,
         'invoiceType': invoiceType,
-        'itemDetails': itemDetails.map((x) => x.toJson()).toList(),
-        'loaninfo': loaninfo.toJson(),
+        'itemDetails': itemDetails?.map((x) => x.toJson()).toList(),
+        'loaninfo': loaninfo?.toJson(),
         'mandatoryAddons': mandatoryAddons,
         'netAmt': netAmt,
-        'paidDetails': paidDetails.map((x) => x.toJson()).toList(),
+        'paidDetails': paidDetails?.map((x) => x.toJson()).toList(),
         'paymentStatus': paymentStatus,
         'roundOffAmt': roundOffAmt,
         'totalQty': totalQty,
