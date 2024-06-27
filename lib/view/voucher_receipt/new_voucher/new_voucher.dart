@@ -1,3 +1,4 @@
+import 'package:blurry_modal_progress_hud/blurry_modal_progress_hud.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
@@ -10,6 +11,7 @@ import 'package:tlbilling/view/employee/create_employee_dialog.dart';
 import 'package:tlbilling/view/voucher_receipt/new_voucher/new_voucher_bloc.dart';
 import 'package:tlbilling/view/voucher_receipt/vouecher_receipt_list_bloc.dart';
 import 'package:tlds_flutter/components/tlds_input_form_field.dart';
+import 'package:toastification/toastification.dart';
 
 class NewVoucher extends StatefulWidget {
   final VoucherReceiptListBlocImpl? blocInstance;
@@ -23,27 +25,41 @@ class NewVoucher extends StatefulWidget {
 class _NewVoucherState extends State<NewVoucher> {
   final _newVoucherBloc = NewVoucherBlocImpl();
   final _appColors = AppColors();
+  bool _isLoading = false;
+
+  void _isLoadingState({required bool state}) {
+    setState(() {
+      _isLoading = state;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      backgroundColor: _appColors.whiteColor,
-      surfaceTintColor: _appColors.whiteColor,
-      content: SizedBox(
-        width: MediaQuery.sizeOf(context).width * 0.4,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _buildHeader(),
-            const Divider(),
-            _buildDefaultHeight(),
-            _buildPayToAndDate(),
-            _buildDefaultHeight(),
-            _buildGiverAndAmount(),
-          ],
+    return BlurryModalProgressHUD(
+      inAsyncCall: _isLoading,
+      progressIndicator: AppWidgetUtils.buildLoading(),
+      child: AlertDialog(
+        backgroundColor: _appColors.whiteColor,
+        surfaceTintColor: _appColors.whiteColor,
+        content: SizedBox(
+          width: MediaQuery.sizeOf(context).width * 0.4,
+          child: Form(
+            key: _newVoucherBloc.formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _buildHeader(),
+                const Divider(),
+                _buildDefaultHeight(),
+                _buildPayToAndDate(),
+                _buildDefaultHeight(),
+                _buildGiverAndAmount(),
+              ],
+            ),
+          ),
         ),
+        actions: [_buildActionButton()],
       ),
-      actions: [_buildActionButton()],
     );
   }
 
@@ -172,7 +188,7 @@ class _NewVoucherState extends State<NewVoucher> {
               icon: SvgPicture.asset(AppConstants.icDate)),
           validator: (value) {
             if (value == null || value.isEmpty) {
-              return 'Enter Appointment Date';
+              return 'Enter Invoice Date';
             }
             return null;
           },
@@ -266,7 +282,44 @@ class _NewVoucherState extends State<NewVoucher> {
   }
 
   Widget _buildActionButton() {
-    return CustomActionButtons(onPressed: () {}, buttonText: AppConstants.save);
+    return CustomActionButtons(
+        onPressed: () {
+          if (_newVoucherBloc.formKey.currentState!.validate()) {
+            // _isLoadingState(state: true);
+            _newVoucherBloc.addNewVouchar(
+              (statusCode) {
+                print(' statusCode $statusCode');
+                if (statusCode == 200 || statusCode == 201) {
+                  // _isLoadingState(state: false);
+                  Navigator.pop(context);
+                  AppWidgetUtils.buildToast(
+                      context,
+                      ToastificationType.success,
+                      AppConstants.VoucharCreate,
+                      Icon(
+                        Icons.check_circle_outline_rounded,
+                        color: _appColors.successColor,
+                      ),
+                      AppConstants.voucherCreatedSuccessfully,
+                      _appColors.successLightColor);
+                } else {
+                  //  _isLoadingState(state: false);
+                  AppWidgetUtils.buildToast(
+                      context,
+                      ToastificationType.error,
+                      AppConstants.VoucharCreate,
+                      Icon(
+                        Icons.error_outline_outlined,
+                        color: _appColors.errorColor,
+                      ),
+                      AppConstants.somethingWentWrong,
+                      _appColors.errorLightColor);
+                }
+              },
+            );
+          }
+        },
+        buttonText: AppConstants.save);
   }
 
   Future<void> _selectDate(

@@ -10,6 +10,7 @@ class AppUrl {
   static const config = '${baseUrl}config/';
   static const newUserOnboard = '${baseUrl}user';
   static const newEmployeeOnBoard = '${baseUrl}employee';
+  static const newVouchar = '${baseUrl}voucher';
   static const employee = '${baseUrl}employee';
   static const employeeByPagination = '${baseUrl}employee/getByPagination?';
   static const updateUserStatus = '${baseUrl}user/status/';
