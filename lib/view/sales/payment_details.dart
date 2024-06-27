@@ -608,34 +608,70 @@ class _PaymentDetailsState extends State<PaymentDetails> {
     );
   }
 
+  List<bool> _checkedList = [];
   _buildSplitPayment() {
     return Column(
       children: [
         StreamBuilder<bool>(
-            stream: widget.addSalesBloc.isSplitPaymentStream,
-            builder: (context, snapshot) {
-              return Row(
-                children: [
-                  Switch(
-                    value: widget.addSalesBloc.isSplitPayment,
-                    onChanged: (value) {
+          stream: widget.addSalesBloc.isSplitPaymentStream,
+          builder: (context, snapshot) {
+            return Row(
+              children: [
+                Switch(
+                  value: snapshot.data ?? widget.addSalesBloc.isSplitPayment,
+                  onChanged: (value) {
+                    setState(() {
                       widget.addSalesBloc.isSplitPayment = value;
-                      widget.addSalesBloc.isSplitPaymentStreamController(true);
+                    });
+                  },
+                ),
+                const Text(
+                  AppConstants.splitPayment,
+                  style: TextStyle(fontSize: 16),
+                ),
+              ],
+            );
+          },
+        ),
+        Visibility(
+          visible: widget.addSalesBloc.isSplitPayment,
+          child: FutureBuilder(
+            future: widget.addSalesBloc.getPaymentsList(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return Center(child: CircularProgressIndicator());
+              } else if (snapshot.hasError) {
+                return Center(child: Text('Error: ${snapshot.error}'));
+              } else if (!snapshot.hasData) {
+                return Center(
+                    child: Text('No payment configurations available'));
+              } else {
+                if (_checkedList.isEmpty) {
+                  _checkedList = List<bool>.filled(
+                      snapshot.data?.configuration?.length ?? 0, false);
+                }
+                return Expanded(
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: snapshot.data?.configuration?.length,
+                    itemBuilder: (context, index) {
+                      return CheckboxListTile(
+                        title: Text(snapshot.data?.configuration?[index] ?? ''),
+                        value: _checkedList[index],
+                        onChanged: (newValue) {
+                          setState(() {
+                            _checkedList[index] = newValue ?? false;
+                          });
+                        },
+                        controlAffinity: ListTileControlAffinity.leading,
+                      );
                     },
                   ),
-                  const Text(
-                    AppConstants.splitPayment,
-                    style: TextStyle(fontSize: 16),
-                  )
-                ],
-              );
-            }),
-        // CheckboxListTile(
-        //   title: const Text("title text"),
-        //   value: true,
-        //   onChanged: (newValue) {},
-        //   controlAffinity: ListTileControlAffinity.leading,
-        // )
+                );
+              }
+            },
+          ),
+        )
       ],
     );
   }

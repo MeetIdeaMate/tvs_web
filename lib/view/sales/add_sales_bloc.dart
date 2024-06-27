@@ -5,6 +5,7 @@ import 'package:tlbilling/models/get_model/get_all_category_model.dart';
 import 'package:tlbilling/models/get_model/get_all_customer_name_list.dart';
 import 'package:tlbilling/models/get_model/get_all_customers_model.dart';
 import 'package:tlbilling/models/get_model/get_all_stocks_model.dart';
+import 'package:tlbilling/models/get_model/get_configuration_model.dart';
 import 'package:tlbilling/models/parent_response_model.dart';
 import 'package:tlbilling/models/post_model/add_sales_model.dart' as sales;
 import 'package:tlbilling/models/post_model/add_sales_model.dart';
@@ -88,6 +89,7 @@ abstract class AddSalesBloc {
   Future<List<String>> getPaymentmethods();
   Future<List<String>> getBatteryDetails();
   Future<List<String>> getMandantoryAddOns();
+  Future<GetConfigurationModel?> getPaymentsList();
   Stream<List<GetAllStockDetails>> get vehicleListStream;
 // List<Map<String, String>> get vehicleData;
   List<GetAllStockDetails> get filteredVehicleData;
@@ -686,4 +688,9 @@ class AddSalesBlocImpl extends AddSalesBloc {
 
   @override
   Map<String, String> get batteryDetailsMap => _batteryDetailsMap;
+
+  @override
+  Future<GetConfigurationModel?> getPaymentsList() async {
+    return await _apiServices.getConfigById(AppConstants.paymentTypes);
+  }
 }
