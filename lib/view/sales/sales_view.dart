@@ -25,37 +25,6 @@ class _SalesViewScreenState extends State<SalesViewScreen>
     with SingleTickerProviderStateMixin {
   final _salesViewBloc = SalesViewBlocImpl();
   final _appColors = AppColor();
-  List<Map<String, String>> rowData = [
-    {
-      AppConstants.sno: '1',
-      AppConstants.invoiceNo: 'INV-1234',
-      AppConstants.invoiceDate: '16-05-24',
-      AppConstants.customerId: 'CUS-4567',
-      AppConstants.customerName: 'Ajith Kumar',
-      AppConstants.mobileNumber: '+91 9876543210',
-      AppConstants.paymentType: 'CASH',
-      AppConstants.totalInvAmount: '₹ 1,000,00',
-      AppConstants.pendingInvAmt: '₹ 1,000,00',
-      AppConstants.balanceAmt: '₹ 1,000,00',
-      AppConstants.status: 'Pending',
-      AppConstants.createdBy: 'Admin',
-    },
-    {
-      AppConstants.sno: '2',
-      AppConstants.invoiceNo: 'INV-1234',
-      AppConstants.invoiceDate: '16-05-24',
-      AppConstants.customerId: 'CUS-4567',
-      AppConstants.customerName: 'Senthil',
-      AppConstants.mobileNumber: '+91 4567898768',
-      AppConstants.paymentType: 'CASH',
-      AppConstants.totalInvAmount: '₹ 1,000,00',
-      AppConstants.pendingInvAmt: '₹ 1,000,00',
-      AppConstants.balanceAmt: '₹ 1,000,00',
-      AppConstants.status: 'Completed',
-      AppConstants.createdBy: 'Admin',
-    },
-  ];
-
   @override
   void initState() {
     super.initState();
@@ -246,7 +215,7 @@ class _SalesViewScreenState extends State<SalesViewScreen>
             if (snapshot.connectionState == ConnectionState.waiting) {
               return Center(child: AppWidgetUtils.buildLoading());
             } else if (!snapshot.hasData) {
-              return Center(child: Text('No data'));
+              return const Center(child: Text('No data'));
             }
             List<Content> salesList = snapshot.data?.content ?? [];
             GetAllSales salesDetails = snapshot.data!;
