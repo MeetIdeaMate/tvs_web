@@ -8,6 +8,7 @@ import 'package:tlbilling/components/custom_pagenation.dart';
 import 'package:tlbilling/models/get_model/get_all_sales_list_model.dart';
 import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/utils/app_util_widgets.dart';
+import 'package:tlbilling/utils/app_utils.dart';
 import 'package:tlbilling/utils/input_formates.dart';
 import 'package:tlbilling/view/sales/add_sales.dart';
 import 'package:tlbilling/view/sales/sales_report_pdf.dart';
@@ -192,16 +193,16 @@ class _SalesViewScreenState extends State<SalesViewScreen>
         physics: const NeverScrollableScrollPhysics(),
         controller: _salesViewBloc.salesTabController,
         children: [
-          _buildCustomerTableView(context),
-          _buildCustomerTableView(context),
-          _buildCustomerTableView(context),
-          _buildCustomerTableView(context),
+          _buildSalesTableView(context),
+          _buildSalesTableView(context),
+          _buildSalesTableView(context),
+          _buildSalesTableView(context),
         ],
       ),
     );
   }
 
-  Widget _buildCustomerTableView(BuildContext context) {
+  Widget _buildSalesTableView(BuildContext context) {
     return StreamBuilder<int>(
       stream: _salesViewBloc.pageNumberStream,
       initialData: _salesViewBloc.currentPage,
@@ -259,18 +260,18 @@ class _SalesViewScreenState extends State<SalesViewScreen>
                               cells: [
                                 DataCell(Text('${entry.key + 1}')),
                                 DataCell(Text(entry.value.invoiceNo ?? '')),
-                                DataCell(
-                                    Text(entry.value.invoiceDate.toString())),
+                                DataCell(Text(AppUtils.apiToAppDateFormat(
+                                    entry.value.invoiceDate.toString()))),
                                 DataCell(Text(entry.value.customerId ?? '')),
                                 DataCell(Text(entry.value.customerName ?? '')),
                                 DataCell(Text(entry.value.mobileNo ?? '')),
                                 DataCell(Text(entry.value.billType.toString())),
-                                DataCell(Text(
-                                    entry.value.totalInvoiceAmt.toString())),
-                                DataCell(
-                                    Text(entry.value.pendingAmt.toString())),
-                                DataCell(
-                                    Text(entry.value.pendingAmt.toString())),
+                                DataCell(Text(AppUtils.formatCurrency(
+                                    entry.value.totalInvoiceAmt!.toDouble()))),
+                                DataCell(Text(AppUtils.formatCurrency(
+                                    entry.value.pendingAmt!.toDouble()))),
+                                DataCell(Text(AppUtils.formatCurrency(
+                                    entry.value.pendingAmt!.toDouble()))),
                                 DataCell(Chip(
                                     label:
                                         Text(entry.value.paymentStatus ?? ''))),
@@ -288,16 +289,18 @@ class _SalesViewScreenState extends State<SalesViewScreen>
                                   ),
                                 ),
                                 DataCell(IconButton(
-                                    onPressed: () async {
-                                      final pdfData =
-                                          await SalesPdfPrinter.generatePdf();
-                                      await Printing.layoutPdf(
-                                        onLayout: (PdfPageFormat format) async {
-                                          return pdfData;
-                                        },
-                                      );
-                                    },
-                                    icon: const Icon(Icons.print))),
+                                  onPressed: () async {
+                                    final pdfData =
+                                        await SalesPdfPrinter.generatePdf(
+                                            entry.value);
+                                    await Printing.layoutPdf(
+                                      onLayout: (PdfPageFormat format) async {
+                                        return pdfData;
+                                      },
+                                    );
+                                  },
+                                  icon: const Icon(Icons.print),
+                                )),
                               ],
                             );
                           }).toList(),
