@@ -14,6 +14,7 @@ abstract class NewVoucherBloc {
   TextEditingController get giverTextController;
 
   TextEditingController get amountTextController;
+  TextEditingController get reasonTextController;
 
   Future<ParentResponseModel> getEmployeeName();
   Future<void> addNewVouchar(Function(int? statusCode) statusCode);
@@ -28,6 +29,7 @@ class NewVoucherBlocImpl extends NewVoucherBloc {
   final _voucherDateTextController = TextEditingController();
   final _giverTextController = TextEditingController();
   final _amountTextController = TextEditingController();
+  final _reasonTextController = TextEditingController();
   final _appServiceUtilsImpl = AppServiceUtilImpl();
   final _payToTextStream = StreamController<bool>.broadcast();
   final _giverTextStream = StreamController<bool>.broadcast();
@@ -69,14 +71,18 @@ class NewVoucherBlocImpl extends NewVoucherBloc {
   Future<void> addNewVouchar(Function(int? statusCode) statusCode) {
     return _appServiceUtilsImpl.addNewVouchar(
         AddVocuhar(
-            approvedPay: 'peter',
-            paidAmount: double.tryParse(amountTextController.text) ?? 1000,
-            paidTo: 'prasath',
-            reason: '',
-            voucherDate: '27-06-2024'),
+            approvedPay: _giverTextController.text,
+            paidAmount: double.tryParse(_amountTextController.text) ?? 0,
+            paidTo: _payToTextController.text,
+            reason: _reasonTextController.text,
+            voucherDate:
+                AppUtils.appToAPIDateFormat(_voucherDateTextController.text)),
         statusCode);
   }
 
   @override
   GlobalKey<FormState> get formKey => _formKey;
+
+  @override
+  TextEditingController get reasonTextController => _reasonTextController;
 }

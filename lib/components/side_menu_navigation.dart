@@ -232,9 +232,9 @@ class _SideMenuNavigationState extends State<SideMenuNavigation> {
               ),
               _buildDrawerMenuItem(
                 AppConstants.icVoucher,
-                AppConstants.voucherReceipt,
+                AppConstants.voucher,
                 () {
-                  _onMenuItemSelected(AppConstants.voucherReceipt);
+                  _onMenuItemSelected(AppConstants.voucher);
                 },
               ),
               _buildDrawerMenuItem(
@@ -350,7 +350,7 @@ class _SideMenuNavigationState extends State<SideMenuNavigation> {
         return const BranchView();
       case AppConstants.reports:
         return const ReportScreen();
-      case AppConstants.voucherReceipt:
+      case AppConstants.voucher:
         return const VoucherReceiptList();
       case AppConstants.configuration:
         return const ConfigurationView();

@@ -1,7 +1,8 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:tlbilling/api_service/app_service_utils.dart';
-import 'package:tlbilling/models/get_model/get_all_vendor_by_pagination_model.dart';
+import 'package:tlbilling/models/get_model/get_all_voucher_with_pagenation.dart';
 import 'package:tlbilling/models/parent_response_model.dart';
 import 'package:tlbilling/utils/app_constants.dart';
 
@@ -17,7 +18,7 @@ abstract class VoucherList {
   int get currentPage;
   Stream<int> get pageNumberStream;
 
-  Future<GetAllVendorByPagination?> getVocherReport();
+  Future<GetAllVoucherWithPagenationModel?> getVocherReport();
 }
 
 class VoucherListBlocImpl extends VoucherList {
@@ -104,7 +105,7 @@ class VoucherListBlocImpl extends VoucherList {
   }
 
   @override
-  Future<GetAllVendorByPagination?> getVocherReport() {
+  Future<GetAllVoucherWithPagenationModel?> getVocherReport() {
     return __appServiceUtilsImpl.getVoucharRecieptList(
         receiptIdTextController.text, selectedEmployee ?? '', currentPage);
   }

@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:tlbilling/components/custom_elevated_button.dart';
 import 'package:tlbilling/components/custom_pagenation.dart';
-import 'package:tlbilling/models/get_model/get_all_vendor_by_pagination_model.dart';
+import 'package:tlbilling/models/get_model/get_all_voucher_with_pagenation.dart';
 import 'package:tlbilling/utils/app_colors.dart';
 import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/utils/app_util_widgets.dart';
-import 'package:tlbilling/view/voucher_receipt/new_receipt/new_receipt.dart';
+import 'package:tlbilling/utils/app_utils.dart';
 import 'package:tlbilling/view/voucher_receipt/new_voucher/new_voucher.dart';
 import 'package:tlbilling/view/voucher_receipt/voucher_list_bloc.dart';
 import 'package:tlbilling/view/voucher_receipt/vouecher_receipt_list_bloc.dart';
@@ -45,13 +45,10 @@ class _VoucherReceiptListState extends State<VoucherReceiptList>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildHeaderText(),
-            _buildTabBar(),
             _buildDefaultHeight(),
             _buildSearchFilters(),
             _buildDefaultHeight(),
-            Expanded(
-              child: _buildTabBarView(),
-            ),
+            Expanded(child: _buildVoucherTableView(context)),
           ],
         ),
       ),
@@ -59,26 +56,26 @@ class _VoucherReceiptListState extends State<VoucherReceiptList>
   }
 
   Widget _buildHeaderText() {
-    return AppWidgetUtils.buildCustomDmSansTextWidget(AppConstants.receipt,
+    return AppWidgetUtils.buildCustomDmSansTextWidget(AppConstants.voucher,
         color: _appColors.primaryColor,
         fontSize: 22,
         fontWeight: FontWeight.w700);
   }
 
-  Widget _buildTabBar() {
-    return SizedBox(
-      width: 250,
-      child: TabBar(
-        isScrollable: false,
-        physics: const NeverScrollableScrollPhysics(),
-        controller: _voucherReceiptBloc.receiptVoucherTabController,
-        tabs: const [
-          Tab(text: AppConstants.receipt),
-          Tab(text: AppConstants.voucher),
-        ],
-      ),
-    );
-  }
+  // Widget _buildTabBar() {
+  //   return SizedBox(
+  //     width: 250,
+  //     child: TabBar(
+  //       isScrollable: false,
+  //       physics: const NeverScrollableScrollPhysics(),
+  //       controller: _voucherReceiptBloc.receiptVoucherTabController,
+  //       tabs: const [
+  //         Tab(text: AppConstants.receipt),
+  //         Tab(text: AppConstants.voucher),
+  //       ],
+  //     ),
+  //   );
+  // }
 
   Widget _buildSearchFilters() {
     return Row(
@@ -93,7 +90,7 @@ class _VoucherReceiptListState extends State<VoucherReceiptList>
               builder: (context, snapshot) {
                 return _buildFormField(
                     _voucherReceiptBloc.receiptIdTextController,
-                    AppConstants.receiptId);
+                    AppConstants.voucherId);
               },
             ),
             AppWidgetUtils.buildSizedBox(custWidth: 15),
@@ -124,6 +121,8 @@ class _VoucherReceiptListState extends State<VoucherReceiptList>
                   hintText: AppConstants.employee,
                   onChange: (String? value) {
                     _voucherReceiptBloc.selectedEmployee = value;
+                    _voucherReceiptBloc.getVocherReport();
+                    _voucherReceiptBloc.pageNumberUpdateStreamController(0);
                   },
                 );
               },
@@ -148,129 +147,110 @@ class _VoucherReceiptListState extends State<VoucherReceiptList>
         showDialog(
           context: context,
           builder: (context) {
-            if (_voucherReceiptBloc.receiptVoucherTabController.index == 0) {
-              return const NewReceipt();
-            } else {
-              return NewVoucher(blocInstance: _voucherReceiptBloc);
-            }
+            return NewVoucher(blocInstance: _voucherReceiptBloc);
           },
-        );
+        ).then((value) {
+          _voucherListBlocImpl.getVocherReport();
+          _voucherListBlocImpl.pageNumberUpdateStreamController(0);
+        });
       },
     );
   }
 
-  Widget _buildTabBarView() {
-    return TabBarView(
-      physics: const NeverScrollableScrollPhysics(),
-      controller: _voucherReceiptBloc.receiptVoucherTabController,
-      children: [
-        _buildTransferTableView(context),
-        _buildVoucherTableView(context),
-      ],
-    );
-  }
+  // Widget _buildTabBarView() {
+  //   return TabBarView(
+  //     physics: const NeverScrollableScrollPhysics(),
+  //     controller: _voucherReceiptBloc.receiptVoucherTabController,
+  //     children: [],
+  //   );
+  // }
 
-  Widget _buildTransferTableView(BuildContext context) {
-    return StreamBuilder<int>(
-      stream: _voucherListBlocImpl.pageNumberStream,
-      initialData: _voucherListBlocImpl.currentPage,
-      builder: (context, streamSnapshot) {
-        int currentPage = streamSnapshot.data ?? 0;
-        if (currentPage < 0) currentPage = 0;
-        _voucherListBlocImpl.currentPage = currentPage;
-        return FutureBuilder<GetAllVendorByPagination?>(
-          future: _voucherListBlocImpl.getVocherReport(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(child: AppWidgetUtils.buildLoading());
-            } else if (snapshot.hasError) {
-              return const Center(child: Text(AppConstants.somethingWentWrong));
-            } else if (!snapshot.hasData) {
-              return Center(child: SvgPicture.asset(AppConstants.imgNoData));
-            }
-            GetAllVendorByPagination receiptListModel = snapshot.data!;
+  // Widget _buildTransferTableView(BuildContext context) {
+  //   return StreamBuilder<int>(
+  //     stream: _voucherListBlocImpl.pageNumberStream,
+  //     initialData: _voucherListBlocImpl.currentPage,
+  //     builder: (context, streamSnapshot) {
+  //       int currentPage = streamSnapshot.data ?? 0;
+  //       if (currentPage < 0) currentPage = 0;
+  //       _voucherListBlocImpl.currentPage = currentPage;
+  //       return FutureBuilder<GetAllVoucherWithPagenationModel?>(
+  //         future: _voucherListBlocImpl.getVocherReport(),
+  //         builder: (context, snapshot) {
+  //           if (snapshot.connectionState == ConnectionState.waiting) {
+  //             return Center(child: AppWidgetUtils.buildLoading());
+  //           } else if (snapshot.hasError) {
+  //             return const Center(child: Text(AppConstants.somethingWentWrong));
+  //           } else if (!snapshot.hasData) {
+  //             return Center(child: SvgPicture.asset(AppConstants.imgNoData));
+  //           }
+  //           GetAllVoucherWithPagenationModel receiptListModel = snapshot.data!;
 
-            List<Content> receiptData = snapshot.data?.content ?? [];
+  //           List<VoucherDetails> receiptData = snapshot.data?.content ?? [];
 
-            return Column(
-              children: [
-                Expanded(
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.vertical,
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: DataTable(
-                        dividerThickness: 0.01,
-                        columns: [
-                          _buildTransferTableHeader(AppConstants.sno),
-                          _buildTransferTableHeader(AppConstants.receiptNumber),
-                          _buildTransferTableHeader(AppConstants.receiptDate),
-                          _buildTransferTableHeader(AppConstants.vehicleName),
-                          _buildTransferTableHeader(AppConstants.color),
-                          _buildTransferTableHeader(AppConstants.receivedFrom),
-                          _buildTransferTableHeader(AppConstants.paymentType),
-                          _buildTransferTableHeader(AppConstants.amount),
-                          _buildTransferTableHeader(AppConstants.print),
-                          _buildTransferTableHeader(AppConstants.action),
-                        ],
-                        rows: receiptData.asMap().entries.map((entry) {
-                          return DataRow(
-                            color: MaterialStateColor.resolveWith((states) {
-                              return entry.key % 2 == 0
-                                  ? Colors.white
-                                  : _appColors.transparentBlueColor;
-                            }),
-                            cells: [
-                              _buildTableRow('${entry.key + 1}'),
-                              _buildTableRow(entry.value.city),
-                              _buildTableRow(entry.value.ifscCode),
-                              _buildTableRow(entry.value.vendorName),
-                              _buildTableRow(entry.value.mobileNo),
-                              _buildTableRow(entry.value.address),
-                              _buildTableRow(entry.value.id),
-                              _buildTableRow(entry.value.vendorName),
-                              DataCell(IconButton(
-                                  onPressed: () {},
-                                  icon:
-                                      SvgPicture.asset(AppConstants.icPrint))),
-                              DataCell(Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  IconButton(
-                                    onPressed: () {},
-                                    icon: SvgPicture.asset(AppConstants.icEdit),
-                                  ),
-                                  IconButton(
-                                    onPressed: () {},
-                                    icon: SvgPicture.asset(
-                                        AppConstants.icFilledClose),
-                                  )
-                                ],
-                              )),
-                            ],
-                          );
-                        }).toList(),
-                      ),
-                    ),
-                  ),
-                ),
-                CustomPagination(
-                  itemsOnLastPage: receiptListModel.totalElements ?? 0,
-                  currentPage: currentPage,
-                  totalPages: receiptListModel.totalPages ?? 0,
-                  onPageChanged: (pageValue) {
-                    _voucherListBlocImpl
-                        .pageNumberUpdateStreamController(pageValue);
-                  },
-                ),
-              ],
-            );
-          },
-        );
-      },
-    );
-  }
+  //           return Column(
+  //             children: [
+  //               Expanded(
+  //                 child: SingleChildScrollView(
+  //                   scrollDirection: Axis.vertical,
+  //                   child: SingleChildScrollView(
+  //                     scrollDirection: Axis.horizontal,
+  //                     child: DataTable(
+  //                       dividerThickness: 0.01,
+  //                       columns: [
+  //                         _buildTransferTableHeader(AppConstants.sno),
+  //                         _buildTransferTableHeader(AppConstants.voucherId),
+  //                         _buildTransferTableHeader(AppConstants.voucherDate),
+  //                         _buildTransferTableHeader(AppConstants.giver),
+  //                         _buildTransferTableHeader(AppConstants.receiver),
+  //                         _buildTransferTableHeader(AppConstants.amount),
+  //                         _buildTransferTableHeader(AppConstants.reason),
+  //                         _buildTransferTableHeader(AppConstants.print),
+  //                         _buildTransferTableHeader(AppConstants.action),
+  //                       ],
+  //                       rows: receiptData.asMap().entries.map((entry) {
+  //                         return DataRow(
+  //                           color: MaterialStateColor.resolveWith((states) {
+  //                             return entry.key % 2 == 0
+  //                                 ? Colors.white
+  //                                 : _appColors.transparentBlueColor;
+  //                           }),
+  //                           cells: [
+  //                             _buildTableRow('${entry.key + 1}'),
+  //                             _buildTableRow(entry.value.voucherId),
+  //                             _buildTableRow(AppUtils.apiToAppDateFormat(
+  //                                 entry.value.voucherDate.toString())),
+  //                             _buildTableRow(entry.value.createdBy),
+  //                             _buildTableRow(entry.value.paidTo),
+  //                             _buildTableRow(AppUtils.formatCurrency(
+  //                                 entry.value.paidAmount?.toDouble() ?? 0)),
+  //                             _buildTableRow(entry.value.reason),
+  //                             DataCell(IconButton(
+  //                                 onPressed: () {},
+  //                                 icon:
+  //                                     SvgPicture.asset(AppConstants.icPrint))),
+  //                           ],
+  //                         );
+  //                       }).toList(),
+  //                     ),
+  //                   ),
+  //                 ),
+  //               ),
+  //               CustomPagination(
+  //                 itemsOnLastPage: receiptListModel.totalElements ?? 0,
+  //                 currentPage: currentPage,
+  //                 totalPages: receiptListModel.totalPages ?? 0,
+  //                 onPageChanged: (pageValue) {
+  //                   _voucherListBlocImpl
+  //                       .pageNumberUpdateStreamController(pageValue);
+  //                 },
+  //               ),
+  //             ],
+  //           );
+  //         },
+  //       );
+  //     },
+  //   );
+  // }
 
   DataCell _buildTableRow(String? text) => DataCell(Text(
         text ?? '',
@@ -285,7 +265,7 @@ class _VoucherReceiptListState extends State<VoucherReceiptList>
         int currentPage = streamSnapshot.data ?? 0;
         if (currentPage < 0) currentPage = 0;
         _voucherReceiptBloc.currentPage = currentPage;
-        return FutureBuilder<GetAllVendorByPagination?>(
+        return FutureBuilder<GetAllVoucherWithPagenationModel?>(
           future: _voucherReceiptBloc.getVocherReport(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
@@ -295,8 +275,8 @@ class _VoucherReceiptListState extends State<VoucherReceiptList>
             } else if (!snapshot.hasData) {
               return Center(child: SvgPicture.asset(AppConstants.imgNoData));
             }
-            GetAllVendorByPagination voucherListModel = snapshot.data!;
-            List<Content> voucherData = snapshot.data?.content ?? [];
+            GetAllVoucherWithPagenationModel voucherListModel = snapshot.data!;
+            List<VoucherDetails> voucherData = snapshot.data?.content ?? [];
 
             return Column(
               children: [
@@ -316,6 +296,7 @@ class _VoucherReceiptListState extends State<VoucherReceiptList>
                         _buildTransferTableHeader(AppConstants.receiver,
                             flex: 2),
                         _buildTransferTableHeader(AppConstants.amount, flex: 2),
+                        _buildTransferTableHeader(AppConstants.reason, flex: 2),
                         _buildTransferTableHeader(AppConstants.print, flex: 2),
                         _buildTransferTableHeader(AppConstants.action, flex: 2),
                       ],
@@ -329,11 +310,13 @@ class _VoucherReceiptListState extends State<VoucherReceiptList>
                               MaterialStateColor.resolveWith((states) => color),
                           cells: [
                             _buildTableRow('${entry.key + 1}'),
-                            _buildTableRow(data.address),
-                            _buildTableRow(data.city),
-                            _buildTableRow(data.ifscCode),
-                            _buildTableRow(data.vendorId),
-                            _buildTableRow(data.city),
+                            _buildTableRow(data.voucherId ?? ''),
+                            _buildTableRow(data.voucherDate.toString()),
+                            _buildTableRow(data.createdBy ?? ''),
+                            _buildTableRow(data.paidTo ?? ''),
+                            _buildTableRow(
+                                AppUtils.formatCurrency(data.paidAmount ?? 0)),
+                            _buildTableRow(data.reason ?? ''),
                             DataCell(IconButton(
                                 onPressed: () {},
                                 icon: SvgPicture.asset(AppConstants.icPrint))),
@@ -413,8 +396,9 @@ class _VoucherReceiptListState extends State<VoucherReceiptList>
   }
 
   void _checkController(String hintText) {
-    if (AppConstants.receiptId == hintText) {
+    if (AppConstants.voucherId == hintText) {
       _voucherReceiptBloc.receiptIdStreamController(true);
+      _voucherReceiptBloc.pageNumberUpdateStreamController(0);
     }
   }
 
