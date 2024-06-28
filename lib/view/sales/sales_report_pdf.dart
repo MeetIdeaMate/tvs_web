@@ -1,11 +1,13 @@
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
-import 'dart:typed_data';
 import 'package:printing/printing.dart';
+import 'dart:typed_data';
+import 'package:tlbilling/models/get_model/get_all_sales_list_model.dart';
 import 'package:tlbilling/utils/app_constants.dart';
+import 'package:tlbilling/utils/app_utils.dart';
 
 class SalesPdfPrinter {
-  static Future<Uint8List> generatePdf() async {
+  static Future<Uint8List> generatePdf(Content sale) async {
     final pdf = pw.Document();
     final header = await imageFromAssetBundle(AppConstants.imgPdfHeader);
 
@@ -44,13 +46,13 @@ class SalesPdfPrinter {
                         crossAxisAlignment: pw.CrossAxisAlignment.start,
                         children: [
                           _buildNormalText('To'),
-                          _buildNormalText(
-                              'KARIYAYAN C \nS/O CHELLAYAN\nNO 53 NORTH STREET\nBALATHALI\nPATTUKOTTAI,THANJAVUR - 614601\nTamil Nadu'),
-                          _buildNormalText('Mob: 9655515001'),
-                          _buildNormalText('Bill Type : Credit'),
+                          _buildNormalText(sale.customerName ?? ''),
+                          _buildNormalText(sale.customerId ?? ''),
+                          _buildNormalText(sale.mobileNo ?? ''),
+                          _buildNormalText('Bill Type: ${sale.billType}'),
                         ],
                       ),
-                      _buildNormalText('INVOICE DATE: 28-05-2024')
+                      _buildNormalText('INVOICE DATE: ${sale.invoiceDate}'),
                     ],
                   ),
                   pw.SizedBox(height: 18),
@@ -68,16 +70,23 @@ class SalesPdfPrinter {
                           _buildText('Taxable value'),
                         ],
                       ),
-                      pw.TableRow(
-                        children: [
-                          _buildText('APACHE-TVS\nAPACHE RTR 160'),
-                          _buildText('1'),
-                          _buildText(' 1,05,460.94'),
-                          _buildText('87654324'),
-                          _buildText('0.00'),
-                          _buildText(' 1,05,460.94')
-                        ],
-                      ),
+
+                      // Generate table rows for each item in the sale
+                      ...sale.itemDetails!.map((item) {
+                        return pw.TableRow(
+                          children: [
+                            _buildText(item.itemName ?? ''),
+                            _buildText(item.quantity.toString()),
+                            _buildText(
+                                AppUtils.formatCurrency(item.unitRate ?? 0)),
+                            _buildText(item.hsnSacCode ?? ''),
+                            _buildText(AppUtils.formatCurrency(
+                                item.discount?.toDouble() ?? 0)),
+                            _buildText(AppUtils.formatCurrency(
+                                item.taxableValue?.toDouble() ?? 0)),
+                          ],
+                        );
+                      }),
                     ],
                   ),
                   pw.SizedBox(height: 18),
@@ -88,20 +97,32 @@ class SalesPdfPrinter {
                         crossAxisAlignment: pw.CrossAxisAlignment.start,
                         children: [
                           _buildNormalText('Sub total:'),
-                          _buildNormalText('SGST % (14 %):'),
-                          _buildNormalText('CGST % (14 %):'),
+                          _buildNormalText('SGST %'),
+                          _buildNormalText('CGST %'),
                           _buildNormalText('Net Amount:'),
                         ],
                       ),
-                      pw.Column(
-                        crossAxisAlignment: pw.CrossAxisAlignment.start,
-                        children: [
-                          _buildNormalText('14,764.53'),
-                          _buildNormalText('14,764.53'),
-                          _buildNormalText('14,764.53'),
-                          _buildNormalText('1,34,990.00'),
-                        ],
-                      ),
+                      ...sale.itemDetails!.map((item) {
+                        return pw.Column(
+                          crossAxisAlignment: pw.CrossAxisAlignment.start,
+                          children: [
+                            _buildNormalText(item.taxableValue.toString()),
+                            _buildNormalText(sale.itemDetails!
+                                .map((item) => item.gstDetails?.firstWhere(
+                                    (element) => element.gstName == 'CGST',
+                                    orElse: () => GstDetail(
+                                        gstName: 'CGST', gstAmount: 0)))
+                                .toString()),
+                            _buildNormalText(sale.itemDetails!
+                                .map((item) => item.gstDetails?.firstWhere(
+                                    (element) => element.gstName == 'SGST',
+                                    orElse: () => GstDetail(
+                                        gstName: 'SGST', gstAmount: 0)))
+                                .toString()),
+                            _buildNormalText(item.finalInvoiceValue.toString()),
+                          ],
+                        );
+                      })
                     ],
                   ),
                   pw.SizedBox(height: 18),
@@ -111,23 +132,22 @@ class SalesPdfPrinter {
                     children: [
                       pw.TableRow(
                         children: [
-                          _buildText('Part Description'),
+                          _buildText('Part No'),
                           _buildText('Frame Number'),
                           _buildText('Engine Number'),
-                          _buildText('CWI BookltNo'),
-                          _buildText('Key No'),
+                          // _buildText('CWI BookltNo'),
+                          // _buildText('Key No'),
                         ],
                       ),
-                      pw.TableRow(
-                        children: [
-                          _buildText(
-                              'APACHE-TVS APACHE RTR 1604V-OBDIIARM 2CH BT M.BLK'),
-                          _buildText('MD637GE5XR2C05053'),
-                          _buildText('GE5CR2004773'),
-                          _buildText('87654324'),
-                          _buildText('12345'),
-                        ],
-                      ),
+                      ...sale.itemDetails!.map((item) {
+                        return pw.TableRow(
+                          children: [
+                            _buildText(item.partNo ?? ''),
+                            _buildText(item.mainSpecValue?.engineNumber ?? ''),
+                            _buildText(item.mainSpecValue?.frameNumber ?? ''),
+                          ],
+                        );
+                      }),
                     ],
                   ),
                   pw.SizedBox(height: 18),
@@ -144,22 +164,26 @@ class SalesPdfPrinter {
                           _buildNormalText('3.Duplicate Keys:'),
                         ],
                       ),
-                      pw.Column(
-                        crossAxisAlignment: pw.CrossAxisAlignment.start,
-                        children: [
-                          _buildNormalText('1,34,990.00'),
-                          _buildNormalText('3905\n\n'),
-                          _buildNormalText('(Y / N)'),
-                          _buildNormalText('(Y / N)'),
-                          _buildNormalText('(Y / N)'),
-                        ],
-                      ),
+                      ...sale.itemDetails!.map((item) {
+                        return pw.Column(
+                          crossAxisAlignment: pw.CrossAxisAlignment.start,
+                          children: [
+                            _buildNormalText(sale.roundOffAmt.toString()),
+                            _buildNormalText('3905\n\n'),
+                            _buildNormalText(sale.mandatoryAddons?.tools ?? ''),
+                            _buildNormalText(
+                                sale.mandatoryAddons?.manualBook ?? ''),
+                            _buildNormalText(
+                                sale.mandatoryAddons?.duplicateKey ?? ''),
+                          ],
+                        );
+                      })
                     ],
                   ),
                   pw.SizedBox(height: 18),
                 ],
               ),
-            )
+            ),
           ];
         },
       ),

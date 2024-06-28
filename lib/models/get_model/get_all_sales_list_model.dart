@@ -267,8 +267,8 @@ class ItemDetail {
   String? itemName;
   String? categoryId;
   String? hsnSacCode;
-  Value? mainSpecValue;
-  Value? specificationsValue;
+  VehicleDetails? mainSpecValue;
+  VehicleDetails? specificationsValue;
   double? unitRate;
   int? quantity;
   double? value;
@@ -308,10 +308,10 @@ class ItemDetail {
         hsnSacCode: json["hsnSacCode"],
         mainSpecValue: json["mainSpecValue"] == null
             ? null
-            : Value.fromJson(json["mainSpecValue"]),
+            : VehicleDetails.fromJson(json["mainSpecValue"]),
         specificationsValue: json["specificationsValue"] == null
             ? null
-            : Value.fromJson(json["specificationsValue"]),
+            : VehicleDetails.fromJson(json["specificationsValue"]),
         unitRate: json["unitRate"]?.toDouble(),
         quantity: json["quantity"],
         value: json["value"]?.toDouble(),
@@ -381,12 +381,25 @@ class GstDetail {
       };
 }
 
-class Value {
-  Value();
+class VehicleDetails {
+  String? engineNumber;
+  String? frameNumber;
 
-  factory Value.fromJson(Map<String, dynamic> json) => Value();
+  VehicleDetails({this.engineNumber, this.frameNumber});
 
-  Map<String, dynamic> toJson() => {};
+  factory VehicleDetails.fromJson(Map<String, dynamic> json) {
+    return VehicleDetails(
+      engineNumber: json['engineNo'],
+      frameNumber: json['frameNo'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'engineNo': engineNumber,
+      'frameNo': frameNumber,
+    };
+  }
 }
 
 class Loaninfo {
