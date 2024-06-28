@@ -346,7 +346,7 @@ class AppConstants {
   static const purchaseBillerr = 'Cant create purchase bill';
   static const purchaseBillDescerr =
       'Somthing went wrong creating purchase bill';
-  static const salesBillScc = 'Purchase bill added successfully!';
+  static const salesBillScc = 'sales bill added successfully!';
   static const salesBillDescScc = 'Sales bill added to the view table';
   static const salesBillerr = 'Cant create Sales bill';
   static const salesBillDescerr = 'Somthing went wrong creating Sales bill';

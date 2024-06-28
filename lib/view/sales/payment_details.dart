@@ -108,15 +108,13 @@ class _PaymentDetailsState extends State<PaymentDetails> {
                         value: gstTypeOption,
                         groupValue: widget.addSalesBloc.selectedGstType,
                         onChanged: (String? value) {
-                          setState(() {
-                            //   print('Selected GST Type: $value');
+                          //   print('Selected GST Type: $value');
 
-                            widget.addSalesBloc.selectedGstType = value;
-                            FocusScope.of(context)
-                                .requestFocus(widget.addSalesBloc.igstFocus);
-                            widget.addSalesBloc
-                                .gstRadioBtnRefreashStreamController(true);
-                          });
+                          widget.addSalesBloc.selectedGstType = value;
+                          FocusScope.of(context)
+                              .requestFocus(widget.addSalesBloc.igstFocus);
+                          widget.addSalesBloc
+                              .gstRadioBtnRefreashStreamController(true);
                         },
                       ),
                       Text(gstTypeOption),
@@ -148,9 +146,7 @@ class _PaymentDetailsState extends State<PaymentDetails> {
               controller: widget.addSalesBloc.cgstPresentageTextController,
               focusNode: widget.addSalesBloc.cgstFocus,
               onChanged: (cgst) {
-                setState(() {
-                  _calculateGST();
-                });
+                _calculateGST();
               },
               onSubmit: (value) {
                 FocusScope.of(context)
@@ -537,12 +533,9 @@ class _PaymentDetailsState extends State<PaymentDetails> {
                       value: snapshot.data?[index].toString() ?? '',
                       groupValue: widget.addSalesBloc.selectedPaymentOption,
                       onChanged: (value) {
-                        setState(() {
-                          widget.addSalesBloc.selectedPaymentOption = value!;
-                          widget.addSalesBloc
-                              .paymentOptionStreamController(true);
-                          print(widget.addSalesBloc.selectedPaymentOption);
-                        });
+                        widget.addSalesBloc.selectedPaymentOption = value!;
+                        widget.addSalesBloc.paymentOptionStreamController(true);
+                        print(widget.addSalesBloc.selectedPaymentOption);
                       },
                       icon: Icons.payment,
                       label: snapshot.data?[index].toUpperCase() ?? '',
@@ -655,9 +648,9 @@ class _PaymentDetailsState extends State<PaymentDetails> {
                 future: widget.addSalesBloc.getPaymentsList(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Text('Loading');
+                    return const Text(AppConstants.loading);
                   } else if (snapshot.hasError) {
-                    return Center(child: Text('Error: ${snapshot.error}'));
+                    return const Center(child: Text(AppConstants.errorLoading));
                   } else if (!snapshot.hasData) {
                     return const Center(
                         child: Text('No payment configurations available'));
@@ -692,7 +685,6 @@ class _PaymentDetailsState extends State<PaymentDetails> {
                                           snapshot.data
                                                   ?.configuration?[index] ??
                                               '';
-                                      setState(() {});
                                     },
                                     controlAffinity:
                                         ListTileControlAffinity.leading,
@@ -761,6 +753,7 @@ class _PaymentDetailsState extends State<PaymentDetails> {
             widget.addSalesBloc.addNewSalesDeatils(salesPostObject(),
                 (statusCode) {
               if (statusCode == 200 || statusCode == 201) {
+                Navigator.of(context);
                 AppWidgetUtils.buildToast(
                     context,
                     ToastificationType.success,

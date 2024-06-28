@@ -239,6 +239,7 @@ class _StocksViewState extends State<StocksView>
         int currentPage = streamSnapshot.data ?? 0;
         if (currentPage < 0) currentPage = 0;
         _stocksViewBloc.currentPage = currentPage;
+
         return FutureBuilder(
           future: _stocksViewBloc.getAllStockByPagenation(() {
             switch (_stocksViewBloc.stocksTableTableController.index) {
@@ -253,79 +254,81 @@ class _StocksViewState extends State<StocksView>
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return Center(child: AppWidgetUtils.buildLoading());
-            } else if (snapshot.hasData) {
-              GetAllStocksByPagenation stockListModel = snapshot.data!;
-              List<StockDetailsList> purchasedata =
-                  snapshot.data?.stockDetailsList ?? [];
+            } else if (snapshot.hasError) {
+              return const Center(child: Text(AppConstants.somethingWentWrong));
+            } else if (!snapshot.hasData ||
+                snapshot.data?.stockDetailsList?.isEmpty == true) {
+              return Center(child: SvgPicture.asset(AppConstants.imgNoData));
+            }
 
-              return Column(
-                children: [
-                  Expanded(
-                    child: SizedBox(
-                      width: MediaQuery.of(context).size.width,
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: DataTable(
-                          dividerThickness: 0.01,
-                          columns: [
-                            _buildVehicleTableHeader(AppConstants.sno),
-                            _buildVehicleTableHeader(AppConstants.branch),
-                            _buildVehicleTableHeader(AppConstants.partNo),
-                            _buildVehicleTableHeader(AppConstants.vehicleName),
-                            _buildVehicleTableHeader(AppConstants.hsnCode),
-                            _buildVehicleTableHeader(AppConstants.quantity),
-                            _buildVehicleTableHeader(AppConstants.action),
-                          ],
-                          rows: purchasedata.asMap().entries.map((entry) {
-                            return DataRow(
-                              color: MaterialStateColor.resolveWith((states) {
-                                return entry.key % 2 == 0
-                                    ? Colors.white
-                                    : _appColors.transparentBlueColor;
-                              }),
-                              cells: [
-                                _buildTableRow('${entry.key + 1}'),
-                                _buildTableRow(entry.value.branchName),
-                                _buildTableRow(entry.value.partNo),
-                                _buildTableRow(entry.value.itemName),
-                                _buildTableRow(entry.value.hsnSacCode),
-                                _buildTableRow(
-                                    entry.value.totalQuantity.toString()),
-                                DataCell(IconButton(
-                                    onPressed: () {
-                                      showDialog(
-                                        context: context,
-                                        builder: (context) {
-                                          return _buildStockDetailsDialog(
-                                              entry.value);
-                                        },
-                                      );
-                                    },
-                                    icon: Icon(
-                                      Icons.table_chart_outlined,
-                                      color: AppColor().primaryColor,
-                                    ))),
-                              ],
-                            );
-                          }).toList(),
-                        ),
+            GetAllStocksByPagenation stockListModel = snapshot.data!;
+            List<StockDetailsList> purchasedata =
+                stockListModel.stockDetailsList ?? [];
+
+            return Column(
+              children: [
+                Expanded(
+                  child: SizedBox(
+                    width: MediaQuery.of(context).size.width,
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: DataTable(
+                        dividerThickness: 0.01,
+                        columns: [
+                          _buildVehicleTableHeader(AppConstants.sno),
+                          _buildVehicleTableHeader(AppConstants.branch),
+                          _buildVehicleTableHeader(AppConstants.partNo),
+                          _buildVehicleTableHeader(AppConstants.vehicleName),
+                          _buildVehicleTableHeader(AppConstants.hsnCode),
+                          _buildVehicleTableHeader(AppConstants.quantity),
+                          _buildVehicleTableHeader(AppConstants.action),
+                        ],
+                        rows: purchasedata.asMap().entries.map((entry) {
+                          return DataRow(
+                            color: MaterialStateColor.resolveWith((states) {
+                              return entry.key % 2 == 0
+                                  ? Colors.white
+                                  : _appColors.transparentBlueColor;
+                            }),
+                            cells: [
+                              _buildTableRow('${entry.key + 1}'),
+                              _buildTableRow(entry.value.branchName),
+                              _buildTableRow(entry.value.partNo),
+                              _buildTableRow(entry.value.itemName),
+                              _buildTableRow(entry.value.hsnSacCode),
+                              _buildTableRow(
+                                  entry.value.totalQuantity.toString()),
+                              DataCell(IconButton(
+                                  onPressed: () {
+                                    showDialog(
+                                      context: context,
+                                      builder: (context) {
+                                        return _buildStockDetailsDialog(
+                                            entry.value);
+                                      },
+                                    );
+                                  },
+                                  icon: Icon(
+                                    Icons.table_chart_outlined,
+                                    color: AppColor().primaryColor,
+                                  ))),
+                            ],
+                          );
+                        }).toList(),
                       ),
                     ),
                   ),
-                  CustomPagination(
-                    itemsOnLastPage: stockListModel.totalElements ?? 0,
-                    currentPage: currentPage,
-                    totalPages: stockListModel.totalPages ?? 0,
-                    onPageChanged: (pageValue) {
-                      _stocksViewBloc
-                          .pageNumberUpdateStreamController(pageValue);
-                    },
-                  ),
-                ],
-              );
-            } else {
-              return Center(child: SvgPicture.asset(AppConstants.imgNoData));
-            }
+                ),
+                CustomPagination(
+                  itemsOnLastPage: stockListModel.totalElements ?? 0,
+                  currentPage: currentPage,
+                  totalPages: stockListModel.totalPages ?? 0,
+                  onPageChanged: (pageValue) {
+                    _stocksViewBloc.pageNumberUpdateStreamController(pageValue);
+                  },
+                ),
+              ],
+            );
           },
         );
       },

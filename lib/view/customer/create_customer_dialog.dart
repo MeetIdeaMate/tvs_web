@@ -2,6 +2,7 @@ import 'package:blurry_modal_progress_hud/blurry_modal_progress_hud.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tlbilling/components/custom_action_button.dart';
 import 'package:tlbilling/components/custom_elevated_button.dart';
 import 'package:tlbilling/utils/app_colors.dart';
@@ -11,6 +12,7 @@ import 'package:tlbilling/utils/app_utils.dart';
 import 'package:tlbilling/utils/input_formates.dart';
 import 'package:tlbilling/utils/input_validation.dart';
 import 'package:tlbilling/view/customer/create_customer_dialog_bloc.dart';
+import 'package:tlbilling/view/sales/add_sales_bloc.dart';
 import 'package:tlds_flutter/components/tlds_input_form_field.dart';
 import 'package:tlds_flutter/components/tlds_input_formaters.dart';
 import 'package:tlds_flutter/export.dart' as tlds;
@@ -18,8 +20,9 @@ import 'package:toastification/toastification.dart';
 
 class CreateCustomerDialog extends StatefulWidget {
   final String? customerId;
+  final AddSalesBlocImpl? bloc;
 
-  const CreateCustomerDialog({super.key, this.customerId});
+  const CreateCustomerDialog({super.key, this.customerId, this.bloc});
 
   @override
   State<CreateCustomerDialog> createState() => _CreateCustomerDialogState();
@@ -33,6 +36,13 @@ class _CreateCustomerDialogState extends State<CreateCustomerDialog> {
   void initState() {
     super.initState();
     _loadCustomerDetails();
+    getbranchId();
+  }
+
+  Future<void> getbranchId() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    _createCustomerDialogBlocImpl.branchId =
+        prefs.getString(AppConstants.branchId);
   }
 
   @override
@@ -258,6 +268,7 @@ class _CreateCustomerDialogState extends State<CreateCustomerDialog> {
                 if (statusCode == 200 || statusCode == 201) {
                   _isLoading(false);
                   Navigator.pop(context);
+
                   AppWidgetUtils.buildToast(
                       context,
                       ToastificationType.success,
@@ -284,10 +295,12 @@ class _CreateCustomerDialogState extends State<CreateCustomerDialog> {
               },
             );
           } else {
-            return _createCustomerDialogBlocImpl.addCustomer((statusCode) {
+            return _createCustomerDialogBlocImpl
+                .addCustomer((statusCode, customerName, customerId) {
               if (statusCode == 200 || statusCode == 201) {
                 _isLoading(false);
                 Navigator.pop(context);
+
                 AppWidgetUtils.buildToast(
                     context,
                     ToastificationType.success,
@@ -298,6 +311,14 @@ class _CreateCustomerDialogState extends State<CreateCustomerDialog> {
                     ),
                     AppConstants.customerUpdateSuccessfully,
                     _appColors.successLightColor);
+
+                widget.bloc?.selectedCustomerDetailsStreamController(true);
+                widget.bloc?.selectedCustomer = customerName ?? '';
+                widget.bloc?.selectedCustomerId = customerId ?? '';
+                widget.bloc?.customerNameStreamcontroller(true);
+                print(widget.bloc?.selectedCustomer);
+                print(widget.bloc?.selectedCustomerId);
+                widget.bloc?.selectedCustomerDetailsStreamController(true);
               } else {
                 _isLoading(false);
                 AppWidgetUtils.buildToast(

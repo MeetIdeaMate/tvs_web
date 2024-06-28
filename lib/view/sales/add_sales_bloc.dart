@@ -29,6 +29,7 @@ abstract class AddSalesBloc {
   Stream<bool> get isSplitPaymentStream;
   Stream<bool> get batteryDetailsRefreshStream;
   Stream<bool> get mandatoryRefereshStream;
+  Stream<bool> get customerSelectstream;
 
   TextEditingController get discountTextController;
   TextEditingController get transporterVehicleNumberController;
@@ -144,6 +145,7 @@ class AddSalesBlocImpl extends AddSalesBloc {
   final _filteredAccListStreamController =
       StreamController<List<GetAllStockDetails>>.broadcast();
   final _paymentDetailsStream = StreamController.broadcast();
+  final _custerNameSelectStream = StreamController<bool>.broadcast();
 
   final _betteryNameTextController = TextEditingController();
   final _batteryCapacityTextController = TextEditingController();
@@ -706,4 +708,11 @@ class AddSalesBlocImpl extends AddSalesBloc {
 
   @override
   Map<int, String> get paymentName => _paymentName;
+
+  @override
+  Stream<bool> get customerSelectstream => _custerNameSelectStream.stream;
+
+  customerNameStreamcontroller(bool newvalue) {
+    _custerNameSelectStream.add(newvalue);
+  }
 }

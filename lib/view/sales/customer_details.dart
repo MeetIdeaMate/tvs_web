@@ -156,34 +156,40 @@ class _CustomerDetailsState extends State<CustomerDetails> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Expanded(
-          child: FutureBuilder(
-            future: widget.addSalesBloc.getAllCustomerList(),
-            builder: (context, snapshot) {
-              var customerList = snapshot.data ;
-              List<String>? customerNamesList =
-                  customerList?.map((e) => e.customerName ?? '').toList();
-              return TldsDropDownButtonFormField(
-                height: 70,
-                validator: (String? value) {
-                  if (value == null || value.isEmpty) {
-                    return AppConstants.selectCustomer;
-                  }
-                  return null;
-                },
-                width: MediaQuery.sizeOf(context).width * 0.22,
-                hintText: AppConstants.selectCustomer,
-                dropDownItems: customerNamesList ?? [],
-                onChange: (String? newValue) {
-                  var selectedVendor = customerList!.firstWhere(
-                      (customer) => customer.customerName == newValue);
-                  widget.addSalesBloc.selectedCustomerId =
-                      selectedVendor.customerId;
-                  widget.addSalesBloc
-                      .selectedCustomerDetailsStreamController(true);
-                },
-              );
-            },
-          ),
+          child: StreamBuilder<bool>(
+              stream: widget.addSalesBloc.customerSelectstream,
+              builder: (context, snapshot) {
+                return FutureBuilder(
+                  future: widget.addSalesBloc.getAllCustomerList(),
+                  builder: (context, snapshot) {
+                    var customerList = snapshot.data;
+                    List<String>? customerNamesList =
+                        customerList?.map((e) => e.customerName ?? '').toList();
+                    return TldsDropDownButtonFormField(
+                      height: 70,
+                      validator: (String? value) {
+                        if (value == null || value.isEmpty) {
+                          return AppConstants.selectCustomer;
+                        }
+                        return null;
+                      },
+                      width: MediaQuery.sizeOf(context).width * 0.22,
+                      hintText: AppConstants.selectCustomer,
+                      dropDownValue: widget.addSalesBloc.selectedCustomer,
+                      dropDownItems: customerNamesList ?? [],
+                      onChange: (String? newValue) {
+                        var selectedVendor = customerList!.firstWhere(
+                            (customer) => customer.customerName == newValue);
+                        widget.addSalesBloc.selectedCustomerId =
+                            selectedVendor.customerId;
+                        widget.addSalesBloc.customerNameStreamcontroller(true);
+                        widget.addSalesBloc
+                            .selectedCustomerDetailsStreamController(true);
+                      },
+                    );
+                  },
+                );
+              }),
         ),
         AppWidgetUtils.buildSizedBox(custWidth: 10),
         Padding(
@@ -200,7 +206,7 @@ class _CustomerDetailsState extends State<CustomerDetails> {
               showDialog(
                 context: context,
                 builder: (context) {
-                  return const CreateCustomerDialog();
+                  return CreateCustomerDialog(bloc: widget.addSalesBloc);
                 },
               );
             },

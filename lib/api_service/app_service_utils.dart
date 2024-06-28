@@ -49,7 +49,9 @@ abstract class AppServiceUtil {
   Future<void> addBranch(AddBranchModel addBranchModel,
       Function(int? statusCode) onSuccessCallBack);
 
-  Future<void> addCustomer(Function(int? statusCode) onSuccessCallBack,
+  Future<void> addCustomer(
+      Function(int? statusCode, String? customerName, String? customerId)
+          onSuccessCallBack,
       AddCustomerModel addEmployeeModel);
 
   Future<GetAllCustomersByPaginationModel?> getAllCustomersByPagination(
@@ -309,7 +311,9 @@ class AppServiceUtilImpl extends AppServiceUtil {
   }
 
   @override
-  Future<void> addCustomer(Function(int? statusCode) onSuccessCallBack,
+  Future<void> addCustomer(
+      Function(int? statusCode, String? customerName, String? customerId)
+          onSuccessCallBack,
       AddCustomerModel addEmployeeModel) async {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -317,10 +321,36 @@ class AppServiceUtilImpl extends AppServiceUtil {
       dio.options.headers['Authorization'] = 'Bearer $token';
       var response =
           await dio.post(AppUrl.customer, data: jsonEncode(addEmployeeModel));
-      onSuccessCallBack(response.statusCode);
+      var responseData = response.data;
+      //  print('*****************$responseData');
+      var cuctomerId = responseData['customerId'];
+      var customerName = responseData['customerName'];
+      // print(cuctomerId);
+      // print(customerName);
+      onSuccessCallBack(response.statusCode ?? 0, customerName, cuctomerId);
+      //onSuccessCallBack(response.statusCode);
     } on DioException catch (e) {
-      onSuccessCallBack(e.response?.statusCode);
+      onSuccessCallBack(e.response?.statusCode, '', '');
     }
+
+    // SharedPreferences prefs = await SharedPreferences.getInstance();
+    // var token = prefs.getString('token');
+    // dio.options.headers['Authorization'] = 'Bearer $token';
+    // var jsonData = json.encode(addEmployeeModel);
+
+    // var response = await dio.post(AppUrl.purchase, data: jsonData);
+    // var responseData = response.data;
+    // print(responseData);
+    // print(response.statusCode);
+
+    // if (response.statusCode == 200 || response.statusCode == 201) {
+    //   GetAllCustomersModel addCustomerResponse =
+    //       GetAllCustomersModel.fromJson(responseData['result']['customer']);
+    //   onSuccessCallBack(response.statusCode ?? 0, addCustomerResponse);
+    // } else {
+    //   onSuccessCallBack(
+    //       response.statusCode ?? 0, responseData['result']['customer']);
+    // }
   }
 
   @override
@@ -1178,8 +1208,7 @@ class AppServiceUtilImpl extends AppServiceUtil {
     var token = prefs.getString('token');
     dio.options.headers['Authorization'] = 'Bearer $token';
 
-    String voucherListUrl =
-        '${AppUrl.voucher}?page=$currentPage&pageSize=10';
+    String voucherListUrl = '${AppUrl.voucher}?page=$currentPage&pageSize=10';
 
     if (receiver.isNotEmpty && receiver != 'All') {
       voucherListUrl += '&vehicleType=$receiver';

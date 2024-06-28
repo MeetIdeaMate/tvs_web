@@ -163,16 +163,15 @@ class _ConfigurationViewState extends State<ConfigurationView> {
                     ),
                   ],
                 );
-              } else {
+              } else if (!snapshot.hasData || snapshot.data?.isEmpty == true) {
                 return Center(
                   child: SvgPicture.asset(AppConstants.imgNoData),
                 );
               }
-            } else {
-              return Center(
-                child: SvgPicture.asset(AppConstants.imgNoData),
-              );
             }
+            return Center(
+              child: SvgPicture.asset(AppConstants.imgNoData),
+            );
           },
         ));
       },

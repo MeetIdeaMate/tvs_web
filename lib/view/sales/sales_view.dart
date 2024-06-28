@@ -215,8 +215,9 @@ class _SalesViewScreenState extends State<SalesViewScreen>
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return Center(child: AppWidgetUtils.buildLoading());
-            } else if (!snapshot.hasData) {
-              return const Center(child: Text('No data'));
+            } else if (!snapshot.hasData ||
+                snapshot.data?.content?.isEmpty == true) {
+              return Center(child: SvgPicture.asset(AppConstants.imgNoData));
             }
             List<Content> salesList = snapshot.data?.content ?? [];
             GetAllSales salesDetails = snapshot.data!;
