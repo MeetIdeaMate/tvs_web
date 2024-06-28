@@ -5,6 +5,7 @@ import 'package:tlbilling/models/get_model/get_all_category_model.dart';
 import 'package:tlbilling/models/get_model/get_all_customer_name_list.dart';
 import 'package:tlbilling/models/get_model/get_all_customers_model.dart';
 import 'package:tlbilling/models/get_model/get_all_stocks_model.dart';
+import 'package:tlbilling/models/get_model/get_configuration_model.dart';
 import 'package:tlbilling/models/parent_response_model.dart';
 import 'package:tlbilling/models/post_model/add_sales_model.dart' as sales;
 import 'package:tlbilling/models/post_model/add_sales_model.dart';
@@ -53,6 +54,10 @@ abstract class AddSalesBloc {
   Stream<bool> get selectedSalesStreamItems;
   Map<int, String> get unitRates;
 
+  Map<int, String> get splitPaymentAmt;
+
+  Map<int, String> get paymentName;
+
   Map<int, String> get accessoriesQty;
 
   int get salesIndex;
@@ -88,6 +93,7 @@ abstract class AddSalesBloc {
   Future<List<String>> getPaymentmethods();
   Future<List<String>> getBatteryDetails();
   Future<List<String>> getMandantoryAddOns();
+  Future<GetConfigurationModel?> getPaymentsList();
   Stream<List<GetAllStockDetails>> get vehicleListStream;
 // List<Map<String, String>> get vehicleData;
   List<GetAllStockDetails> get filteredVehicleData;
@@ -126,6 +132,7 @@ class AddSalesBlocImpl extends AddSalesBloc {
   final Map<int, String> _unitRate = {};
   final Map<int, String> _accessoriesQty = {};
   final Map<String, String> _batteryDetailsMap = {};
+  final Map<int, String> _paymentName = {};
 
   final _hsnCodeTextController = TextEditingController();
   final _cgstPresentageTextController = TextEditingController();
@@ -148,6 +155,8 @@ class AddSalesBlocImpl extends AddSalesBloc {
   String? _branchId;
 
   List<String> selectedVehicleList = [];
+
+  final Map<int, String> _splitPaymentAmt = {};
 
   final _selectedItemStreamController = StreamController.broadcast();
   List<GetAllStockDetails>? selectedVehiclesList = [];
@@ -686,4 +695,15 @@ class AddSalesBlocImpl extends AddSalesBloc {
 
   @override
   Map<String, String> get batteryDetailsMap => _batteryDetailsMap;
+
+  @override
+  Future<GetConfigurationModel?> getPaymentsList() async {
+    return await _apiServices.getConfigById(AppConstants.paymentTypes);
+  }
+
+  @override
+  Map<int, String> get splitPaymentAmt => _splitPaymentAmt;
+
+  @override
+  Map<int, String> get paymentName => _paymentName;
 }

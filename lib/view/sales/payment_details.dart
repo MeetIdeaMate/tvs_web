@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:intl/intl.dart';
 import 'package:tlbilling/components/custom_action_button.dart';
 import 'package:tlbilling/models/post_model/add_sales_model.dart';
 import 'package:tlbilling/utils/app_colors.dart';
@@ -172,7 +173,7 @@ class _PaymentDetailsState extends State<PaymentDetails> {
   }
 
   void _calculateGST() {
-    double totalValues = widget.addSalesBloc.totalValue ?? 0;
+    double totalValues = widget.addSalesBloc.taxableValue ?? 0;
     double cgstPercent = double.tryParse(
             widget.addSalesBloc.cgstPresentageTextController.text) ??
         0;
@@ -183,11 +184,15 @@ class _PaymentDetailsState extends State<PaymentDetails> {
     widget.addSalesBloc.taxableValue = totalValues;
     widget.addSalesBloc.cgstAmount = (totalValues / 100) * cgstPercent;
     widget.addSalesBloc.sgstAmount = (totalValues / 100) * sgstPercent;
+    double cgstAmt =
+        double.tryParse(widget.addSalesBloc.cgstAmount.toString()) ?? 0;
 
     double taxableValue = widget.addSalesBloc.taxableValue ?? 0;
-    widget.addSalesBloc.invAmount =
-        taxableValue + (widget.addSalesBloc.sgstAmount ?? 0 * 2);
+    double gstAmt = cgstAmt + cgstAmt;
+
+    widget.addSalesBloc.invAmount = taxableValue + (gstAmt);
     _updateTotalInvoiceAmount();
+    print('gstAmt: $gstAmt');
 
     widget.addSalesBloc.paymentDetailsStreamController(true);
     widget.addSalesBloc.gstRadioBtnRefreashStreamController(true);
@@ -310,6 +315,8 @@ class _PaymentDetailsState extends State<PaymentDetails> {
                             ((widget.addSalesBloc.invAmount ?? 0) -
                                 (discountAmount ?? 0));
                       }
+                      _calculateGST();
+                      _updateTotalInvoiceAmount();
 
                       widget.addSalesBloc.paymentDetailsStreamController(true);
                     },
@@ -469,17 +476,18 @@ class _PaymentDetailsState extends State<PaymentDetails> {
                       color: _appColors.transparentGreenColor,
                       borderRadius: BorderRadius.circular(10)),
                   padding: const EdgeInsets.all(5),
-                  child: const ListTile(
-                    title: Text(
+                  child: ListTile(
+                    title: const Text(
                       AppConstants.toBePayed,
                       style:
                           TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                     ),
                     // tileColor: _appColors.primaryColor,
                     trailing: Text(
-                      '₹0.0',
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                      AppUtils.formatCurrency(
+                          widget.addSalesBloc.totalInvAmount ?? 0.00),
+                      style: const TextStyle(
+                          fontWeight: FontWeight.bold, fontSize: 16),
                     ),
                   ),
                 ),
@@ -529,8 +537,12 @@ class _PaymentDetailsState extends State<PaymentDetails> {
                       value: snapshot.data?[index].toString() ?? '',
                       groupValue: widget.addSalesBloc.selectedPaymentOption,
                       onChanged: (value) {
-                        widget.addSalesBloc.selectedPaymentOption = value!;
-                        widget.addSalesBloc.paymentOptionStreamController(true);
+                        setState(() {
+                          widget.addSalesBloc.selectedPaymentOption = value!;
+                          widget.addSalesBloc
+                              .paymentOptionStreamController(true);
+                          print(widget.addSalesBloc.selectedPaymentOption);
+                        });
                       },
                       icon: Icons.payment,
                       label: snapshot.data?[index].toUpperCase() ?? '',
@@ -608,35 +620,132 @@ class _PaymentDetailsState extends State<PaymentDetails> {
     );
   }
 
+  List<bool> _checkedList = [];
   _buildSplitPayment() {
-    return Column(
-      children: [
-        StreamBuilder<bool>(
+    return Visibility(
+      visible: widget.addSalesBloc.selectedPaymentOption == 'Credit',
+      child: Column(
+        children: [
+          StreamBuilder<bool>(
             stream: widget.addSalesBloc.isSplitPaymentStream,
             builder: (context, snapshot) {
               return Row(
                 children: [
                   Switch(
-                    value: widget.addSalesBloc.isSplitPayment,
+                    value: snapshot.data ?? widget.addSalesBloc.isSplitPayment,
                     onChanged: (value) {
-                      widget.addSalesBloc.isSplitPayment = value;
-                      widget.addSalesBloc.isSplitPaymentStreamController(true);
+                      setState(() {
+                        widget.addSalesBloc.isSplitPayment = value;
+                      });
                     },
                   ),
                   const Text(
                     AppConstants.splitPayment,
                     style: TextStyle(fontSize: 16),
-                  )
+                  ),
                 ],
               );
-            }),
-        // CheckboxListTile(
-        //   title: const Text("title text"),
-        //   value: true,
-        //   onChanged: (newValue) {},
-        //   controlAffinity: ListTileControlAffinity.leading,
-        // )
-      ],
+            },
+          ),
+          Visibility(
+            visible: widget.addSalesBloc.isSplitPayment,
+            child: SizedBox(
+              height: 400,
+              child: FutureBuilder(
+                future: widget.addSalesBloc.getPaymentsList(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Text('Loading');
+                  } else if (snapshot.hasError) {
+                    return Center(child: Text('Error: ${snapshot.error}'));
+                  } else if (!snapshot.hasData) {
+                    return const Center(
+                        child: Text('No payment configurations available'));
+                  } else {
+                    if (_checkedList.isEmpty) {
+                      _checkedList = List<bool>.filled(
+                          snapshot.data?.configuration?.length ?? 0, false);
+                    }
+                    return ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: snapshot.data?.configuration?.length,
+                      itemBuilder: (context, index) {
+                        bool isVisible = snapshot.data?.configuration?[index] ==
+                                'CHEQUE' ||
+                            snapshot.data?.configuration?[index] == 'CARD' ||
+                            snapshot.data?.configuration?[index] == 'UPI';
+                        return Column(
+                          children: [
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                  child: CheckboxListTile(
+                                    title: Text(
+                                        snapshot.data?.configuration?[index] ??
+                                            ''),
+                                    value: _checkedList[index],
+                                    onChanged: (newValue) {
+                                      _checkedList[index] = newValue ?? false;
+                                      widget.addSalesBloc.paymentName[index] =
+                                          snapshot.data
+                                                  ?.configuration?[index] ??
+                                              '';
+                                      setState(() {});
+                                    },
+                                    controlAffinity:
+                                        ListTileControlAffinity.leading,
+                                  ),
+                                ),
+                                AppWidgetUtils.buildSizedBox(custHeight: 10),
+                                Visibility(
+                                  visible: _checkedList[index],
+                                  child: Expanded(
+                                    child: TldsInputFormField(
+                                      controller: TextEditingController(),
+                                      hintText: 'Paid Amount',
+                                      onChanged: (value) {
+                                        widget.addSalesBloc
+                                            .splitPaymentAmt[index] = value;
+                                        widget.addSalesBloc
+                                            .isSplitPaymentStreamController(
+                                                true);
+                                        print(widget.addSalesBloc
+                                            .splitPaymentAmt[index] = value);
+                                      },
+                                    ),
+                                  ),
+                                )
+                              ],
+                            ),
+                            AppWidgetUtils.buildSizedBox(custHeight: 10),
+                            Visibility(
+                              visible: _checkedList[index] && isVisible,
+                              child: Padding(
+                                padding: const EdgeInsets.only(bottom: 13),
+                                child: SizedBox(
+                                  child: TldsInputFormField(
+                                    controller: TextEditingController(),
+                                    hintText:
+                                        '${snapshot.data?.configuration?[index]} ID',
+                                  ),
+                                ),
+                              ),
+                            ),
+                            //  AppWidgetUtils.buildSizedBox(custHeight: 10),
+                          ],
+                        );
+                      },
+                    );
+                  }
+                },
+              ),
+            ),
+          ),
+          AppWidgetUtils.buildSizedBox(custHeight: 10),
+        ],
+      ),
     );
   }
 
@@ -646,8 +755,8 @@ class _PaymentDetailsState extends State<PaymentDetails> {
           if (widget.addSalesBloc.paymentFormKey.currentState!.validate()) {
             var salesObject = salesPostObject();
 
-            // Print the sales object before posting
-            print('Sales Object: $salesObject');
+            // // Print the sales object before posting
+            // print('Sales Object: $salesObject');
 
             widget.addSalesBloc.addNewSalesDeatils(salesPostObject(),
                 (statusCode) {
@@ -655,19 +764,19 @@ class _PaymentDetailsState extends State<PaymentDetails> {
                 AppWidgetUtils.buildToast(
                     context,
                     ToastificationType.success,
-                    AppConstants.purchaseBillScc,
+                    AppConstants.salesBillScc,
                     Icon(Icons.check_circle_outline_rounded,
                         color: _appColors.successColor),
-                    AppConstants.purchaseBillDescScc,
+                    AppConstants.salesBillDescScc,
                     _appColors.successLightColor);
               } else {
                 AppWidgetUtils.buildToast(
                     context,
                     ToastificationType.error,
-                    AppConstants.purchaseBillerr,
+                    AppConstants.salesBillerr,
                     Icon(Icons.not_interested_rounded,
                         color: _appColors.errorColor),
-                    AppConstants.purchaseBillDescerr,
+                    AppConstants.salesBillDescerr,
                     _appColors.errorLightColor);
               }
             });
@@ -680,6 +789,7 @@ class _PaymentDetailsState extends State<PaymentDetails> {
     List<SalesItemDetail> itemdetails = [];
     List<GstDetail> gstDetails = [];
     Map<String, String> mandatoryAddonsMap = {};
+    List<PaidDetail> paidDetails = [];
     for (var addon in widget.addSalesBloc.selectedMandatoryAddOns.keys) {
       mandatoryAddonsMap[addon] =
           widget.addSalesBloc.selectedMandatoryAddOns[addon]!;
@@ -712,6 +822,19 @@ class _PaymentDetailsState extends State<PaymentDetails> {
                     widget.addSalesBloc.igstPresentageTextController.text) ??
                 0),
       );
+    }
+    for (int i = 0; i < _checkedList.length; i++) {
+      if (_checkedList[i]) {
+        String paymentType = widget.addSalesBloc.paymentName[i] ?? '';
+        String paidAmount = widget.addSalesBloc.splitPaymentAmt[i] ?? '0';
+
+        final paidDetail = PaidDetail(
+            paidAmount: double.tryParse(paidAmount) ?? 0,
+            paymentDate: DateFormat('yyyy-MM-dd').format(DateTime.now()),
+            paymentType: paymentType);
+
+        paidDetails.add(paidDetail);
+      }
     }
 
     List<Incentive> insentive = [];
@@ -790,35 +913,20 @@ class _PaymentDetailsState extends State<PaymentDetails> {
     }
 
     return AddSalesModel(
-        billType: 'Credit',
-        bookingNo: '',
+        billType: widget.addSalesBloc.selectedPaymentOption,
         branchId: widget.addSalesBloc.branchId ?? '',
         customerId: widget.addSalesBloc.selectedCustomerId ?? '',
         evBattery: EvBatteryObj(
-            evBatteryCapacity: double.tryParse(
-                    widget.addSalesBloc.batteryCapacityTextController.text) ??
-                0.0,
-            evBatteryName: widget.addSalesBloc.betteryNameTextController.text),
-        insurance: InsuranceObj(
-            expiryDate: '',
-            insuranceCompanyName: '',
-            insuranceId: '',
-            insuredAmt: 0,
-            insuredDate: '',
-            invoiceNo: ''),
-        invoiceDate: DateTime.now().toIso8601String(),
+            evBatteryCapacity: 50,
+            evBatteryName:
+                widget.addSalesBloc.batteryDetailsMap['Battery Name']),
+        invoiceDate: DateFormat('yyyy-MM-dd').format(DateTime.now()),
         invoiceType: widget.addSalesBloc.selectedVehicleAndAccessories,
         itemDetails: itemdetails,
-        loaninfo: Loaninfo(bankName: '', loanAmt: 0, loanId: ''),
+        // loaninfo: Loaninfo(bankName: '', loanAmt: 0, loanId: ''),
         mandatoryAddons: mandatoryAddonsMap,
         netAmt: 0,
-        paidDetails: [
-          PaidDetail(
-              paidAmount:
-                  double.parse(widget.addSalesBloc.totalInvAmount.toString()),
-              paymentDate: DateTime.now().toIso8601String(),
-              paymentType: 'CASH')
-        ],
+        paidDetails: paidDetails,
         paymentStatus: 'COMPLETED',
         roundOffAmt:
             double.parse(widget.addSalesBloc.totalInvAmount.toString()),
