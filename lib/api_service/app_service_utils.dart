@@ -21,6 +21,7 @@ import 'package:tlbilling/models/get_model/get_all_stocks_model.dart';
 import 'package:tlbilling/models/get_model/get_all_stocks_without_pagination.dart';
 import 'package:tlbilling/models/get_model/get_all_transfer_model.dart';
 import 'package:tlbilling/models/get_model/get_all_vendor_by_pagination_model.dart';
+import 'package:tlbilling/models/get_model/get_all_voucher_with_pagenation.dart';
 import 'package:tlbilling/models/get_model/get_configuration_list_model.dart';
 import 'package:tlbilling/models/get_model/get_configuration_model.dart';
 import 'package:tlbilling/models/get_model/get_transport_by_pagination.dart';
@@ -199,7 +200,7 @@ abstract class AppServiceUtil {
   Future<void> createNewTransfer(AddNewTransfer? addNewTransfer,
       Function(int statusCode) onSuccessCallBack);
 
-  Future<GetAllVendorByPagination?> getVoucharRecieptList(
+  Future<GetAllVoucherWithPagenationModel?> getVoucharRecieptList(
       String reportId, String receiver, int currentPage);
 
   Future<void> createStockFromPurchase(String? purchaseId,
@@ -234,6 +235,8 @@ abstract class AppServiceUtil {
       BookingModel bookingPostObj, Function(int statusCode) onSuccessCallBack);
 
   Future<List<GetAllEmployeeModel>?> getAllExcutiveList();
+
+  Future<ParentResponseModel> getAllVoucherData();
 }
 
 class AppServiceUtilImpl extends AppServiceUtil {
@@ -1169,26 +1172,28 @@ class AppServiceUtilImpl extends AppServiceUtil {
   }
 
   @override
-  Future<GetAllVendorByPagination?> getVoucharRecieptList(
+  Future<GetAllVoucherWithPagenationModel?> getVoucharRecieptList(
       String reportId, String receiver, int currentPage) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var token = prefs.getString('token');
     dio.options.headers['Authorization'] = 'Bearer $token';
 
-    String purchaseReportUrl = '${AppUrl.vendorByPagination}page=0&pageSize=10';
+    String voucherListUrl =
+        '${AppUrl.voucher}?page=$currentPage&pageSize=10';
 
     if (receiver.isNotEmpty && receiver != 'All') {
-      purchaseReportUrl += '&vehicleType=$receiver';
+      voucherListUrl += '&vehicleType=$receiver';
     }
     if (reportId.isNotEmpty) {
-      purchaseReportUrl += '&fromDate=$reportId';
+      voucherListUrl += '&fromDate=$reportId';
     }
-
-    var response = await dio.get(purchaseReportUrl);
-
+    print('*************Voucher url => $voucherListUrl');
+    var response = await dio.get(voucherListUrl);
+    print('*************Voucher res => ${jsonEncode(response.data)}');
+    print('*************Voucher sc => ${response.statusCode}');
     final responseList = parentResponseModelFromJson(jsonEncode(response.data));
 
-    return responseList.result?.getAllVendorByPagination;
+    return responseList.result?.getAllVoucherWithPaganation;
   }
 
   @override
@@ -1481,5 +1486,16 @@ class AppServiceUtilImpl extends AppServiceUtil {
 
       statusCode(e.response?.statusCode);
     }
+  }
+
+  @override
+  Future<ParentResponseModel> getAllVoucherData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var token = prefs.getString('token');
+    dio.options.headers['Authorization'] = 'Bearer $token';
+    String voucherListUrl = AppUrl.voucher;
+    var response = await dio.get(voucherListUrl);
+    final responseList = parentResponseModelFromJson(jsonEncode(response.data));
+    return responseList;
   }
 }

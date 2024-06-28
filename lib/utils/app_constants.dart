@@ -16,6 +16,7 @@ class AppConstants {
   static const noData = 'No data';
   static const submit = 'Submit';
   static const view = 'View';
+  static const reason = 'Reason';
   static const ttfPoppinsRegular = 'fonts/ttf_poppins_regular.ttf';
 
   //SharedPreference

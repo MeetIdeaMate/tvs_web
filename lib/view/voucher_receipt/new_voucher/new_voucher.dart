@@ -54,6 +54,14 @@ class _NewVoucherState extends State<NewVoucher> {
                 _buildPayToAndDate(),
                 _buildDefaultHeight(),
                 _buildGiverAndAmount(),
+                AppWidgetUtils.buildSizedBox(custHeight: 10),
+                TldsInputFormField(
+                  maxLine: 500,
+                  height: 70,
+                  controller: _newVoucherBloc.reasonTextController,
+                  hintText: AppConstants.reason,
+                  labelText: AppConstants.reason,
+                )
               ],
             ),
           ),
@@ -285,12 +293,12 @@ class _NewVoucherState extends State<NewVoucher> {
     return CustomActionButtons(
         onPressed: () {
           if (_newVoucherBloc.formKey.currentState!.validate()) {
-            // _isLoadingState(state: true);
+            _isLoadingState(state: true);
             _newVoucherBloc.addNewVouchar(
               (statusCode) {
                 print(' statusCode $statusCode');
                 if (statusCode == 200 || statusCode == 201) {
-                  // _isLoadingState(state: false);
+                  _isLoadingState(state: false);
                   Navigator.pop(context);
                   AppWidgetUtils.buildToast(
                       context,
@@ -303,7 +311,7 @@ class _NewVoucherState extends State<NewVoucher> {
                       AppConstants.voucherCreatedSuccessfully,
                       _appColors.successLightColor);
                 } else {
-                  //  _isLoadingState(state: false);
+                  _isLoadingState(state: false);
                   AppWidgetUtils.buildToast(
                       context,
                       ToastificationType.error,
