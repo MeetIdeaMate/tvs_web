@@ -9,16 +9,20 @@ import 'package:tlbilling/utils/app_util_widgets.dart';
 import 'package:tlbilling/utils/app_utils.dart';
 import 'package:tlbilling/utils/input_formates.dart';
 import 'package:tlbilling/view/sales/add_sales_bloc.dart';
+import 'package:tlbilling/view/sales/sales_view_bloc.dart';
+import 'package:tlds_flutter/components/tlds_dropdown_button_form_field.dart';
 import 'package:tlds_flutter/components/tlds_input_form_field.dart';
 import 'package:tlds_flutter/components/tlds_input_formaters.dart';
 import 'package:toastification/toastification.dart';
 
 class PaymentDetails extends StatefulWidget {
   final AddSalesBlocImpl addSalesBloc;
+  final SalesViewBlocImpl salesViewBloc;
 
   const PaymentDetails({
     super.key,
     required this.addSalesBloc,
+    required this.salesViewBloc,
   });
 
   @override
@@ -26,11 +30,20 @@ class PaymentDetails extends StatefulWidget {
 }
 
 class _PaymentDetailsState extends State<PaymentDetails> {
+  List<String>? _paymentsListFuture;
+
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     getbranchId();
+
+    widget.addSalesBloc.getPaymentsList().then((value) {
+      setState(() {
+        _paymentsListFuture = value?.configuration ?? [];
+        _checkedList =
+            List<bool>.filled(_paymentsListFuture?.length ?? 0, false);
+      });
+    });
   }
 
   Future<void> getbranchId() async {
@@ -141,18 +154,23 @@ class _PaymentDetailsState extends State<PaymentDetails> {
         children: [
           Expanded(
             child: TldsInputFormField(
-              inputFormatters: TlInputFormatters.onlyAllowDecimalNumbers,
-              hintText: AppConstants.cgstPercent,
-              controller: widget.addSalesBloc.cgstPresentageTextController,
-              focusNode: widget.addSalesBloc.cgstFocus,
-              onChanged: (cgst) {
-                _calculateGST();
-              },
-              onSubmit: (value) {
-                FocusScope.of(context)
-                    .requestFocus(widget.addSalesBloc.discountFocus);
-              },
-            ),
+                inputFormatters: TlInputFormatters.onlyAllowDecimalNumbers,
+                hintText: AppConstants.cgstPercent,
+                controller: widget.addSalesBloc.cgstPresentageTextController,
+                focusNode: widget.addSalesBloc.cgstFocus,
+                onChanged: (cgst) {
+                  _calculateGST();
+                },
+                onSubmit: (value) {
+                  FocusScope.of(context)
+                      .requestFocus(widget.addSalesBloc.discountFocus);
+                },
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return 'Enter Gst Perecent';
+                  }
+                  return null;
+                }),
           ),
           const SizedBox(width: 10),
           Expanded(
@@ -268,7 +286,7 @@ class _PaymentDetailsState extends State<PaymentDetails> {
   }
 
   Widget _buildPaymentDetails() {
-    return StreamBuilder(
+    return StreamBuilder<bool>(
         stream: widget.addSalesBloc.paymentDetailsStream,
         builder: (context, snapshot) {
           return Container(
@@ -280,10 +298,8 @@ class _PaymentDetailsState extends State<PaymentDetails> {
                 _buildPaymentDetailTile(
                     AppConstants.totalValue,
                     Text(
-                      widget.addSalesBloc.selectedVehiclesList!.isNotEmpty
-                          ? AppUtils.formatCurrency(
-                              widget.addSalesBloc.totalValue ?? 0.0)
-                          : '₹0.0',
+                      AppUtils.formatCurrency(
+                          widget.addSalesBloc.totalValue ?? 0.0),
                       style: const TextStyle(
                           fontSize: 16, fontWeight: FontWeight.bold),
                     ),
@@ -460,7 +476,7 @@ class _PaymentDetailsState extends State<PaymentDetails> {
                     ),
                     // tileColor: _appColors.primaryColor,
                     trailing: Text(
-                      '₹0.0',
+                      '₹0.00',
                       style: TextStyle(
                           color: _appColors.primaryColor, fontSize: 16),
                     ),
@@ -488,6 +504,8 @@ class _PaymentDetailsState extends State<PaymentDetails> {
                   ),
                 ),
                 AppWidgetUtils.buildSizedBox(custHeight: 10),
+                _buildHeadingText(AppConstants.paymentMethod),
+                AppWidgetUtils.buildSizedBox(custHeight: 5),
                 _buildPaymentOptions(),
                 AppWidgetUtils.buildSizedBox(custHeight: 10),
                 _buildSplitPayment(),
@@ -533,6 +551,7 @@ class _PaymentDetailsState extends State<PaymentDetails> {
                       value: snapshot.data?[index].toString() ?? '',
                       groupValue: widget.addSalesBloc.selectedPaymentOption,
                       onChanged: (value) {
+                        setState(() {});
                         widget.addSalesBloc.selectedPaymentOption = value!;
                         widget.addSalesBloc.paymentOptionStreamController(true);
                         print(widget.addSalesBloc.selectedPaymentOption);
@@ -614,6 +633,54 @@ class _PaymentDetailsState extends State<PaymentDetails> {
   }
 
   List<bool> _checkedList = [];
+
+  _buildPaiddetails() {
+    return Column(
+      children: [
+        _paymentsListFuture?.isEmpty == true
+            ? const Center(child: Text('No payments available'))
+            : TldsDropDownButtonFormField(
+                dropDownItems: _paymentsListFuture ?? [],
+                dropDownValue: widget.addSalesBloc.selectedPaymentList,
+                hintText: '',
+                // height: 40,
+                width: double.infinity,
+                onChange: (value) {
+                  setState(() {
+                    widget.addSalesBloc.selectedPaymentList = value;
+                  });
+
+                  //  widget.addSalesBloc.isSplitPaymentStreamController(true);
+                },
+              ),
+        TldsInputFormField(
+          controller: widget.addSalesBloc.paidAmountController,
+          hintText: AppConstants.amount,
+          inputFormatters: TlInputFormatters.onlyAllowDecimalNumbers,
+          validator: (value) {
+            if (value?.isEmpty == true) {
+              return AppConstants.enterAmt;
+            }
+            return null;
+          },
+        ),
+        Visibility(
+          visible: ['UPI ', 'CARD', 'CHEQUE']
+              .contains(widget.addSalesBloc.selectedPaymentList),
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 13),
+            child: SizedBox(
+              child: TldsInputFormField(
+                controller: widget.addSalesBloc.paymentTypeIdTextController,
+                hintText: '${widget.addSalesBloc.selectedPaymentList} ID',
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   _buildSplitPayment() {
     return Visibility(
       visible: widget.addSalesBloc.selectedPaymentOption == 'Credit',
@@ -625,10 +692,16 @@ class _PaymentDetailsState extends State<PaymentDetails> {
               return Row(
                 children: [
                   Switch(
-                    value: snapshot.data ?? widget.addSalesBloc.isSplitPayment,
+                    value: widget.addSalesBloc.isSplitPayment,
                     onChanged: (value) {
                       setState(() {
                         widget.addSalesBloc.isSplitPayment = value;
+                        widget.addSalesBloc
+                            .isSplitPaymentStreamController(true);
+
+                        if (!value) {
+                          clearSplitPaymentData();
+                        }
                       });
                     },
                   ),
@@ -640,33 +713,37 @@ class _PaymentDetailsState extends State<PaymentDetails> {
               );
             },
           ),
-          Visibility(
-            visible: widget.addSalesBloc.isSplitPayment,
-            child: SizedBox(
+          if (widget.addSalesBloc.isSplitPayment)
+            SizedBox(
               height: 400,
-              child: FutureBuilder(
-                future: widget.addSalesBloc.getPaymentsList(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Text(AppConstants.loading);
-                  } else if (snapshot.hasError) {
-                    return const Center(child: Text(AppConstants.errorLoading));
-                  } else if (!snapshot.hasData) {
-                    return const Center(
-                        child: Text('No payment configurations available'));
-                  } else {
-                    if (_checkedList.isEmpty) {
-                      _checkedList = List<bool>.filled(
-                          snapshot.data?.configuration?.length ?? 0, false);
-                    }
-                    return ListView.builder(
+              child: _paymentsListFuture?.isEmpty == true
+                  ? const Center(child: Text('No payments available'))
+                  : ListView.builder(
                       shrinkWrap: true,
-                      itemCount: snapshot.data?.configuration?.length,
+                      itemCount: _paymentsListFuture?.length,
                       itemBuilder: (context, index) {
-                        bool isVisible = snapshot.data?.configuration?[index] ==
-                                'CHEQUE' ||
-                            snapshot.data?.configuration?[index] == 'CARD' ||
-                            snapshot.data?.configuration?[index] == 'UPI';
+                        bool isVisible =
+                            _paymentsListFuture?[index] == 'CHEQUE' ||
+                                _paymentsListFuture?[index] == 'CARD' ||
+                                _paymentsListFuture?[index] == 'UPI ';
+
+                        // Initialize _checkedList safely
+                        if (_checkedList.length <= index) {
+                          _checkedList
+                              .add(false); // Initialize if not already done
+                        }
+
+                        // Initialize controllers outside the builder
+                        TextEditingController paidAmountController =
+                            TextEditingController(
+                                text:
+                                    widget.addSalesBloc.splitPaymentAmt[index]);
+
+                        TextEditingController idController =
+                            TextEditingController(
+                                text:
+                                    widget.addSalesBloc.splitPaymentId[index]);
+
                         return Column(
                           children: [
                             Row(
@@ -675,85 +752,103 @@ class _PaymentDetailsState extends State<PaymentDetails> {
                               children: [
                                 Expanded(
                                   child: CheckboxListTile(
-                                    title: Text(
-                                        snapshot.data?.configuration?[index] ??
-                                            ''),
+                                    title:
+                                        Text(_paymentsListFuture?[index] ?? ''),
                                     value: _checkedList[index],
                                     onChanged: (newValue) {
-                                      _checkedList[index] = newValue ?? false;
-                                      widget.addSalesBloc.paymentName[index] =
-                                          snapshot.data
-                                                  ?.configuration?[index] ??
-                                              '';
+                                      setState(() {
+                                        _checkedList[index] = newValue ?? false;
+                                        if (!(newValue ?? false)) {
+                                          paidAmountController.clear();
+                                          idController
+                                              .clear(); // Clear ID field when unchecked
+                                          widget.addSalesBloc
+                                              .splitPaymentAmt[index] = '';
+                                          widget.addSalesBloc
+                                                  .splitPaymentId[index] =
+                                              ''; // Clear ID data
+                                        }
+                                        widget.addSalesBloc.paymentName[index] =
+                                            _paymentsListFuture?[index] ?? '';
+                                        widget.addSalesBloc
+                                            .splitPaymentCheckBoxStreamController(
+                                                true);
+                                      });
                                     },
                                     controlAffinity:
                                         ListTileControlAffinity.leading,
                                   ),
                                 ),
-                                AppWidgetUtils.buildSizedBox(custHeight: 10),
+                                SizedBox(height: 10),
                                 Visibility(
                                   visible: _checkedList[index],
                                   child: Expanded(
                                     child: TldsInputFormField(
-                                      controller: TextEditingController(),
+                                      controller: paidAmountController,
                                       hintText: 'Paid Amount',
+                                      inputFormatters: TlInputFormatters
+                                          .onlyAllowDecimalNumbers,
                                       onChanged: (value) {
+                                        // Update the splitPaymentAmt directly
                                         widget.addSalesBloc
                                             .splitPaymentAmt[index] = value;
-                                        widget.addSalesBloc
-                                            .isSplitPaymentStreamController(
-                                                true);
-                                        print(widget.addSalesBloc
-                                            .splitPaymentAmt[index] = value);
                                       },
                                     ),
                                   ),
                                 )
                               ],
                             ),
-                            AppWidgetUtils.buildSizedBox(custHeight: 10),
+                            SizedBox(height: 10),
                             Visibility(
                               visible: _checkedList[index] && isVisible,
                               child: Padding(
                                 padding: const EdgeInsets.only(bottom: 13),
                                 child: SizedBox(
                                   child: TldsInputFormField(
-                                    controller: TextEditingController(),
+                                    controller: idController,
                                     hintText:
-                                        '${snapshot.data?.configuration?[index]} ID',
+                                        '${_paymentsListFuture?[index]} ID',
+                                    onChanged: (value) {
+                                      // Update the splitPaymentId directly
+                                      widget.addSalesBloc
+                                          .splitPaymentId[index] = value;
+                                    },
                                   ),
                                 ),
                               ),
                             ),
-                            //  AppWidgetUtils.buildSizedBox(custHeight: 10),
                           ],
                         );
                       },
-                    );
-                  }
-                },
-              ),
+                    ),
             ),
-          ),
-          AppWidgetUtils.buildSizedBox(custHeight: 10),
+          if (!widget.addSalesBloc.isSplitPayment) _buildPaiddetails(),
+          SizedBox(height: 10),
         ],
       ),
     );
+  }
+
+  void clearSplitPaymentData() {
+    // Clear all split payment data when switching off
+    for (int i = 0; i < widget.addSalesBloc.splitPaymentAmt.length; i++) {
+      widget.addSalesBloc.splitPaymentAmt[i] = '';
+      widget.addSalesBloc.splitPaymentId[i] = '';
+      _checkedList[i] = false;
+    }
+    // Notify streams or controllers if needed
+    widget.addSalesBloc.splitPaymentCheckBoxStreamController(true);
   }
 
   _buildSaveBtn() {
     return CustomActionButtons(
         onPressed: () {
           if (widget.addSalesBloc.paymentFormKey.currentState!.validate()) {
-            var salesObject = salesPostObject();
-
-            // // Print the sales object before posting
-            // print('Sales Object: $salesObject');
-
             widget.addSalesBloc.addNewSalesDeatils(salesPostObject(),
                 (statusCode) {
               if (statusCode == 200 || statusCode == 201) {
-                Navigator.of(context);
+                Navigator.pop(context);
+                widget.salesViewBloc.pageNumberUpdateStreamController(0);
                 AppWidgetUtils.buildToast(
                     context,
                     ToastificationType.success,
@@ -829,6 +924,13 @@ class _PaymentDetailsState extends State<PaymentDetails> {
         paidDetails.add(paidDetail);
       }
     }
+    paidDetails.add(PaidDetail(
+      paymentType: widget.addSalesBloc.selectedPaymentList,
+      paidAmount: double.tryParse(
+        widget.addSalesBloc.paidAmountController.text,
+      ),
+      paymentDate: DateFormat('yyyy-MM-dd').format(DateTime.now()),
+    ));
 
     List<Incentive> insentive = [];
     if (widget.addSalesBloc.stateIncentiveTextController.text.isNotEmpty) {
@@ -920,7 +1022,6 @@ class _PaymentDetailsState extends State<PaymentDetails> {
         mandatoryAddons: mandatoryAddonsMap,
         netAmt: 0,
         paidDetails: paidDetails,
-        paymentStatus: 'COMPLETED',
         roundOffAmt:
             double.parse(widget.addSalesBloc.totalInvAmount.toString()),
         totalQty: widget.addSalesBloc.selectedVehiclesList?.length ??

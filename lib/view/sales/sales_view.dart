@@ -11,6 +11,7 @@ import 'package:tlbilling/utils/app_util_widgets.dart';
 import 'package:tlbilling/utils/app_utils.dart';
 import 'package:tlbilling/utils/input_formates.dart';
 import 'package:tlbilling/view/sales/add_sales.dart';
+import 'package:tlbilling/view/sales/payment_dialog.dart';
 import 'package:tlbilling/view/sales/sales_report_pdf.dart';
 import 'package:tlbilling/view/sales/sales_view_bloc.dart';
 import 'package:tlds_flutter/util/app_colors.dart';
@@ -112,7 +113,8 @@ class _SalesViewScreenState extends State<SalesViewScreen>
                 Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const AddSales(),
+                      builder: (context) =>
+                          AddSales(salesViewBloc: _salesViewBloc),
                     ));
               },
             )
@@ -178,7 +180,7 @@ class _SalesViewScreenState extends State<SalesViewScreen>
       child: TabBar(
         controller: _salesViewBloc.salesTabController,
         tabs: const [
-          Tab(text: AppConstants.all),
+          //   Tab(text: AppConstants.all),
           Tab(text: AppConstants.today),
           Tab(text: AppConstants.pending),
           Tab(text: AppConstants.completed),
@@ -193,7 +195,7 @@ class _SalesViewScreenState extends State<SalesViewScreen>
         physics: const NeverScrollableScrollPhysics(),
         controller: _salesViewBloc.salesTabController,
         children: [
-          _buildSalesTableView(context),
+          // _buildSalesTableView(context),
           _buildSalesTableView(context),
           _buildSalesTableView(context),
           _buildSalesTableView(context),
@@ -237,7 +239,7 @@ class _SalesViewScreenState extends State<SalesViewScreen>
                             _buildVehicleTableHeader(AppConstants.sno),
                             _buildVehicleTableHeader(AppConstants.invoiceNo),
                             _buildVehicleTableHeader(AppConstants.invoiceDate),
-                            _buildVehicleTableHeader(AppConstants.customerId),
+                            // _buildVehicleTableHeader(AppConstants.customerId),
                             _buildVehicleTableHeader(AppConstants.customerName),
                             _buildVehicleTableHeader(AppConstants.mobileNumber),
                             _buildVehicleTableHeader(AppConstants.paymentType),
@@ -245,7 +247,7 @@ class _SalesViewScreenState extends State<SalesViewScreen>
                                 AppConstants.totalInvAmount),
                             _buildVehicleTableHeader(
                                 AppConstants.pendingInvAmt),
-                            _buildVehicleTableHeader(AppConstants.balanceAmt),
+                            // _buildVehicleTableHeader(AppConstants.balanceAmt),
                             _buildVehicleTableHeader(AppConstants.status),
                             _buildVehicleTableHeader(AppConstants.createdBy),
                             _buildVehicleTableHeader(AppConstants.action),
@@ -263,19 +265,37 @@ class _SalesViewScreenState extends State<SalesViewScreen>
                                 DataCell(Text(entry.value.invoiceNo ?? '')),
                                 DataCell(Text(AppUtils.apiToAppDateFormat(
                                     entry.value.invoiceDate.toString()))),
-                                DataCell(Text(entry.value.customerId ?? '')),
+                                //  DataCell(Text(entry.value.customerId ?? '')),
                                 DataCell(Text(entry.value.customerName ?? '')),
                                 DataCell(Text(entry.value.mobileNo ?? '')),
                                 DataCell(Text(entry.value.billType.toString())),
                                 DataCell(Text(AppUtils.formatCurrency(
-                                    entry.value.totalInvoiceAmt!.toDouble()))),
+                                    entry.value.totalInvoiceAmt?.toDouble() ??
+                                        0))),
                                 DataCell(Text(AppUtils.formatCurrency(
-                                    entry.value.pendingAmt!.toDouble()))),
-                                DataCell(Text(AppUtils.formatCurrency(
-                                    entry.value.pendingAmt!.toDouble()))),
+                                    entry.value.pendingAmt?.toDouble() ?? 0))),
+                                // DataCell(Text(AppUtils.formatCurrency(
+                                //     entry.value.pendingAmt!.toDouble()))),
                                 DataCell(Chip(
-                                    label:
-                                        Text(entry.value.paymentStatus ?? ''))),
+                                    side: BorderSide(
+                                        color: entry.value.paymentStatus ==
+                                                'COMPLETED'
+                                            ? _appColors.successColor
+                                            : _appColors.yellowColor),
+                                    backgroundColor: _appColors.whiteColor,
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(50)),
+                                    label: Text(
+                                      entry.value.paymentStatus == 'COMPLETED'
+                                          ? AppConstants.completed
+                                          : AppConstants.pending,
+                                      style: TextStyle(
+                                          color: entry.value.paymentStatus ==
+                                                  'COMPLETED'
+                                              ? _appColors.successColor
+                                              : _appColors.yellowColor),
+                                    ))),
                                 DataCell(
                                     Text(entry.value.branchName.toString())),
                                 DataCell(
@@ -283,8 +303,19 @@ class _SalesViewScreenState extends State<SalesViewScreen>
                                     children: [
                                       IconButton(
                                         icon: SvgPicture.asset(
-                                            AppConstants.icEdit),
-                                        onPressed: () {},
+                                            AppConstants.icpayment),
+                                        onPressed: () {
+                                          showDialog(
+                                            context: context,
+                                            builder: (context) {
+                                              return PaymentDailog(
+                                                salesViewBloc: _salesViewBloc,
+                                                totalInvAmt:
+                                                    entry.value.totalInvoiceAmt,
+                                              );
+                                            },
+                                          );
+                                        },
                                       ),
                                     ],
                                   ),

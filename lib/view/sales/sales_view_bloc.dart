@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:tlbilling/api_service/app_service_utils.dart';
 import 'package:tlbilling/models/get_model/get_all_sales_list_model.dart';
+import 'package:tlbilling/models/get_model/get_configuration_model.dart';
+import 'package:tlbilling/utils/app_constants.dart';
 
 abstract class SalesViewBloc {
   TextEditingController get invoiceNoTextController;
@@ -17,6 +19,14 @@ abstract class SalesViewBloc {
 
   TabController get salesTabController;
   Future<GetAllSales?> getSalesList();
+  GlobalKey<FormState> get paidAmtFormKey;
+  Future<GetConfigurationModel?> getPaymentsList();
+  String? get selectedPaymentName;
+  TextEditingController get paidAmountTextController;
+  TextEditingController get paymentIdTextControler;
+  TextEditingController get paymentDateTextController;
+  TextEditingController get totalInvAmtPaymentController;
+  TextEditingController get balanceAmtController;
 }
 
 class SalesViewBlocImpl extends SalesViewBloc {
@@ -30,6 +40,14 @@ class SalesViewBlocImpl extends SalesViewBloc {
   final _appServiceUtilBlocImpl = AppServiceUtilImpl();
   int _currentPage = 0;
   final _pageNumberStreamController = StreamController<int>.broadcast();
+  final _paidAmtFormKey = GlobalKey<FormState>();
+  final _paidAmountTextController = TextEditingController();
+  final _paymentIdTextControler = TextEditingController();
+  final _paymentDateTextController = TextEditingController();
+  final _totalInvAmtPaymentController = TextEditingController();
+  final _balanceAmtController = TextEditingController();
+
+  String? _selectedPaymentName = 'CASH';
 
   @override
   Stream<int> get pageNumberStream => _pageNumberStreamController.stream;
@@ -92,4 +110,37 @@ class SalesViewBlocImpl extends SalesViewBloc {
   set currentPage(int pageValue) {
     _currentPage = pageValue;
   }
+
+  @override
+  GlobalKey<FormState> get paidAmtFormKey => _paidAmtFormKey;
+
+  @override
+  Future<GetConfigurationModel?> getPaymentsList() async {
+    return await _appServiceUtilBlocImpl
+        .getConfigById(AppConstants.paymentTypes);
+  }
+
+  @override
+  String? get selectedPaymentName => _selectedPaymentName;
+  set selectedPaymentName(String? selectedPaymentName) {
+    _selectedPaymentName = selectedPaymentName;
+  }
+
+  @override
+  TextEditingController get paidAmountTextController =>
+      _paidAmountTextController;
+
+  @override
+  TextEditingController get paymentIdTextControler => _paymentIdTextControler;
+
+  @override
+  TextEditingController get paymentDateTextController =>
+      _paymentDateTextController;
+
+  @override
+  TextEditingController get totalInvAmtPaymentController =>
+      _totalInvAmtPaymentController;
+
+  @override
+  TextEditingController get balanceAmtController => _balanceAmtController;
 }

@@ -18,6 +18,7 @@ class AppConstants {
   static const view = 'View';
   static const reason = 'Reason';
   static const ttfPoppinsRegular = 'fonts/ttf_poppins_regular.ttf';
+  static const paidAmt = 'Paid Amount';
 
   //SharedPreference
   static const designation = 'designation';
@@ -71,6 +72,7 @@ class AppConstants {
   static const empTypeErrorMsg = 'Select Employee Type';
   static const userValidation = 'Select Username';
   static const designationValidation = 'Select Validation';
+  static const enterAmt = 'Enter Amount';
 
   //icons
   static const icEnquiry = 'assets/icons/ic_forenquiry_login.svg';
@@ -114,6 +116,7 @@ class AppConstants {
   static const icNextPage = 'assets/icons/ic_next_page.svg';
   static const icPrevPage = 'assets/icons/ic_prev_page.svg';
   static const icInfo = 'assets/icons/ic_info.svg';
+  static const icpayment = 'assets/icons/ic_payment.svg';
 
   //json
   static const jsonLoader = 'assets/json/json_loading_animation.json';
@@ -222,6 +225,7 @@ class AppConstants {
   //purchase
   static const invoiceNo = 'Invoice No';
   static const paymentType = 'Payment Type';
+  static const paymentMethod = 'Payment Methods';
   static const invoiceDate = 'Invoice Date';
   static const customerId = 'Customer id';
   static const partNo = 'Part No';
