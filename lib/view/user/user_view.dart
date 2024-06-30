@@ -130,7 +130,7 @@ class _UserViewState extends State<UserView> {
                   } else {
                     _userViewBlocImpl.searchUserNameAndMobNoController.clear();
                     _userViewBlocImpl.usersListStream(false);
-                    //  _userViewBlocImpl.pageNumberUpdateStreamController(0);
+                    _userViewBlocImpl.pageNumberUpdateStreamController(0);
                   }
                 },
                 icon: Icon(
@@ -140,6 +140,7 @@ class _UserViewState extends State<UserView> {
               ),
               onSubmit: (value) {
                 if (value.isNotEmpty) {
+                  _userViewBlocImpl.pageNumberUpdateStreamController(0);
                   _userViewBlocImpl.usersListStream(true);
                   _userViewBlocImpl.getUserList();
                 }
@@ -192,6 +193,9 @@ class _UserViewState extends State<UserView> {
                                     AppConstants.designation,
                                   ),
                                   _builduserTableHeader(
+                                    AppConstants.branchName,
+                                  ),
+                                  _builduserTableHeader(
                                     AppConstants.action,
                                   ),
                                 ],
@@ -216,6 +220,8 @@ class _UserViewState extends State<UserView> {
                                                 entry.value.mobileNumber),
                                             _buildTableRow(
                                                 entry.value.designation),
+                                            _buildTableRow(
+                                                entry.value.branchName),
                                             DataCell(
                                               _buildUserActiveInActiveSwitch(
                                                   entry),

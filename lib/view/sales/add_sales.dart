@@ -6,11 +6,13 @@ import 'package:tlbilling/utils/app_util_widgets.dart';
 import 'package:tlbilling/view/sales/add_sales_bloc.dart';
 import 'package:tlbilling/view/sales/customer_details.dart';
 import 'package:tlbilling/view/sales/payment_details.dart';
+import 'package:tlbilling/view/sales/sales_view_bloc.dart';
 import 'package:tlbilling/view/sales/selected_sales_data.dart';
 import 'package:tlbilling/view/sales/vechile_accessories_list.dart';
 
 class AddSales extends StatefulWidget {
-  const AddSales({super.key});
+  final SalesViewBlocImpl salesViewBloc;
+  const AddSales({super.key, required this.salesViewBloc});
 
   @override
   State<AddSales> createState() => _AddSalesState();
@@ -79,6 +81,7 @@ class _AddSalesState extends State<AddSales> {
                   vertical: BorderSide(color: _appColors.grey)),
             ),
             child: PaymentDetails(
+              salesViewBloc: widget.salesViewBloc,
               addSalesBloc: _addSalesBloc,
             ),
           ),

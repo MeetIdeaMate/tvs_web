@@ -366,7 +366,7 @@ class _TransferViewState extends State<TransferView>
                   child: AppWidgetUtils.buildLoading(),
                 );
               } else if (snapshot.hasData) {
-                if (snapshot.data?.isEmpty == true) {
+                if (!snapshot.hasData || snapshot.data?.isEmpty == true) {
                   return Center(
                     child: SvgPicture.asset(AppConstants.imgNoData),
                   );
@@ -449,7 +449,7 @@ class _TransferViewState extends State<TransferView>
                   DataCell(
                     Row(
                       children: [
-                          PopupMenuButton(
+                        PopupMenuButton(
                           itemBuilder: (context) {
                             return <PopupMenuEntry>[
                               const PopupMenuItem(

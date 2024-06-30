@@ -182,7 +182,8 @@ class _CustomerViewState extends State<CustomerView> {
                     child: AppWidgetUtils.buildLoading(),
                   );
                 } else if (snapshot.hasData) {
-                  if (customerDetails?.isEmpty ?? false) {
+                  if (!snapshot.hasData ||
+                      snapshot.data?.getAllCustomersModel?.isEmpty == true) {
                     return Center(
                       child: SvgPicture.asset(AppConstants.imgNoData),
                     );

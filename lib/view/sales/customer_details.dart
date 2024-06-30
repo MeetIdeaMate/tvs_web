@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:tlbilling/components/custom_elevated_button.dart';
+import 'package:tlbilling/models/get_model/get_all_customer_name_list.dart';
 import 'package:tlbilling/models/get_model/get_all_customers_model.dart';
 import 'package:tlbilling/utils/app_colors.dart';
 import 'package:tlbilling/utils/app_constants.dart';
@@ -41,23 +42,6 @@ class _CustomerDetailsState extends State<CustomerDetails> {
         AppWidgetUtils.buildSizedBox(custHeight: 10),
         //  if (widget.addSalesBloc.selectedCustomer != null)
         _buildSelectedCustomerDetails(),
-        // AppWidgetUtils.buildSizedBox(custHeight: 10),
-        // Text(
-        //   AppConstants.paymentDetails,
-        //   style: TextStyle(
-        //       color: _appColors.primaryColor,
-        //       fontSize: 17,
-        //       fontWeight: FontWeight.bold),
-        // ),
-        // AppWidgetUtils.buildSizedBox(custHeight: 7),
-        // _buildPaymentMethodSelection(context),
-        // const Spacer(),
-        // CustomActionButtons(
-        //     onPressed: () {
-        //       if (widget.addSalesBloc.selectedPaymentOption != null ||
-        //           widget.addSalesBloc.selectedCustomer != null) {}
-        //     },
-        //     buttonText: AppConstants.save)
       ],
     );
   }
@@ -156,30 +140,46 @@ class _CustomerDetailsState extends State<CustomerDetails> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Expanded(
-          child: FutureBuilder(
-            future: widget.addSalesBloc.getAllCustomerList(),
+          child: StreamBuilder<bool>(
+            stream: widget.addSalesBloc.customerSelectstream,
             builder: (context, snapshot) {
-              var customerList = snapshot.data ;
-              List<String>? customerNamesList =
-                  customerList?.map((e) => e.customerName ?? '').toList();
-              return TldsDropDownButtonFormField(
-                height: 70,
-                validator: (String? value) {
-                  if (value == null || value.isEmpty) {
-                    return AppConstants.selectCustomer;
+              return FutureBuilder<List<GetAllCustomerNameList>?>(
+                future: widget.addSalesBloc.getAllCustomerList(),
+                builder: (context, customerSnapshot) {
+                  if (customerSnapshot.connectionState ==
+                      ConnectionState.waiting) {
+                    return const Text(AppConstants.loading);
                   }
-                  return null;
-                },
-                width: MediaQuery.sizeOf(context).width * 0.22,
-                hintText: AppConstants.selectCustomer,
-                dropDownItems: customerNamesList ?? [],
-                onChange: (String? newValue) {
-                  var selectedVendor = customerList!.firstWhere(
-                      (customer) => customer.customerName == newValue);
-                  widget.addSalesBloc.selectedCustomerId =
-                      selectedVendor.customerId;
-                  widget.addSalesBloc
-                      .selectedCustomerDetailsStreamController(true);
+
+                  if (customerSnapshot.hasError) {
+                    return const Text(AppConstants.errorLoading);
+                  }
+
+                  var customerList = customerSnapshot.data;
+                  List<String>? customerNamesList =
+                      customerList?.map((e) => e.customerName ?? '').toList();
+
+                  return TldsDropDownButtonFormField(
+                    height: 70,
+                    validator: (String? value) {
+                      if (value == null || value.isEmpty) {
+                        return AppConstants.selectCustomer;
+                      }
+                      return null;
+                    },
+                    width: MediaQuery.sizeOf(context).width * 0.22,
+                    hintText: AppConstants.selectCustomer,
+                    dropDownValue: widget.addSalesBloc.selectedCustomer,
+                    dropDownItems: customerNamesList ?? [],
+                    onChange: (String? newValue) {
+                      var selectedVendor = customerList!.firstWhere(
+                          (customer) => customer.customerName == newValue);
+                      widget.addSalesBloc.selectedCustomerId =
+                          selectedVendor.customerId;
+                      widget.addSalesBloc
+                          .selectedCustomerDetailsStreamController(true);
+                    },
+                  );
                 },
               );
             },
@@ -200,110 +200,13 @@ class _CustomerDetailsState extends State<CustomerDetails> {
               showDialog(
                 context: context,
                 builder: (context) {
-                  return const CreateCustomerDialog();
+                  return CreateCustomerDialog(bloc: widget.addSalesBloc);
                 },
               );
             },
           ),
-        )
+        ),
       ],
     );
   }
-
-  // Widget _buildCustomRadioTile({
-  //   required String value,
-  //   required String? groupValue,
-  //   required ValueChanged<String?> onChanged,
-  //   required IconData icon,
-  //   required String label,
-  // }) {
-  //   bool isSelected = value == groupValue;
-
-  //   return GestureDetector(
-  //     onTap: () {
-  //       onChanged(value);
-  //     },
-  //     child: Container(
-  //       margin: const EdgeInsets.all(8.0),
-  //       width: 180,
-  //       height: 50,
-  //       decoration: BoxDecoration(
-  //         color: Colors.white,
-  //         borderRadius: BorderRadius.circular(8.0),
-  //         border: Border.all(
-  //           color: isSelected
-  //               ? Theme.of(context).primaryColor
-  //               : _appColors.greyColor,
-  //           width: isSelected ? 2.0 : 1.0,
-  //         ),
-  //       ),
-  //       child: Row(
-  //         children: [
-  //           Padding(
-  //             padding: const EdgeInsets.symmetric(horizontal: 8.0),
-  //             child: Icon(
-  //               icon,
-  //               color:
-  //                   isSelected ? _appColors.primaryColor : _appColors.greyColor,
-  //             ),
-  //           ),
-  //           Expanded(
-  //             child: Text(
-  //               label,
-  //               style: TextStyle(
-  //                   fontSize: 16.0,
-  //                   color: isSelected
-  //                       ? _appColors.primaryColor
-  //                       : _appColors.greyColor),
-  //             ),
-  //           ),
-  //           Radio<String>(
-  //             value: value,
-  //             groupValue: groupValue,
-  //             onChanged: onChanged,
-  //           ),
-  //         ],
-  //       ),
-  //     ),
-  //   );
-  // }
-
-  // Widget _buildPaymentOptions() {
-  //   return FutureBuilder(
-  //     future: widget.addSalesBloc.getPaymentmethods(),
-  //     builder: (context, snapshot) {
-  //       if (snapshot.connectionState == ConnectionState.waiting) {
-  //         return const Center(
-  //           child: CircularProgressIndicator(),
-  //         );
-  //       } else if (snapshot.hasData) {
-  //         return SizedBox(
-  //           height: 200,
-  //           width: 180,
-  //           child: ListView.separated(
-  //             itemCount: snapshot.data?.length ?? 0,
-  //             itemBuilder: (context, index) => _buildCustomRadioTile(
-  //               value: snapshot.data?[index].toString() ?? '',
-  //               groupValue: widget.addSalesBloc.selectedPaymentOption,
-  //               onChanged: (value) {
-  //                 setState(() {
-  //                   widget.addSalesBloc.selectedPaymentOption = value!;
-  //                 });
-  //               },
-  //               icon: Icons.payment,
-  //               label: snapshot.data?[index].toUpperCase() ?? '',
-  //             ),
-  //             separatorBuilder: (BuildContext context, int index) {
-  //               return AppWidgetUtils.buildSizedBox(custHeight: 8);
-  //             },
-  //           ),
-  //         );
-  //       } else {
-  //         return const Center(
-  //           child: Text('No Payment Methods Available'),
-  //         );
-  //       }
-  //     },
-  //   );
-  // }
 }

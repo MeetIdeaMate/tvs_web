@@ -24,11 +24,13 @@ abstract class AddSalesBloc {
   Stream get selectedItemStreamController;
   Stream get availableAccListStreamController;
   Stream<List<GetAllStockDetails>> get filteredAccListStreamController;
-  Stream get paymentDetailsStream;
+  Stream<bool> get paymentDetailsStream;
   Stream<bool> get paymentOptionStream;
   Stream<bool> get isSplitPaymentStream;
   Stream<bool> get batteryDetailsRefreshStream;
   Stream<bool> get mandatoryRefereshStream;
+  Stream<bool> get customerSelectstream;
+  Stream<bool> get splitPaymentCheckBoxStream;
 
   TextEditingController get discountTextController;
   TextEditingController get transporterVehicleNumberController;
@@ -39,6 +41,8 @@ abstract class AddSalesBloc {
   TextEditingController get batteryCapacityTextController;
   TextEditingController get empsIncentiveTextController;
   TextEditingController get stateIncentiveTextController;
+  TextEditingController get paidAmountController;
+  TextEditingController get paymentTypeIdTextController;
 
   GlobalKey<FormState> get paymentFormKey;
 
@@ -55,6 +59,8 @@ abstract class AddSalesBloc {
   Map<int, String> get unitRates;
 
   Map<int, String> get splitPaymentAmt;
+
+  Map<int, String> get splitPaymentId;
 
   Map<int, String> get paymentName;
 
@@ -78,6 +84,7 @@ abstract class AddSalesBloc {
   String get selectedTypeDuplicateKeys;
   String? get selectedGstType;
   String? get branchId;
+  String? get selectedPaymentList;
 
   bool get isDiscountChecked;
   bool get isInsurenceChecked;
@@ -129,6 +136,8 @@ class AddSalesBlocImpl extends AddSalesBloc {
   final _transporterVehicleNumberController = TextEditingController();
   final _vehicleNoAndEngineNoSearchController = TextEditingController();
   final _unitRateControllers = TextEditingController();
+  final _paidAmountController = TextEditingController();
+  final _paymentTypeIdTextController = TextEditingController();
   final Map<int, String> _unitRate = {};
   final Map<int, String> _accessoriesQty = {};
   final Map<String, String> _batteryDetailsMap = {};
@@ -139,11 +148,13 @@ class AddSalesBlocImpl extends AddSalesBloc {
   final _igstPresentageTextController = TextEditingController();
   final _empsInsentivetextEditController = TextEditingController();
   final _stateInsentivetextEditController = TextEditingController();
+
   final _availableVehicleListStreamController = StreamController.broadcast();
   final __availableAccListStreamController = StreamController.broadcast();
   final _filteredAccListStreamController =
       StreamController<List<GetAllStockDetails>>.broadcast();
-  final _paymentDetailsStream = StreamController.broadcast();
+  final _paymentDetailsStream = StreamController<bool>.broadcast();
+  final _custerNameSelectStream = StreamController<bool>.broadcast();
 
   final _betteryNameTextController = TextEditingController();
   final _batteryCapacityTextController = TextEditingController();
@@ -169,6 +180,7 @@ class AddSalesBlocImpl extends AddSalesBloc {
   String? _selectedVehicleAndAccessories;
   String? _selectedBranch;
   String? _selectedCustomer;
+  String? _selectedPaymentList = 'CASH';
   int initialValue = 0;
   final List<Widget> _selectedItems = [];
   int? _salesIndex = 0;
@@ -198,6 +210,8 @@ class AddSalesBlocImpl extends AddSalesBloc {
   final _selectedAccessoriesListStream = StreamController.broadcast();
 
   final _selectedCustomerDetailsViewStream = StreamController.broadcast();
+
+  final _splitPaymentCheckBoxStream = StreamController<bool>.broadcast();
 
   final _paymentFormKey = GlobalKey<FormState>();
   String? _selectedPaymentOption;
@@ -521,9 +535,10 @@ class AddSalesBlocImpl extends AddSalesBloc {
 
   @override
   TextEditingController get hsnCodeTextController => _hsnCodeTextController;
+  final Map<int, String> _splitPaymentId = {};
 
   @override
-  Stream get paymentDetailsStream => _paymentDetailsStream.stream;
+  Stream<bool> get paymentDetailsStream => _paymentDetailsStream.stream;
   paymentDetailsStreamController(bool newValue) {
     _paymentDetailsStream.add(newValue);
   }
@@ -706,4 +721,35 @@ class AddSalesBlocImpl extends AddSalesBloc {
 
   @override
   Map<int, String> get paymentName => _paymentName;
+
+  @override
+  Stream<bool> get customerSelectstream => _custerNameSelectStream.stream;
+
+  customerNameStreamcontroller(bool newvalue) {
+    _custerNameSelectStream.add(newvalue);
+  }
+
+  @override
+  Stream<bool> get splitPaymentCheckBoxStream =>
+      _splitPaymentCheckBoxStream.stream;
+
+  splitPaymentCheckBoxStreamController(bool newValue) {
+    _splitPaymentCheckBoxStream.add(newValue);
+  }
+
+  @override
+  String? get selectedPaymentList => _selectedPaymentList;
+  set selectedPaymentList(String? value) {
+    _selectedPaymentList = value;
+  }
+
+  @override
+  TextEditingController get paidAmountController => _paidAmountController;
+
+  @override
+  TextEditingController get paymentTypeIdTextController =>
+      _paymentTypeIdTextController;
+
+  @override
+  Map<int, String> get splitPaymentId => _splitPaymentId;
 }

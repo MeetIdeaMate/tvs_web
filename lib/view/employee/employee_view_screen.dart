@@ -222,7 +222,8 @@ class _EmployeeViewState extends State<EmployeeView> {
               } else if (snapshot.hasError) {
                 return const Center(
                     child: Text(AppConstants.somethingWentWrong));
-              } else if (!snapshot.hasData) {
+              } else if (!snapshot.hasData ||
+                  snapshot.data?.content?.isEmpty == true) {
                 return Center(child: SvgPicture.asset(AppConstants.imgNoData));
               }
               GetAllEmployeesByPaginationModel employeeListmodel =

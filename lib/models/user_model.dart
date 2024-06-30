@@ -67,6 +67,7 @@ class UserDetailsList {
   String? userName;
   String? mobileNumber;
   String? password;
+  String? branchName;
   String? designation;
   DateTime? createdDateTime;
   String? createdBy;
@@ -81,6 +82,7 @@ class UserDetailsList {
     this.mobileNumber,
     this.password,
     this.designation,
+    this.branchName,
     this.createdDateTime,
     this.createdBy,
     this.updatedDateTime,
@@ -96,6 +98,7 @@ class UserDetailsList {
         mobileNumber: json["mobileNumber"],
         password: json["password"],
         designation: json["designation"],
+        branchName: json['branchName'],
         createdDateTime: json["createdDateTime"] == null
             ? null
             : DateTime.parse(json["createdDateTime"]),
@@ -114,6 +117,7 @@ class UserDetailsList {
         "mobileNumber": mobileNumber,
         "password": password,
         "designation": designation,
+        'branchName': branchName,
         "createdDateTime": createdDateTime?.toIso8601String(),
         "createdBy": createdBy,
         "updatedDateTime": updatedDateTime?.toIso8601String(),

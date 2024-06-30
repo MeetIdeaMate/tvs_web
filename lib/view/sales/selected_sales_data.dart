@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -341,6 +342,13 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
                     widget.addSalesBloc.selectedItemStream(true);
                     widget.addSalesBloc.vehicleData?.add(vehicle);
                     widget.addSalesBloc.availableVehicleListStream(true);
+                    widget.addSalesBloc.cgstPresentageTextController.clear();
+                    //  widget.addSalesBloc.sgstPresentageTextController.clear();
+                    widget.addSalesBloc.igstPresentageTextController.clear();
+                    widget.addSalesBloc.discountTextController.clear();
+                    widget.addSalesBloc.stateIncentiveTextController.clear();
+                    widget.addSalesBloc.empsIncentiveTextController.clear();
+                    _buildPaymentCalculation();
                   },
                   icon: SvgPicture.asset(
                     AppConstants.icFilledClose,
@@ -489,6 +497,8 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
                               controller: qtyController,
                               textAlign: TextAlign.center,
                               hintText: 'Qty',
+                              inputFormatters:
+                                  TlInputFormatters.onlyAllowNumbers,
                               onChanged: (value) {
                                 if (value.isEmpty) return;
                                 int? intValue = int.tryParse(value);
@@ -550,15 +560,23 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
                     ),
                     IconButton(
                       onPressed: () {
-                        setState(() {
-                          widget.addSalesBloc.slectedAccessoriesList
-                              ?.removeAt(index);
-                          widget.addSalesBloc.selectedItemStream(true);
-                          widget.addSalesBloc
-                              .selectedAccessoriesListStreamController(true);
-                          widget.addSalesBloc.accessoriesData?.add(accessories);
-                          widget.addSalesBloc.availableAccListStream(true);
-                        });
+                        widget.addSalesBloc.slectedAccessoriesList
+                            ?.removeAt(index);
+                        widget.addSalesBloc.selectedItemStream(true);
+                        widget.addSalesBloc
+                            .selectedAccessoriesListStreamController(true);
+                        widget.addSalesBloc.accessoriesData?.add(accessories);
+                        widget.addSalesBloc.availableAccListStream(true);
+                        widget.addSalesBloc.cgstPresentageTextController
+                            .clear();
+                        //  widget.addSalesBloc.sgstPresentageTextController.clear();
+                        widget.addSalesBloc.igstPresentageTextController
+                            .clear();
+                        widget.addSalesBloc.discountTextController.clear();
+                        widget.addSalesBloc.stateIncentiveTextController
+                            .clear();
+                        widget.addSalesBloc.empsIncentiveTextController.clear();
+                        _updateTotalValue();
                       },
                       icon: SvgPicture.asset(AppConstants.icFilledClose),
                     ),
@@ -579,14 +597,14 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
 
     for (int i = 0; i < accessoriesQty; i++) {
       print(widget.addSalesBloc.accessoriesQty[i]);
-      int qty = int.tryParse(widget.addSalesBloc.accessoriesQty[i] ?? '1') ?? 1;
+      int qty = int.tryParse(widget.addSalesBloc.accessoriesQty[i] ?? '0') ?? 1;
       double unitRate =
           double.tryParse(widget.addSalesBloc.unitRates[i] ?? '0.0') ?? 0.0;
       totalUnitValue += unitRate * qty;
     }
     print(totalUnitValue);
 
-    widget.addSalesBloc.totalValue = totalUnitValue * accessoriesQty;
+    widget.addSalesBloc.paymentDetailsStreamController(true);
 
     double cgstPercent = double.tryParse(
             widget.addSalesBloc.cgstPresentageTextController.text) ??
@@ -594,14 +612,17 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
     double sgstPercent = double.tryParse(
             widget.addSalesBloc.cgstPresentageTextController.text) ??
         0;
-
-    widget.addSalesBloc.taxableValue = totalUnitValue;
+    widget.addSalesBloc.totalValue = totalUnitValue * accessoriesQty;
+    print('***************${widget.addSalesBloc.totalValue}');
+    widget.addSalesBloc.paymentDetailsStreamController(true);
+    widget.addSalesBloc.taxableValue = widget.addSalesBloc.totalValue;
     widget.addSalesBloc.cgstAmount = (totalUnitValue / 100) * cgstPercent;
     widget.addSalesBloc.sgstAmount = (totalUnitValue / 100) * sgstPercent;
 
     double taxableValue = widget.addSalesBloc.taxableValue ?? 0;
     widget.addSalesBloc.invAmount =
         taxableValue + (widget.addSalesBloc.sgstAmount ?? 0) * 2;
+    _updateTotalInvoiceAmount();
 
     widget.addSalesBloc.paymentDetailsStreamController(true);
     widget.addSalesBloc.gstRadioBtnRefreashStreamController(true);

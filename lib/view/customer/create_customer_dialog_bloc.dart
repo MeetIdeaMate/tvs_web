@@ -24,7 +24,11 @@ abstract class CreateCustomerDialogBloc {
 
   bool? get isAsyncCall;
 
-  Future<void> addCustomer(Function(int? statusCode) onSuccessCallBack);
+  String? get branchId;
+
+  Future<void> addCustomer(
+      Function(int? statusCode, String? customerName, String? customerId)
+          onSuccessCallBack);
 
   Future<GetAllCustomersModel?> getCustomerDetails(String customerId);
 
@@ -44,6 +48,7 @@ class CreateCustomerDialogBlocImpl extends CreateCustomerDialogBloc {
   final _customerIFSCTextController = TextEditingController();
   final _apiCalls = AppServiceUtilImpl();
   bool? _isAsyncCall = false;
+  String? _branchId;
 
   @override
   TextEditingController get customerNameTextController =>
@@ -77,7 +82,16 @@ class CreateCustomerDialogBlocImpl extends CreateCustomerDialogBloc {
   GlobalKey<FormState> get customerFormKey => _customerFormKey;
 
   @override
-  Future<void> addCustomer(Function(int? statusCode) onSuccessCallBack) async {
+  String? get branchId => _branchId;
+
+  set branchId(String? value) {
+    _branchId = value;
+  }
+
+  @override
+  Future<void> addCustomer(
+      Function(int? statusCode, String? customerName, String? customerId)
+          onSuccessCallBack) async {
     return await _apiCalls.addCustomer(
         onSuccessCallBack,
         AddCustomerModel(
@@ -85,6 +99,7 @@ class CreateCustomerDialogBlocImpl extends CreateCustomerDialogBloc {
             address: customerAddressTextController.text,
             mobileNo: customerMobileNoTextController.text,
             accountNo: customerAccNoTextController.text,
+            branchName: branchId,
             city: customerCitytextcontroller.text,
             emailId: customerMailIdTextController.text,
             customerName: customerNameTextController.text,

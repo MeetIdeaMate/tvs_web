@@ -159,14 +159,15 @@ class _TransportViewState extends State<TransportView> {
               } else if (snapshot.hasError) {
                 return const Center(
                     child: Text(AppConstants.somethingWentWrong));
-              } else if (!snapshot.hasData) {
+              } else if (!snapshot.hasData ||
+                  snapshot.data?.transportDetails?.isEmpty == true) {
                 return Center(child: SvgPicture.asset(AppConstants.imgNoData));
               }
+
               GetTransportByPaginationModel? getTransportByPaginationModel =
                   snapshot.data!;
-
               List<TransportDetails> userData =
-                  snapshot.data?.transportDetails ?? [];
+                  getTransportByPaginationModel.transportDetails ?? [];
 
               return Column(
                 children: [
