@@ -779,7 +779,7 @@ class _PaymentDetailsState extends State<PaymentDetails> {
                                         ListTileControlAffinity.leading,
                                   ),
                                 ),
-                                SizedBox(height: 10),
+                                const SizedBox(height: 10),
                                 Visibility(
                                   visible: _checkedList[index],
                                   child: Expanded(
@@ -798,7 +798,7 @@ class _PaymentDetailsState extends State<PaymentDetails> {
                                 )
                               ],
                             ),
-                            SizedBox(height: 10),
+                            const SizedBox(height: 10),
                             Visibility(
                               visible: _checkedList[index] && isVisible,
                               child: Padding(
@@ -823,7 +823,7 @@ class _PaymentDetailsState extends State<PaymentDetails> {
                     ),
             ),
           if (!widget.addSalesBloc.isSplitPayment) _buildPaiddetails(),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
         ],
       ),
     );

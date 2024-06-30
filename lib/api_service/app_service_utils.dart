@@ -239,6 +239,8 @@ abstract class AppServiceUtil {
   Future<List<GetAllEmployeeModel>?> getAllExcutiveList();
 
   Future<ParentResponseModel> getAllVoucherData();
+  Future<void> salesPaymentUpdate(String paymentDate, String paymentType,
+      double paidAmt, String salesId, Function(int p1) onSuccessCallBack);
 }
 
 class AppServiceUtilImpl extends AppServiceUtil {
@@ -1067,8 +1069,6 @@ class AppServiceUtilImpl extends AppServiceUtil {
   Future<List<GetAllStocksWithoutPaginationModel>?> getAllStockList(
       String? categoryName, String? branchId) async {
     try {
-      print('************branch id 2 => $branchId');
-
       final dio = Dio();
       SharedPreferences prefs = await SharedPreferences.getInstance();
       var token = prefs.getString('token');
@@ -1143,7 +1143,6 @@ class AppServiceUtilImpl extends AppServiceUtil {
     var token = prefs.getString('token');
     dio.options.headers['Authorization'] = 'Bearer $token';
     String salesListUrl = '${AppUrl.sales}page?page=$currentPage&size=10';
-    print(salesListUrl);
 
     if (invoiceNo.isNotEmpty) {
       salesListUrl += '&invoiceNo=$invoiceNo';
@@ -1153,7 +1152,6 @@ class AppServiceUtilImpl extends AppServiceUtil {
     }
 
     final response = await dio.get(salesListUrl);
-    print(response.statusCode);
 
     return parentResponseModelFromJson(jsonEncode(response.data))
         .result
@@ -1216,10 +1214,7 @@ class AppServiceUtilImpl extends AppServiceUtil {
     if (reportId.isNotEmpty) {
       voucherListUrl += '&fromDate=$reportId';
     }
-    print('*************Voucher url => $voucherListUrl');
     var response = await dio.get(voucherListUrl);
-    print('*************Voucher res => ${jsonEncode(response.data)}');
-    print('*************Voucher sc => ${response.statusCode}');
     final responseList = parentResponseModelFromJson(jsonEncode(response.data));
 
     return responseList.result?.getAllVoucherWithPaganation;
@@ -1235,7 +1230,6 @@ class AppServiceUtilImpl extends AppServiceUtil {
       stocksListUrl += '?categoryName=$categoryName';
     }
     final response = await dio.get(stocksListUrl);
-    print(response.statusCode);
 
     return parentResponseModelFromJson(jsonEncode(response.data))
         .result
@@ -1361,7 +1355,6 @@ class AppServiceUtilImpl extends AppServiceUtil {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       var token = prefs.getString('token');
       dio.options.headers['Authorization'] = 'Bearer $token';
-      print(currentIndex);
 
       String url = '${AppUrl.stock}/cumulative/page?page=$currentIndex&size=10';
       if (status != null && status.isNotEmpty) {
@@ -1377,8 +1370,6 @@ class AppServiceUtilImpl extends AppServiceUtil {
         }
       }
       var response = await dio.get(url);
-
-      print('*******URl Stock**********${response.data}');
 
       final responseList =
           parentResponseModelFromJson(jsonEncode(response.data));
@@ -1429,7 +1420,6 @@ class AppServiceUtilImpl extends AppServiceUtil {
   Future<void> addNewBookingDetails(BookingModel bookingPostObj,
       Function(int statusCode) onSuccessCallBack) async {
     try {
-      print('************obj booking = > ${jsonEncode(bookingPostObj)}');
       final dio = Dio();
       SharedPreferences prefs = await SharedPreferences.getInstance();
       var token = prefs.getString('token');
@@ -1437,8 +1427,6 @@ class AppServiceUtilImpl extends AppServiceUtil {
       var response =
           await dio.post(AppUrl.booking, data: jsonEncode(bookingPostObj));
       onSuccessCallBack(response.statusCode ?? 0);
-      print('************Statuscode booking = > ${response.statusCode}');
-      print('************body booking = > ${response.data}');
     } on DioException catch (exception) {
       exception.response?.statusCode ?? 0;
       onSuccessCallBack(exception.response?.statusCode ?? 0);
@@ -1470,10 +1458,7 @@ class AppServiceUtilImpl extends AppServiceUtil {
       dio.options.headers['Authorization'] = 'Bearer $token';
       var jsonData = json.encode(salesdata);
 
-      print(jsonData);
-
       var response = await dio.post(AppUrl.sales, data: jsonData);
-      print('Response status code: ${response.statusCode}');
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         onSuccessCallBack(response.statusCode!);
@@ -1481,7 +1466,6 @@ class AppServiceUtilImpl extends AppServiceUtil {
         onSuccessCallBack(response.statusCode ?? 0);
       }
     } catch (e) {
-      print('Error adding new sales details: $e');
       onSuccessCallBack(0);
     }
   }
@@ -1494,25 +1478,11 @@ class AppServiceUtilImpl extends AppServiceUtil {
       var token = prefs.getString('token');
       dio.options.headers['Authorization'] = 'Bearer $token';
 
-      // Log the token for debugging purposes (be cautious with sensitive info in production)
-      print('Token: $token');
-
       var response =
           await dio.post(AppUrl.newVouchar, data: jsonEncode(voucharObj));
 
-      // Detailed logging
-      print('Request Data: ${jsonEncode(voucharObj)}');
-      print('Request URL: ${AppUrl.newVouchar}');
-      print('Response Status Code: ${response.statusCode}');
-      print('Response Data: ${response.data}');
-
       statusCode(response.statusCode);
     } on DioException catch (e) {
-      // Detailed error logging
-      print('Error Status Code: ${e.response?.statusCode}');
-      print('Error Response Data: ${e.response?.data}');
-      print('Error Message: ${e.message}');
-
       statusCode(e.response?.statusCode);
     }
   }
@@ -1526,5 +1496,25 @@ class AppServiceUtilImpl extends AppServiceUtil {
     var response = await dio.get(voucherListUrl);
     final responseList = parentResponseModelFromJson(jsonEncode(response.data));
     return responseList;
+  }
+
+  @override
+  Future<void> salesPaymentUpdate(
+      String paymentDate,
+      String paymentType,
+      double paidAmt,
+      String salesId,
+      Function(int p1) onSuccessCallBack) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var token = prefs.getString('token');
+    dio.options.headers['Authorization'] = 'Bearer $token';
+    String salesPaymentUpdateUrl = '${AppUrl.salesPaymentUpdate}$salesId';
+    var response = await dio.patch(salesPaymentUpdateUrl, data: {
+      "paidAmount": paidAmt,
+      "paymentDate": paymentDate,
+      "paymentType": paymentType
+    });
+    print(response);
+    onSuccessCallBack(response.statusCode ?? 0);
   }
 }

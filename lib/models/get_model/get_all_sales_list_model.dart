@@ -75,16 +75,16 @@ class Content {
   String? paymentStatus;
   int? totalQty;
   double? totalTaxableAmt;
-  int? totalDisc;
+  double? totalDisc;
   double? totalCgst;
   double? totalSgst;
-  int? totalInvoiceAmt;
-  int? totalIncentiveAmt;
-  int? roundOffAmt;
-  int? netAmt;
+  double? totalInvoiceAmt;
+  double? totalIncentiveAmt;
+  double? roundOffAmt;
+  double? netAmt;
   Insurance? insurance;
   Loaninfo? loaninfo;
-  int? pendingAmt;
+  double? pendingAmt;
   String? branchId;
   dynamic branchName;
   EvBattery? evBattery;
@@ -204,7 +204,7 @@ class Content {
 
 class EvBattery {
   String? evBatteryName;
-  int? evBatteryCapacity;
+  double? evBatteryCapacity;
 
   EvBattery({
     this.evBatteryName,
@@ -224,7 +224,7 @@ class EvBattery {
 
 class Insurance {
   String? insuranceId;
-  int? insuredAmt;
+  double? insuredAmt;
   String? invoiceNo;
   DateTime? insuredDate;
   DateTime? expiryDate;
@@ -272,13 +272,13 @@ class ItemDetail {
   double? unitRate;
   int? quantity;
   double? value;
-  int? discount;
+  double? discount;
   double? taxableValue;
   List<GstDetail>? gstDetails;
   List<dynamic>? taxes;
   List<dynamic>? incentives;
-  int? invoiceValue;
-  int? finalInvoiceValue;
+  double? invoiceValue;
+  double? finalInvoiceValue;
   String? stockId;
 
   ItemDetail({
@@ -405,7 +405,7 @@ class VehicleDetails {
 class Loaninfo {
   String? loanId;
   String? bankName;
-  int? loanAmt;
+  double? loanAmt;
 
   Loaninfo({
     this.loanId,
@@ -454,7 +454,7 @@ class MandatoryAddons {
 class PaidDetail {
   String? paymentId;
   DateTime? paymentDate;
-  int? paidAmount;
+  double? paidAmount;
   String? paymentType;
 
   PaidDetail({

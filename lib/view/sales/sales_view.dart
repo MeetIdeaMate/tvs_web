@@ -309,6 +309,7 @@ class _SalesViewScreenState extends State<SalesViewScreen>
                                             context: context,
                                             builder: (context) {
                                               return PaymentDailog(
+                                                salesdata: entry.value,
                                                 salesViewBloc: _salesViewBloc,
                                                 totalInvAmt:
                                                     entry.value.totalInvoiceAmt,

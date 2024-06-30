@@ -402,6 +402,8 @@ class AppConstants {
   static const transferRequest = 'Transfer Request';
   static const transferRequestSuccessfully =
       'Transfer request created successfully';
+  static const paymentUpdate = 'Payment Update';
+  static const paymentUpdateSuccessfully = 'Payment Update successfully';
 
   //API
 

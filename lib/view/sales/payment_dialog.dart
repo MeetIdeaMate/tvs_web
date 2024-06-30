@@ -1,24 +1,28 @@
-import 'dart:html';
-
 import 'package:blurry_modal_progress_hud/blurry_modal_progress_hud.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:tlbilling/components/custom_action_button.dart';
+import 'package:tlbilling/models/get_model/get_all_sales_list_model.dart';
 import 'package:tlbilling/utils/app_colors.dart';
 import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/utils/app_util_widgets.dart';
 import 'package:tlbilling/utils/app_utils.dart';
 import 'package:tlbilling/utils/input_formates.dart';
+import 'package:tlbilling/view/sales/payment_history.dart';
 import 'package:tlbilling/view/sales/sales_view_bloc.dart';
 import 'package:tlds_flutter/components/tlds_date_picker.dart';
 import 'package:tlds_flutter/components/tlds_dropdown_button_form_field.dart';
 import 'package:tlds_flutter/components/tlds_input_form_field.dart';
+import 'package:toastification/toastification.dart';
 
 class PaymentDailog extends StatefulWidget {
   final SalesViewBlocImpl salesViewBloc;
+  final double? totalInvAmt;
+  final Content? salesdata;
   const PaymentDailog(
-      {super.key, required this.salesViewBloc, int? totalInvAmt});
+      {super.key,
+      required this.salesViewBloc,
+      required this.totalInvAmt,
+      required this.salesdata});
 
   @override
   State<PaymentDailog> createState() => _PaymentDailogState();
@@ -31,8 +35,6 @@ class _PaymentDailogState extends State<PaymentDailog> {
   void _isLoadingState({required bool state}) {
     setState(() {
       _isLoading = state;
-      widget.salesViewBloc.totalInvAmtPaymentController.text =
-          totalInvAmt.toString();
     });
   }
 
@@ -47,6 +49,8 @@ class _PaymentDailogState extends State<PaymentDailog> {
         _paymentsListFuture = value?.configuration ?? [];
       });
     });
+    widget.salesViewBloc.totalInvAmtPaymentController.text =
+        widget.totalInvAmt.toString();
   }
 
   @override
@@ -100,7 +104,60 @@ class _PaymentDailogState extends State<PaymentDailog> {
   }
 
   _buildSaveButton() {
-    return CustomActionButtons(onPressed: () {}, buttonText: AppConstants.save);
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        _buildShowHistoryButton(),
+        CustomActionButtons(
+            onPressed: () {
+              if (widget.salesViewBloc.paidAmtFormKey.currentState!
+                  .validate()) {
+                widget.salesViewBloc.salesPaymentUpdate(
+                    AppUtils.appToAPIDateFormat(
+                        widget.salesViewBloc.paymentDateTextController.text),
+                    widget.salesViewBloc.selectedPaymentName ?? 'CASH',
+                    double.tryParse(widget
+                            .salesViewBloc.paidAmountTextController.text) ??
+                        0,
+                    widget.salesdata?.salesId ?? '', (statusCode) {
+                  if (statusCode == 200 || statusCode == 201) {
+                    Navigator.pop(context);
+                    AppWidgetUtils.buildToast(
+                        context,
+                        ToastificationType.success,
+                        AppConstants.paymentUpdate,
+                        Icon(Icons.check_circle_outline_rounded,
+                            color: _appColors.successColor),
+                        AppConstants.paymentUpdateSuccessfully,
+                        _appColors.successLightColor);
+                  } else {
+                    AppWidgetUtils.buildToast(
+                        context,
+                        ToastificationType.success,
+                        AppConstants.paymentUpdate,
+                        Icon(Icons.check_circle_outline_rounded,
+                            color: _appColors.successColor),
+                        AppConstants.somethingWentWrong,
+                        _appColors.successLightColor);
+                  }
+                });
+              }
+            },
+            buttonText: AppConstants.save),
+      ],
+    );
+  }
+
+  _buildShowHistoryButton() {
+    return IconButton(
+        onPressed: () {
+          showDialog(
+            context: context,
+            builder: (context) =>
+                PaymentHistoryDialog(salesdata: widget.salesdata),
+          );
+        },
+        icon: const Icon(Icons.history));
   }
 
   _buildPaymentForm() {

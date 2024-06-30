@@ -14,6 +14,7 @@ class AppUrl {
   static const employee = '${baseUrl}employee';
   static const employeeByPagination = '${baseUrl}employee/getByPagination?';
   static const updateUserStatus = '${baseUrl}user/status/';
+  static const salesPaymentUpdate = '${baseUrl}sales/';
   static const purchaseByPagenation = '${baseUrl}purchase/page';
   static const vendorNameList = '${baseUrl}vendor';
   static const transport = '${baseUrl}transport/';

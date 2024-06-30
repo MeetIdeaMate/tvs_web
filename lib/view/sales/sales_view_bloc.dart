@@ -27,6 +27,9 @@ abstract class SalesViewBloc {
   TextEditingController get paymentDateTextController;
   TextEditingController get totalInvAmtPaymentController;
   TextEditingController get balanceAmtController;
+  @override
+  Future<void> salesPaymentUpdate(String paymentDate, String paymentType,
+      double paidAmt, String salesId, Function(int p1) onSuccessCallBack);
 }
 
 class SalesViewBlocImpl extends SalesViewBloc {
@@ -143,4 +146,11 @@ class SalesViewBlocImpl extends SalesViewBloc {
 
   @override
   TextEditingController get balanceAmtController => _balanceAmtController;
+
+  @override
+  Future<void> salesPaymentUpdate(String paymentDate, String paymentType,
+      double paidAmt, String salesId, Function(int value) onSuccessCallBack) {
+    return _appServiceUtilBlocImpl.salesPaymentUpdate(
+        paymentDate, paymentType, paidAmt, salesId, onSuccessCallBack);
+  }
 }
