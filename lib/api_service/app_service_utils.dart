@@ -243,8 +243,13 @@ abstract class AppServiceUtil {
 
   Future<void> bookingCancel(
       String? bookingNo, Function(int p1)? onSuccessCallback);
-  Future<void> salesPaymentUpdate(String paymentDate, String paymentType,
-      double paidAmt, String salesId, Function(int p1) onSuccessCallBack);
+  Future<void> salesPaymentUpdate(
+      String paymentDate,
+      String paymentType,
+      double paidAmt,
+      String salesId,
+      String reason,
+      Function(int p1) onSuccessCallBack);
 
   Future<List<GetCustomerBookingDetails>?> getCustomerBookingDetails(
       String? customerId);
@@ -270,6 +275,7 @@ class AppServiceUtilImpl extends AppServiceUtil {
         var userId = response.data['result']['login']['userId'];
         var useRefId = response.data['result']['login']['useRefId'] ?? '';
         var branchId = response.data['result']['login']['branchId'] ?? '';
+        branchId = branchId;
         print('************loign branch id********$branchId');
         SharedPreferences prefs = await SharedPreferences.getInstance();
         prefs.setString(AppConstants.token, token);
@@ -1161,7 +1167,7 @@ class AppServiceUtilImpl extends AppServiceUtil {
       salesListUrl += '&paymentType=$paymentType';
     }
 
-     if (customerName.isNotEmpty) {
+    if (customerName.isNotEmpty) {
       salesListUrl += '&customerName=$customerName';
     }
 
@@ -1263,12 +1269,17 @@ class AppServiceUtilImpl extends AppServiceUtil {
           url += '&transferStatus=$transferStatus';
         }
       }
+      print('transferfrombranch $fromBranchId');
       if (fromBranchId != null) {
         url += '&fromBranchId=$fromBranchId';
       }
+      // else if (fromBranchId == null) {
+      //   url += '&fromBranchId=$branchId';
+      // }
       if (toBranchId != null) {
         url += '&toBranchId=$toBranchId';
       }
+      print(url);
       /*if (fromDateTextController != null) {
         url +=
             '&fromDate=${AppUtils.appToAPIDateFormat(fromDateTextController.toString())}';
@@ -1525,6 +1536,7 @@ class AppServiceUtilImpl extends AppServiceUtil {
       String paymentType,
       double paidAmt,
       String salesId,
+      String reason,
       Function(int p1) onSuccessCallBack) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var token = prefs.getString('token');

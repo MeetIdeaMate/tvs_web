@@ -183,7 +183,7 @@ class AddSalesBlocImpl extends AddSalesBloc {
   Map<String, String> _selectedMandatoryAddOns = {};
 
   late Set<String> optionsSet = {selectedVehicleAndAccessories ?? 'M-vehicle'};
-  String? _selectedVehicleAndAccessories;
+  String? _selectedVehicleAndAccessories = 'M-vehicle';
   String? _selectedBranch;
   String? _selectedCustomer;
   String? _selectedPaymentList = 'CASH';

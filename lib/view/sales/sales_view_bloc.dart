@@ -28,8 +28,14 @@ abstract class SalesViewBloc {
   TextEditingController get paymentDateTextController;
   TextEditingController get totalInvAmtPaymentController;
   TextEditingController get balanceAmtController;
-  Future<void> salesPaymentUpdate(String paymentDate, String paymentType,
-      double paidAmt, String salesId, Function(int p1) onSuccessCallBack);
+  TextEditingController get reasonTextEditingController;
+  Future<void> salesPaymentUpdate(
+      String paymentDate,
+      String paymentType,
+      double paidAmt,
+      String salesId,
+      String reason,
+      Function(int p1) onSuccessCallBack);
 
   Future<void> salesBillCancel(Function(int statusCode) onSuccessCallBack,
       String? salesId, String? paymentId);
@@ -43,7 +49,8 @@ class SalesViewBlocImpl extends SalesViewBloc {
   final _invoiceNoStreamControler = StreamController<bool>.broadcast();
   final _paymentTypeStreamController = StreamController<bool>.broadcast();
   final _customerNameStreamController = StreamController<bool>.broadcast();
-  final _paymentDetailsListStreamController = StreamController<bool>.broadcast();
+  final _paymentDetailsListStreamController =
+      StreamController<bool>.broadcast();
   final _appServiceUtilBlocImpl = AppServiceUtilImpl();
   int _currentPage = 0;
   final _pageNumberStreamController = StreamController<int>.broadcast();
@@ -53,6 +60,7 @@ class SalesViewBlocImpl extends SalesViewBloc {
   final _paymentDateTextController = TextEditingController();
   final _totalInvAmtPaymentController = TextEditingController();
   final _balanceAmtController = TextEditingController();
+  final _resonTextEditController = TextEditingController();
 
   String? _selectedPaymentName = 'CASH';
 
@@ -152,10 +160,15 @@ class SalesViewBlocImpl extends SalesViewBloc {
   TextEditingController get balanceAmtController => _balanceAmtController;
 
   @override
-  Future<void> salesPaymentUpdate(String paymentDate, String paymentType,
-      double paidAmt, String salesId, Function(int value) onSuccessCallBack) {
+  Future<void> salesPaymentUpdate(
+      String paymentDate,
+      String paymentType,
+      double paidAmt,
+      String salesId,
+      String reason,
+      Function(int value) onSuccessCallBack) {
     return _appServiceUtilBlocImpl.salesPaymentUpdate(
-        paymentDate, paymentType, paidAmt, salesId, onSuccessCallBack);
+        paymentDate, paymentType, paidAmt, salesId, reason, onSuccessCallBack);
   }
 
   @override
@@ -164,12 +177,16 @@ class SalesViewBlocImpl extends SalesViewBloc {
     return await _appServiceUtilBlocImpl.salesBillCancel(
         onSuccessCallBack, salesId, paymentId);
   }
-  
-  @override
-  Stream<bool> get paymentDetailsListStream => _paymentDetailsListStreamController.stream;
 
-  
+  @override
+  Stream<bool> get paymentDetailsListStream =>
+      _paymentDetailsListStreamController.stream;
+
   paymentDetailsListStreamController(bool streamValue) {
     _paymentDetailsListStreamController.add(streamValue);
   }
+
+  @override
+  TextEditingController get reasonTextEditingController =>
+      _resonTextEditController;
 }

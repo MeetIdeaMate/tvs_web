@@ -261,7 +261,7 @@ class TransferViewBlocImpl extends TransferViewBloc {
   Future<void> stockTransferApproval(
       String transferId, Function(int statusCode) onSuccessCallback) async {
     return await _appService.stockTransferApproval(
-    sharePrefBranchId, transferId, onSuccessCallback);
+        sharePrefBranchId, transferId, onSuccessCallback);
   }
 
   @override

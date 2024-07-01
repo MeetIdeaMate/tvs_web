@@ -406,12 +406,16 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
         0.0;
 
     double totalIncentive = empsIncValue + stateIncValue;
-    widget.addSalesBloc.paymentDetailsStreamController(true);
-    widget.addSalesBloc.totalInvAmount =
-        (widget.addSalesBloc.invAmount ?? 0) - totalIncentive;
-    widget.addSalesBloc.paymentDetailsStreamController(true);
+
+    if ((widget.addSalesBloc.invAmount ?? 0) != -1) {
+      widget.addSalesBloc.totalInvAmount =
+          (widget.addSalesBloc.invAmount ?? 0) - totalIncentive;
+    } else {
+      widget.addSalesBloc.totalInvAmount = 0.0;
+    }
 
     double advanceAmt = widget.addSalesBloc.advanceAmt ?? 0;
+    // print(advanceAmt);
     double totalInvAmt = widget.addSalesBloc.totalInvAmount ?? 0;
     widget.addSalesBloc.toBePayedAmt = totalInvAmt - advanceAmt;
 

@@ -161,6 +161,8 @@ class _StocksViewState extends State<StocksView>
           List<BranchDetail> branches = futureSnapshot.data ?? [];
           List<String> branchNameList =
               branches.map((e) => e.branchName ?? '').toList();
+          branchNameList.insert(0, AppConstants.allBranch);
+
           return Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -188,9 +190,7 @@ class _StocksViewState extends State<StocksView>
             ],
           );
         }
-        return Center(
-          child: SvgPicture.asset(AppConstants.imgNoData),
-        );
+        return const Text('no Data');
       },
     );
   }
@@ -279,7 +279,8 @@ class _StocksViewState extends State<StocksView>
                           _buildVehicleTableHeader(AppConstants.branch),
                           _buildVehicleTableHeader(AppConstants.partNo),
                           _buildVehicleTableHeader(AppConstants.vehicleName),
-                          _buildVehicleTableHeader(AppConstants.hsnCode),
+                          _buildVehicleTableHeader(AppConstants.categoryName),
+                          _buildVehicleTableHeader(AppConstants.stockStatus),
                           _buildVehicleTableHeader(AppConstants.quantity),
                           _buildVehicleTableHeader(AppConstants.action),
                         ],
@@ -295,7 +296,27 @@ class _StocksViewState extends State<StocksView>
                               _buildTableRow(entry.value.branchName),
                               _buildTableRow(entry.value.partNo),
                               _buildTableRow(entry.value.itemName),
-                              _buildTableRow(entry.value.hsnSacCode),
+                              _buildTableRow(entry.value.categoryName),
+                              //  _buildTableRow(entry.value.stockStatus),
+                              DataCell(Chip(
+                                  side: BorderSide(
+                                      color:
+                                          entry.value.stockStatus == 'Available'
+                                              ? _appColors.successColor
+                                              : _appColors.yellowColor),
+                                  backgroundColor: _appColors.whiteColor,
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(50)),
+                                  label: Text(
+                                    entry.value.stockStatus == 'Available'
+                                        ? 'Available'
+                                        : AppConstants.transfer,
+                                    style: TextStyle(
+                                        color: entry.value.stockStatus ==
+                                                'Available'
+                                            ? _appColors.successColor
+                                            : _appColors.yellowColor),
+                                  ))),
                               _buildTableRow(
                                   entry.value.totalQuantity.toString()),
                               DataCell(IconButton(

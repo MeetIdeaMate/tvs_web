@@ -177,19 +177,24 @@ class PaidDetail {
   String? paymentDate;
   String? paymentId;
   String? paymentType;
+  String? paymentReference;
+  String? reason;
 
-  PaidDetail({
-    this.paidAmount,
-    this.paymentDate,
-    this.paymentId,
-    this.paymentType,
-  });
+  PaidDetail(
+      {this.paidAmount,
+      this.paymentDate,
+      this.paymentId,
+      this.paymentType,
+      this.paymentReference,
+      this.reason});
 
   Map<String, dynamic> toJson() => {
         'paidAmount': paidAmount,
         'paymentDate': paymentDate,
         'paymentId': paymentId,
         'paymentType': paymentType,
+        'paymentReference': paymentReference,
+        'reason': reason
       };
 }
 
