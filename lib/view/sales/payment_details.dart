@@ -463,24 +463,29 @@ class _PaymentDetailsState extends State<PaymentDetails> {
                   ),
                 ),
                 AppWidgetUtils.buildSizedBox(custHeight: 10),
-                Container(
-                  decoration: BoxDecoration(
-                      color: _appColors.amountBgColor,
-                      borderRadius: BorderRadius.circular(10)),
-                  padding: const EdgeInsets.all(5),
-                  child: ListTile(
-                    title: Text(
-                      AppConstants.bookAdvAmt,
-                      style: TextStyle(
-                          fontSize: 16, color: _appColors.primaryColor),
-                    ),
-                    // tileColor: _appColors.primaryColor,
-                    trailing: Text(
-                      '₹0.00',
-                      style: TextStyle(
-                          color: _appColors.primaryColor, fontSize: 16),
-                    ),
-                  ),
+                StreamBuilder<bool>(
+                  stream: widget.addSalesBloc.advanceAmountRefreshStream,
+                  builder: (context, snapshot) {
+                    return Container(
+                      decoration: BoxDecoration(
+                          color: _appColors.amountBgColor,
+                          borderRadius: BorderRadius.circular(10)),
+                      padding: const EdgeInsets.all(5),
+                      child: ListTile(
+                        title: Text(
+                          AppConstants.bookAdvAmt,
+                          style: TextStyle(
+                              fontSize: 16, color: _appColors.primaryColor),
+                        ),
+                        // tileColor: _appColors.primaryColor,
+                        trailing: Text(
+                          AppUtils.formatCurrency(widget.addSalesBloc.advanceAmt ?? 0),
+                          style: TextStyle(
+                              color: _appColors.primaryColor, fontSize: 16),
+                        ),
+                      ),
+                    );
+                  }
                 ),
                 AppWidgetUtils.buildSizedBox(custHeight: 10),
                 Container(

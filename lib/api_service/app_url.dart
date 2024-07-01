@@ -33,4 +33,5 @@ class AppUrl {
   static const purchaseValidate = '${baseUrl}purchase/validate?partNo=';
   static const booking = '${baseUrl}booking';
   static const voucher = '${baseUrl}voucher/page';
+  static const bookingCancel = '${baseUrl}booking/cancel/';
 }

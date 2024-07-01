@@ -28,6 +28,8 @@ abstract class BookingListBloc {
   int get currentPage;
 
   Stream<int> get pageNumberStream;
+  Future<void> bookingCancel(
+      String? bookingNo, Function(int p1)? onSuccessCallback);
 }
 
 class BookingListBlocImpl extends BookingListBloc {
@@ -112,5 +114,11 @@ class BookingListBlocImpl extends BookingListBloc {
 
   pageNumberUpdateStreamController(int streamValue) {
     _pageNumberStreamController.add(streamValue);
+  }
+
+  @override
+  Future<void> bookingCancel(
+      String? bookingNo, Function(int p1)? onSuccessCallback) async {
+    return _appServices.bookingCancel(bookingNo, onSuccessCallback);
   }
 }

@@ -27,6 +27,7 @@ import 'package:tlbilling/models/get_model/get_all_voucher_with_pagenation.dart'
 import 'package:tlbilling/models/get_model/get_booking_by_id_model.dart';
 import 'package:tlbilling/models/get_model/get_configuration_list_model.dart';
 import 'package:tlbilling/models/get_model/get_configuration_model.dart';
+import 'package:tlbilling/models/get_model/get_customer_booking_details.dart';
 import 'package:tlbilling/models/get_model/get_purchase_report_model.dart';
 import 'package:tlbilling/models/get_model/get_transport_by_pagination.dart';
 import 'package:tlbilling/models/get_model/get_vendor_by_id_model.dart';
@@ -106,6 +107,7 @@ class ResultObj {
   List<GetAllEmployeeModel>? getAllEmployeeListWithouPagenation;
   GetBookingDetailsByIdModel? getBookingDetailsById;
   GetAllVoucherWithPagenationModel? getAllVoucherWithPaganation;
+  List<GetCustomerBookingDetails>? getCustomerBookingDetails;
 
   ResultObj(
       {this.getAllVendorByPagination,
@@ -143,7 +145,8 @@ class ResultObj {
       this.getAllBookingListWithPagination,
       this.getAllEmployeeListWithouPagenation,
       this.getBookingDetailsById,
-      this.getAllVoucherWithPaganation});
+      this.getAllVoucherWithPaganation,
+      this.getCustomerBookingDetails});
 
   factory ResultObj.fromJson(Map<String, dynamic> json) => ResultObj(
         getAllCustomersByPaginationModel: json['customersWithPage'] != null
@@ -267,6 +270,10 @@ class ResultObj {
         getAllVoucherWithPaganation: json['vouchersWithPage'] != null
             ? GetAllVoucherWithPagenationModel.fromJson(
                 json['vouchersWithPage'])
+            : null,
+        getCustomerBookingDetails: json['bookings'] != null
+            ? List<GetCustomerBookingDetails>.from(json['bookings']
+                .map((x) => GetCustomerBookingDetails.fromJson(x)))
             : null,
       );
 

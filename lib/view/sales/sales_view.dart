@@ -1,8 +1,11 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:pdf/pdf.dart';
 import 'package:printing/printing.dart';
+import 'package:tlbilling/components/custom_action_button.dart';
 import 'package:tlbilling/components/custom_elevated_button.dart';
 import 'package:tlbilling/components/custom_pagenation.dart';
 import 'package:tlbilling/models/get_model/get_all_sales_list_model.dart';
@@ -15,6 +18,7 @@ import 'package:tlbilling/view/sales/payment_dialog.dart';
 import 'package:tlbilling/view/sales/sales_report_pdf.dart';
 import 'package:tlbilling/view/sales/sales_view_bloc.dart';
 import 'package:tlds_flutter/util/app_colors.dart';
+import 'package:toastification/toastification.dart';
 
 class SalesViewScreen extends StatefulWidget {
   const SalesViewScreen({super.key});
@@ -94,6 +98,7 @@ class _SalesViewScreenState extends State<SalesViewScreen>
                   searchStreamController:
                       _salesViewBloc.customerNameStreamController,
                   inputFormatters: TlInputFormatters.onlyAllowAlphabets,
+                  
                 );
               },
             ),
@@ -250,8 +255,9 @@ class _SalesViewScreenState extends State<SalesViewScreen>
                             // _buildVehicleTableHeader(AppConstants.balanceAmt),
                             _buildVehicleTableHeader(AppConstants.status),
                             _buildVehicleTableHeader(AppConstants.createdBy),
-                            _buildVehicleTableHeader(AppConstants.action),
+                            _buildVehicleTableHeader(AppConstants.pay),
                             _buildVehicleTableHeader(AppConstants.print),
+                            _buildVehicleTableHeader(AppConstants.action),
                           ],
                           rows: salesList.asMap().entries.map((entry) {
                             return DataRow(
@@ -334,6 +340,34 @@ class _SalesViewScreenState extends State<SalesViewScreen>
                                   },
                                   icon: const Icon(Icons.print),
                                 )),
+                                DataCell(
+                                  PopupMenuButton(
+                                    itemBuilder: (context) {
+                                      return [
+                                        const PopupMenuItem(
+                                          value: 'cancel',
+                                          child: Text('Cancel'),
+                                        ),
+                                        const PopupMenuItem(
+                                          value: 'view',
+                                          child: Text('View'),
+                                        ),
+                                      ];
+                                    },
+                                    onSelected: (value) {
+                                      if (value == 'cancel') {
+                                      } else if (value == 'view') {
+                                        showDialog(
+                                          context: context,
+                                          builder: (context) {
+                                            return _buildPaymentDetailsListView(
+                                                entry);
+                                          },
+                                        );
+                                      }
+                                    },
+                                  ),
+                                ),
                               ],
                             );
                           }).toList(),
@@ -356,6 +390,154 @@ class _SalesViewScreenState extends State<SalesViewScreen>
         );
       },
     );
+  }
+
+  Widget _buildPaymentDetailsListView(MapEntry<int, Content> entry) {
+    return StreamBuilder<bool>(
+        stream: _salesViewBloc.paymentDetailsListStream,
+        builder: (context, snapshot) {
+          return AlertDialog(
+            surfaceTintColor: _appColors.whiteColor,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            title: Text(
+              AppConstants.paymentDetails,
+              style: TextStyle(
+                color: _appColors.primaryColor,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(
+                  width: 400,
+                  height: 300,
+                  child: ListView.builder(
+                    itemCount: entry.value.paidDetails?.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      return ListTile(
+                        title: Text(AppUtils.formatCurrency(
+                            entry.value.paidDetails?[index].paidAmount ?? 0)),
+                        subtitle: Text(
+                            entry.value.paidDetails?[index].paymentType ?? ''),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(AppUtils.apiToAppDateFormat(entry
+                                    .value.paidDetails?[index].paymentDate
+                                    .toString() ??
+                                '')),
+                            AppWidgetUtils.buildSizedBox(custWidth: 10),
+                            entry.value.paidDetails![index].cancelled!
+                                ? const Text(
+                                    AppConstants.cancelled,
+                                    style: TextStyle(color: Colors.red),
+                                  )
+                                : IconButton(
+                                    onPressed: () {
+                                      showDialog(
+                                        context: context,
+                                        builder: (context) => AlertDialog(
+                                          surfaceTintColor:
+                                              _appColors.whiteColor,
+                                          shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(8)),
+                                          content: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Icon(
+                                                Icons.cancel,
+                                                color: _appColors.errorColor,
+                                                size: 35,
+                                              ),
+                                              AppWidgetUtils.buildSizedBox(
+                                                  custHeight: 10),
+                                              const Text(
+                                                'Are you sure you want to cancel the sales payment?',
+                                                style: TextStyle(fontSize: 16),
+                                              )
+                                            ],
+                                          ),
+                                          actions: [
+                                            CustomActionButtons(
+                                                onPressed: () {
+                                                  _salesViewBloc
+                                                      .salesBillCancel(
+                                                          (statusCode) {
+                                                    if (statusCode == 200 ||
+                                                        statusCode == 201) {
+                                                      Navigator.pop(context);
+                                                      _salesViewBloc
+                                                          .pageNumberUpdateStreamController(
+                                                              0);
+                                                      _salesViewBloc
+                                                          .paymentDetailsListStreamController(
+                                                              true);
+                                                               Navigator.pop(context);
+                                                      AppWidgetUtils.buildToast(
+                                                          context,
+                                                          ToastificationType
+                                                              .success,
+                                                          AppConstants
+                                                              .salesCancelled,
+                                                          Icon(
+                                                            Icons
+                                                                .check_circle_outline_rounded,
+                                                            color: _appColors
+                                                                .successColor,
+                                                          ),
+                                                          AppConstants
+                                                              .salesCancelledDes,
+                                                          _appColors
+                                                              .successLightColor);
+                                                    } else {
+                                                      AppWidgetUtils.buildToast(
+                                                          context,
+                                                          ToastificationType
+                                                              .error,
+                                                          AppConstants
+                                                              .salesCancelledErr,
+                                                          Icon(
+                                                            Icons
+                                                                .error_outline_outlined,
+                                                            color: _appColors
+                                                                .errorColor,
+                                                          ),
+                                                          AppConstants
+                                                              .somethingWentWrong,
+                                                          _appColors
+                                                              .errorLightColor);
+                                                    }
+                                                  },
+                                                          entry.value.salesId,
+                                                          entry
+                                                              .value
+                                                              .paidDetails?[
+                                                                  index]
+                                                              .paymentId);
+                                                },
+                                                buttonText: AppConstants.submit)
+                                          ],
+                                        ),
+                                      );
+                                    },
+                                    icon: Icon(
+                                      Icons.cancel,
+                                      color: _appColors.errorColor,
+                                    ),
+                                  )
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          );
+        });
   }
 
   _buildVehicleTableHeader(String headerValue) => DataColumn(
