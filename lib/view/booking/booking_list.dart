@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:tlbilling/components/custom_action_button.dart';
 import 'package:tlbilling/components/custom_elevated_button.dart';
 import 'package:tlbilling/components/custom_pagenation.dart';
 import 'package:tlbilling/models/get_model/get_all_booking_list_with_pagination.dart';
@@ -13,6 +14,7 @@ import 'package:tlbilling/view/booking/booking_list_bloc.dart';
 import 'package:tlds_flutter/components/tlds_dropdown_button_form_field.dart';
 import 'package:tlds_flutter/components/tlds_input_form_field.dart';
 import 'package:tlds_flutter/components/tlds_input_formaters.dart';
+import 'package:toastification/toastification.dart';
 
 class BookingList extends StatefulWidget {
   const BookingList({super.key});
@@ -71,7 +73,7 @@ class _BookingListState extends State<BookingList> {
         return _buildFormField(
           _bookingListBloc.bookingIdTextController,
           AppConstants.bookingId,
-          TldsInputFormatters.onlyAllowAlphabets,
+          TldsInputFormatters.onlyAllowNumbers,
         );
       },
     );
@@ -281,10 +283,87 @@ class _BookingListState extends State<BookingList> {
           DataCell(Text(entry.value.executiveName ?? '')),
           DataCell(Text(
               AppUtils.apiToAppDateFormat(entry.value.bookingDate.toString()))),
-          DataCell(_buildPopMenuItem(context, entry)),
+          DataCell(entry.value.cancelled == false 
+              ? _buildCancelButton(entry)
+              : Chip(
+                  side: BorderSide(color: _appColors.errorColor),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10)),
+                  label: Text(
+                    'Cancelled',
+                    style: TextStyle(color: _appColors.errorColor),
+                  ))),
         ],
       );
     }).toList();
+  }
+
+  IconButton _buildCancelButton(MapEntry<int, BookingDetails> entry) {
+    return IconButton(
+        onPressed: () {
+          showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              surfaceTintColor: _appColors.whiteColor,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8)),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.cancel,
+                    color: _appColors.red,
+                    size: 35,
+                  ),
+                  AppWidgetUtils.buildSizedBox(custHeight: 10),
+                  const Text(
+                    'Are you sure you want to cancel the booking',
+                    style: TextStyle(fontSize: 16),
+                  )
+                ],
+              ),
+              actions: [
+                CustomActionButtons(
+                    onPressed: () {
+                      _bookingListBloc.bookingCancel(entry.value.bookingNo,
+                          (statusCode) {
+                        if (statusCode == 200 || statusCode == 201) {
+                          Navigator.pop(context);
+                          _bookingListBloc.pageNumberUpdateStreamController(0);
+                          AppWidgetUtils.buildToast(
+                              context,
+                              ToastificationType.success,
+                              AppConstants.bookingCancelled,
+                              Icon(
+                                Icons.check_circle_outline_rounded,
+                                color: _appColors.successColor,
+                              ),
+                              AppConstants.bookingCancelledDes,
+                              _appColors.successLightColor);
+                        } else {
+                          AppWidgetUtils.buildToast(
+                              context,
+                              ToastificationType.error,
+                              AppConstants.bookingCancelledErr,
+                              Icon(
+                                Icons.error_outline_outlined,
+                                color: _appColors.errorColor,
+                              ),
+                              AppConstants.somethingWentWrong,
+                              _appColors.errorLightColor);
+                        }
+                      });
+                    },
+                    buttonText: AppConstants.submit)
+              ],
+            ),
+          );
+      
+        },
+        icon: Icon(
+          Icons.cancel,
+          color: _appColors.errorColor,
+        ));
   }
 
   Widget _buildPopMenuItem(

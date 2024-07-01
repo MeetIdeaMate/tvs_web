@@ -6,6 +6,7 @@ import 'package:tlbilling/models/get_model/get_all_customer_name_list.dart';
 import 'package:tlbilling/models/get_model/get_all_customers_model.dart';
 import 'package:tlbilling/models/get_model/get_all_stocks_model.dart';
 import 'package:tlbilling/models/get_model/get_configuration_model.dart';
+import 'package:tlbilling/models/get_model/get_customer_booking_details.dart';
 import 'package:tlbilling/models/parent_response_model.dart';
 import 'package:tlbilling/models/post_model/add_sales_model.dart' as sales;
 import 'package:tlbilling/models/post_model/add_sales_model.dart';
@@ -31,6 +32,7 @@ abstract class AddSalesBloc {
   Stream<bool> get mandatoryRefereshStream;
   Stream<bool> get customerSelectstream;
   Stream<bool> get splitPaymentCheckBoxStream;
+  Stream<bool> get advanceAmountRefreshStream;
 
   TextEditingController get discountTextController;
   TextEditingController get transporterVehicleNumberController;
@@ -96,6 +98,8 @@ abstract class AddSalesBloc {
   Future<List<GetAllCustomerNameList>?> getAllCustomerList();
 
   Future<GetAllCategoryListModel?> getAllCategoryList();
+  Future<List<GetCustomerBookingDetails>?> getCustomerBookingDetails(
+      String? customerId);
 
   Future<List<String>> getPaymentmethods();
   Future<List<String>> getBatteryDetails();
@@ -163,6 +167,8 @@ class AddSalesBlocImpl extends AddSalesBloc {
   final _isSplitPaymentStream = StreamController<bool>.broadcast();
   final _batteryDetailsRefreshStream = StreamController<bool>.broadcast();
   final _mandatoryAddOnsRefreshStream = StreamController<bool>.broadcast();
+  final _advanceAmountRefreshStreamController =
+      StreamController<bool>.broadcast();
   String? _branchId;
 
   List<String> selectedVehicleList = [];
@@ -752,4 +758,18 @@ class AddSalesBlocImpl extends AddSalesBloc {
 
   @override
   Map<int, String> get splitPaymentId => _splitPaymentId;
+
+  @override
+  Future<List<GetCustomerBookingDetails>?> getCustomerBookingDetails(
+      String? customerId) async {
+    return await _apiServices.getCustomerBookingDetails(customerId);
+  }
+
+  @override
+  Stream<bool> get advanceAmountRefreshStream =>
+      _advanceAmountRefreshStreamController.stream;
+
+  advanceAmountRefreshStreamController(bool newValue) {
+    _advanceAmountRefreshStreamController.add(newValue);
+  }
 }

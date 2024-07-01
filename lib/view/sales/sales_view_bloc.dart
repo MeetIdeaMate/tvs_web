@@ -14,6 +14,7 @@ abstract class SalesViewBloc {
   Stream<bool> get invoiceNoStream;
   Stream<bool> get paymentTypeStream;
   Stream<bool> get customerNameStream;
+  Stream<bool> get paymentDetailsListStream;
   int get currentPage;
   Stream<int> get pageNumberStream;
 
@@ -27,9 +28,11 @@ abstract class SalesViewBloc {
   TextEditingController get paymentDateTextController;
   TextEditingController get totalInvAmtPaymentController;
   TextEditingController get balanceAmtController;
-  @override
   Future<void> salesPaymentUpdate(String paymentDate, String paymentType,
       double paidAmt, String salesId, Function(int p1) onSuccessCallBack);
+
+  Future<void> salesBillCancel(Function(int statusCode) onSuccessCallBack,
+      String? salesId, String? paymentId);
 }
 
 class SalesViewBlocImpl extends SalesViewBloc {
@@ -40,6 +43,7 @@ class SalesViewBlocImpl extends SalesViewBloc {
   final _invoiceNoStreamControler = StreamController<bool>.broadcast();
   final _paymentTypeStreamController = StreamController<bool>.broadcast();
   final _customerNameStreamController = StreamController<bool>.broadcast();
+  final _paymentDetailsListStreamController = StreamController<bool>.broadcast();
   final _appServiceUtilBlocImpl = AppServiceUtilImpl();
   int _currentPage = 0;
   final _pageNumberStreamController = StreamController<int>.broadcast();
@@ -152,5 +156,20 @@ class SalesViewBlocImpl extends SalesViewBloc {
       double paidAmt, String salesId, Function(int value) onSuccessCallBack) {
     return _appServiceUtilBlocImpl.salesPaymentUpdate(
         paymentDate, paymentType, paidAmt, salesId, onSuccessCallBack);
+  }
+
+  @override
+  Future<void> salesBillCancel(Function(int statusCode) onSuccessCallBack,
+      String? salesId, String? paymentId) async {
+    return await _appServiceUtilBlocImpl.salesBillCancel(
+        onSuccessCallBack, salesId, paymentId);
+  }
+  
+  @override
+  Stream<bool> get paymentDetailsListStream => _paymentDetailsListStreamController.stream;
+
+  
+  paymentDetailsListStreamController(bool streamValue) {
+    _paymentDetailsListStreamController.add(streamValue);
   }
 }

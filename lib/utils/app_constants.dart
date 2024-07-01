@@ -19,6 +19,8 @@ class AppConstants {
   static const reason = 'Reason';
   static const ttfPoppinsRegular = 'fonts/ttf_poppins_regular.ttf';
   static const paidAmt = 'Paid Amount';
+  static const pay = 'Pay';
+  static const cancelled = 'Cancelled';
 
   //SharedPreference
   static const designation = 'designation';
@@ -558,6 +560,20 @@ class AppConstants {
   static const String bookingCreatedErr = 'Vehicle booked Not created';
   static const String bookingCreatedErrDec =
       'Vehicle booked Not created Somthing went wrong';
+
+  static const String bookingCancelled = 'Bookeding Cancelled successfully';
+  static const String bookingCancelledDes =
+      'Vehicle you book is cancelled and updated';
+  static const String bookingCancelledErr = 'Cant cancel the booking';
+  static const String bookingCancelledErrDec =
+      'Somthing went wrong cancelling booking';
+
+        static const String salesCancelled = 'Sales Cancelled successfully';
+  static const String salesCancelledDes =
+      'Sales Bill is cancelled and updated';
+  static const String salesCancelledErr = 'Cant cancel the Sales';
+  static const String salesCancelledErrDec =
+      'Somthing went wrong cancelling Sales';
 
 //sales
   static const String batteryName = 'Battery Name';

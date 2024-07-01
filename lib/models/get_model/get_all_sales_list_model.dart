@@ -456,12 +456,14 @@ class PaidDetail {
   DateTime? paymentDate;
   double? paidAmount;
   String? paymentType;
+     bool? cancelled;
 
   PaidDetail({
     this.paymentId,
     this.paymentDate,
     this.paidAmount,
     this.paymentType,
+    this.cancelled
   });
 
   factory PaidDetail.fromJson(Map<String, dynamic> json) => PaidDetail(
@@ -471,6 +473,7 @@ class PaidDetail {
             : DateTime.parse(json["paymentDate"]),
         paidAmount: json["paidAmount"],
         paymentType: json["paymentType"],
+          cancelled: json["cancelled"],
       );
 
   Map<String, dynamic> toJson() => {
@@ -479,6 +482,7 @@ class PaidDetail {
             "${paymentDate!.year.toString().padLeft(4, '0')}-${paymentDate!.month.toString().padLeft(2, '0')}-${paymentDate!.day.toString().padLeft(2, '0')}",
         "paidAmount": paidAmount,
         "paymentType": paymentType,
+        "cancelled": cancelled,
       };
 }
 

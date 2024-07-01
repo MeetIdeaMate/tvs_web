@@ -24,6 +24,7 @@ import 'package:tlbilling/models/get_model/get_all_vendor_by_pagination_model.da
 import 'package:tlbilling/models/get_model/get_all_voucher_with_pagenation.dart';
 import 'package:tlbilling/models/get_model/get_configuration_list_model.dart';
 import 'package:tlbilling/models/get_model/get_configuration_model.dart';
+import 'package:tlbilling/models/get_model/get_customer_booking_details.dart';
 import 'package:tlbilling/models/get_model/get_transport_by_pagination.dart';
 import 'package:tlbilling/models/get_model/get_vendor_by_id_model.dart';
 import 'package:tlbilling/models/parent_response_model.dart';
@@ -239,8 +240,17 @@ abstract class AppServiceUtil {
   Future<List<GetAllEmployeeModel>?> getAllExcutiveList();
 
   Future<ParentResponseModel> getAllVoucherData();
+
+  Future<void> bookingCancel(
+      String? bookingNo, Function(int p1)? onSuccessCallback);
   Future<void> salesPaymentUpdate(String paymentDate, String paymentType,
       double paidAmt, String salesId, Function(int p1) onSuccessCallBack);
+
+  Future<List<GetCustomerBookingDetails>?> getCustomerBookingDetails(
+      String? customerId);
+
+  Future<void> salesBillCancel(Function(int statusCode)? onSuccessCallBack,
+      String? salesId, String? paymentId);
 }
 
 class AppServiceUtilImpl extends AppServiceUtil {
@@ -1151,6 +1161,10 @@ class AppServiceUtilImpl extends AppServiceUtil {
       salesListUrl += '&paymentType=$paymentType';
     }
 
+     if (customerName.isNotEmpty) {
+      salesListUrl += '&customerName=$customerName';
+    }
+
     final response = await dio.get(salesListUrl);
 
     return parentResponseModelFromJson(jsonEncode(response.data))
@@ -1179,9 +1193,7 @@ class AppServiceUtilImpl extends AppServiceUtil {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var token = prefs.getString('token');
     dio.options.headers['Authorization'] = 'Bearer $token';
-
     String purchaseReportUrl = '${AppUrl.vendorByPagination}page=0&pageSize=10';
-
     if (vehicleType.isNotEmpty && vehicleType != 'All') {
       purchaseReportUrl += '&vehicleType=$vehicleType';
     }
@@ -1191,11 +1203,8 @@ class AppServiceUtilImpl extends AppServiceUtil {
     if (toDate.isNotEmpty) {
       purchaseReportUrl += '&toDate=$toDate';
     }
-
     var response = await dio.get(purchaseReportUrl);
-
     final responseList = parentResponseModelFromJson(jsonEncode(response.data));
-
     return responseList.result?.getAllVendorByPagination;
   }
 
@@ -1205,9 +1214,7 @@ class AppServiceUtilImpl extends AppServiceUtil {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var token = prefs.getString('token');
     dio.options.headers['Authorization'] = 'Bearer $token';
-
     String voucherListUrl = '${AppUrl.voucher}?page=$currentPage&pageSize=10';
-
     if (receiver.isNotEmpty && receiver != 'All') {
       voucherListUrl += '&vehicleType=$receiver';
     }
@@ -1216,7 +1223,6 @@ class AppServiceUtilImpl extends AppServiceUtil {
     }
     var response = await dio.get(voucherListUrl);
     final responseList = parentResponseModelFromJson(jsonEncode(response.data));
-
     return responseList.result?.getAllVoucherWithPaganation;
   }
 
@@ -1370,7 +1376,6 @@ class AppServiceUtilImpl extends AppServiceUtil {
         }
       }
       var response = await dio.get(url);
-
       final responseList =
           parentResponseModelFromJson(jsonEncode(response.data));
 
@@ -1407,6 +1412,7 @@ class AppServiceUtilImpl extends AppServiceUtil {
         url += '&paymentType=$paymentType';
       }
       var response = await dio.get(url);
+
       return parentResponseModelFromJson(jsonEncode(response.data))
           .result
           ?.getAllBookingListWithPagination;
@@ -1499,6 +1505,21 @@ class AppServiceUtilImpl extends AppServiceUtil {
   }
 
   @override
+  Future<void> bookingCancel(
+      String? bookingNo, Function(int p1)? onSuccessCallback) async {
+    final dio = Dio();
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var token = prefs.getString('token');
+    dio.options.headers['Authorization'] = 'Bearer $token';
+    var response = await dio.patch(
+      '${AppUrl.bookingCancel}$bookingNo',
+    );
+    if (onSuccessCallback != null) {
+      onSuccessCallback(response.statusCode ?? 0);
+    }
+  }
+
+  @override
   Future<void> salesPaymentUpdate(
       String paymentDate,
       String paymentType,
@@ -1516,5 +1537,37 @@ class AppServiceUtilImpl extends AppServiceUtil {
     });
     print(response);
     onSuccessCallBack(response.statusCode ?? 0);
+  }
+
+  @override
+  Future<List<GetCustomerBookingDetails>?> getCustomerBookingDetails(
+      String? customerId) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var token = prefs.getString('token');
+    dio.options.headers['Authorization'] = 'Bearer $token';
+    String advanceGetUrl = '${AppUrl.booking}/booking/$customerId';
+    print('**********Customer boking url =. $advanceGetUrl');
+
+    final response = await dio.get(advanceGetUrl);
+    print('**********Customer boking data =. ${response.data}');
+
+    return parentResponseModelFromJson(jsonEncode(response.data))
+        .result
+        ?.getCustomerBookingDetails;
+  }
+
+  @override
+  Future<void> salesBillCancel(Function(int statusCode)? onSuccessCallBack,
+      String? salesId, String? paymentId) async {
+    final dio = Dio();
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var token = prefs.getString('token');
+    dio.options.headers['Authorization'] = 'Bearer $token';
+    var response = await dio.patch(
+      '${AppUrl.sales}cancel/$salesId?paymentId=$paymentId',
+    );
+    if (onSuccessCallBack != null) {
+      onSuccessCallBack(response.statusCode ?? 0);
+    }
   }
 }

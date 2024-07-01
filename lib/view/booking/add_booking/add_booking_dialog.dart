@@ -259,18 +259,16 @@ class _AddBookingDialogState extends State<AddBookingDialog> {
       future: _addBookingDialogBloc.getPaymentsList(),
       builder: (context, snapshot) {
         List<String> paymentTypesList = snapshot.data?.configuration ?? [];
-        return Expanded(
-          child: TldsDropDownButtonFormField(
-            labelText: AppConstants.paymentType,
-            height: 40,
-            width: 300,
-            hintText: AppConstants.payments,
-            dropDownItems: paymentTypesList,
-            dropDownValue: _addBookingDialogBloc.selectedPaymentType,
-            onChange: (String? newValue) {
-              _addBookingDialogBloc.selectedPaymentType = newValue ?? '';
-            },
-          ),
+        return TldsDropDownButtonFormField(
+          labelText: AppConstants.paymentType,
+          height: 40,
+          width: 300,
+          hintText: AppConstants.payments,
+          dropDownItems: paymentTypesList,
+          dropDownValue: _addBookingDialogBloc.selectedPaymentType,
+          onChange: (String? newValue) {
+            _addBookingDialogBloc.selectedPaymentType = newValue ?? '';
+          },
         );
       },
     );
@@ -278,7 +276,7 @@ class _AddBookingDialogState extends State<AddBookingDialog> {
 
   Widget _buildAmountFiled() {
     return _buildFormField(_addBookingDialogBloc.amountTextController,
-        AppConstants.bookingId, TldsInputFormatters.onlyAllowNumbers,
+        AppConstants.amount, TldsInputFormatters.onlyAllowNumbers,
         width: null, labelText: AppConstants.amount);
   }
 

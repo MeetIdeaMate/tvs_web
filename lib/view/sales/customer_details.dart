@@ -4,6 +4,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:tlbilling/components/custom_elevated_button.dart';
 import 'package:tlbilling/models/get_model/get_all_customer_name_list.dart';
 import 'package:tlbilling/models/get_model/get_all_customers_model.dart';
+import 'package:tlbilling/models/get_model/get_customer_booking_details.dart';
 import 'package:tlbilling/utils/app_colors.dart';
 import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/utils/app_util_widgets.dart';
@@ -178,6 +179,24 @@ class _CustomerDetailsState extends State<CustomerDetails> {
                           selectedVendor.customerId;
                       widget.addSalesBloc
                           .selectedCustomerDetailsStreamController(true);
+
+                      widget.addSalesBloc
+                          .getCustomerBookingDetails(selectedVendor.customerId)
+                          .then((value) {
+                        if (value?.isNotEmpty ?? false) {
+                          for (GetCustomerBookingDetails element
+                              in value ?? []) {
+                            widget.addSalesBloc.advanceAmt =
+                                element.paidDetail?.paidAmount ?? 0;
+                            widget.addSalesBloc
+                                .advanceAmountRefreshStreamController(true);
+                            widget
+                                .addSalesBloc
+                                .vehicleNoAndEngineNoSearchController
+                                .text = element.partNo ?? '';
+                          }
+                        }
+                      });
                     },
                   );
                 },
