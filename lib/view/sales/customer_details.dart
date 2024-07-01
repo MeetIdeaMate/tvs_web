@@ -194,6 +194,11 @@ class _CustomerDetailsState extends State<CustomerDetails> {
                                 .addSalesBloc
                                 .vehicleNoAndEngineNoSearchController
                                 .text = element.partNo ?? '';
+                            widget.addSalesBloc.selectedVehicleAndAccessories =
+                                element.categoryName;
+                            widget.addSalesBloc
+                                .selectedVehicleAndAccessoriesListStreamController(
+                                    true);
                           }
                         }
                       });

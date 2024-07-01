@@ -50,7 +50,7 @@ class _PaymentDailogState extends State<PaymentDailog> {
       });
     });
     widget.salesViewBloc.totalInvAmtPaymentController.text =
-        widget.totalInvAmt.toString();
+        widget.salesdata?.pendingAmt?.toString() ?? '';
   }
 
   @override
@@ -119,9 +119,12 @@ class _PaymentDailogState extends State<PaymentDailog> {
                     double.tryParse(widget
                             .salesViewBloc.paidAmountTextController.text) ??
                         0,
-                    widget.salesdata?.salesId ?? '', (statusCode) {
+                    widget.salesdata?.salesId ?? '',
+                    widget.salesViewBloc.reasonTextEditingController.text,
+                    (statusCode) {
                   if (statusCode == 200 || statusCode == 201) {
                     Navigator.pop(context);
+                    widget.salesViewBloc.pageNumberUpdateStreamController(0);
                     AppWidgetUtils.buildToast(
                         context,
                         ToastificationType.success,
@@ -173,7 +176,7 @@ class _PaymentDailogState extends State<PaymentDailog> {
             AppWidgetUtils.buildSizedBox(custHeight: 13),
             paymentDetails(),
             AppWidgetUtils.buildSizedBox(custHeight: 13),
-            // balanceAmt(),
+            _buildReason(),
           ],
         ),
       ),
@@ -185,7 +188,8 @@ class _PaymentDailogState extends State<PaymentDailog> {
       children: [
         Expanded(
           child: TldsInputFormField(
-            labelText: AppConstants.totalInvAmount,
+            readOnly: true,
+            labelText: AppConstants.pendingInvAmt,
             controller: widget.salesViewBloc.totalInvAmtPaymentController,
             enabled: true,
           ),
@@ -203,6 +207,19 @@ class _PaymentDailogState extends State<PaymentDailog> {
     );
   }
 
+  _buildReason() {
+    return TldsInputFormField(
+      maxLine: 100,
+      height: 92,
+      // validator: (value) {
+      //   return InputValidations.addressValidation(value ?? '');
+      // },
+      controller: widget.salesViewBloc.reasonTextEditingController,
+      hintText: AppConstants.hintAddress,
+      labelText: AppConstants.address,
+    );
+  }
+
   paymentDetails() {
     return Column(
       children: [
@@ -216,9 +233,7 @@ class _PaymentDailogState extends State<PaymentDailog> {
                 // height: 40,
                 width: double.infinity,
                 onChange: (value) {
-                  setState(() {
-                    widget.salesViewBloc.selectedPaymentName = value;
-                  });
+                  widget.salesViewBloc.selectedPaymentName = value;
 
                   //  widget.addSalesBloc.isSplitPaymentStreamController(true);
                 },
@@ -227,6 +242,7 @@ class _PaymentDailogState extends State<PaymentDailog> {
           children: [
             Expanded(
               child: TldsInputFormField(
+                //   readOnly: true,
                 requiredLabelText:
                     AppWidgetUtils.labelTextWithRequired(AppConstants.paidAmt),
                 controller: widget.salesViewBloc.paidAmountTextController,
@@ -278,6 +294,7 @@ class _PaymentDailogState extends State<PaymentDailog> {
           height: 50,
           labelText: AppConstants.balanceAmt,
           enabled: true,
+          readOnly: true,
           controller: widget.salesViewBloc.balanceAmtController),
     );
   }

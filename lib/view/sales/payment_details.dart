@@ -232,6 +232,8 @@ class _PaymentDetailsState extends State<PaymentDetails> {
     double advanceAmt = widget.addSalesBloc.advanceAmt ?? 0;
     double totalInvAmt = widget.addSalesBloc.totalInvAmount ?? 0;
     widget.addSalesBloc.toBePayedAmt = totalInvAmt - advanceAmt;
+    print(
+        'Rounded Difference: ${(double.parse(widget.addSalesBloc.toBePayedAmt?.toString() ?? '0') - (widget.addSalesBloc.toBePayedAmt?.round() ?? 0)).toString()}');
 
     widget.addSalesBloc.paymentDetailsStreamController(true);
   }
@@ -464,29 +466,29 @@ class _PaymentDetailsState extends State<PaymentDetails> {
                 ),
                 AppWidgetUtils.buildSizedBox(custHeight: 10),
                 StreamBuilder<bool>(
-                  stream: widget.addSalesBloc.advanceAmountRefreshStream,
-                  builder: (context, snapshot) {
-                    return Container(
-                      decoration: BoxDecoration(
-                          color: _appColors.amountBgColor,
-                          borderRadius: BorderRadius.circular(10)),
-                      padding: const EdgeInsets.all(5),
-                      child: ListTile(
-                        title: Text(
-                          AppConstants.bookAdvAmt,
-                          style: TextStyle(
-                              fontSize: 16, color: _appColors.primaryColor),
+                    stream: widget.addSalesBloc.advanceAmountRefreshStream,
+                    builder: (context, snapshot) {
+                      return Container(
+                        decoration: BoxDecoration(
+                            color: _appColors.amountBgColor,
+                            borderRadius: BorderRadius.circular(10)),
+                        padding: const EdgeInsets.all(5),
+                        child: ListTile(
+                          title: Text(
+                            AppConstants.bookAdvAmt,
+                            style: TextStyle(
+                                fontSize: 16, color: _appColors.primaryColor),
+                          ),
+                          // tileColor: _appColors.primaryColor,
+                          trailing: Text(
+                            AppUtils.formatCurrency(
+                                widget.addSalesBloc.advanceAmt ?? 0),
+                            style: TextStyle(
+                                color: _appColors.primaryColor, fontSize: 16),
+                          ),
                         ),
-                        // tileColor: _appColors.primaryColor,
-                        trailing: Text(
-                          AppUtils.formatCurrency(widget.addSalesBloc.advanceAmt ?? 0),
-                          style: TextStyle(
-                              color: _appColors.primaryColor, fontSize: 16),
-                        ),
-                      ),
-                    );
-                  }
-                ),
+                      );
+                    }),
                 AppWidgetUtils.buildSizedBox(custHeight: 10),
                 Container(
                   decoration: BoxDecoration(
@@ -502,7 +504,7 @@ class _PaymentDetailsState extends State<PaymentDetails> {
                     // tileColor: _appColors.primaryColor,
                     trailing: Text(
                       AppUtils.formatCurrency(
-                          widget.addSalesBloc.totalInvAmount ?? 0.00),
+                          widget.addSalesBloc.toBePayedAmt ?? 0.00),
                       style: const TextStyle(
                           fontWeight: FontWeight.bold, fontSize: 16),
                     ),
@@ -920,9 +922,11 @@ class _PaymentDetailsState extends State<PaymentDetails> {
       if (_checkedList[i]) {
         String paymentType = widget.addSalesBloc.paymentName[i] ?? '';
         String paidAmount = widget.addSalesBloc.splitPaymentAmt[i] ?? '0';
+        String paidId = widget.addSalesBloc.splitPaymentId[i] ?? '0';
 
         final paidDetail = PaidDetail(
             paidAmount: double.tryParse(paidAmount) ?? 0,
+            paymentReference: paidId,
             paymentDate: DateFormat('yyyy-MM-dd').format(DateTime.now()),
             paymentType: paymentType);
 
@@ -930,12 +934,13 @@ class _PaymentDetailsState extends State<PaymentDetails> {
       }
     }
     paidDetails.add(PaidDetail(
-      paymentType: widget.addSalesBloc.selectedPaymentList,
-      paidAmount: double.tryParse(
-        widget.addSalesBloc.paidAmountController.text,
-      ),
-      paymentDate: DateFormat('yyyy-MM-dd').format(DateTime.now()),
-    ));
+        paymentType: widget.addSalesBloc.selectedPaymentList,
+        paidAmount: double.tryParse(
+          widget.addSalesBloc.paidAmountController.text,
+        ),
+        paymentDate: DateFormat('yyyy-MM-dd').format(DateTime.now()),
+        paymentReference:
+            widget.addSalesBloc.paymentTypeIdTextController.text));
 
     List<Incentive> insentive = [];
     if (widget.addSalesBloc.stateIncentiveTextController.text.isNotEmpty) {
@@ -1025,10 +1030,13 @@ class _PaymentDetailsState extends State<PaymentDetails> {
         itemDetails: itemdetails,
         // loaninfo: Loaninfo(bankName: '', loanAmt: 0, loanId: ''),
         mandatoryAddons: mandatoryAddonsMap,
-        netAmt: 0,
+        netAmt: double.parse(
+            widget.addSalesBloc.toBePayedAmt?.round().toString() ?? ''),
         paidDetails: paidDetails,
         roundOffAmt:
-            double.parse(widget.addSalesBloc.totalInvAmount.toString()),
+            double.parse(widget.addSalesBloc.toBePayedAmt?.toString() ?? '') -
+                double.parse(
+                    widget.addSalesBloc.toBePayedAmt?.round().toString() ?? ''),
         totalQty: widget.addSalesBloc.selectedVehiclesList?.length ??
             widget.addSalesBloc.slectedAccessoriesList?.length ??
             0);

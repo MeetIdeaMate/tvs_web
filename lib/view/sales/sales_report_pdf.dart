@@ -170,11 +170,11 @@ class SalesPdfPrinter {
                           children: [
                             _buildNormalText(sale.roundOffAmt.toString()),
                             _buildNormalText('3905\n\n'),
-                            _buildNormalText(sale.mandatoryAddons?.tools ?? ''),
-                            _buildNormalText(
-                                sale.mandatoryAddons?.manualBook ?? ''),
-                            _buildNormalText(
-                                sale.mandatoryAddons?.duplicateKey ?? ''),
+                            // _buildNormalText(sale.mandatoryAddons?.tools ?? ''),
+                            // _buildNormalText(
+                            //     sale.mandatoryAddons?.manualBook ?? ''),
+                            // _buildNormalText(
+                            //     sale.mandatoryAddons?.duplicateKey ?? ''),
                           ],
                         );
                       })

@@ -55,6 +55,7 @@ class _TransferViewState extends State<TransferView>
         if (_transferViewBloc.branchId == element.branchId) {
           setState(() {
             _transferViewBloc.selectedFromBranch = element.branchName;
+            _transferViewBloc.fromBranchId = element.branchId;
           });
         }
       }
@@ -120,91 +121,97 @@ class _TransferViewState extends State<TransferView>
   }
 
   Widget _buildFromAndToBranchDropdown() {
-    return FutureBuilder(
-      future: _transferViewBloc.getBranchesList(),
-      builder: (context, futureSnapshot) {
-        List<String> branchNameList = ['All Branch'];
-        branchNameList.addAll(
-            futureSnapshot.data?.map((e) => e.branchName ?? '').toList() ?? []);
-        if (futureSnapshot.connectionState == ConnectionState.waiting) {
-          return Center(
-            child: AppWidgetUtils.buildLoading(),
-          );
-        } else if (futureSnapshot.hasData) {
-          return Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              StreamBuilder(
-                stream: _transferViewBloc.fromBranchNameListStreamController,
-                builder: (context, snapshot) {
-                  for (var element in futureSnapshot.data ?? []) {
-                    if (element.branchId == _transferViewBloc.branchId) {
-                      _transferViewBloc.selectedFromBranch = element.branchName;
-                      _transferViewBloc.fromBranchId = element.branchId;
-                    }
-                  }
-                  _refreshToBranchList(branchNameList);
-                  return IgnorePointer(
-                    child: TldsDropDownButtonFormField(
-                      height: 40,
-                      width: 150,
-                      hintText: AppConstants.fromBranch,
-                      dropDownItems: branchNameList,
-                      dropDownValue: _transferViewBloc.selectedFromBranch,
-                      onChange: (String? newValue) async {
-                        _transferViewBloc.selectedFromBranch = newValue ?? '';
-                        if (newValue == 'All Branch') {
-                          _transferViewBloc.fromBranchId = null;
-                        } else {
-                          for (var element in futureSnapshot.data ?? []) {
-                            if (element.branchName == newValue) {
-                              _transferViewBloc.fromBranchId = element.branchId;
-                            }
-                          }
-                        }
-                        _transferViewBloc.toBranchList = [];
-                        _transferViewBloc.toBranchNameListStream(false);
-                        await Future.delayed(Duration.zero);
-                        _refreshToBranchList(branchNameList);
-                        _transferViewBloc.tableRefreshStream(true);
-                      },
-                    ),
-                  );
-                },
-              ),
-              _buildDefaultWidth(),
-              StreamBuilder(
-                stream: _transferViewBloc.toBranchNameListStreamController,
-                builder: (context, snapshot) {
-                  return TldsDropDownButtonFormField(
-                    height: 40,
-                    width: 150,
-                    hintText: AppConstants.toBranch,
-                    dropDownItems: _transferViewBloc.toBranchList,
-                    dropDownValue: _transferViewBloc.selectedToBranch,
-                    onChange: (String? newValue) {
-                      _transferViewBloc.selectedToBranch = newValue ?? '';
-                      if (newValue == 'All Branch') {
-                        _transferViewBloc.toBranchId = null;
-                      } else {
-                        for (var element in futureSnapshot.data ?? []) {
-                          if (element.branchName == newValue) {
-                            _transferViewBloc.toBranchId = element.branchId;
-                          }
+    return Column(
+      children: [
+        FutureBuilder(
+          future: _transferViewBloc.getBranchesList(),
+          builder: (context, futureSnapshot) {
+            List<String> branchNameList = ['All Branch'];
+            branchNameList.addAll(
+                futureSnapshot.data?.map((e) => e.branchName ?? '').toList() ??
+                    []);
+            if (futureSnapshot.connectionState == ConnectionState.waiting) {
+              return Center(
+                child: AppWidgetUtils.buildLoading(),
+              );
+            } else if (!futureSnapshot.hasData ||
+                futureSnapshot.data?.isEmpty == true) {
+              return Center(child: SvgPicture.asset(AppConstants.imgNoData));
+            } else {
+              return Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  StreamBuilder(
+                    stream:
+                        _transferViewBloc.fromBranchNameListStreamController,
+                    builder: (context, snapshot) {
+                      for (BranchDetail element in futureSnapshot.data ?? []) {
+                        if (element.branchId == _transferViewBloc.branchId) {
+                          _transferViewBloc.selectedFromBranch =
+                              element.branchName;
+                          _transferViewBloc.fromBranchId = element.branchId;
                         }
                       }
-                      _transferViewBloc.tableRefreshStream(true);
+                      _refreshToBranchList(branchNameList);
+                      return TldsDropDownButtonFormField(
+                        height: 40,
+                        width: 150,
+                        hintText: AppConstants.fromBranch,
+                        dropDownItems: branchNameList,
+                        dropDownValue: _transferViewBloc.selectedFromBranch,
+                        onChange: (String? newValue) async {
+                          _transferViewBloc.selectedFromBranch = newValue ?? '';
+                          if (newValue == 'All Branch') {
+                            _transferViewBloc.fromBranchId = null;
+                          } else {
+                            for (var element in futureSnapshot.data ?? []) {
+                              if (element.branchName == newValue) {
+                                _transferViewBloc.fromBranchId =
+                                    element.branchId;
+                              }
+                            }
+                          }
+                          _transferViewBloc.toBranchList = [];
+                          _transferViewBloc.toBranchNameListStream(false);
+                          await Future.delayed(Duration.zero);
+                          _refreshToBranchList(branchNameList);
+                          _transferViewBloc.tableRefreshStream(true);
+                        },
+                      );
                     },
-                  );
-                },
-              )
-            ],
-          );
-        }
-        return Center(
-          child: SvgPicture.asset(AppConstants.imgNoData),
-        );
-      },
+                  ),
+                  _buildDefaultWidth(),
+                  StreamBuilder(
+                    stream: _transferViewBloc.toBranchNameListStreamController,
+                    builder: (context, snapshot) {
+                      return TldsDropDownButtonFormField(
+                        height: 40,
+                        width: 150,
+                        hintText: AppConstants.toBranch,
+                        dropDownItems: _transferViewBloc.toBranchList,
+                        dropDownValue: _transferViewBloc.selectedToBranch,
+                        onChange: (String? newValue) {
+                          _transferViewBloc.selectedToBranch = newValue ?? '';
+                          if (newValue == 'All Branch') {
+                            _transferViewBloc.toBranchId = null;
+                          } else {
+                            for (var element in futureSnapshot.data ?? []) {
+                              if (element.branchName == newValue) {
+                                _transferViewBloc.toBranchId = element.branchId;
+                              }
+                            }
+                          }
+                          _transferViewBloc.tableRefreshStream(true);
+                        },
+                      );
+                    },
+                  )
+                ],
+              );
+            }
+          },
+        ),
+      ],
     );
   }
 
@@ -344,28 +351,31 @@ class _TransferViewState extends State<TransferView>
   }
 
   _buildTransferTableView(BuildContext context) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: StreamBuilder(
-        stream: _transferViewBloc.tableRefreshStreamController,
-        builder: (context, snapshot) {
-          return FutureBuilder(
-            future: _transferViewBloc.getTransferList(() {
-              switch (_transferViewBloc.transferScreenTabController.index) {
-                case 0:
-                  return AppConstants.transferred;
-                case 1:
-                  return AppConstants.received;
-                default:
-                  return '';
-              }
-            }()),
+    return Column(
+      // mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: StreamBuilder(
+            stream: _transferViewBloc.tableRefreshStreamController,
             builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return Center(
-                  child: AppWidgetUtils.buildLoading(),
-                );
-              } else if (snapshot.hasData) {
+              return FutureBuilder(
+                  future: _transferViewBloc.getTransferList(() {
+                switch (_transferViewBloc.transferScreenTabController.index) {
+                  case 0:
+                    return AppConstants.transferred;
+                  case 1:
+                    return AppConstants.received;
+                  default:
+                    return '';
+                }
+              }()), builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(
+                    child: AppWidgetUtils.buildLoading(),
+                  );
+                }
                 if (!snapshot.hasData || snapshot.data?.isEmpty == true) {
                   return Center(
                     child: SvgPicture.asset(AppConstants.imgNoData),
@@ -382,13 +392,13 @@ class _TransferViewState extends State<TransferView>
                   );
                 }
               }
-              return Center(
-                child: SvgPicture.asset(AppConstants.imgNoData),
-              );
+                  // return SvgPicture.asset(AppConstants.imgNoData);
+
+                  );
             },
-          );
-        },
-      ),
+          ),
+        ),
+      ],
     );
   }
 

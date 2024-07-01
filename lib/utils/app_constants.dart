@@ -194,6 +194,8 @@ class AppConstants {
   static const ifscNo = ' IFSC Code';
   static const enterIfscCode = 'Enter IFSC Code';
   static const purchasenodateMsg = 'Add Purchase Value to the table to view';
+  static const categoryName = 'Category Name';
+  static const stockStatus = 'Stock Status';
 
   //transport
   static const addTransport = 'Add Transport';
@@ -568,9 +570,8 @@ class AppConstants {
   static const String bookingCancelledErrDec =
       'Somthing went wrong cancelling booking';
 
-        static const String salesCancelled = 'Sales Cancelled successfully';
-  static const String salesCancelledDes =
-      'Sales Bill is cancelled and updated';
+  static const String salesCancelled = 'Sales Cancelled successfully';
+  static const String salesCancelledDes = 'Sales Bill is cancelled and updated';
   static const String salesCancelledErr = 'Cant cancel the Sales';
   static const String salesCancelledErrDec =
       'Somthing went wrong cancelling Sales';

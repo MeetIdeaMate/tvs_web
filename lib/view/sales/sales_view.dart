@@ -98,7 +98,6 @@ class _SalesViewScreenState extends State<SalesViewScreen>
                   searchStreamController:
                       _salesViewBloc.customerNameStreamController,
                   inputFormatters: TlInputFormatters.onlyAllowAlphabets,
-                  
                 );
               },
             ),
@@ -250,6 +249,8 @@ class _SalesViewScreenState extends State<SalesViewScreen>
                             _buildVehicleTableHeader(AppConstants.paymentType),
                             _buildVehicleTableHeader(
                                 AppConstants.totalInvAmount),
+                            _buildVehicleTableHeader(AppConstants.paidAmt),
+
                             _buildVehicleTableHeader(
                                 AppConstants.pendingInvAmt),
                             // _buildVehicleTableHeader(AppConstants.balanceAmt),
@@ -279,6 +280,9 @@ class _SalesViewScreenState extends State<SalesViewScreen>
                                     entry.value.totalInvoiceAmt?.toDouble() ??
                                         0))),
                                 DataCell(Text(AppUtils.formatCurrency(
+                                    entry.value.totalPaidAmt?.toDouble() ??
+                                        0))),
+                                DataCell(Text(AppUtils.formatCurrency(
                                     entry.value.pendingAmt?.toDouble() ?? 0))),
                                 // DataCell(Text(AppUtils.formatCurrency(
                                 //     entry.value.pendingAmt!.toDouble()))),
@@ -303,7 +307,7 @@ class _SalesViewScreenState extends State<SalesViewScreen>
                                               : _appColors.yellowColor),
                                     ))),
                                 DataCell(
-                                    Text(entry.value.branchName.toString())),
+                                    Text(entry.value.createdByName.toString())),
                                 DataCell(
                                   Row(
                                     children: [
@@ -475,7 +479,7 @@ class _SalesViewScreenState extends State<SalesViewScreen>
                                                       _salesViewBloc
                                                           .paymentDetailsListStreamController(
                                                               true);
-                                                               Navigator.pop(context);
+                                                      Navigator.pop(context);
                                                       AppWidgetUtils.buildToast(
                                                           context,
                                                           ToastificationType

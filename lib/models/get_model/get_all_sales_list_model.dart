@@ -1,28 +1,28 @@
 class GetAllSales {
   List<Content>? content;
-  Pageable? pageable;
-  int? totalPages;
-  int? totalElements;
-  bool? last;
-  int? size;
-  int? number;
-  Sort? sort;
-  int? numberOfElements;
-  bool? first;
   bool? empty;
+  bool? first;
+  bool? last;
+  int? number;
+  int? numberOfElements;
+  Pageable? pageable;
+  int? size;
+  Sort? sort;
+  int? totalElements;
+  int? totalPages;
 
   GetAllSales({
     this.content,
-    this.pageable,
-    this.totalPages,
-    this.totalElements,
-    this.last,
-    this.size,
-    this.number,
-    this.sort,
-    this.numberOfElements,
-    this.first,
     this.empty,
+    this.first,
+    this.last,
+    this.number,
+    this.numberOfElements,
+    this.pageable,
+    this.size,
+    this.sort,
+    this.totalElements,
+    this.totalPages,
   });
 
   factory GetAllSales.fromJson(Map<String, dynamic> json) => GetAllSales(
@@ -30,354 +30,215 @@ class GetAllSales {
             ? []
             : List<Content>.from(
                 json["content"]!.map((x) => Content.fromJson(x))),
+        empty: json["empty"],
+        first: json["first"],
+        last: json["last"],
+        number: json["number"],
+        numberOfElements: json["numberOfElements"],
         pageable: json["pageable"] == null
             ? null
             : Pageable.fromJson(json["pageable"]),
-        totalPages: json["totalPages"],
-        totalElements: json["totalElements"],
-        last: json["last"],
         size: json["size"],
-        number: json["number"],
         sort: json["sort"] == null ? null : Sort.fromJson(json["sort"]),
-        numberOfElements: json["numberOfElements"],
-        first: json["first"],
-        empty: json["empty"],
+        totalElements: json["totalElements"],
+        totalPages: json["totalPages"],
       );
 
   Map<String, dynamic> toJson() => {
         "content": content == null
             ? []
             : List<dynamic>.from(content!.map((x) => x.toJson())),
-        "pageable": pageable?.toJson(),
-        "totalPages": totalPages,
-        "totalElements": totalElements,
-        "last": last,
-        "size": size,
-        "number": number,
-        "sort": sort?.toJson(),
-        "numberOfElements": numberOfElements,
-        "first": first,
         "empty": empty,
+        "first": first,
+        "last": last,
+        "number": number,
+        "numberOfElements": numberOfElements,
+        "pageable": pageable?.toJson(),
+        "size": size,
+        "sort": sort?.toJson(),
+        "totalElements": totalElements,
+        "totalPages": totalPages,
       };
 }
 
 class Content {
-  String? salesId;
-  String? invoiceType;
-  String? invoiceNo;
-  DateTime? invoiceDate;
   String? billType;
+  String? branchId;
+  String? branchName;
+  bool? cancelled;
+  String? createdBy;
+  String? createdByName;
   String? customerId;
   String? customerName;
-  String? mobileNo;
-  List<PaidDetail>? paidDetails;
-  List<ItemDetail>? itemDetails;
-  String? paymentStatus;
-  int? totalQty;
-  double? totalTaxableAmt;
-  double? totalDisc;
-  double? totalCgst;
-  double? totalSgst;
-  double? totalInvoiceAmt;
-  double? totalIncentiveAmt;
-  double? roundOffAmt;
-  double? netAmt;
-  Insurance? insurance;
-  Loaninfo? loaninfo;
-  double? pendingAmt;
-  String? branchId;
-  dynamic branchName;
   EvBattery? evBattery;
+  Insurance? insurance;
+  DateTime? invoiceDate;
+  String? invoiceNo;
+  String? invoiceType;
+  List<ItemDetail>? itemDetails;
+  Loaninfo? loaninfo;
   MandatoryAddons? mandatoryAddons;
+  String? mobileNo;
+  double? netAmt;
+  List<PaidDetail>? paidDetails;
+  String? paymentStatus;
+  double? pendingAmt;
+  String? reason;
+  double? roundOffAmt;
+  String? salesId;
+  double? totalCgst;
+  double? totalDisc;
+  double? totalIncentiveAmt;
+  double? totalInvoiceAmt;
+  double? totalPaidAmt;
+  int? totalQty;
+  double? totalSgst;
+  double? totalTaxableAmt;
 
   Content({
-    this.salesId,
-    this.invoiceType,
-    this.invoiceNo,
-    this.invoiceDate,
     this.billType,
-    this.customerId,
-    this.customerName,
-    this.mobileNo,
-    this.paidDetails,
-    this.itemDetails,
-    this.paymentStatus,
-    this.totalQty,
-    this.totalTaxableAmt,
-    this.totalDisc,
-    this.totalCgst,
-    this.totalSgst,
-    this.totalInvoiceAmt,
-    this.totalIncentiveAmt,
-    this.roundOffAmt,
-    this.netAmt,
-    this.insurance,
-    this.loaninfo,
-    this.pendingAmt,
     this.branchId,
     this.branchName,
+    this.cancelled,
+    this.createdBy,
+    this.createdByName,
+    this.customerId,
+    this.customerName,
     this.evBattery,
+    this.insurance,
+    this.invoiceDate,
+    this.invoiceNo,
+    this.invoiceType,
+    this.itemDetails,
+    this.loaninfo,
     this.mandatoryAddons,
+    this.mobileNo,
+    this.netAmt,
+    this.paidDetails,
+    this.paymentStatus,
+    this.pendingAmt,
+    this.reason,
+    this.roundOffAmt,
+    this.salesId,
+    this.totalCgst,
+    this.totalDisc,
+    this.totalIncentiveAmt,
+    this.totalInvoiceAmt,
+    this.totalPaidAmt,
+    this.totalQty,
+    this.totalSgst,
+    this.totalTaxableAmt,
   });
 
   factory Content.fromJson(Map<String, dynamic> json) => Content(
-        salesId: json["salesId"],
-        invoiceType: json["invoiceType"],
-        invoiceNo: json["invoiceNo"],
+        billType: json["billType"],
+        branchId: json["branchId"],
+        branchName: json["branchName"],
+        cancelled: json["cancelled"],
+        createdBy: json["createdBy"],
+        createdByName: json["createdByName"],
+        customerId: json["customerId"],
+        customerName: json["customerName"],
+        evBattery: json["evBattery"] == null
+            ? null
+            : EvBattery.fromJson(json["evBattery"]),
+        insurance: json["insurance"] == null
+            ? null
+            : Insurance.fromJson(json["insurance"]),
         invoiceDate: json["invoiceDate"] == null
             ? null
             : DateTime.parse(json["invoiceDate"]),
-        billType: json["billType"],
-        customerId: json["customerId"],
-        customerName: json["customerName"],
-        mobileNo: json["mobileNo"],
-        paidDetails: json["paidDetails"] == null
-            ? []
-            : List<PaidDetail>.from(
-                json["paidDetails"]!.map((x) => PaidDetail.fromJson(x))),
+        invoiceNo: json["invoiceNo"],
+        invoiceType: json["invoiceType"],
         itemDetails: json["itemDetails"] == null
             ? []
             : List<ItemDetail>.from(
                 json["itemDetails"]!.map((x) => ItemDetail.fromJson(x))),
-        paymentStatus: json["paymentStatus"],
-        totalQty: json["totalQty"],
-        totalTaxableAmt: json["totalTaxableAmt"]?.toDouble(),
-        totalDisc: json["totalDisc"],
-        totalCgst: json["totalCgst"]?.toDouble(),
-        totalSgst: json["totalSgst"]?.toDouble(),
-        totalInvoiceAmt: json["totalInvoiceAmt"],
-        totalIncentiveAmt: json["totalIncentiveAmt"],
-        roundOffAmt: json["roundOffAmt"],
-        netAmt: json["netAmt"],
-        insurance: json["insurance"] == null
-            ? null
-            : Insurance.fromJson(json["insurance"]),
         loaninfo: json["loaninfo"] == null
             ? null
             : Loaninfo.fromJson(json["loaninfo"]),
-        pendingAmt: json["pendingAmt"],
-        branchId: json["branchId"],
-        branchName: json["branchName"],
-        evBattery: json["evBattery"] == null
-            ? null
-            : EvBattery.fromJson(json["evBattery"]),
         mandatoryAddons: json["mandatoryAddons"] == null
             ? null
             : MandatoryAddons.fromJson(json["mandatoryAddons"]),
+        mobileNo: json["mobileNo"],
+        netAmt: json["netAmt"],
+        paidDetails: json["paidDetails"] == null
+            ? []
+            : List<PaidDetail>.from(
+                json["paidDetails"]!.map((x) => PaidDetail.fromJson(x))),
+        paymentStatus: json["paymentStatus"],
+        pendingAmt: json["pendingAmt"],
+        reason: json["reason"],
+        roundOffAmt: json["roundOffAmt"],
+        salesId: json["salesId"],
+        totalCgst: json["totalCgst"],
+        totalDisc: json["totalDisc"],
+        totalIncentiveAmt: json["totalIncentiveAmt"],
+        totalInvoiceAmt: json["totalInvoiceAmt"],
+        totalPaidAmt: json["totalPaidAmt"],
+        totalQty: json["totalQty"],
+        totalSgst: json["totalSgst"],
+        totalTaxableAmt: json["totalTaxableAmt"],
       );
 
   Map<String, dynamic> toJson() => {
-        "salesId": salesId,
-        "invoiceType": invoiceType,
-        "invoiceNo": invoiceNo,
-        "invoiceDate":
-            "${invoiceDate!.year.toString().padLeft(4, '0')}-${invoiceDate!.month.toString().padLeft(2, '0')}-${invoiceDate!.day.toString().padLeft(2, '0')}",
         "billType": billType,
+        "branchId": branchId,
+        "branchName": branchName,
+        "cancelled": cancelled,
+        "createdBy": createdBy,
+        "createdByName": createdByName,
         "customerId": customerId,
         "customerName": customerName,
-        "mobileNo": mobileNo,
-        "paidDetails": paidDetails == null
-            ? []
-            : List<dynamic>.from(paidDetails!.map((x) => x.toJson())),
+        "evBattery": evBattery?.toJson(),
+        "insurance": insurance?.toJson(),
+        "invoiceDate":
+            "${invoiceDate!.year.toString().padLeft(4, '0')}-${invoiceDate!.month.toString().padLeft(2, '0')}-${invoiceDate!.day.toString().padLeft(2, '0')}",
+        "invoiceNo": invoiceNo,
+        "invoiceType": invoiceType,
         "itemDetails": itemDetails == null
             ? []
             : List<dynamic>.from(itemDetails!.map((x) => x.toJson())),
-        "paymentStatus": paymentStatus,
-        "totalQty": totalQty,
-        "totalTaxableAmt": totalTaxableAmt,
-        "totalDisc": totalDisc,
-        "totalCgst": totalCgst,
-        "totalSgst": totalSgst,
-        "totalInvoiceAmt": totalInvoiceAmt,
-        "totalIncentiveAmt": totalIncentiveAmt,
-        "roundOffAmt": roundOffAmt,
-        "netAmt": netAmt,
-        "insurance": insurance?.toJson(),
         "loaninfo": loaninfo?.toJson(),
-        "pendingAmt": pendingAmt,
-        "branchId": branchId,
-        "branchName": branchName,
-        "evBattery": evBattery?.toJson(),
         "mandatoryAddons": mandatoryAddons?.toJson(),
+        "mobileNo": mobileNo,
+        "netAmt": netAmt,
+        "paidDetails": paidDetails == null
+            ? []
+            : List<dynamic>.from(paidDetails!.map((x) => x.toJson())),
+        "paymentStatus": paymentStatus,
+        "pendingAmt": pendingAmt,
+        "reason": reason,
+        "roundOffAmt": roundOffAmt,
+        "salesId": salesId,
+        "totalCgst": totalCgst,
+        "totalDisc": totalDisc,
+        "totalIncentiveAmt": totalIncentiveAmt,
+        "totalInvoiceAmt": totalInvoiceAmt,
+        "totalPaidAmt": totalPaidAmt,
+        "totalQty": totalQty,
+        "totalSgst": totalSgst,
+        "totalTaxableAmt": totalTaxableAmt,
       };
 }
 
 class EvBattery {
-  String? evBatteryName;
   double? evBatteryCapacity;
+  String? evBatteryName;
 
   EvBattery({
-    this.evBatteryName,
     this.evBatteryCapacity,
+    this.evBatteryName,
   });
 
   factory EvBattery.fromJson(Map<String, dynamic> json) => EvBattery(
-        evBatteryName: json["evBatteryName"],
         evBatteryCapacity: json["evBatteryCapacity"],
+        evBatteryName: json["evBatteryName"],
       );
 
   Map<String, dynamic> toJson() => {
-        "evBatteryName": evBatteryName,
         "evBatteryCapacity": evBatteryCapacity,
-      };
-}
-
-class Insurance {
-  String? insuranceId;
-  double? insuredAmt;
-  String? invoiceNo;
-  DateTime? insuredDate;
-  DateTime? expiryDate;
-  String? insuranceCompanyName;
-
-  Insurance({
-    this.insuranceId,
-    this.insuredAmt,
-    this.invoiceNo,
-    this.insuredDate,
-    this.expiryDate,
-    this.insuranceCompanyName,
-  });
-
-  factory Insurance.fromJson(Map<String, dynamic> json) => Insurance(
-        insuranceId: json["insuranceId"],
-        insuredAmt: json["insuredAmt"],
-        invoiceNo: json["invoiceNo"],
-        insuredDate: json["insuredDate"] == null
-            ? null
-            : DateTime.parse(json["insuredDate"]),
-        expiryDate: json["expiryDate"] == null
-            ? null
-            : DateTime.parse(json["expiryDate"]),
-        insuranceCompanyName: json["insuranceCompanyName"],
-      );
-
-  Map<String, dynamic> toJson() => {
-        "insuranceId": insuranceId,
-        "insuredAmt": insuredAmt,
-        "invoiceNo": invoiceNo,
-        "insuredDate": insuredDate?.toIso8601String(),
-        "expiryDate": expiryDate?.toIso8601String(),
-        "insuranceCompanyName": insuranceCompanyName,
-      };
-}
-
-class ItemDetail {
-  String? partNo;
-  String? itemName;
-  String? categoryId;
-  String? hsnSacCode;
-  VehicleDetails? mainSpecValue;
-  VehicleDetails? specificationsValue;
-  double? unitRate;
-  int? quantity;
-  double? value;
-  double? discount;
-  double? taxableValue;
-  List<GstDetail>? gstDetails;
-  List<dynamic>? taxes;
-  List<dynamic>? incentives;
-  double? invoiceValue;
-  double? finalInvoiceValue;
-  String? stockId;
-
-  ItemDetail({
-    this.partNo,
-    this.itemName,
-    this.categoryId,
-    this.hsnSacCode,
-    this.mainSpecValue,
-    this.specificationsValue,
-    this.unitRate,
-    this.quantity,
-    this.value,
-    this.discount,
-    this.taxableValue,
-    this.gstDetails,
-    this.taxes,
-    this.incentives,
-    this.invoiceValue,
-    this.finalInvoiceValue,
-    this.stockId,
-  });
-
-  factory ItemDetail.fromJson(Map<String, dynamic> json) => ItemDetail(
-        partNo: json["partNo"],
-        itemName: json["itemName"],
-        categoryId: json["categoryId"],
-        hsnSacCode: json["hsnSacCode"],
-        mainSpecValue: json["mainSpecValue"] == null
-            ? null
-            : VehicleDetails.fromJson(json["mainSpecValue"]),
-        specificationsValue: json["specificationsValue"] == null
-            ? null
-            : VehicleDetails.fromJson(json["specificationsValue"]),
-        unitRate: json["unitRate"]?.toDouble(),
-        quantity: json["quantity"],
-        value: json["value"]?.toDouble(),
-        discount: json["discount"],
-        taxableValue: json["taxableValue"]?.toDouble(),
-        gstDetails: json["gstDetails"] == null
-            ? []
-            : List<GstDetail>.from(
-                json["gstDetails"]!.map((x) => GstDetail.fromJson(x))),
-        taxes: json["taxes"] == null
-            ? []
-            : List<dynamic>.from(json["taxes"]!.map((x) => x)),
-        incentives: json["incentives"] == null
-            ? []
-            : List<dynamic>.from(json["incentives"]!.map((x) => x)),
-        invoiceValue: json["invoiceValue"],
-        finalInvoiceValue: json["finalInvoiceValue"],
-        stockId: json["stockId"],
-      );
-
-  Map<String, dynamic> toJson() => {
-        "partNo": partNo,
-        "itemName": itemName,
-        "categoryId": categoryId,
-        "hsnSacCode": hsnSacCode,
-        "mainSpecValue": mainSpecValue?.toJson(),
-        "specificationsValue": specificationsValue?.toJson(),
-        "unitRate": unitRate,
-        "quantity": quantity,
-        "value": value,
-        "discount": discount,
-        "taxableValue": taxableValue,
-        "gstDetails": gstDetails == null
-            ? []
-            : List<dynamic>.from(gstDetails!.map((x) => x.toJson())),
-        "taxes": taxes == null ? [] : List<dynamic>.from(taxes!.map((x) => x)),
-        "incentives": incentives == null
-            ? []
-            : List<dynamic>.from(incentives!.map((x) => x)),
-        "invoiceValue": invoiceValue,
-        "finalInvoiceValue": finalInvoiceValue,
-        "stockId": stockId,
-      };
-}
-
-class GstDetail {
-  String? gstName;
-  int? percentage;
-  double? gstAmount;
-
-  GstDetail({
-    this.gstName,
-    this.percentage,
-    this.gstAmount,
-  });
-
-  factory GstDetail.fromJson(Map<String, dynamic> json) => GstDetail(
-        gstName: json["gstName"],
-        percentage: json["percentage"],
-        gstAmount: json["gstAmount"]?.toDouble(),
-      );
-
-  Map<String, dynamic> toJson() => {
-        "gstName": gstName,
-        "percentage": percentage,
-        "gstAmount": gstAmount,
+        "evBatteryName": evBatteryName,
       };
 }
 
@@ -402,122 +263,324 @@ class VehicleDetails {
   }
 }
 
-class Loaninfo {
-  String? loanId;
-  String? bankName;
-  double? loanAmt;
+class Insurance {
+  DateTime? expiryDate;
+  String? insuranceCompanyName;
+  String? insuranceId;
+  double? insuredAmt;
+  DateTime? insuredDate;
+  String? invoiceNo;
 
-  Loaninfo({
-    this.loanId,
-    this.bankName,
-    this.loanAmt,
+  Insurance({
+    this.expiryDate,
+    this.insuranceCompanyName,
+    this.insuranceId,
+    this.insuredAmt,
+    this.insuredDate,
+    this.invoiceNo,
   });
 
-  factory Loaninfo.fromJson(Map<String, dynamic> json) => Loaninfo(
-        loanId: json["loanId"],
-        bankName: json["bankName"],
-        loanAmt: json["loanAmt"],
+  factory Insurance.fromJson(Map<String, dynamic> json) => Insurance(
+        expiryDate: json["expiryDate"] == null
+            ? null
+            : DateTime.parse(json["expiryDate"]),
+        insuranceCompanyName: json["insuranceCompanyName"],
+        insuranceId: json["insuranceId"],
+        insuredAmt: json["insuredAmt"],
+        insuredDate: json["insuredDate"] == null
+            ? null
+            : DateTime.parse(json["insuredDate"]),
+        invoiceNo: json["invoiceNo"],
       );
 
   Map<String, dynamic> toJson() => {
-        "loanId": loanId,
-        "bankName": bankName,
-        "loanAmt": loanAmt,
+        "expiryDate": expiryDate?.toIso8601String(),
+        "insuranceCompanyName": insuranceCompanyName,
+        "insuranceId": insuranceId,
+        "insuredAmt": insuredAmt,
+        "insuredDate": insuredDate?.toIso8601String(),
+        "invoiceNo": invoiceNo,
+      };
+}
+
+class ItemDetail {
+  String? categoryId;
+  double? discount;
+  double? finalInvoiceValue;
+  List<GstDetail>? gstDetails;
+  String? hsnSacCode;
+  List<Incentive>? incentives;
+  double? invoiceValue;
+  String? itemName;
+  VehicleDetails? mainSpecValue;
+  String? partNo;
+  int? quantity;
+  VehicleDetails? specificationsValue;
+  String? stockId;
+  double? taxableValue;
+  List<Tax>? taxes;
+  double? unitRate;
+  double? value;
+
+  ItemDetail({
+    this.categoryId,
+    this.discount,
+    this.finalInvoiceValue,
+    this.gstDetails,
+    this.hsnSacCode,
+    this.incentives,
+    this.invoiceValue,
+    this.itemName,
+    this.mainSpecValue,
+    this.partNo,
+    this.quantity,
+    this.specificationsValue,
+    this.stockId,
+    this.taxableValue,
+    this.taxes,
+    this.unitRate,
+    this.value,
+  });
+
+  factory ItemDetail.fromJson(Map<String, dynamic> json) => ItemDetail(
+        categoryId: json["categoryId"],
+        discount: json["discount"],
+        finalInvoiceValue: json["finalInvoiceValue"],
+        gstDetails: json["gstDetails"] == null
+            ? []
+            : List<GstDetail>.from(
+                json["gstDetails"]!.map((x) => GstDetail.fromJson(x))),
+        hsnSacCode: json["hsnSacCode"],
+        incentives: json["incentives"] == null
+            ? []
+            : List<Incentive>.from(
+                json["incentives"]!.map((x) => Incentive.fromJson(x))),
+        invoiceValue: json["invoiceValue"],
+        itemName: json["itemName"],
+        mainSpecValue: json["mainSpecValue"] == null
+            ? null
+            : VehicleDetails.fromJson(json["mainSpecValue"]),
+        partNo: json["partNo"],
+        quantity: json["quantity"],
+        specificationsValue: json["specificationsValue"] == null
+            ? null
+            : VehicleDetails.fromJson(json["specificationsValue"]),
+        stockId: json["stockId"],
+        taxableValue: json["taxableValue"],
+        taxes: json["taxes"] == null
+            ? []
+            : List<Tax>.from(json["taxes"]!.map((x) => Tax.fromJson(x))),
+        unitRate: json["unitRate"],
+        value: json["value"],
+      );
+
+  Map<String, dynamic> toJson() => {
+        "categoryId": categoryId,
+        "discount": discount,
+        "finalInvoiceValue": finalInvoiceValue,
+        "gstDetails": gstDetails == null
+            ? []
+            : List<dynamic>.from(gstDetails!.map((x) => x.toJson())),
+        "hsnSacCode": hsnSacCode,
+        "incentives": incentives == null
+            ? []
+            : List<dynamic>.from(incentives!.map((x) => x.toJson())),
+        "invoiceValue": invoiceValue,
+        "itemName": itemName,
+        "mainSpecValue": mainSpecValue?.toJson(),
+        "partNo": partNo,
+        "quantity": quantity,
+        "specificationsValue": specificationsValue?.toJson(),
+        "stockId": stockId,
+        "taxableValue": taxableValue,
+        "taxes": taxes == null
+            ? []
+            : List<dynamic>.from(taxes!.map((x) => x.toJson())),
+        "unitRate": unitRate,
+        "value": value,
+      };
+}
+
+class GstDetail {
+  double? gstAmount;
+  String? gstName;
+  double? percentage;
+
+  GstDetail({
+    this.gstAmount,
+    this.gstName,
+    this.percentage,
+  });
+
+  factory GstDetail.fromJson(Map<String, dynamic> json) => GstDetail(
+        gstAmount: json["gstAmount"],
+        gstName: json["gstName"],
+        percentage: json["percentage"],
+      );
+
+  Map<String, dynamic> toJson() => {
+        "gstAmount": gstAmount,
+        "gstName": gstName,
+        "percentage": percentage,
+      };
+}
+
+class Incentive {
+  double? incentiveAmount;
+  String? incentiveName;
+  double? percentage;
+
+  Incentive({
+    this.incentiveAmount,
+    this.incentiveName,
+    this.percentage,
+  });
+
+  factory Incentive.fromJson(Map<String, dynamic> json) => Incentive(
+        incentiveAmount: json["incentiveAmount"],
+        incentiveName: json["incentiveName"],
+        percentage: json["percentage"],
+      );
+
+  Map<String, dynamic> toJson() => {
+        "incentiveAmount": incentiveAmount,
+        "incentiveName": incentiveName,
+        "percentage": percentage,
       };
 }
 
 class MandatoryAddons {
-  String? tools;
-  String? manualBook;
-  String? duplicateKey;
-
-  MandatoryAddons({
-    this.tools,
-    this.manualBook,
-    this.duplicateKey,
-  });
+  MandatoryAddons();
 
   factory MandatoryAddons.fromJson(Map<String, dynamic> json) =>
-      MandatoryAddons(
-        tools: json["Tools"],
-        manualBook: json["Manual Book"],
-        duplicateKey: json["Duplicate key"],
+      MandatoryAddons();
+
+  Map<String, dynamic> toJson() => {};
+}
+
+class Tax {
+  double? percentage;
+  double? taxAmount;
+  String? taxName;
+
+  Tax({
+    this.percentage,
+    this.taxAmount,
+    this.taxName,
+  });
+
+  factory Tax.fromJson(Map<String, dynamic> json) => Tax(
+        percentage: json["percentage"],
+        taxAmount: json["taxAmount"],
+        taxName: json["taxName"],
       );
 
   Map<String, dynamic> toJson() => {
-        "Tools": tools,
-        "Manual Book": manualBook,
-        "Duplicate key": duplicateKey,
+        "percentage": percentage,
+        "taxAmount": taxAmount,
+        "taxName": taxName,
+      };
+}
+
+class Loaninfo {
+  String? bankName;
+  double? loanAmt;
+  String? loanId;
+
+  Loaninfo({
+    this.bankName,
+    this.loanAmt,
+    this.loanId,
+  });
+
+  factory Loaninfo.fromJson(Map<String, dynamic> json) => Loaninfo(
+        bankName: json["bankName"],
+        loanAmt: json["loanAmt"],
+        loanId: json["loanId"],
+      );
+
+  Map<String, dynamic> toJson() => {
+        "bankName": bankName,
+        "loanAmt": loanAmt,
+        "loanId": loanId,
       };
 }
 
 class PaidDetail {
-  String? paymentId;
-  DateTime? paymentDate;
+  bool? cancelled;
   double? paidAmount;
+  DateTime? paymentDate;
+  String? paymentId;
+  String? paymentReference;
   String? paymentType;
-     bool? cancelled;
+  String? reason;
 
   PaidDetail({
-    this.paymentId,
-    this.paymentDate,
+    this.cancelled,
     this.paidAmount,
+    this.paymentDate,
+    this.paymentId,
+    this.paymentReference,
     this.paymentType,
-    this.cancelled
+    this.reason,
   });
 
   factory PaidDetail.fromJson(Map<String, dynamic> json) => PaidDetail(
-        paymentId: json["paymentId"],
+        cancelled: json["cancelled"],
+        paidAmount: json["paidAmount"],
         paymentDate: json["paymentDate"] == null
             ? null
             : DateTime.parse(json["paymentDate"]),
-        paidAmount: json["paidAmount"],
+        paymentId: json["paymentId"],
+        paymentReference: json["paymentReference"],
         paymentType: json["paymentType"],
-          cancelled: json["cancelled"],
+        reason: json["reason"],
       );
 
   Map<String, dynamic> toJson() => {
-        "paymentId": paymentId,
+        "cancelled": cancelled,
+        "paidAmount": paidAmount,
         "paymentDate":
             "${paymentDate!.year.toString().padLeft(4, '0')}-${paymentDate!.month.toString().padLeft(2, '0')}-${paymentDate!.day.toString().padLeft(2, '0')}",
-        "paidAmount": paidAmount,
+        "paymentId": paymentId,
+        "paymentReference": paymentReference,
         "paymentType": paymentType,
-        "cancelled": cancelled,
+        "reason": reason,
       };
 }
 
 class Pageable {
-  Sort? sort;
   int? offset;
   int? pageNumber;
   int? pageSize;
   bool? paged;
+  Sort? sort;
   bool? unpaged;
 
   Pageable({
-    this.sort,
     this.offset,
     this.pageNumber,
     this.pageSize,
     this.paged,
+    this.sort,
     this.unpaged,
   });
 
   factory Pageable.fromJson(Map<String, dynamic> json) => Pageable(
-        sort: json["sort"] == null ? null : Sort.fromJson(json["sort"]),
         offset: json["offset"],
         pageNumber: json["pageNumber"],
         pageSize: json["pageSize"],
         paged: json["paged"],
+        sort: json["sort"] == null ? null : Sort.fromJson(json["sort"]),
         unpaged: json["unpaged"],
       );
 
   Map<String, dynamic> toJson() => {
-        "sort": sort?.toJson(),
         "offset": offset,
         "pageNumber": pageNumber,
         "pageSize": pageSize,
         "paged": paged,
+        "sort": sort?.toJson(),
         "unpaged": unpaged,
       };
 }
