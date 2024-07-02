@@ -35,4 +35,5 @@ class AppUrl {
   static const booking = '${baseUrl}booking';
   static const voucher = '${baseUrl}voucher/page';
   static const bookingCancel = '${baseUrl}booking/cancel/';
+  static const salesBilCancel = '${baseUrl}sales/salesCancel/';
 }
