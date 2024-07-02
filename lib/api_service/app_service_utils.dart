@@ -1325,7 +1325,6 @@ class AppServiceUtilImpl extends AppServiceUtil {
         }
       }
 
-
       if (toBranchId?.isNotEmpty ?? false) {
         url += '&toBranchId=$toBranchId';
       }
@@ -1361,9 +1360,10 @@ class AppServiceUtilImpl extends AppServiceUtil {
     final dio = Dio();
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var token = prefs.getString('token');
+    var approvalBranchId = prefs.getString('branchId');
     dio.options.headers['Authorization'] = 'Bearer $token';
     var response = await dio.patch(
-      '${AppUrl.stockTransfer}?branchId=$branchId&transferId=$transferId',
+      '${AppUrl.stockTransfer}?branchId=$approvalBranchId&transferId=$transferId',
     );
     if (onSuccessCallback != null) {
       onSuccessCallback(response.statusCode ?? 0);
