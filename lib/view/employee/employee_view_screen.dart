@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tlbilling/components/custom_pagenation.dart';
 import 'package:tlbilling/models/get_model/get_all_employee_by_pagination.dart';
 import 'package:tlbilling/utils/app_colors.dart';
@@ -20,6 +21,23 @@ class _EmployeeViewState extends State<EmployeeView> {
   final _employeeViewBloc = EmployeeViewBlocImpl();
   final _appColors = AppColors();
   final List<String>? city = ['kvp', 'chennai'];
+
+  Future<void> getBranchName() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _employeeViewBloc.employeeBranch = prefs.getString('branchName') ?? '';
+      _employeeViewBloc.isMainBranch = prefs.getBool('mainBranch');
+    });
+    print('*******branch name int*********${_employeeViewBloc.employeeBranch}');
+    print('*******is main bracnh*********${_employeeViewBloc.isMainBranch}');
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getBranchName();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -47,7 +65,7 @@ class _EmployeeViewState extends State<EmployeeView> {
         _buildEmpNameSearchFilter(),
         _buildEmpCityDropdown(),
         _buildEmpWorkTypeDropdown(),
-        _buildEmpBranchDropdown(),
+        if (_employeeViewBloc.isMainBranch ?? false) _buildEmpBranchDropdown(),
         const Spacer(),
         _buildAddEmployeebutton(context)
       ],
@@ -165,8 +183,6 @@ class _EmployeeViewState extends State<EmployeeView> {
               .cast<String>()
               .toList();
           branchNameList?.insert(0, AppConstants.all);
-          _employeeViewBloc.employeeBranch = AppConstants.all;
-
           return _buildDropDown(
             dropDownItems: (snapshot.hasData &&
                     (snapshot.data?.result?.getAllBranchList?.isNotEmpty ==

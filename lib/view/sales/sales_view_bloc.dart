@@ -19,6 +19,7 @@ abstract class SalesViewBloc {
   Stream<int> get pageNumberStream;
 
   TabController get salesTabController;
+  TabController get salesDetailsTabController;
   Future<GetAllSales?> getSalesList(String paymentStatus, bool iscancelled);
   GlobalKey<FormState> get paidAmtFormKey;
   Future<GetConfigurationModel?> getPaymentsList();
@@ -29,6 +30,7 @@ abstract class SalesViewBloc {
   TextEditingController get totalInvAmtPaymentController;
   TextEditingController get balanceAmtController;
   TextEditingController get reasonTextEditingController;
+  TextEditingController get salesBillCancelReasonTextController;
   Future<void> salesPaymentUpdate(
       String paymentDate,
       String paymentType,
@@ -37,14 +39,23 @@ abstract class SalesViewBloc {
       String reason,
       Function(int p1) onSuccessCallBack);
 
+  Future<void> salesBillPaymentCancel(
+      Function(int statusCode) onSuccessCallBack,
+      String? salesId,
+      String? paymentId,
+      String? reason);
+
   Future<void> salesBillCancel(Function(int statusCode) onSuccessCallBack,
-      String? salesId, String? paymentId);
+      String? salesId, String? reason);
+
+  GlobalKey<FormState> get salesCancelFormKey;
 }
 
 class SalesViewBlocImpl extends SalesViewBloc {
   final _invoiceNoController = TextEditingController();
   final _paymentTypeController = TextEditingController();
   final _customerNameController = TextEditingController();
+  final _salesBillCancelReasonTextController = TextEditingController();
 
   final _invoiceNoStreamControler = StreamController<bool>.broadcast();
   final _paymentTypeStreamController = StreamController<bool>.broadcast();
@@ -60,6 +71,7 @@ class SalesViewBlocImpl extends SalesViewBloc {
   final _paymentDateTextController = TextEditingController();
   final _totalInvAmtPaymentController = TextEditingController();
   final _balanceAmtController = TextEditingController();
+  final _salesCancelFormKey = GlobalKey<FormState>();
   final _resonTextEditController = TextEditingController();
 
   String? _selectedPaymentName = 'CASH';
@@ -72,6 +84,7 @@ class SalesViewBlocImpl extends SalesViewBloc {
   }
 
   late TabController _salesViewTabController;
+  late TabController _salesDetailsTabController;
 
   @override
   TextEditingController get customerNameTextController =>
@@ -174,10 +187,13 @@ class SalesViewBlocImpl extends SalesViewBloc {
   }
 
   @override
-  Future<void> salesBillCancel(Function(int statusCode) onSuccessCallBack,
-      String? salesId, String? paymentId) async {
-    return await _appServiceUtilBlocImpl.salesBillCancel(
-        onSuccessCallBack, salesId, paymentId);
+  Future<void> salesBillPaymentCancel(
+      Function(int statusCode) onSuccessCallBack,
+      String? salesId,
+      String? paymentId,
+      String? reason) async {
+    return await _appServiceUtilBlocImpl.salesBillPaymentCancel(
+        onSuccessCallBack, salesId, paymentId, reason);
   }
 
   @override
@@ -187,6 +203,27 @@ class SalesViewBlocImpl extends SalesViewBloc {
   paymentDetailsListStreamController(bool streamValue) {
     _paymentDetailsListStreamController.add(streamValue);
   }
+
+  @override
+  TabController get salesDetailsTabController => _salesDetailsTabController;
+
+  set salesDetailsTabController(TabController tabValue) {
+    _salesDetailsTabController = tabValue;
+  }
+
+  @override
+  Future<void> salesBillCancel(Function(int statusCode) onSuccessCallBack,
+      String? salesId, String? reason) async {
+    return _appServiceUtilBlocImpl.salesBillCancel(
+        onSuccessCallBack, salesId, reason);
+  }
+
+  @override
+  TextEditingController get salesBillCancelReasonTextController =>
+      _salesBillCancelReasonTextController;
+
+  @override
+  GlobalKey<FormState> get salesCancelFormKey => _salesCancelFormKey;
 
   @override
   TextEditingController get reasonTextEditingController =>

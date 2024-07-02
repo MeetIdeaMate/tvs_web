@@ -21,6 +21,7 @@ class AppConstants {
   static const paidAmt = 'Paid Amount';
   static const pay = 'Pay';
   static const cancelled = 'Cancelled';
+  static const enterCancelReason = 'Enter Cancel Reason';
 
   //SharedPreference
   static const designation = 'designation';
@@ -557,6 +558,7 @@ class AppConstants {
       'Add Purchase Value to the table to view';
 
   static const String bookingCreated = 'Vehicle booked successfully';
+  static const String salesCancelDialogMessage =  'Are you sure you want to cancel the sales payment?';
   static const String bookingCreatedDes =
       'Vehicle you book is created and saved';
   static const String bookingCreatedErr = 'Vehicle booked Not created';
