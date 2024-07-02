@@ -99,7 +99,7 @@ class CreateCustomerDialogBlocImpl extends CreateCustomerDialogBloc {
             address: customerAddressTextController.text,
             mobileNo: customerMobileNoTextController.text,
             accountNo: customerAccNoTextController.text,
-            branchName: branchId,
+            branchId: branchId,
             city: customerCitytextcontroller.text,
             emailId: customerMailIdTextController.text,
             customerName: customerNameTextController.text,

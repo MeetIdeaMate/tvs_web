@@ -94,6 +94,10 @@ class _VehicleAccessoriesListState extends State<VehicleAccessoriesList> {
                     (vehicle.itemName
                             ?.toLowerCase()
                             .contains(searchTerm.toLowerCase()) ??
+                        false) ||
+                    (vehicle.partNo
+                            ?.toLowerCase()
+                            .contains(searchTerm.toLowerCase()) ??
                         false))
                 .toList();
 
