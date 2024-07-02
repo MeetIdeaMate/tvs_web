@@ -428,7 +428,6 @@ class _TransferViewState extends State<TransferView>
       _buildTransferTableHeader(AppConstants.toBranch),
       _buildTransferTableHeader(AppConstants.totalQty),
       _buildTransferTableHeader(AppConstants.status),
-      if (_transferViewBloc.transferScreenTabController.index != 0)
         _buildTransferTableHeader(AppConstants.action),
     ];
   }
@@ -472,54 +471,46 @@ class _TransferViewState extends State<TransferView>
                           borderRadius: BorderRadius.circular(50)),
                     ),
                   ),
+                    DataCell(
+                      Row(
+                        children: [
+                          PopupMenuButton(
+                            itemBuilder: (context) {
+                              return <PopupMenuEntry>[
+                                const PopupMenuItem(
+                                    value: 'option0', child: Text('View')),
                   if (_transferViewBloc.transferScreenTabController.index != 0)
-                    DataCell(IconButton(
-                            onPressed: () {
-                              showDialog(
-                                context: context,
-                                builder: (context) {
-                                  return _buildApproveDialog(
-                                      entry.value.transferId.toString());
-                                },
-                              );
+
+                                const PopupMenuItem(
+                                    value: 'option1', child: Text('Approve')),
+                              ];
                             },
-                            icon: Icon(
-                              Icons.approval_outlined,
-                              color: _appColors.green,
-                            ))
-                        // Row(
-                        //   children: [
-                        //     PopupMenuButton(
-                        //       itemBuilder: (context) {
-                        //         return <PopupMenuEntry>[
-                        //           const PopupMenuItem(
-                        //               value: 'option1', child: Text('Approved')),
-                        //         ];
-                        //       },
-                        //       onSelected: (value) {
-                        //         switch (value) {
-                        //           case 'option0':
-                        //             showDialog(
-                        //                 context: context,
-                        //                 builder: (context) => _buildVehicleDetails(
-                        //                       entry.value.transferItems,
-                        //                     ));
-                        //             break;
-                        //           case 'option1':
-                        //             showDialog(
-                        //               context: context,
-                        //               builder: (context) => _buildApproveDialog(
-                        //                 entry.value.transferId.toString(),
-                        //               ),
-                        //             ).then((value) =>
-                        //                 _transferViewBloc.tableRefreshStream(true));
-                        //             break;
-                        //         }
-                        //       },
-                        //     ),
-                        //   ],
-                        // ),
-                        ),
+                            onSelected: (value) {
+                              switch (value) {
+                                case 'option0':
+                                  showDialog(
+                                      context: context,
+                                      builder: (context) =>
+                                          _buildVehicleDetails(
+                                            entry.value.transferItems,
+                                          ));
+                                  break;
+                                  
+                                case 'option1':
+                                  showDialog(
+                                    context: context,
+                                    builder: (context) => _buildApproveDialog(
+                                      entry.value.transferId.toString(),
+                                    ),
+                                  ).then((value) => _transferViewBloc
+                                      .tableRefreshStream(true));
+                                  break;
+                              }
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
                 ],
               ),
             )
