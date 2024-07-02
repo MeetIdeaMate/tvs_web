@@ -194,7 +194,7 @@ class _PaymentDailogState extends State<PaymentDailog> {
             enabled: true,
             validator: (value) {
               var values = double.tryParse(value.toString()) ?? 0;
-              if ((values >= 0)) {
+              if ((values <= 0)) {
                 return 'dont pay payment is completed';
               }
               return null;
@@ -222,8 +222,8 @@ class _PaymentDailogState extends State<PaymentDailog> {
       //   return InputValidations.addressValidation(value ?? '');
       // },
       controller: widget.salesViewBloc.reasonTextEditingController,
-      hintText: AppConstants.hintAddress,
-      labelText: AppConstants.address,
+      hintText: AppConstants.reason,
+      labelText: AppConstants.reason,
     );
   }
 

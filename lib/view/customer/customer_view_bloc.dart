@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:tlbilling/api_service/app_service_utils.dart';
 import 'package:tlbilling/models/get_model/get_all_customer_by_pagination_model.dart';
+import 'package:tlbilling/models/parent_response_model.dart';
 
 abstract class CustomerViewBloc {
   TextEditingController get customerNameFilterController;
@@ -23,6 +24,11 @@ abstract class CustomerViewBloc {
 
   int get currentPage;
   Stream<int> get pageNumberStream;
+
+  String? get branchName;
+
+  bool? get isMainBranch;
+  Future<ParentResponseModel> getBranchName();
 }
 
 class CustomerViewBlocImpl extends CustomerViewBloc {
@@ -34,6 +40,8 @@ class CustomerViewBlocImpl extends CustomerViewBloc {
   final _customerMobileNumberStreamController = StreamController.broadcast();
   final _customerCityStreamController = StreamController.broadcast();
   final _appServices = AppServiceUtilImpl();
+  String? _branchName;
+  bool? _isMainBranch;
 
   int _currentPage = 0;
   final _pageNumberStreamController = StreamController<int>.broadcast();
@@ -57,7 +65,8 @@ class CustomerViewBlocImpl extends CustomerViewBloc {
         customerCityTextController.text,
         customerMobileNoController.text,
         customerNameFilterController.text,
-        currentPage);
+        currentPage,
+        branchName ?? '');
   }
 
   @override
@@ -103,5 +112,23 @@ class CustomerViewBlocImpl extends CustomerViewBloc {
 
   pageNumberUpdateStreamController(int streamValue) {
     _pageNumberStreamController.add(streamValue);
+  }
+
+  @override
+  String? get branchName => _branchName;
+
+  set branchName(String? value) {
+    _branchName = value;
+  }
+
+  @override
+  bool? get isMainBranch => _isMainBranch;
+  set isMainBranch(bool? value) {
+    _isMainBranch = value;
+  }
+
+  @override
+  Future<ParentResponseModel> getBranchName() {
+    return _appServices.getBranchName();
   }
 }

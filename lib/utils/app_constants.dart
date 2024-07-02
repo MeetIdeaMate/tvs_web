@@ -145,6 +145,7 @@ class AppConstants {
   static const transport = 'Transport';
   static const reports = 'Reports';
   static const configuration = 'Configuration';
+  static const config = 'config';
   static const user = 'User';
   static const voucherReceipt = 'Voc / Rec';
   static const receipt = 'Receipt';
@@ -558,7 +559,8 @@ class AppConstants {
       'Add Purchase Value to the table to view';
 
   static const String bookingCreated = 'Vehicle booked successfully';
-  static const String salesCancelDialogMessage =  'Are you sure you want to cancel the sales payment?';
+  static const String salesCancelDialogMessage =
+      'Are you sure you want to cancel the sales payment?';
   static const String bookingCreatedDes =
       'Vehicle you book is created and saved';
   static const String bookingCreatedErr = 'Vehicle booked Not created';

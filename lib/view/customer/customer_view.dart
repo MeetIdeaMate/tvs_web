@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tlbilling/components/custom_pagenation.dart';
 import 'package:tlbilling/models/get_model/get_all_customer_by_pagination_model.dart';
 import 'package:tlbilling/models/get_model/get_all_customers_model.dart';
@@ -10,6 +11,7 @@ import 'package:tlbilling/utils/app_util_widgets.dart';
 import 'package:tlbilling/utils/input_formates.dart';
 import 'package:tlbilling/view/customer/create_customer_dialog.dart';
 import 'package:tlbilling/view/customer/customer_view_bloc.dart';
+import 'package:tlds_flutter/components/tlds_dropdown_button_form_field.dart';
 import 'package:tlds_flutter/components/tlds_input_form_field.dart';
 import 'package:tlds_flutter/components/tlds_input_formaters.dart';
 
@@ -23,6 +25,20 @@ class CustomerView extends StatefulWidget {
 class _CustomerViewState extends State<CustomerView> {
   final _appColors = AppColors();
   final _customerScreenBlocImpl = CustomerViewBlocImpl();
+
+  @override
+  void initState() {
+    getBranchName();
+    super.initState();
+  }
+
+  Future<void> getBranchName() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _customerScreenBlocImpl.branchName = AppConstants.allBranch;
+      _customerScreenBlocImpl.isMainBranch = prefs.getBool('mainBranch');
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -88,9 +104,64 @@ class _CustomerViewState extends State<CustomerView> {
                 AppConstants.city);
           },
         ),
-        const Spacer(),
+        AppWidgetUtils.buildSizedBox(custWidth: 5),
+        if (_customerScreenBlocImpl.isMainBranch ?? false)
+          _buildBranchDropdown(),
+        if (_customerScreenBlocImpl.isMainBranch == false) const Spacer(),
         _buildAddCustomerButton(context)
       ],
+    );
+  }
+
+  _buildBranchDropdown() {
+    return FutureBuilder(
+        future: _customerScreenBlocImpl.getBranchName(),
+        builder: (context, snapshot) {
+          List<String>? branchNameList = snapshot.data?.result?.getAllBranchList
+              ?.map((e) => e.branchName)
+              .where((branchName) => branchName != null)
+              .cast<String>()
+              .toList();
+          branchNameList?.insert(0, AppConstants.allBranch);
+          return _buildDropDown(
+            dropDownItems: (snapshot.hasData &&
+                    (snapshot.data?.result?.getAllBranchList?.isNotEmpty ==
+                        true))
+                ? branchNameList
+                : List.empty(),
+            hintText: (snapshot.connectionState == ConnectionState.waiting)
+                ? AppConstants.loading
+                : (snapshot.hasError || snapshot.data == null)
+                    ? AppConstants.errorLoading
+                    : AppConstants.branchName,
+            selectedvalue: _customerScreenBlocImpl.branchName,
+            onChange: (value) {
+              _customerScreenBlocImpl.branchName = value;
+
+              _customerScreenBlocImpl.pageNumberUpdateStreamController(0);
+            },
+          );
+        });
+  }
+
+  _buildDropDown(
+      {List<String>? dropDownItems,
+      String? hintText,
+      String? selectedvalue,
+      Function(String?)? onChange}) {
+    return Padding(
+      padding: const EdgeInsets.only(right: 5),
+      child: TldsDropDownButtonFormField(
+        width: MediaQuery.of(context).size.width * 0.1,
+        height: 40,
+        dropDownItems: dropDownItems!,
+        dropDownValue: selectedvalue,
+        hintText: hintText,
+        onChange: onChange ??
+            (String? newValue) {
+              selectedvalue = newValue ?? '';
+            },
+      ),
     );
   }
 
@@ -206,9 +277,11 @@ class _CustomerViewState extends State<CustomerView> {
                                   _buildTableHeader(
                                     AppConstants.mobileNumber,
                                   ),
-                                  _buildTableHeader(
-                                    AppConstants.panNo,
-                                  ),
+                                  if (_customerScreenBlocImpl.isMainBranch ??
+                                      false)
+                                    _buildTableHeader(
+                                      AppConstants.branchName,
+                                    ),
                                   _buildTableHeader(
                                     AppConstants.city,
                                   ),
@@ -239,9 +312,12 @@ class _CustomerViewState extends State<CustomerView> {
                                                   DataCell(Text(
                                                       entry.value.mobileNo ??
                                                           '')),
-                                                  DataCell(Text(
-                                                      entry.value.accountNo ??
-                                                          '')),
+                                                  if (_customerScreenBlocImpl
+                                                          .isMainBranch ??
+                                                      false)
+                                                    DataCell(Text(entry
+                                                            .value.branchName ??
+                                                        '')),
                                                   DataCell(Text(
                                                       entry.value.city ?? '')),
                                                   DataCell(

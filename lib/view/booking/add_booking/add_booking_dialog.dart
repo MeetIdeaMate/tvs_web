@@ -407,6 +407,7 @@ class _AddBookingDialogState extends State<AddBookingDialog> {
     if (_addBookingDialogBloc.bookinFormKey.currentState!.validate()) {
       _addBookingDialogBloc.addNewBookingDetails(
           BookingModel(
+              branchId: _addBookingDialogBloc.branchId ?? '',
               additionalInfo:
                   _addBookingDialogBloc.additionalInfoTextController.text,
               bookingDate: AppUtils.appToAPIDateFormat(

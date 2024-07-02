@@ -312,7 +312,7 @@ class _UserViewState extends State<UserView> {
           },
         ).then((value) {
           _userViewBlocImpl.getUserList();
-          _userViewBlocImpl.usersListStream(true);
+          _userViewBlocImpl.pageNumberUpdateStreamController(0);
         });
       },
     );

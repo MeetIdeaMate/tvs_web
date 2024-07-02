@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tlbilling/components/custom_action_button.dart';
 import 'package:tlbilling/components/custom_elevated_button.dart';
 import 'package:tlbilling/components/custom_pagenation.dart';
@@ -26,6 +27,19 @@ class BookingList extends StatefulWidget {
 class _BookingListState extends State<BookingList> {
   final _appColors = AppColors();
   final _bookingListBloc = BookingListBlocImpl();
+  Future<void> getBranchName() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _bookingListBloc.branchId = prefs.getString('branchName') ?? '';
+      _bookingListBloc.isMainBranch = prefs.getBool('mainBranch');
+    });
+  }
+
+  @override
+  void initState() {
+    getBranchName();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -59,10 +73,64 @@ class _BookingListState extends State<BookingList> {
             _buildCustomerNameField(),
             _buildDefaultWidth(),
             _buildPaymentTypeDropdown(),
+            _buildDefaultWidth(),
+            if (_bookingListBloc.isMainBranch ?? false) _buildBranchDropdown()
           ],
         ),
         _buildAddBookButton(),
       ],
+    );
+  }
+
+  _buildBranchDropdown() {
+    return FutureBuilder(
+        future: _bookingListBloc.getBranchName(),
+        builder: (context, snapshot) {
+          List<String>? branchNameList = snapshot.data?.result?.getAllBranchList
+              ?.map((e) => e.branchName)
+              .where((branchName) => branchName != null)
+              .cast<String>()
+              .toList();
+          branchNameList?.insert(0, AppConstants.all);
+          return _buildDropDown(
+            dropDownItems: (snapshot.hasData &&
+                    (snapshot.data?.result?.getAllBranchList?.isNotEmpty ==
+                        true))
+                ? branchNameList
+                : List.empty(),
+            hintText: (snapshot.connectionState == ConnectionState.waiting)
+                ? AppConstants.loading
+                : (snapshot.hasError || snapshot.data == null)
+                    ? AppConstants.errorLoading
+                    : AppConstants.branchName,
+            selectedvalue: _bookingListBloc.branchId,
+            onChange: (value) {
+              _bookingListBloc.branchId = value;
+
+              _bookingListBloc.pageNumberUpdateStreamController(0);
+            },
+          );
+        });
+  }
+
+  _buildDropDown(
+      {List<String>? dropDownItems,
+      String? hintText,
+      String? selectedvalue,
+      Function(String?)? onChange}) {
+    return Padding(
+      padding: const EdgeInsets.only(right: 5),
+      child: TldsDropDownButtonFormField(
+        width: MediaQuery.of(context).size.width * 0.1,
+        height: 40,
+        dropDownItems: dropDownItems!,
+        dropDownValue: selectedvalue,
+        hintText: hintText,
+        onChange: onChange ??
+            (String? newValue) {
+              selectedvalue = newValue ?? '';
+            },
+      ),
     );
   }
 
@@ -251,6 +319,8 @@ class _BookingListState extends State<BookingList> {
       _buildTableHeader(AppConstants.vehicleName, flex: 2),
       _buildTableHeader(AppConstants.additionalInfo, flex: 2),
       _buildTableHeader(AppConstants.paymentType, flex: 2),
+      if (_bookingListBloc.isMainBranch ?? false)
+        _buildTableHeader(AppConstants.branchName, flex: 2),
       _buildTableHeader(AppConstants.amount, flex: 2),
       _buildTableHeader(AppConstants.executiveName, flex: 2),
       _buildTableHeader(AppConstants.targetInvDate, flex: 2),
@@ -278,12 +348,14 @@ class _BookingListState extends State<BookingList> {
           DataCell(Text(entry.value.itemName ?? '')),
           DataCell(Text(entry.value.additionalInfo ?? '')),
           DataCell(Text(entry.value.paidDetail?.paymentType ?? '')),
+          if (_bookingListBloc.isMainBranch ?? false)
+            DataCell(Text(entry.value.branchName ?? '')),
           DataCell(Text(AppUtils.formatCurrency(
               entry.value.paidDetail?.paidAmount?.toDouble() ?? 0))),
           DataCell(Text(entry.value.executiveName ?? '')),
           DataCell(Text(
               AppUtils.apiToAppDateFormat(entry.value.bookingDate.toString()))),
-          DataCell(entry.value.cancelled == false 
+          DataCell(entry.value.cancelled == false
               ? _buildCancelButton(entry)
               : Chip(
                   side: BorderSide(color: _appColors.errorColor),
@@ -358,7 +430,6 @@ class _BookingListState extends State<BookingList> {
               ],
             ),
           );
-      
         },
         icon: Icon(
           Icons.cancel,

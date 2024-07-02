@@ -6,16 +6,17 @@ class BookingModel {
   PaidDetail paidDetail;
   String partNo;
   String targetInvoiceDate;
+  String branchId;
 
-  BookingModel({
-    required this.additionalInfo,
-    required this.bookingDate,
-    required this.customerId,
-    required this.executiveId,
-    required this.paidDetail,
-    required this.partNo,
-    required this.targetInvoiceDate,
-  });
+  BookingModel(
+      {required this.additionalInfo,
+      required this.bookingDate,
+      required this.customerId,
+      required this.executiveId,
+      required this.paidDetail,
+      required this.partNo,
+      required this.targetInvoiceDate,
+      required this.branchId});
 
   Map<String, dynamic> toJson() {
     return {
@@ -26,6 +27,7 @@ class BookingModel {
       'paidDetail': paidDetail.toJson(),
       'partNo': partNo,
       'targetInvoiceDate': targetInvoiceDate,
+      'branchId': branchId
     };
   }
 }

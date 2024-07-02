@@ -37,6 +37,7 @@ class _SideMenuNavigationState extends State<SideMenuNavigation> {
   String? userName;
   String? designation;
   String? branchname;
+  bool? isMainBranch;
 
   @override
   void initState() {
@@ -51,6 +52,7 @@ class _SideMenuNavigationState extends State<SideMenuNavigation> {
     designation = prefs.getString('designation') ?? '';
     userName = prefs.getString('userName') ?? '';
     _sideMenuBloc.branchId = prefs.getString('branchId') ?? '';
+    isMainBranch = prefs.getBool('mainBranch') ?? false;
     _sideMenuBloc.sideMenuStreamController(true);
   }
 
@@ -160,11 +162,19 @@ class _SideMenuNavigationState extends State<SideMenuNavigation> {
                   _onMenuItemSelected(AppConstants.dashboard);
                 },
               ),
+              if (isMainBranch ?? false)
+                _buildDrawerMenuItem(
+                  AppConstants.icPurchase,
+                  AppConstants.purchase,
+                  () {
+                    _onMenuItemSelected(AppConstants.purchase);
+                  },
+                ),
               _buildDrawerMenuItem(
-                AppConstants.icPurchase,
-                AppConstants.purchase,
+                AppConstants.icReport,
+                AppConstants.booking,
                 () {
-                  _onMenuItemSelected(AppConstants.purchase);
+                  _onMenuItemSelected(AppConstants.booking);
                 },
               ),
               _buildDrawerMenuItem(
@@ -195,13 +205,14 @@ class _SideMenuNavigationState extends State<SideMenuNavigation> {
                   _onMenuItemSelected(AppConstants.customer);
                 },
               ),
-              _buildDrawerMenuItem(
-                AppConstants.icVendor,
-                AppConstants.vendor,
-                () {
-                  _onMenuItemSelected(AppConstants.vendor);
-                },
-              ),
+              if (isMainBranch ?? false)
+                _buildDrawerMenuItem(
+                  AppConstants.icVendor,
+                  AppConstants.vendor,
+                  () {
+                    _onMenuItemSelected(AppConstants.vendor);
+                  },
+                ),
               _buildDrawerMenuItem(
                 AppConstants.icTransport,
                 AppConstants.transport,
@@ -223,13 +234,14 @@ class _SideMenuNavigationState extends State<SideMenuNavigation> {
                   _onMenuItemSelected(AppConstants.user);
                 },
               ),
-              _buildDrawerMenuItem(
-                AppConstants.icBranch,
-                AppConstants.branch,
-                () {
-                  _onMenuItemSelected(AppConstants.branch);
-                },
-              ),
+              if (isMainBranch ?? false)
+                _buildDrawerMenuItem(
+                  AppConstants.icBranch,
+                  AppConstants.branch,
+                  () {
+                    _onMenuItemSelected(AppConstants.branch);
+                  },
+                ),
               _buildDrawerMenuItem(
                 AppConstants.icVoucher,
                 AppConstants.voucher,
@@ -246,16 +258,9 @@ class _SideMenuNavigationState extends State<SideMenuNavigation> {
               ),
               _buildDrawerMenuItem(
                 AppConstants.icReport,
-                AppConstants.configuration,
+                AppConstants.config,
                 () {
-                  _onMenuItemSelected(AppConstants.configuration);
-                },
-              ),
-              _buildDrawerMenuItem(
-                AppConstants.icReport,
-                AppConstants.booking,
-                    () {
-                  _onMenuItemSelected(AppConstants.booking);
+                  _onMenuItemSelected(AppConstants.config);
                 },
               ),
               _buildDrawerMenuItem(
@@ -352,7 +357,7 @@ class _SideMenuNavigationState extends State<SideMenuNavigation> {
         return const ReportScreen();
       case AppConstants.voucher:
         return const VoucherReceiptList();
-      case AppConstants.configuration:
+      case AppConstants.config:
         return const ConfigurationView();
       case AppConstants.insurance:
         return const InsuranseView();

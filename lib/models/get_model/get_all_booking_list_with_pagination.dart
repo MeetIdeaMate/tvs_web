@@ -90,46 +90,47 @@ class BookingDetails {
   String? executiveId;
   String? executiveName;
   bool? cancelled;
+  String? branchName;
 
-  BookingDetails({
-    this.bookingNo,
-    this.bookingDate,
-    this.customerId,
-    this.customerName,
-    this.mobileNo,
-    this.address,
-    this.partNo,
-    this.categoryId,
-    this.categoryName,
-    this.itemName,
-    this.additionalInfo,
-    this.paidDetail,
-    this.executiveId,
-    this.executiveName,
-    this.cancelled,
-  });
+  BookingDetails(
+      {this.bookingNo,
+      this.bookingDate,
+      this.customerId,
+      this.customerName,
+      this.mobileNo,
+      this.address,
+      this.partNo,
+      this.categoryId,
+      this.categoryName,
+      this.itemName,
+      this.additionalInfo,
+      this.paidDetail,
+      this.executiveId,
+      this.executiveName,
+      this.cancelled,
+      this.branchName});
 
   factory BookingDetails.fromJson(Map<String, dynamic> json) => BookingDetails(
-        bookingNo: json["bookingNo"],
-        bookingDate: json["bookingDate"] == null
-            ? null
-            : DateTime.parse(json["bookingDate"]),
-        customerId: json["customerId"],
-        customerName: json["customerName"],
-        mobileNo: json["mobileNo"],
-        address: json["address"],
-        partNo: json["partNo"],
-        categoryId: json["categoryId"],
-        categoryName: json["categoryName"],
-        itemName: json["itemName"],
-        additionalInfo: json["additionalInfo"],
-        paidDetail: json["paidDetail"] == null
-            ? null
-            : PaidDetail.fromJson(json["paidDetail"]),
-        executiveId: json["executiveId"],
-        executiveName: json["executiveName"],
-        cancelled: json["cancelled"],
-      );
+      bookingNo: json["bookingNo"],
+      bookingDate: json["bookingDate"] == null
+          ? null
+          : DateTime.parse(json["bookingDate"]),
+      customerId: json["customerId"],
+      customerName: json["customerName"],
+      mobileNo: json["mobileNo"],
+      address: json["address"],
+      partNo: json["partNo"],
+      categoryId: json["categoryId"],
+      categoryName: json["categoryName"],
+      itemName: json["itemName"],
+      additionalInfo: json["additionalInfo"],
+      paidDetail: json["paidDetail"] == null
+          ? null
+          : PaidDetail.fromJson(json["paidDetail"]),
+      executiveId: json["executiveId"],
+      executiveName: json["executiveName"],
+      cancelled: json["cancelled"],
+      branchName: json['branchName']);
 
   Map<String, dynamic> toJson() => {
         "bookingNo": bookingNo,
@@ -148,6 +149,7 @@ class BookingDetails {
         "executiveId": executiveId,
         "executiveName": executiveName,
         "cancelled": cancelled,
+        'branchName': branchName
       };
 }
 
