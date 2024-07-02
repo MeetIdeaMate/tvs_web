@@ -2,6 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:intl/intl.dart';
+
 import 'package:flutter_svg/svg.dart';
 import 'package:pdf/pdf.dart';
 import 'package:printing/printing.dart';
@@ -153,7 +155,7 @@ class _SalesViewScreenState extends State<SalesViewScreen>
                   searchStreamController!(true);
                   _salesViewBloc.pageNumberUpdateStreamController(0);
 
-                  _salesViewBloc.getSalesList();
+                  //  _salesViewBloc.getSalesList('');
                 }
               } else {
                 searchController.clear();
@@ -170,7 +172,7 @@ class _SalesViewScreenState extends State<SalesViewScreen>
             if (value.isNotEmpty) {
               searchStreamController!(true);
               _salesViewBloc.pageNumberUpdateStreamController(0);
-              _salesViewBloc.getSalesList();
+              //   _salesViewBloc.getSalesList('');
             }
           },
         );
@@ -188,6 +190,7 @@ class _SalesViewScreenState extends State<SalesViewScreen>
           Tab(text: AppConstants.today),
           Tab(text: AppConstants.pending),
           Tab(text: AppConstants.completed),
+          Tab(text: AppConstants.cancelled),
         ],
       ),
     );
@@ -200,15 +203,18 @@ class _SalesViewScreenState extends State<SalesViewScreen>
         controller: _salesViewBloc.salesTabController,
         children: [
           // _buildSalesTableView(context),
-          _buildSalesTableView(context),
-          _buildSalesTableView(context),
-          _buildSalesTableView(context),
+          _buildSalesTableView(
+              context, DateFormat('yyyy-MM-dd').format(DateTime.now()), false),
+          _buildSalesTableView(context, 'PENDING', false),
+          _buildSalesTableView(context, 'COMPLETED', false),
+          _buildSalesTableView(context, '', true),
         ],
       ),
     );
   }
 
-  Widget _buildSalesTableView(BuildContext context) {
+  Widget _buildSalesTableView(
+      BuildContext context, String paymentStatus, bool iscancelled) {
     return StreamBuilder<int>(
       stream: _salesViewBloc.pageNumberStream,
       initialData: _salesViewBloc.currentPage,
@@ -217,7 +223,7 @@ class _SalesViewScreenState extends State<SalesViewScreen>
         if (currentPage < 0) currentPage = 0;
         _salesViewBloc.currentPage = currentPage;
         return FutureBuilder(
-          future: _salesViewBloc.getSalesList(),
+          future: _salesViewBloc.getSalesList(paymentStatus, iscancelled),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return Center(child: AppWidgetUtils.buildLoading());
@@ -249,15 +255,19 @@ class _SalesViewScreenState extends State<SalesViewScreen>
                             _buildVehicleTableHeader(AppConstants.paymentType),
                             _buildVehicleTableHeader(
                                 AppConstants.totalInvAmount),
-                            _buildVehicleTableHeader(AppConstants.paidAmt),
-
-                            _buildVehicleTableHeader(
-                                AppConstants.pendingInvAmt),
+                            if (!iscancelled)
+                              _buildVehicleTableHeader(AppConstants.paidAmt),
+                            if (!iscancelled)
+                              _buildVehicleTableHeader(
+                                  AppConstants.pendingInvAmt),
                             // _buildVehicleTableHeader(AppConstants.balanceAmt),
-                            _buildVehicleTableHeader(AppConstants.status),
+                            if (!iscancelled)
+                              _buildVehicleTableHeader(AppConstants.status),
                             _buildVehicleTableHeader(AppConstants.createdBy),
-                            _buildVehicleTableHeader(AppConstants.pay),
-                            _buildVehicleTableHeader(AppConstants.print),
+                            if (!iscancelled)
+                              _buildVehicleTableHeader(AppConstants.pay),
+                            if (!iscancelled)
+                              _buildVehicleTableHeader(AppConstants.print),
                             _buildVehicleTableHeader(AppConstants.action),
                           ],
                           rows: salesList.asMap().entries.map((entry) {
@@ -279,71 +289,77 @@ class _SalesViewScreenState extends State<SalesViewScreen>
                                 DataCell(Text(AppUtils.formatCurrency(
                                     entry.value.totalInvoiceAmt?.toDouble() ??
                                         0))),
-                                DataCell(Text(AppUtils.formatCurrency(
-                                    entry.value.totalPaidAmt?.toDouble() ??
-                                        0))),
-                                DataCell(Text(AppUtils.formatCurrency(
-                                    entry.value.pendingAmt?.toDouble() ?? 0))),
+                                if (!iscancelled)
+                                  DataCell(Text(AppUtils.formatCurrency(
+                                      entry.value.totalPaidAmt?.toDouble() ??
+                                          0))),
+                                if (!iscancelled)
+                                  DataCell(Text(AppUtils.formatCurrency(
+                                      entry.value.pendingAmt?.toDouble() ??
+                                          0))),
                                 // DataCell(Text(AppUtils.formatCurrency(
                                 //     entry.value.pendingAmt!.toDouble()))),
-                                DataCell(Chip(
-                                    side: BorderSide(
-                                        color: entry.value.paymentStatus ==
-                                                'COMPLETED'
-                                            ? _appColors.successColor
-                                            : _appColors.yellowColor),
-                                    backgroundColor: _appColors.whiteColor,
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(50)),
-                                    label: Text(
-                                      entry.value.paymentStatus == 'COMPLETED'
-                                          ? AppConstants.completed
-                                          : AppConstants.pending,
-                                      style: TextStyle(
+                                if (!iscancelled)
+                                  DataCell(Chip(
+                                      side: BorderSide(
                                           color: entry.value.paymentStatus ==
                                                   'COMPLETED'
                                               ? _appColors.successColor
                                               : _appColors.yellowColor),
-                                    ))),
+                                      backgroundColor: _appColors.whiteColor,
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(50)),
+                                      label: Text(
+                                        entry.value.paymentStatus == 'COMPLETED'
+                                            ? AppConstants.completed
+                                            : AppConstants.pending,
+                                        style: TextStyle(
+                                            color: entry.value.paymentStatus ==
+                                                    'COMPLETED'
+                                                ? _appColors.successColor
+                                                : _appColors.yellowColor),
+                                      ))),
                                 DataCell(
                                     Text(entry.value.createdByName.toString())),
-                                DataCell(
-                                  Row(
-                                    children: [
-                                      IconButton(
-                                        icon: SvgPicture.asset(
-                                            AppConstants.icpayment),
-                                        onPressed: () {
-                                          showDialog(
-                                            context: context,
-                                            builder: (context) {
-                                              return PaymentDailog(
-                                                salesdata: entry.value,
-                                                salesViewBloc: _salesViewBloc,
-                                                totalInvAmt:
-                                                    entry.value.totalInvoiceAmt,
-                                              );
-                                            },
-                                          );
-                                        },
-                                      ),
-                                    ],
+                                if (!iscancelled)
+                                  DataCell(
+                                    Row(
+                                      children: [
+                                        IconButton(
+                                          icon: SvgPicture.asset(
+                                              AppConstants.icpayment),
+                                          onPressed: () {
+                                            showDialog(
+                                              context: context,
+                                              builder: (context) {
+                                                return PaymentDailog(
+                                                  salesdata: entry.value,
+                                                  salesViewBloc: _salesViewBloc,
+                                                  totalInvAmt: entry
+                                                      .value.totalInvoiceAmt,
+                                                );
+                                              },
+                                            );
+                                          },
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                ),
-                                DataCell(IconButton(
-                                  onPressed: () async {
-                                    final pdfData =
-                                        await SalesPdfPrinter.generatePdf(
-                                            entry.value);
-                                    await Printing.layoutPdf(
-                                      onLayout: (PdfPageFormat format) async {
-                                        return pdfData;
-                                      },
-                                    );
-                                  },
-                                  icon: const Icon(Icons.print),
-                                )),
+                                if (!iscancelled)
+                                  DataCell(IconButton(
+                                    onPressed: () async {
+                                      final pdfData =
+                                          await SalesPdfPrinter.generatePdf(
+                                              entry.value);
+                                      await Printing.layoutPdf(
+                                        onLayout: (PdfPageFormat format) async {
+                                          return pdfData;
+                                        },
+                                      );
+                                    },
+                                    icon: const Icon(Icons.print),
+                                  )),
                                 DataCell(
                                   PopupMenuButton(
                                     itemBuilder: (context) {

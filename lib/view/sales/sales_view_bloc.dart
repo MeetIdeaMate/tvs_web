@@ -19,7 +19,7 @@ abstract class SalesViewBloc {
   Stream<int> get pageNumberStream;
 
   TabController get salesTabController;
-  Future<GetAllSales?> getSalesList();
+  Future<GetAllSales?> getSalesList(String paymentStatus, bool iscancelled);
   GlobalKey<FormState> get paidAmtFormKey;
   Future<GetConfigurationModel?> getPaymentsList();
   String? get selectedPaymentName;
@@ -112,12 +112,14 @@ class SalesViewBlocImpl extends SalesViewBloc {
   }
 
   @override
-  Future<GetAllSales?> getSalesList() {
+  Future<GetAllSales?> getSalesList(String paymentStatus, bool iscancelled) {
     return _appServiceUtilBlocImpl.getSalesList(
         invoiceNoTextController.text,
         paymentTypeTextController.text,
         customerNameTextController.text,
-        currentPage);
+        currentPage,
+        paymentStatus,
+        iscancelled);
   }
 
   @override

@@ -10,7 +10,7 @@ class AddCustomerModel {
   String? aadharNo;
   String? accountNo;
   String? address;
-  String? branchName;
+  String? branchId;
   String? city;
   String? customerName;
   String? emailId;
@@ -21,7 +21,7 @@ class AddCustomerModel {
     this.aadharNo,
     this.accountNo,
     this.address,
-    this.branchName,
+    this.branchId,
     this.city,
     this.customerName,
     this.emailId,
@@ -34,7 +34,7 @@ class AddCustomerModel {
         aadharNo: json["aadharNo"],
         accountNo: json["accountNo"],
         address: json["address"],
-        branchName: json["branchName"],
+        branchId: json["branchId"],
         city: json["city"],
         customerName: json["customerName"],
         emailId: json["emailId"],
@@ -46,7 +46,7 @@ class AddCustomerModel {
         "aadharNo": aadharNo,
         "accountNo": accountNo,
         "address": address,
-        "branchName": branchName,
+        "branchId": branchId,
         "city": city,
         "customerName": customerName,
         "emailId": emailId,

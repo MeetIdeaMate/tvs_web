@@ -192,6 +192,13 @@ class _PaymentDailogState extends State<PaymentDailog> {
             labelText: AppConstants.pendingInvAmt,
             controller: widget.salesViewBloc.totalInvAmtPaymentController,
             enabled: true,
+            validator: (value) {
+              var values = double.tryParse(value.toString()) ?? 0;
+              if ((values >= 0)) {
+                return 'dont pay payment is completed';
+              }
+              return null;
+            },
           ),
         ),
         AppWidgetUtils.buildSizedBox(custWidth: 5),

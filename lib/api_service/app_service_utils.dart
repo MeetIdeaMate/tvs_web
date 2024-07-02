@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tlbilling/api_service/app_url.dart';
+import 'package:intl/intl.dart';
+
 import 'package:tlbilling/models/get_employee_by_id.dart';
 import 'package:tlbilling/models/get_model/get_all_booking_list_with_pagination.dart';
 import 'package:tlbilling/models/get_model/get_all_branch_by_id_model.dart';
@@ -69,8 +71,13 @@ abstract class AppServiceUtil {
   Future<void> updateVendor(String vendorId, AddVendorModel vendorObj,
       Function(int? statusCode) statusCode);
 
-  Future<GetAllSales?> getSalesList(String invoiceNo, String paymentType,
-      String customerName, int currentPage);
+  Future<GetAllSales?> getSalesList(
+      String invoiceNo,
+      String paymentType,
+      String customerName,
+      int currentPage,
+      String paymentStatus,
+      bool iscancelled);
 
   Future<List<GetAllStockDetails>?> getStockList(String? categoryName);
 
@@ -260,6 +267,7 @@ abstract class AppServiceUtil {
 
 class AppServiceUtilImpl extends AppServiceUtil {
   String? branchId;
+  bool isMainBranch = false;
   final dio = Dio();
 
   @override
@@ -275,7 +283,9 @@ class AppServiceUtilImpl extends AppServiceUtil {
         var userId = response.data['result']['login']['userId'];
         var useRefId = response.data['result']['login']['useRefId'] ?? '';
         var branchId = response.data['result']['login']['branchId'] ?? '';
+        var isMainBranch = response.data['result']['login']['mainBranch'] ?? '';
         branchId = branchId;
+        isMainBranch = isMainBranch;
         print('************loign branch id********$branchId');
         SharedPreferences prefs = await SharedPreferences.getInstance();
         prefs.setString(AppConstants.token, token);
@@ -1153,24 +1163,46 @@ class AppServiceUtilImpl extends AppServiceUtil {
   }
 
   @override
-  Future<GetAllSales?> getSalesList(String invoiceNo, String paymentType,
-      String customerName, int currentPage) async {
+  Future<GetAllSales?> getSalesList(
+      String invoiceNo,
+      String paymentType,
+      String customerName,
+      int currentPage,
+      String paymentStatus,
+      bool iscancelled) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var token = prefs.getString('token');
     dio.options.headers['Authorization'] = 'Bearer $token';
     String salesListUrl = '${AppUrl.sales}page?page=$currentPage&size=10';
 
+    if (paymentStatus == 'PENDING' && iscancelled == false) {
+      salesListUrl += '&paymentStatus=$paymentStatus&isCancelled=$iscancelled';
+    }
+    if (paymentStatus == 'COMPLETED' && iscancelled == false) {
+      salesListUrl += '&paymentStatus=$paymentStatus&isCancelled=$iscancelled';
+    }
+
     if (invoiceNo.isNotEmpty) {
       salesListUrl += '&invoiceNo=$invoiceNo';
     }
     if (paymentType.isNotEmpty) {
-      salesListUrl += '&paymentType=$paymentType';
+      salesListUrl += '&billType=$paymentType';
     }
 
     if (customerName.isNotEmpty) {
       salesListUrl += '&customerName=$customerName';
     }
+    if (paymentStatus == DateFormat('yyyy-MM-dd').format(DateTime.now()) &&
+        iscancelled == false) {
+      salesListUrl +=
+          '&fromDate=$paymentStatus&toDate=$paymentStatus&isCancelled=$iscancelled';
+    }
 
+    if (iscancelled == true) {
+      salesListUrl += '&isCancelled=$iscancelled';
+    }
+
+    print(salesListUrl);
     final response = await dio.get(salesListUrl);
 
     return parentResponseModelFromJson(jsonEncode(response.data))
