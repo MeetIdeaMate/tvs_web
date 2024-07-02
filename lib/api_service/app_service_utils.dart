@@ -1313,6 +1313,8 @@ class AppServiceUtilImpl extends AppServiceUtil {
       final dio = Dio();
       SharedPreferences prefs = await SharedPreferences.getInstance();
       var token = prefs.getString('token');
+      var branchId = prefs.getString('branchId');
+      bool isMainBranch = prefs.getBool('mainBranch') ?? false;
       dio.options.headers['Authorization'] = 'Bearer $token';
       String url = '${AppUrl.stock}/transferd?transferType=$selectedStatus';
       if (transferStatus != null) {
@@ -1322,14 +1324,19 @@ class AppServiceUtilImpl extends AppServiceUtil {
           url += '&transferStatus=$transferStatus';
         }
       }
-      if (fromBranchId != null) {
-        url += '&fromBranchId=$fromBranchId';
-      }
 
-      if (toBranchId != null) {
+
+      if (toBranchId?.isNotEmpty ?? false) {
         url += '&toBranchId=$toBranchId';
       }
 
+      if (selectedStatus == AppConstants.transferred) {
+        url += '&fromBranchId=$branchId';
+      } else {
+        url += '&toBranchId=$branchId';
+      }
+
+      print('*************transfer url => $url');
       /*if (fromDateTextController != null) {
         url +=
             '&fromDate=${AppUtils.appToAPIDateFormat(fromDateTextController.toString())}';

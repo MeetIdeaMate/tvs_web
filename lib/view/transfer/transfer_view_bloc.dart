@@ -65,6 +65,11 @@ abstract class TransferViewBloc {
       String transferId, Function(int statusCode) onSuccessCallback);
 
   String? get sharePrefBranchId;
+
+  bool? get isMainbranch;
+
+  int? get receivedBadgeCount;
+  int? get transferedBadgeCount;
 }
 
 class TransferViewBlocImpl extends TransferViewBloc {
@@ -92,6 +97,9 @@ class TransferViewBlocImpl extends TransferViewBloc {
   String? _sharePrefBranchId;
   List<String> _fromBranchList = [];
   List<String> _toBranchList = [];
+  bool? _isMainBranch = false;
+  int? _receivedBadgeCount = 0;
+  int? _transferdBadgeCount = 0;
 
   @override
   TextEditingController get transporterNameSearchController =>
@@ -269,5 +277,26 @@ class TransferViewBlocImpl extends TransferViewBloc {
 
   set sharePrefBranchId(String? newValue) {
     _sharePrefBranchId = newValue;
+  }
+
+  @override
+  bool? get isMainbranch => _isMainBranch;
+
+  set isMainbranch(bool? value) {
+    _isMainBranch = value;
+  }
+
+  @override
+  int? get receivedBadgeCount => _receivedBadgeCount;
+
+  set receivedBadgeCount(int? value) {
+    _receivedBadgeCount = value;
+  }
+
+  @override
+  int? get transferedBadgeCount => _transferdBadgeCount;
+
+  set transferedBadgeCount(int? value) {
+    _transferdBadgeCount = value;
   }
 }
