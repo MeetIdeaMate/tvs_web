@@ -54,6 +54,14 @@ class _PaymentDailogState extends State<PaymentDailog> {
   }
 
   @override
+  void dispose() {
+    widget.salesViewBloc.paidAmountTextController.clear();
+    widget.salesViewBloc.balanceAmtController.clear();
+    widget.salesViewBloc.paymentDateTextController.clear();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return BlurryModalProgressHUD(
       inAsyncCall: _isLoading,
@@ -137,6 +145,10 @@ class _PaymentDailogState extends State<PaymentDailog> {
                                   color: _appColors.successColor),
                               AppConstants.paymentUpdateSuccessfully,
                               _appColors.successLightColor);
+                          widget.salesViewBloc.paidAmountTextController.clear();
+                          widget.salesViewBloc.balanceAmtController.clear();
+                          widget.salesViewBloc.paymentDateTextController
+                              .clear();
                         } else {
                           AppWidgetUtils.buildToast(
                               context,

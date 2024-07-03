@@ -33,7 +33,7 @@ class SideMenuNavigation extends StatefulWidget {
 class _SideMenuNavigationState extends State<SideMenuNavigation> {
   final _appcolors = AppColors();
   final _sideMenuBloc = SideMenuNavigationBlocImpl();
-  String selectedMenuItem = AppConstants.purchase;
+  String selectedMenuItem = AppConstants.booking;
   String? userName;
   String? designation;
   String? branchname;
