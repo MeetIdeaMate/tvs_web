@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:tlbilling/api_service/app_service_utils.dart';
+import 'package:tlbilling/models/parent_response_model.dart';
 import 'package:tlbilling/models/user_model.dart';
 
 abstract class UserViewBloc {
@@ -12,6 +13,10 @@ abstract class UserViewBloc {
   Stream<bool> get userListStream;
   int get currentPage;
   Stream<int> get pageNumberStream;
+  String? get branchId;
+  bool? get isMainBranch;
+  String? get branchName;
+  Future<ParentResponseModel> getBranchName();
 }
 
 class UserViewBlocImpl extends UserViewBloc {
@@ -21,6 +26,9 @@ class UserViewBlocImpl extends UserViewBloc {
   final _appServiceUtilsImpl = AppServiceUtilImpl();
   int _currentPage = 0;
   final _pageNumberStreamController = StreamController<int>.broadcast();
+  String? _branchId;
+  bool? _isMainBranch;
+  String? _branchName;
 
   @override
   TextEditingController get searchUserNameAndMobNoController =>
@@ -37,7 +45,8 @@ class UserViewBlocImpl extends UserViewBloc {
     return _appServiceUtilsImpl.getUserList(
         _searchUserNameAndMobNoController.text,
         _selectedDestination ?? '',
-        currentPage);
+        currentPage,
+        branchId ?? '');
   }
 
   @override
@@ -63,5 +72,29 @@ class UserViewBlocImpl extends UserViewBloc {
 
   pageNumberUpdateStreamController(int streamValue) {
     _pageNumberStreamController.add(streamValue);
+  }
+
+  @override
+  String? get branchId => _branchId;
+  set branchId(String? value) {
+    _branchId = value;
+  }
+
+  @override
+  bool? get isMainBranch => _isMainBranch;
+
+  set isMainBranch(bool? value) {
+    _isMainBranch = value;
+  }
+
+  @override
+  String? get branchName => _branchName;
+  set branchName(String? value) {
+    _branchName = value;
+  }
+
+  @override
+  Future<ParentResponseModel> getBranchName() {
+    return _appServiceUtilsImpl.getBranchName();
   }
 }

@@ -427,10 +427,12 @@ class _SalesViewScreenState extends State<SalesViewScreen>
                                   PopupMenuButton(
                                     itemBuilder: (context) {
                                       return [
-                                        const PopupMenuItem(
-                                          value: 'cancel',
-                                          child: Text('Cancel'),
-                                        ),
+                                        if (paymentStatus != 'COMPLETED' &&
+                                            paymentStatus != '')
+                                          const PopupMenuItem(
+                                            value: 'cancel',
+                                            child: Text('Cancel'),
+                                          ),
                                         const PopupMenuItem(
                                           value: 'view',
                                           child: Text('View'),
@@ -694,109 +696,119 @@ class _SalesViewScreenState extends State<SalesViewScreen>
                         AppConstants.cancelled,
                         style: TextStyle(color: Colors.red),
                       )
-                    : IconButton(
-                        onPressed: () {
-                          showDialog(
-                            context: context,
-                            builder: (context) => AlertDialog(
-                              surfaceTintColor: _appColors.whiteColor,
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8)),
-                              content: Form(
-                                key: _salesViewBloc.salesCancelFormKey,
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(
-                                      Icons.cancel,
-                                      color: _appColors.errorColor,
-                                      size: 35,
+                    : entry.value.paymentStatus == 'PENDING'
+                        ? IconButton(
+                            onPressed: () {
+                              showDialog(
+                                context: context,
+                                builder: (context) => AlertDialog(
+                                  surfaceTintColor: _appColors.whiteColor,
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8)),
+                                  content: Form(
+                                    key: _salesViewBloc.salesCancelFormKey,
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(
+                                          Icons.cancel,
+                                          color: _appColors.errorColor,
+                                          size: 35,
+                                        ),
+                                        AppWidgetUtils.buildSizedBox(
+                                            custHeight: 10),
+                                        const Text(
+                                          AppConstants.salesCancelDialogMessage,
+                                          style: TextStyle(fontSize: 16),
+                                        ),
+                                        AppWidgetUtils.buildSizedBox(
+                                            custHeight: 10),
+                                        CustomFormField(
+                                          hintText:
+                                              AppConstants.enterCancelReason,
+                                          maxLine: 300,
+                                          height: 80,
+                                          controller: _salesViewBloc
+                                              .salesBillCancelReasonTextController,
+                                          validator: (value) {
+                                            if (value!.isEmpty) {
+                                              return AppConstants
+                                                  .enterCancelReason;
+                                            }
+                                            return null;
+                                          },
+                                        )
+                                      ],
                                     ),
-                                    AppWidgetUtils.buildSizedBox(
-                                        custHeight: 10),
-                                    const Text(
-                                      AppConstants.salesCancelDialogMessage,
-                                      style: TextStyle(fontSize: 16),
-                                    ),
-                                    AppWidgetUtils.buildSizedBox(
-                                        custHeight: 10),
-                                    CustomFormField(
-                                      hintText: AppConstants.enterCancelReason,
-                                      maxLine: 300,
-                                      height: 80,
-                                      controller: _salesViewBloc
-                                          .salesBillCancelReasonTextController,
-                                      validator: (value) {
-                                        if (value!.isEmpty) {
-                                          return AppConstants.enterCancelReason;
-                                        }
-                                        return null;
-                                      },
-                                    )
-                                  ],
-                                ),
-                              ),
-                              actions: [
-                                CustomActionButtons(
-                                    onPressed: () {
-                                      if (_salesViewBloc
-                                          .salesCancelFormKey.currentState!
-                                          .validate()) {
-                                        _salesViewBloc.salesBillPaymentCancel(
-                                            (statusCode) {
-                                          if (statusCode == 200 ||
-                                              statusCode == 201) {
-                                            Navigator.pop(context);
-                                            _salesViewBloc
-                                                .pageNumberUpdateStreamController(
-                                                    0);
-                                            _salesViewBloc
-                                                .paymentDetailsListStreamController(
-                                                    true);
-                                            Navigator.pop(context);
-                                            AppWidgetUtils.buildToast(
-                                                context,
-                                                ToastificationType.success,
-                                                AppConstants.salesCancelled,
-                                                Icon(
-                                                  Icons
-                                                      .check_circle_outline_rounded,
-                                                  color:
-                                                      _appColors.successColor,
-                                                ),
-                                                AppConstants.salesCancelledDes,
-                                                _appColors.successLightColor);
-                                          } else {
-                                            AppWidgetUtils.buildToast(
-                                                context,
-                                                ToastificationType.error,
-                                                AppConstants.salesCancelledErr,
-                                                Icon(
-                                                  Icons.error_outline_outlined,
-                                                  color: _appColors.errorColor,
-                                                ),
-                                                AppConstants.somethingWentWrong,
-                                                _appColors.errorLightColor);
+                                  ),
+                                  actions: [
+                                    CustomActionButtons(
+                                        onPressed: () {
+                                          if (_salesViewBloc
+                                              .salesCancelFormKey.currentState!
+                                              .validate()) {
+                                            _salesViewBloc.salesBillPaymentCancel(
+                                                (statusCode) {
+                                              if (statusCode == 200 ||
+                                                  statusCode == 201) {
+                                                Navigator.pop(context);
+                                                _salesViewBloc
+                                                    .pageNumberUpdateStreamController(
+                                                        0);
+                                                _salesViewBloc
+                                                    .paymentDetailsListStreamController(
+                                                        true);
+                                                Navigator.pop(context);
+                                                AppWidgetUtils.buildToast(
+                                                    context,
+                                                    ToastificationType.success,
+                                                    AppConstants.salesCancelled,
+                                                    Icon(
+                                                      Icons
+                                                          .check_circle_outline_rounded,
+                                                      color: _appColors
+                                                          .successColor,
+                                                    ),
+                                                    AppConstants
+                                                        .salesCancelledDes,
+                                                    _appColors
+                                                        .successLightColor);
+                                              } else {
+                                                AppWidgetUtils.buildToast(
+                                                    context,
+                                                    ToastificationType.error,
+                                                    AppConstants
+                                                        .salesCancelledErr,
+                                                    Icon(
+                                                      Icons
+                                                          .error_outline_outlined,
+                                                      color:
+                                                          _appColors.errorColor,
+                                                    ),
+                                                    AppConstants
+                                                        .somethingWentWrong,
+                                                    _appColors.errorLightColor);
+                                              }
+                                            },
+                                                entry.value.salesId,
+                                                entry.value.paidDetails?[index]
+                                                    .paymentId,
+                                                _salesViewBloc
+                                                    .salesBillCancelReasonTextController
+                                                    .text);
                                           }
                                         },
-                                            entry.value.salesId,
-                                            entry.value.paidDetails?[index]
-                                                .paymentId,
-                                            _salesViewBloc
-                                                .salesBillCancelReasonTextController
-                                                .text);
-                                      }
-                                    },
-                                    buttonText: AppConstants.submit)
-                              ],
+                                        buttonText: AppConstants.submit)
+                                  ],
+                                ),
+                              );
+                            },
+                            icon: Icon(
+                              Icons.cancel,
+                              color: _appColors.errorColor,
                             ),
-                          );
-                        },
-                        icon: Icon(
-                          Icons.cancel,
-                          color: _appColors.errorColor,
-                        ),
-                      )
+                          )
+                        : const SizedBox()
               ],
             ),
           );

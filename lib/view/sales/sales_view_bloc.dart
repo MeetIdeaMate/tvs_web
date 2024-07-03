@@ -53,6 +53,7 @@ abstract class SalesViewBloc {
   String? get branchId;
   bool? get isMainBranch;
   Future<ParentResponseModel> getBranchName();
+  Stream<bool> get paymentDialogStream;
 }
 
 class SalesViewBlocImpl extends SalesViewBloc {
@@ -77,6 +78,7 @@ class SalesViewBlocImpl extends SalesViewBloc {
   final _balanceAmtController = TextEditingController();
   final _salesCancelFormKey = GlobalKey<FormState>();
   final _resonTextEditController = TextEditingController();
+  final _paymentDialogStream = StreamController<bool>.broadcast();
 
   String? _branchId;
   bool? _isMainBranch;
@@ -253,5 +255,12 @@ class SalesViewBlocImpl extends SalesViewBloc {
   @override
   Future<ParentResponseModel> getBranchName() {
     return _appServiceUtilBlocImpl.getBranchName();
+  }
+
+  @override
+  Stream<bool> get paymentDialogStream => _paymentDialogStream.stream;
+
+  paymentStreamController(bool value) {
+    _paymentDialogStream.add(value);
   }
 }

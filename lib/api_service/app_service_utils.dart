@@ -95,8 +95,8 @@ abstract class AppServiceUtil {
       Function(int statusCode) onSuccessCallBack);
 
   //Future<UserList>? getAllUserList();
-  Future<UsersListModel?> getUserList(
-      String userName, String selectedDesignation, int currentPage);
+  Future<UsersListModel?> getUserList(String userName,
+      String selectedDesignation, int currentPage, String branchId);
 
   Future<List<String>> getConfigByIdModel({String? configId});
 
@@ -330,10 +330,12 @@ class AppServiceUtilImpl extends AppServiceUtil {
   }
 
   @override
-  Future<UsersListModel?> getUserList(
-      String userName, String selectedDesignation, int currentPage) async {
+  Future<UsersListModel?> getUserList(String userName,
+      String selectedDesignation, int currentPage, String branchId) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var token = prefs.getString('token');
+    bool isMainBranch = prefs.getBool('mainBranch') ?? false;
+    String branchIds = prefs.getString('branchId') ?? '';
     dio.options.headers['Authorization'] = 'Bearer $token';
     String userListUrl = '${AppUrl.user}page=$currentPage&pageSize=10';
 
@@ -342,6 +344,13 @@ class AppServiceUtilImpl extends AppServiceUtil {
     }
     if (selectedDesignation.isNotEmpty && selectedDesignation != 'All') {
       userListUrl += '&designation=$selectedDesignation';
+    }
+
+    if (branchId.isNotEmpty && branchId != 'All Branch') {
+      userListUrl += '&branchId=$branchId';
+    }
+    if (!isMainBranch) {
+      userListUrl += '&branchId=$branchIds';
     }
 
     final response = await dio.get(userListUrl);

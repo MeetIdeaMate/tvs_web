@@ -330,6 +330,8 @@ class _VehicleAccessoriesListState extends State<VehicleAccessoriesList> {
                         widget.addSalesBloc
                             .selectedVehicleAndAccessoriesListStreamController(
                                 true);
+                        widget.addSalesBloc
+                            .paymentDetailsStreamController(true);
 
                         // widget.addSalesBloc.selectedVehiclesList = [];
                         widget.addSalesBloc

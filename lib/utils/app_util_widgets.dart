@@ -45,7 +45,7 @@ class AppWidgetUtils {
       {List<TextInputFormatter>? inputFormatters,
       Widget? suffixIcon,
       void Function(String)? onSubmit}) {
-    double searchFieldWidth = MediaQuery.of(context).size.width * 0.19;
+    double searchFieldWidth = MediaQuery.of(context).size.width * 0.15;
 
     return Padding(
       padding: const EdgeInsets.only(right: 5),
