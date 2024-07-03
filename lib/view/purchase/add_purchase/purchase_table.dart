@@ -533,14 +533,14 @@ class _PurchaseTableState extends State<PurchaseTable> {
   }
 
   AddPurchaseModel _purchasePostData() {
-    SpecificationsValue _specValue = SpecificationsValue(specs: {});
-    List<Map<String, dynamic>> _mainSpecInfos = [];
+    SpecificationsValue specValue = SpecificationsValue(specs: {});
+    List<Map<String, dynamic>> mainSpecInfos = [];
 
     // Collecting engine details
     for (var mainSpecValue in widget.purchaseBloc.purchaseBillDataList) {
       for (var vehicle in mainSpecValue.vehicleDetails!) {
         for (var element in vehicle.engineDetails) {
-          _mainSpecInfos.add({
+          mainSpecInfos.add({
             'engineNo': element.engineNo,
             'frameNo': element.frameNo,
           });
@@ -620,11 +620,11 @@ class _PurchaseTableState extends State<PurchaseTable> {
       }
     }
 
-    List<ItemDetail> _itemDetailsList = [];
+    List<ItemDetail> itemDetailsList = [];
 
     for (var itemData in widget.purchaseBloc.purchaseBillDataList) {
       for (var vehicleData in itemData.vehicleDetails!) {
-        final _itemDetail = ItemDetail(
+        final itemDetail = ItemDetail(
           categoryId: vehicleData.categoryId.toString(),
           discount: 0,
           gstDetails: List.from(gstDetailsList),
@@ -632,31 +632,32 @@ class _PurchaseTableState extends State<PurchaseTable> {
           itemName: vehicleData.vehicleName,
           mainSpecInfos: widget.purchaseBloc.selectedPurchaseType !=
                   AppConstants.accessories
-              ? _mainSpecInfos
+              ? mainSpecInfos
               : null,
           partNo: vehicleData.partNo.toString(),
           quantity: vehicleData.qty,
           specificationsValue: widget.purchaseBloc.selectedPurchaseType !=
                   AppConstants.accessories
-              ? _specValue
+              ? specValue
               : null,
           taxes: List.from(taxDetailsList),
           unitRate: vehicleData.unitRate,
         );
-        _itemDetailsList.add(_itemDetail);
+        itemDetailsList.add(itemDetail);
       }
     }
 
-    int totalQty = _itemDetailsList.fold(0, (sum, item) => sum + item.quantity);
+    int totalQty = itemDetailsList.fold(0, (sum, item) => sum + item.quantity);
 
     final purchaseData = AddPurchaseModel(
       branchId: widget.purchaseBloc.branchId.toString(),
-      itemDetails: _itemDetailsList,
+      itemDetails: itemDetailsList,
       pInvoiceDate: AppUtils.appToAPIDateFormat(
           widget.purchaseBloc.invoiceDateController.text),
       pInvoiceNo: widget.purchaseBloc.invoiceNumberController.text,
       pOrderRefNo: widget.purchaseBloc.purchaseRefController.text,
       totalQty: totalQty,
+      hsnSacCode: widget.purchaseBloc.hsnCodeController.text,
       vendorId: widget.purchaseBloc.selectedVendorId.toString(),
     );
 
