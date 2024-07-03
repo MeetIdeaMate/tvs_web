@@ -61,7 +61,6 @@ class _AccessoriesPurchaseDetailsState
       children: [
         Expanded(
             child: TldsInputFormField(
-                enabled: false,
                 height: 40,
                 labelText: AppConstants.hsnCode,
                 hintText: AppConstants.hsnCode,

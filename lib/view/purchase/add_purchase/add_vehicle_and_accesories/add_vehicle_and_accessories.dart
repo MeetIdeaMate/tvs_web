@@ -812,8 +812,6 @@ class _AddVehicleAndAccessoriesState extends State<AddVehicleAndAccessories> {
 
   Widget _buildHsnCodeField() {
     return TldsInputFormField(
-      enabled:
-          widget.purchaseBloc.selectedPurchaseType == AppConstants.accessories,
       validator: (String? value) {
         if (value == null || value.isEmpty) {
           return AppConstants.enterHsnCode;

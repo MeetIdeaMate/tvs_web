@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:tlbilling/api_service/app_service_utils.dart';
 import 'package:tlbilling/models/get_model/get_all_sales_list_model.dart';
 import 'package:tlbilling/models/get_model/get_configuration_model.dart';
+import 'package:tlbilling/models/parent_response_model.dart';
 import 'package:tlbilling/utils/app_constants.dart';
 
 abstract class SalesViewBloc {
@@ -49,6 +50,9 @@ abstract class SalesViewBloc {
       String? salesId, String? reason);
 
   GlobalKey<FormState> get salesCancelFormKey;
+  String? get branchId;
+  bool? get isMainBranch;
+  Future<ParentResponseModel> getBranchName();
 }
 
 class SalesViewBlocImpl extends SalesViewBloc {
@@ -74,6 +78,8 @@ class SalesViewBlocImpl extends SalesViewBloc {
   final _salesCancelFormKey = GlobalKey<FormState>();
   final _resonTextEditController = TextEditingController();
 
+  String? _branchId;
+  bool? _isMainBranch;
   String? _selectedPaymentName = 'CASH';
 
   @override
@@ -132,7 +138,8 @@ class SalesViewBlocImpl extends SalesViewBloc {
         customerNameTextController.text,
         currentPage,
         paymentStatus,
-        iscancelled);
+        iscancelled,
+        branchId ?? '');
   }
 
   @override
@@ -228,4 +235,23 @@ class SalesViewBlocImpl extends SalesViewBloc {
   @override
   TextEditingController get reasonTextEditingController =>
       _resonTextEditController;
+
+  @override
+  String? get branchId => _branchId;
+
+  set branchId(String? value) {
+    _branchId = value;
+  }
+
+  @override
+  bool? get isMainBranch => _isMainBranch;
+
+  set isMainBranch(bool? value) {
+    _isMainBranch = value;
+  }
+
+  @override
+  Future<ParentResponseModel> getBranchName() {
+    return _appServiceUtilBlocImpl.getBranchName();
+  }
 }

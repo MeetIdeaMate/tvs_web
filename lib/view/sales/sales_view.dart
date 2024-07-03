@@ -1,12 +1,11 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
 
 import 'package:flutter_svg/svg.dart';
 import 'package:pdf/pdf.dart';
 import 'package:printing/printing.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tlbilling/components/custom_action_button.dart';
 import 'package:tlbilling/components/custom_elevated_button.dart';
 import 'package:tlbilling/components/custom_form_field.dart';
@@ -20,6 +19,7 @@ import 'package:tlbilling/view/sales/add_sales.dart';
 import 'package:tlbilling/view/sales/payment_dialog.dart';
 import 'package:tlbilling/view/sales/sales_report_pdf.dart';
 import 'package:tlbilling/view/sales/sales_view_bloc.dart';
+import 'package:tlds_flutter/components/tlds_dropdown_button_form_field.dart';
 import 'package:tlds_flutter/util/app_colors.dart';
 import 'package:toastification/toastification.dart';
 
@@ -34,12 +34,22 @@ class _SalesViewScreenState extends State<SalesViewScreen>
     with TickerProviderStateMixin {
   final _salesViewBloc = SalesViewBlocImpl();
   final _appColors = AppColor();
+
   @override
   void initState() {
     super.initState();
     _salesViewBloc.salesTabController = TabController(length: 4, vsync: this);
     _salesViewBloc.salesDetailsTabController =
         TabController(length: 2, vsync: this);
+    getBranchName();
+  }
+
+  Future<void> getBranchName() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _salesViewBloc.branchId = prefs.getString('branchName') ?? '';
+      _salesViewBloc.isMainBranch = prefs.getBool('mainBranch');
+    });
   }
 
   @override
@@ -79,9 +89,7 @@ class _SalesViewScreenState extends State<SalesViewScreen>
                 hintText: AppConstants.invoiceNo,
                 searchStreamController:
                     _salesViewBloc.invoiceNoStreamController),
-            AppWidgetUtils.buildSizedBox(
-              custWidth: MediaQuery.sizeOf(context).width * 0.01,
-            ),
+            AppWidgetUtils.buildSizedBox(custWidth: 5),
             buildSearchField(
               searchStream: _salesViewBloc.paymentTypeStream,
               searchController: _salesViewBloc.paymentTypeTextController,
@@ -90,9 +98,7 @@ class _SalesViewScreenState extends State<SalesViewScreen>
                   _salesViewBloc.paymentTypeStreamController,
               inputFormatters: TlInputFormatters.onlyAllowAlphabets,
             ),
-            AppWidgetUtils.buildSizedBox(
-              custWidth: MediaQuery.sizeOf(context).width * 0.01,
-            ),
+            AppWidgetUtils.buildSizedBox(custWidth: 5),
             StreamBuilder<bool>(
               stream: _salesViewBloc.customerNameStream,
               builder: (context, snapshot) {
@@ -106,6 +112,8 @@ class _SalesViewScreenState extends State<SalesViewScreen>
                 );
               },
             ),
+            AppWidgetUtils.buildSizedBox(custWidth: 5),
+            if (_salesViewBloc.isMainBranch ?? false) _buildBranchDropdown()
           ],
         ),
         Row(
@@ -130,6 +138,58 @@ class _SalesViewScreenState extends State<SalesViewScreen>
           ],
         )
       ],
+    );
+  }
+
+  _buildBranchDropdown() {
+    return FutureBuilder(
+        future: _salesViewBloc.getBranchName(),
+        builder: (context, snapshot) {
+          List<String>? branchNameList = snapshot.data?.result?.getAllBranchList
+              ?.map((e) => e.branchName)
+              .where((branchName) => branchName != null)
+              .cast<String>()
+              .toList();
+          branchNameList?.insert(0, AppConstants.all);
+          return _buildDropDown(
+            dropDownItems: (snapshot.hasData &&
+                    (snapshot.data?.result?.getAllBranchList?.isNotEmpty ==
+                        true))
+                ? branchNameList
+                : List.empty(),
+            hintText: (snapshot.connectionState == ConnectionState.waiting)
+                ? AppConstants.loading
+                : (snapshot.hasError || snapshot.data == null)
+                    ? AppConstants.errorLoading
+                    : AppConstants.branchName,
+            selectedvalue: _salesViewBloc.branchId,
+            onChange: (value) {
+              _salesViewBloc.branchId = value;
+
+              _salesViewBloc.pageNumberUpdateStreamController(0);
+            },
+          );
+        });
+  }
+
+  _buildDropDown(
+      {List<String>? dropDownItems,
+      String? hintText,
+      String? selectedvalue,
+      Function(String?)? onChange}) {
+    return Padding(
+      padding: const EdgeInsets.only(right: 5),
+      child: TldsDropDownButtonFormField(
+        width: MediaQuery.of(context).size.width * 0.1,
+        height: 40,
+        dropDownItems: dropDownItems!,
+        dropDownValue: selectedvalue,
+        hintText: hintText,
+        onChange: onChange ??
+            (String? newValue) {
+              selectedvalue = newValue ?? '';
+            },
+      ),
     );
   }
 
@@ -510,7 +570,7 @@ class _SalesViewScreenState extends State<SalesViewScreen>
                 fontWeight: FontWeight.bold,
               ),
             ),
-            content: Container(
+            content: SizedBox(
               width: 650,
               height: 400,
               child: Column(

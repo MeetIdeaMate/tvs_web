@@ -58,7 +58,11 @@ abstract class AppServiceUtil {
       AddCustomerModel addEmployeeModel);
 
   Future<GetAllCustomersByPaginationModel?> getAllCustomersByPagination(
-      String city, String mobileNumber, String customerName, int currentPage);
+      String city,
+      String mobileNumber,
+      String customerName,
+      int currentPage,
+      String branchName);
 
   Future<GetAllInsuranceByPaginationModel?> getAllInsuranceByPagination(
       String invoiceNo,
@@ -77,7 +81,8 @@ abstract class AppServiceUtil {
       String customerName,
       int currentPage,
       String paymentStatus,
-      bool iscancelled);
+      bool iscancelled,
+      String branchName);
 
   Future<List<GetAllStockDetails>?> getStockList(String? categoryName);
 
@@ -239,7 +244,8 @@ abstract class AppServiceUtil {
       int? currentPage,
       String? bookingId,
       String? customerName,
-      String? paymentType);
+      String? paymentType,
+      String? branchName);
 
   Future<void> addNewBookingDetails(
       BookingModel bookingPostObj, Function(int statusCode) onSuccessCallBack);
@@ -291,7 +297,7 @@ class AppServiceUtilImpl extends AppServiceUtil {
         var branchId = response.data['result']['login']['branchId'] ?? '';
         var branchName = response.data['result']['login']['branchName'] ?? '';
         var isMainBranch = response.data['result']['login']['mainBranch'] ?? '';
-        print('************loign branch id********$branchId');
+        //  print('************loign branch id********$branchId');
         SharedPreferences prefs = await SharedPreferences.getInstance();
         prefs.setString(AppConstants.token, token);
         prefs.setString(AppConstants.designation, designation);
@@ -393,10 +399,14 @@ class AppServiceUtilImpl extends AppServiceUtil {
       String city,
       String mobileNumber,
       String customerName,
-      int currentPage) async {
+      int currentPage,
+      String branchName) async {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       var token = prefs.getString('token');
+      bool isMainBranch = prefs.getBool('mainBranch') ?? false;
+      String branchId = prefs.getString('branchId') ?? '';
+
       dio.options.headers['Authorization'] = 'Bearer $token';
       String url = '${AppUrl.customer}/page?page=$currentPage&size=10';
       if (city.isNotEmpty) {
@@ -408,6 +418,16 @@ class AppServiceUtilImpl extends AppServiceUtil {
       if (mobileNumber.isNotEmpty) {
         url += '&mobileNo=$mobileNumber';
       }
+
+      if (!isMainBranch) {
+        url += '&branchId=$branchId';
+      }
+
+      if (branchName.isNotEmpty && branchName != 'All Branch') {
+        url += '&branchName=$branchName';
+      }
+
+      print(url);
       var response = await dio.get(url);
       return parentResponseModelFromJson(jsonEncode(response.data))
           .result
@@ -693,8 +713,15 @@ class AppServiceUtilImpl extends AppServiceUtil {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var token = prefs.getString('token');
     dio.options.headers['Authorization'] = 'Bearer $token';
-    String customerNameList = AppUrl.customer;
-    final response = await dio.get(customerNameList);
+    bool isMainBranch = prefs.getBool('mainBranch') ?? false;
+    String branchId = prefs.getString('branchId') ?? '';
+    String customerNameListUrl = AppUrl.customer;
+
+    if (!isMainBranch) {
+      customerNameListUrl += '?branchId=$branchId';
+    }
+    print(customerNameListUrl);
+    final response = await dio.get(customerNameListUrl);
     return parentResponseModelFromJson(jsonEncode(response.data))
         .result
         ?.getAllCustomerNameList;
@@ -1182,11 +1209,12 @@ class AppServiceUtilImpl extends AppServiceUtil {
       String customerName,
       int currentPage,
       String paymentStatus,
-      bool iscancelled) async {
+      bool iscancelled,
+      String branchName) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var token = prefs.getString('token');
     bool isMainBranch = prefs.getBool('mainBranch') ?? false;
-    String branchName = prefs.getString('branchName') ?? '';
+    String branchNames = prefs.getString('branchName') ?? '';
     dio.options.headers['Authorization'] = 'Bearer $token';
     String salesListUrl = '${AppUrl.sales}page?page=$currentPage&size=10';
 
@@ -1214,6 +1242,10 @@ class AppServiceUtilImpl extends AppServiceUtil {
     }
 
     if (!isMainBranch) {
+      salesListUrl += '&branchName=$branchNames';
+    }
+
+    if (branchName.isNotEmpty && branchName != 'All') {
       salesListUrl += '&branchName=$branchName';
     }
 
@@ -1289,13 +1321,14 @@ class AppServiceUtilImpl extends AppServiceUtil {
   Future<List<GetAllStockDetails>?> getStockList(String? categoryName) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var token = prefs.getString('token');
+    String branchId = prefs.getString('branchId') ?? '';
     dio.options.headers['Authorization'] = 'Bearer $token';
-    String stocksListUrl = AppUrl.stock;
+    String stocksListUrl = '${AppUrl.stock}?branchId=$branchId';
     if (categoryName!.isNotEmpty) {
-      stocksListUrl += '?categoryName=$categoryName';
+      stocksListUrl += '&categoryName=$categoryName';
     }
     final response = await dio.get(stocksListUrl);
-
+    print(stocksListUrl);
     return parentResponseModelFromJson(jsonEncode(response.data))
         .result
         ?.getAllStockDetails;
@@ -1365,6 +1398,7 @@ class AppServiceUtilImpl extends AppServiceUtil {
     var response = await dio.patch(
       '${AppUrl.stockTransfer}?branchId=$approvalBranchId&transferId=$transferId',
     );
+    // print(object)
     if (onSuccessCallback != null) {
       onSuccessCallback(response.statusCode ?? 0);
     }
@@ -1459,12 +1493,15 @@ class AppServiceUtilImpl extends AppServiceUtil {
       int? currentPage,
       String? bookingId,
       String? customerName,
-      String? paymentType) async {
+      String? paymentType,
+      String? branchName) async {
     try {
       final dio = Dio();
       SharedPreferences prefs = await SharedPreferences.getInstance();
       var token = prefs.getString('token');
       dio.options.headers['Authorization'] = 'Bearer $token';
+      bool isMainBranch = prefs.getBool('mainBranch') ?? false;
+      String branchId = prefs.getString('branchId') ?? '';
 
       String url = '${AppUrl.booking}/page?page=$currentPage&size=10';
 
@@ -1479,6 +1516,17 @@ class AppServiceUtilImpl extends AppServiceUtil {
           paymentType != 'All') {
         url += '&paymentType=$paymentType';
       }
+
+      if (!isMainBranch) {
+        url += '&branchId=$branchId';
+      }
+
+      if (branchName != null && branchName.isNotEmpty && branchName != 'All') {
+        url += '&branchName=$branchName';
+      }
+
+      print(url);
+
       var response = await dio.get(url);
 
       return parentResponseModelFromJson(jsonEncode(response.data))
