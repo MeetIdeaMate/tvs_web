@@ -452,7 +452,11 @@ class _SalesViewScreenState extends State<SalesViewScreen>
                                           builder: (context) =>
                                               _buildSalesBillCancelDialog(
                                                   context, entry),
-                                        );
+                                        ).then((value) {
+                                          _salesViewBloc
+                                              .salesBillCancelReasonTextController
+                                              .clear();
+                                        });
                                       } else if (value == 'view') {
                                         showDialog(
                                           context: context,
@@ -542,7 +546,7 @@ class _SalesViewScreenState extends State<SalesViewScreen>
                         ),
                         AppConstants.salesCancelledDes,
                         _appColors.successLightColor);
-                    _salesViewBloc.reasonTextEditingController.clear();
+                    _salesViewBloc.salesBillCancelReasonTextController.clear();
                   } else {
                     AppWidgetUtils.buildToast(
                         context,

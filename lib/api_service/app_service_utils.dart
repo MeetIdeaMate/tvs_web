@@ -1111,8 +1111,10 @@ class AppServiceUtilImpl extends AppServiceUtil {
 
     var response = await dio.post(AppUrl.purchase, data: jsonData);
     var responseData = response.data;
+    print('**************888${purchaseData.toJson()}');
 
     if (response.statusCode == 200 || response.statusCode == 201) {
+      print(responseData);
       PurchaseBill purchaseBill =
           PurchaseBill.fromJson(responseData['result']['purchase']);
       onSuccessCallBack(response.statusCode ?? 0, purchaseBill);
@@ -1120,6 +1122,8 @@ class AppServiceUtilImpl extends AppServiceUtil {
       onSuccessCallBack(
           response.statusCode ?? 0, responseData['result']['purchase']);
     }
+
+    print(responseData);
   }
 
   @override
@@ -1490,12 +1494,10 @@ class AppServiceUtilImpl extends AppServiceUtil {
         //   url += '&branchId=$branchId';
         // }
 
-        if (!isMainBranch) {
-          url += '&branchId=$branchIds';
-        }
-
-        if (branchId != null && branchId != '') {
+        if (branchId != null && branchId.isNotEmpty) {
           url += '&branchId=$branchId';
+        } else if (!isMainBranch) {
+          url += '&branchId=$branchIds';
         }
       }
 

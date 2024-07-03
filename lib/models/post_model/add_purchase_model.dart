@@ -6,16 +6,17 @@ class AddPurchaseModel {
   String pOrderRefNo;
   int totalQty;
   String vendorId;
+  String hsnSacCode;
 
-  AddPurchaseModel({
-    required this.branchId,
-    this.itemDetails,
-    required this.pInvoiceDate,
-    required this.pInvoiceNo,
-    required this.pOrderRefNo,
-    required this.totalQty,
-    required this.vendorId,
-  });
+  AddPurchaseModel(
+      {required this.branchId,
+      this.itemDetails,
+      required this.pInvoiceDate,
+      required this.pInvoiceNo,
+      required this.pOrderRefNo,
+      required this.totalQty,
+      required this.vendorId,
+      required this.hsnSacCode});
 
   Map<String, dynamic> toJson() {
     return {
@@ -26,6 +27,7 @@ class AddPurchaseModel {
       'p_orderRefNo': pOrderRefNo,
       'totalQty': totalQty,
       'vendorId': vendorId,
+      'hsnSacCode': hsnSacCode
     };
   }
 }
@@ -64,7 +66,6 @@ class ItemDetail {
       'gstDetails': gstDetails.map((i) => i.toJson()).toList(),
       'incentives': incentives.map((i) => i.toJson()).toList(),
       'itemName': itemName,
-      
       'mainSpecValues': mainSpecInfos,
       'partNo': partNo,
       'quantity': quantity,
