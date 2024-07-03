@@ -84,7 +84,7 @@ class BookingListBlocImpl extends BookingListBloc {
 
   @override
   Future<GetConfigurationModel?> getPaymentsList() async {
-    return await _appServices.getConfigById(AppConstants.payments);
+    return await _appServices.getConfigById(AppConstants.paymentTypes);
   }
 
   @override
