@@ -2,6 +2,7 @@ import 'package:blurry_modal_progress_hud/blurry_modal_progress_hud.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tlbilling/components/custom_action_button.dart';
 import 'package:tlbilling/components/custom_dropdown_button_form_field.dart';
 import 'package:tlbilling/models/get_all_employee_model.dart';
@@ -34,6 +35,19 @@ class _CreateUserDialogState extends State<CreateUserDialog> {
     setState(() {
       _isLoading = state;
     });
+  }
+
+  Future<void> getBranchName() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _createUserDialogBlocImpl.branchId = prefs.getString('branchId') ?? '';
+    });
+  }
+
+  @override
+  void initState() {
+    getBranchName();
+    super.initState();
   }
 
   @override
@@ -97,7 +111,7 @@ class _CreateUserDialogState extends State<CreateUserDialog> {
             _buildUserNameAndMobNoFields(),
             _buildDesignationAndPasswordFields(),
             AppWidgetUtils.buildSizedBox(custHeight: 15),
-            _buildSelectBranch()
+            if (widget.userViewBloc.isMainBranch ?? false) _buildSelectBranch()
           ],
         ),
       ),
@@ -333,7 +347,6 @@ class _CreateUserDialogState extends State<CreateUserDialog> {
         } else if (snapshot.hasError) {
           return Text('${snapshot.error}');
         } else if (snapshot.hasData) {
-          // Create a map to store branch names and IDs
           final branchMap = {
             for (var branch in snapshot.data!.result!.getAllBranchList!)
               if (branch.branchName != null) branch.branchName!: branch.branchId

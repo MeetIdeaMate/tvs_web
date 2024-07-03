@@ -48,50 +48,54 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
                 _buildHeadingText(AppConstants.selectVehicleAndAccessories),
                 _buildSelectedDataList(),
                 AppWidgetUtils.buildSizedBox(custHeight: 10),
-                _buildHeadingText(AppConstants.mandatoryAddons),
-                FutureBuilder(
-                  future: widget.addSalesBloc.getMandantoryAddOns(),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(child: Text(AppConstants.loading));
-                    } else if (snapshot.hasError) {
-                      return const Text(AppConstants.errorLoading);
-                    } else if (!snapshot.hasData ||
-                        (snapshot.data as List<String>).isEmpty) {
-                      return const Text(AppConstants.noData);
-                    } else {
-                      List<String> mandatoryAddOns =
-                          snapshot.data as List<String>;
-                      return StreamBuilder<bool>(
-                          stream: widget.addSalesBloc.mandatoryRefereshStream,
-                          builder: (context, snapshot) {
-                            return ListView.builder(
-                              shrinkWrap: true,
-                              itemCount: mandatoryAddOns.length,
-                              itemBuilder: (context, index) {
-                                String addOn = mandatoryAddOns[index];
+                if (widget.addSalesBloc.selectedVehicleAndAccessories !=
+                    'Accessories')
+                  _buildHeadingText(AppConstants.mandatoryAddons),
+                if (widget.addSalesBloc.selectedVehicleAndAccessories !=
+                    'Accessories')
+                  FutureBuilder(
+                    future: widget.addSalesBloc.getMandantoryAddOns(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: Text(AppConstants.loading));
+                      } else if (snapshot.hasError) {
+                        return const Text(AppConstants.errorLoading);
+                      } else if (!snapshot.hasData ||
+                          (snapshot.data as List<String>).isEmpty) {
+                        return const Text(AppConstants.noData);
+                      } else {
+                        List<String> mandatoryAddOns =
+                            snapshot.data as List<String>;
+                        return StreamBuilder<bool>(
+                            stream: widget.addSalesBloc.mandatoryRefereshStream,
+                            builder: (context, snapshot) {
+                              return ListView.builder(
+                                shrinkWrap: true,
+                                itemCount: mandatoryAddOns.length,
+                                itemBuilder: (context, index) {
+                                  String addOn = mandatoryAddOns[index];
 
-                                return _buildMandatoryAdd(
-                                  addOn,
-                                  widget.addSalesBloc
-                                          .selectedMandatoryAddOns[addOn] ??
-                                      '',
-                                  (value) {
+                                  return _buildMandatoryAdd(
+                                    addOn,
                                     widget.addSalesBloc
-                                        .mandatoryRefereshStreamController(
-                                            true);
+                                            .selectedMandatoryAddOns[addOn] ??
+                                        '',
+                                    (value) {
+                                      widget.addSalesBloc
+                                          .mandatoryRefereshStreamController(
+                                              true);
 
-                                    widget.addSalesBloc
-                                            .selectedMandatoryAddOns[addOn] =
-                                        value ?? '';
-                                  },
-                                );
-                              },
-                            );
-                          });
-                    }
-                  },
-                ),
+                                      widget.addSalesBloc
+                                              .selectedMandatoryAddOns[addOn] =
+                                          value ?? '';
+                                    },
+                                  );
+                                },
+                              );
+                            });
+                      }
+                    },
+                  ),
                 const SizedBox(height: 15),
                 if (widget.addSalesBloc.selectedVehicleAndAccessories ==
                     'E-Vehicle')

@@ -59,23 +59,28 @@ class _PaymentDailogState extends State<PaymentDailog> {
       inAsyncCall: _isLoading,
       progressIndicator: AppWidgetUtils.buildLoading(),
       color: _appColors.whiteColor,
-      child: AlertDialog(
-        backgroundColor: _appColors.whiteColor,
-        surfaceTintColor: _appColors.whiteColor,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        contentPadding: const EdgeInsets.all(10),
-        title: _buildPaymentFormTitle(),
-        actions: [
-          _buildSaveButton(),
-        ],
-        content: SizedBox(
-          width: MediaQuery.sizeOf(context).width * 0.4,
-          child: Padding(
-            padding: const EdgeInsets.all(10),
-            child: _buildPaymentForm(),
-          ),
-        ),
-      ),
+      child: StreamBuilder<bool>(
+          stream: widget.salesViewBloc.paymentDialogStream,
+          builder: (context, snapshot) {
+            return AlertDialog(
+              backgroundColor: _appColors.whiteColor,
+              surfaceTintColor: _appColors.whiteColor,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10)),
+              contentPadding: const EdgeInsets.all(10),
+              title: _buildPaymentFormTitle(),
+              actions: [
+                _buildSaveButton(),
+              ],
+              content: SizedBox(
+                width: MediaQuery.sizeOf(context).width * 0.4,
+                child: Padding(
+                  padding: const EdgeInsets.all(10),
+                  child: _buildPaymentForm(),
+                ),
+              ),
+            );
+          }),
     );
   }
 
@@ -109,43 +114,46 @@ class _PaymentDailogState extends State<PaymentDailog> {
       children: [
         _buildShowHistoryButton(),
         CustomActionButtons(
-            onPressed: () {
-              if (widget.salesViewBloc.paidAmtFormKey.currentState!
-                  .validate()) {
-                widget.salesViewBloc.salesPaymentUpdate(
-                    AppUtils.appToAPIDateFormat(
-                        widget.salesViewBloc.paymentDateTextController.text),
-                    widget.salesViewBloc.selectedPaymentName ?? 'CASH',
-                    double.tryParse(widget
-                            .salesViewBloc.paidAmountTextController.text) ??
-                        0,
-                    widget.salesdata?.salesId ?? '',
-                    widget.salesViewBloc.reasonTextEditingController.text,
-                    (statusCode) {
-                  if (statusCode == 200 || statusCode == 201) {
-                    Navigator.pop(context);
-                    widget.salesViewBloc.pageNumberUpdateStreamController(0);
-                    AppWidgetUtils.buildToast(
-                        context,
-                        ToastificationType.success,
-                        AppConstants.paymentUpdate,
-                        Icon(Icons.check_circle_outline_rounded,
-                            color: _appColors.successColor),
-                        AppConstants.paymentUpdateSuccessfully,
-                        _appColors.successLightColor);
-                  } else {
-                    AppWidgetUtils.buildToast(
-                        context,
-                        ToastificationType.success,
-                        AppConstants.paymentUpdate,
-                        Icon(Icons.check_circle_outline_rounded,
-                            color: _appColors.successColor),
-                        AppConstants.somethingWentWrong,
-                        _appColors.successLightColor);
+            onPressed: widget.salesdata?.paymentStatus == 'PENDING'
+                ? () {
+                    if (widget.salesViewBloc.paidAmtFormKey.currentState!
+                        .validate()) {
+                      widget.salesViewBloc.salesPaymentUpdate(
+                          AppUtils.appToAPIDateFormat(widget
+                              .salesViewBloc.paymentDateTextController.text),
+                          widget.salesViewBloc.selectedPaymentName ?? 'CASH',
+                          double.tryParse(widget.salesViewBloc
+                                  .paidAmountTextController.text) ??
+                              0,
+                          widget.salesdata?.salesId ?? '',
+                          widget.salesViewBloc.reasonTextEditingController.text,
+                          (statusCode) {
+                        if (statusCode == 200 || statusCode == 201) {
+                          Navigator.pop(context);
+                          widget.salesViewBloc
+                              .pageNumberUpdateStreamController(0);
+                          AppWidgetUtils.buildToast(
+                              context,
+                              ToastificationType.success,
+                              AppConstants.paymentUpdate,
+                              Icon(Icons.check_circle_outline_rounded,
+                                  color: _appColors.successColor),
+                              AppConstants.paymentUpdateSuccessfully,
+                              _appColors.successLightColor);
+                        } else {
+                          AppWidgetUtils.buildToast(
+                              context,
+                              ToastificationType.success,
+                              AppConstants.paymentUpdate,
+                              Icon(Icons.check_circle_outline_rounded,
+                                  color: _appColors.successColor),
+                              AppConstants.somethingWentWrong,
+                              _appColors.successLightColor);
+                        }
+                      });
+                    }
                   }
-                });
-              }
-            },
+                : () {},
             buttonText: AppConstants.save),
       ],
     );
@@ -203,11 +211,20 @@ class _PaymentDailogState extends State<PaymentDailog> {
         ),
         AppWidgetUtils.buildSizedBox(custWidth: 5),
         Expanded(
-          child: TldsDatePicker(
-            requiredLabelText:
-                AppWidgetUtils.labelTextWithRequired(AppConstants.date),
-            controller: widget.salesViewBloc.paymentDateTextController,
-            height: 50,
+          child: Padding(
+            padding: const EdgeInsets.only(top: 10),
+            child: TldsDatePicker(
+              requiredLabelText:
+                  AppWidgetUtils.labelTextWithRequired(AppConstants.date),
+              controller: widget.salesViewBloc.paymentDateTextController,
+              height: 70,
+              validator: (value) {
+                if (value!.isEmpty) {
+                  return 'Please Select date';
+                }
+                return null;
+              },
+            ),
           ),
         )
       ],
@@ -241,7 +258,8 @@ class _PaymentDailogState extends State<PaymentDailog> {
                 width: double.infinity,
                 onChange: (value) {
                   widget.salesViewBloc.selectedPaymentName = value;
-
+                  widget.salesViewBloc.paymentStreamController(true);
+                  //  setState(() {});
                   //  widget.addSalesBloc.isSplitPaymentStreamController(true);
                 },
               ),

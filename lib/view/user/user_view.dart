@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tlbilling/components/custom_dropdown_button_form_field.dart';
 import 'package:tlbilling/components/custom_pagenation.dart';
 import 'package:tlbilling/models/user_model.dart';
@@ -9,6 +10,7 @@ import 'package:tlbilling/utils/app_util_widgets.dart';
 import 'package:tlbilling/view/user/create_user_dialog.dart';
 import 'package:tlbilling/view/user/user_active_inactive_dialog.dart';
 import 'package:tlbilling/view/user/user_view_bloc.dart';
+import 'package:tlds_flutter/components/tlds_dropdown_button_form_field.dart';
 import 'package:tlds_flutter/components/tlds_input_form_field.dart';
 import 'package:tlds_flutter/export.dart' as tlds;
 
@@ -22,6 +24,19 @@ class UserView extends StatefulWidget {
 class _UserViewState extends State<UserView> {
   final _appColors = AppColors();
   final _userViewBlocImpl = UserViewBlocImpl();
+  Future<void> getBranchName() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _userViewBlocImpl.branchName = prefs.getString('branchName') ?? '';
+      _userViewBlocImpl.isMainBranch = prefs.getBool('mainBranch');
+    });
+  }
+
+  @override
+  void initState() {
+    getBranchName();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +63,9 @@ class _UserViewState extends State<UserView> {
         _buildUserNameAndMobNoFilter(),
         AppWidgetUtils.buildSizedBox(custWidth: 5),
         _buildDesignationFilter(),
-        const Spacer(),
+        AppWidgetUtils.buildSizedBox(custWidth: 5),
+        if (_userViewBlocImpl.isMainBranch ?? false) _buildBranchDropdown(),
+        if (_userViewBlocImpl.isMainBranch == false) const Spacer(),
         const Spacer(),
         AppWidgetUtils.buildAddbutton(
           flex: 1,
@@ -64,6 +81,62 @@ class _UserViewState extends State<UserView> {
           text: AppConstants.addUser,
         )
       ],
+    );
+  }
+
+  _buildBranchDropdown() {
+    return FutureBuilder(
+      future: _userViewBlocImpl.getBranchName(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: Text(AppConstants.loading));
+        } else if (snapshot.hasError ||
+            !snapshot.hasData ||
+            snapshot.data?.result?.getAllBranchList == null) {
+          return const Text(AppConstants.loading);
+        } else {
+          final branchMap = {
+            for (var branch in snapshot.data!.result!.getAllBranchList!)
+              if (branch.branchName != null) branch.branchName!: branch.branchId
+          };
+
+          final branchNameList = branchMap.keys.toList();
+
+          return _buildDropDown(
+            dropDownItems:
+                (branchNameList.isNotEmpty) ? branchNameList : List.empty(),
+            hintText: AppConstants.branchName,
+            selectedvalue: _userViewBlocImpl.branchId,
+            onChange: (value) {
+              _userViewBlocImpl.branchId = branchMap[value];
+              _userViewBlocImpl.branchName = value;
+
+              _userViewBlocImpl.pageNumberUpdateStreamController(0);
+            },
+          );
+        }
+      },
+    );
+  }
+
+  _buildDropDown(
+      {List<String>? dropDownItems,
+      String? hintText,
+      String? selectedvalue,
+      Function(String?)? onChange}) {
+    return Padding(
+      padding: const EdgeInsets.only(right: 5),
+      child: TldsDropDownButtonFormField(
+        width: MediaQuery.sizeOf(context).width * 0.15,
+        height: 40,
+        dropDownItems: dropDownItems!,
+        dropDownValue: selectedvalue,
+        hintText: hintText,
+        onChange: onChange ??
+            (String? newValue) {
+              selectedvalue = newValue ?? '';
+            },
+      ),
     );
   }
 
@@ -192,9 +265,10 @@ class _UserViewState extends State<UserView> {
                                   _builduserTableHeader(
                                     AppConstants.designation,
                                   ),
-                                  _builduserTableHeader(
-                                    AppConstants.branchName,
-                                  ),
+                                  if (_userViewBlocImpl.isMainBranch ?? false)
+                                    _builduserTableHeader(
+                                      AppConstants.branchName,
+                                    ),
                                   _builduserTableHeader(
                                     AppConstants.action,
                                   ),
@@ -220,8 +294,11 @@ class _UserViewState extends State<UserView> {
                                                 entry.value.mobileNumber),
                                             _buildTableRow(
                                                 entry.value.designation),
-                                            _buildTableRow(
-                                                entry.value.branchName),
+                                            if (_userViewBlocImpl
+                                                    .isMainBranch ??
+                                                false)
+                                              _buildTableRow(
+                                                  entry.value.branchName),
                                             DataCell(
                                               _buildUserActiveInActiveSwitch(
                                                   entry),

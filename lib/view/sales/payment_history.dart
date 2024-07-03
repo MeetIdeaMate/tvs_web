@@ -16,6 +16,7 @@ class PaymentHistoryDialog extends StatefulWidget {
 }
 
 class _PaymentHistoryDialogState extends State<PaymentHistoryDialog> {
+  // ignore: prefer_typing_uninitialized_variables
   late var _paymentHistoryDetails;
   final _appColors = AppColors();
 
@@ -105,6 +106,7 @@ class _PaymentHistoryDialogState extends State<PaymentHistoryDialog> {
       child: ListTile(
         title: _buildTextWidget(
             AppUtils.formatCurrency(response?.paidAmount?.toDouble() ?? 0)),
+        subtitle: _buildTextWidget(response?.paymentReference ?? ''),
         trailing: _buildTextWidget(
             'Date: ${AppUtils.apiToAppDateFormat(response?.paymentDate.toString() ?? '')}'),
       ),
