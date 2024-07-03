@@ -103,12 +103,25 @@ class _PaymentHistoryDialogState extends State<PaymentHistoryDialog> {
 
   Widget _buildPaymentHistoryListCard(PaidDetail? response) {
     return Card(
-      child: ListTile(
-        title: _buildTextWidget(
-            AppUtils.formatCurrency(response?.paidAmount?.toDouble() ?? 0)),
-        subtitle: _buildTextWidget(response?.paymentReference ?? ''),
-        trailing: _buildTextWidget(
-            'Date: ${AppUtils.apiToAppDateFormat(response?.paymentDate.toString() ?? '')}'),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          ListTile(
+            title: _buildTextWidget(
+                AppUtils.formatCurrency(response?.paidAmount?.toDouble() ?? 0)),
+            subtitle: _buildTextWidget(response?.paymentReference ?? ''),
+            trailing: _buildTextWidget(
+                'Date: ${AppUtils.apiToAppDateFormat(response?.paymentDate.toString() ?? '')}'),
+          ),
+          if (response?.cancelled == true)
+            const Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Text(
+                AppConstants.cancelled,
+                style: TextStyle(color: Colors.red),
+              ),
+            )
+        ],
       ),
     );
   }
