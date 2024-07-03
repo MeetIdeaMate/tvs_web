@@ -1490,12 +1490,10 @@ class AppServiceUtilImpl extends AppServiceUtil {
         //   url += '&branchId=$branchId';
         // }
 
-        if (!isMainBranch) {
-          url += '&branchId=$branchIds';
-        }
-
-        if (branchId != null && branchId != '') {
+        if (branchId != null && branchId.isNotEmpty) {
           url += '&branchId=$branchId';
+        } else if (!isMainBranch) {
+          url += '&branchId=$branchIds';
         }
       }
 
