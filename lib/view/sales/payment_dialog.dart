@@ -74,10 +74,7 @@ class _PaymentDailogState extends State<PaymentDailog> {
               ],
               content: SizedBox(
                 width: MediaQuery.sizeOf(context).width * 0.4,
-                child: Padding(
-                  padding: const EdgeInsets.all(10),
-                  child: _buildPaymentForm(),
-                ),
+                child: _buildPaymentForm(),
               ),
             );
           }),
@@ -179,11 +176,11 @@ class _PaymentDailogState extends State<PaymentDailog> {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            AppWidgetUtils.buildSizedBox(custHeight: 10),
+            // AppWidgetUtils.buildSizedBox(custHeight: 10),
             totalInvAmt(),
-            AppWidgetUtils.buildSizedBox(custHeight: 13),
+            //  AppWidgetUtils.buildSizedBox(custHeight: 5),
             paymentDetails(),
-            AppWidgetUtils.buildSizedBox(custHeight: 13),
+            AppWidgetUtils.buildSizedBox(custHeight: 8),
             _buildReason(),
           ],
         ),
@@ -212,7 +209,7 @@ class _PaymentDailogState extends State<PaymentDailog> {
         AppWidgetUtils.buildSizedBox(custWidth: 5),
         Expanded(
           child: Padding(
-            padding: const EdgeInsets.only(top: 10),
+            padding: const EdgeInsets.only(top: 20),
             child: TldsDatePicker(
               requiredLabelText:
                   AppWidgetUtils.labelTextWithRequired(AppConstants.date),
@@ -234,7 +231,7 @@ class _PaymentDailogState extends State<PaymentDailog> {
   _buildReason() {
     return TldsInputFormField(
       maxLine: 100,
-      height: 92,
+      height: 80,
       // validator: (value) {
       //   return InputValidations.addressValidation(value ?? '');
       // },
@@ -263,6 +260,7 @@ class _PaymentDailogState extends State<PaymentDailog> {
                   //  widget.addSalesBloc.isSplitPaymentStreamController(true);
                 },
               ),
+        AppWidgetUtils.buildSizedBox(custWidth: 8),
         Row(
           children: [
             Expanded(
@@ -292,7 +290,7 @@ class _PaymentDailogState extends State<PaymentDailog> {
                 },
               ),
             ),
-            AppWidgetUtils.buildSizedBox(custWidth: 5),
+            AppWidgetUtils.buildSizedBox(custWidth: 8),
             balanceAmt(),
           ],
         ),
