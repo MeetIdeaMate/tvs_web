@@ -21,6 +21,7 @@ class AppConstants {
   static const paidAmt = 'Paid Amount';
   static const pay = 'Pay';
   static const cancelled = 'Cancelled';
+  static const netAmount = 'Net Amount';
   static const enterCancelReason = 'Enter Cancel Reason';
 
   //SharedPreference

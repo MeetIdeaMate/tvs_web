@@ -33,6 +33,7 @@ abstract class AddSalesBloc {
   Stream<bool> get customerSelectstream;
   Stream<bool> get splitPaymentCheckBoxStream;
   Stream<bool> get advanceAmountRefreshStream;
+  Stream<bool> get gstDetailsStream;
 
   TextEditingController get discountTextController;
   TextEditingController get transporterVehicleNumberController;
@@ -218,6 +219,7 @@ class AddSalesBlocImpl extends AddSalesBloc {
   final _selectedCustomerDetailsViewStream = StreamController.broadcast();
 
   final _splitPaymentCheckBoxStream = StreamController<bool>.broadcast();
+  final _gstDetailsStreamController = StreamController<bool>.broadcast();
 
   final _paymentFormKey = GlobalKey<FormState>();
   String? _selectedPaymentOption;
@@ -771,5 +773,13 @@ class AddSalesBlocImpl extends AddSalesBloc {
 
   advanceAmountRefreshStreamController(bool newValue) {
     _advanceAmountRefreshStreamController.add(newValue);
+  }
+  
+  @override
+  Stream<bool> get gstDetailsStream => _gstDetailsStreamController.stream;
+
+  
+  gstDetailsStreamController(bool newValue) {
+    _gstDetailsStreamController.add(newValue);
   }
 }

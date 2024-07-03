@@ -323,7 +323,7 @@ class _SalesViewScreenState extends State<SalesViewScreen>
                             _buildVehicleTableHeader(AppConstants.mobileNumber),
                             _buildVehicleTableHeader(AppConstants.paymentType),
                             _buildVehicleTableHeader(
-                                AppConstants.totalInvAmount),
+                                AppConstants.netAmount),
                             if (!iscancelled)
                               _buildVehicleTableHeader(AppConstants.paidAmt),
                             if (!iscancelled)
@@ -356,7 +356,7 @@ class _SalesViewScreenState extends State<SalesViewScreen>
                                 DataCell(Text(entry.value.mobileNo ?? '')),
                                 DataCell(Text(entry.value.billType.toString())),
                                 DataCell(Text(AppUtils.formatCurrency(
-                                    entry.value.totalInvoiceAmt?.toDouble() ??
+                                    entry.value.netAmt?.toDouble() ??
                                         0))),
                                 if (!iscancelled)
                                   DataCell(Text(AppUtils.formatCurrency(

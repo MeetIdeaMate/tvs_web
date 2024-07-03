@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/view/login/login_page.dart';
@@ -11,6 +12,13 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      scrollBehavior: const MaterialScrollBehavior().copyWith(
+        dragDevices: {
+          PointerDeviceKind.mouse,
+          PointerDeviceKind.touch,
+          PointerDeviceKind.unknown
+        },
+      ),
       theme: ThemeData(
         fontFamily: AppConstants.poppinsRegular,
       ),

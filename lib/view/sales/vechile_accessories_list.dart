@@ -152,21 +152,22 @@ class _VehicleAccessoriesListState extends State<VehicleAccessoriesList> {
                                       onPressed: () {
                                         var selectedVehicle =
                                             filteredVehicleData?[index];
-
                                         filteredVehicleData?.removeAt(index);
-
                                         widget.addSalesBloc.vehicleData
                                             ?.remove(selectedVehicle!);
-
                                         widget.addSalesBloc
                                             .vehicleAndEngineNumberStreamController(
                                                 true);
-
                                         widget.addSalesBloc.selectedVehiclesList
                                             ?.add(selectedVehicle!);
-
                                         widget.addSalesBloc
                                             .selectedItemStream(true);
+                                        widget
+                                            .addSalesBloc
+                                            .hsnCodeTextController
+                                            .text = vehicle?.hsnSacCode ?? '';
+                                        widget.addSalesBloc
+                                            .gstDetailsStreamController(true);
                                       },
                                       icon: SvgPicture.asset(
                                         AppConstants.icFilledAdd,

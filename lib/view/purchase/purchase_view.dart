@@ -260,9 +260,11 @@ class _PurchaseViewState extends State<PurchaseView>
                           columns: [
                             _buildVehicleTableHeader(AppConstants.sno),
                             _buildVehicleTableHeader(AppConstants.purchaseID),
-                            _buildVehicleTableHeader(AppConstants.purchaseRef),
+                            _buildVehicleTableHeader(
+                                AppConstants.purchaseRef),
                             _buildVehicleTableHeader(AppConstants.invoiceNo),
-                            _buildVehicleTableHeader(AppConstants.invoiceDate),
+                            _buildVehicleTableHeader(
+                                AppConstants.invoiceDate),
                             _buildVehicleTableHeader(AppConstants.vendorName),
                             _buildVehicleTableHeader(AppConstants.quantity),
                             _buildVehicleTableHeader(AppConstants.branchName),
@@ -287,8 +289,8 @@ class _PurchaseViewState extends State<PurchaseView>
                                 _buildTableRow(AppUtils.apiToAppDateFormat(
                                     entry.value.pInvoiceDate.toString())),
                                 _buildTableRow(entry.value.vendorName),
-                                _buildTableRow(
-                                    entry.value.itemDetails?.length.toString()),
+                                _buildTableRow(entry.value.itemDetails?.length
+                                    .toString()),
                                 _buildTableRow(
                                     entry.value.branchName.toString()),
                                 _buildTableRow(AppUtils.formatCurrency(entry
@@ -297,9 +299,10 @@ class _PurchaseViewState extends State<PurchaseView>
                                     0.0)),
                                 DataCell(Chip(
                                     side: BorderSide(
-                                        color: entry.value.stockUpdated == true
-                                            ? _appColors.successColor
-                                            : _appColors.yellowColor),
+                                        color:
+                                            entry.value.stockUpdated == true
+                                                ? _appColors.successColor
+                                                : _appColors.yellowColor),
                                     backgroundColor: _appColors.whiteColor,
                                     shape: RoundedRectangleBorder(
                                         borderRadius:
@@ -327,20 +330,22 @@ class _PurchaseViewState extends State<PurchaseView>
                                                       BorderRadius.circular(
                                                           10)),
                                               content: Column(
-                                                mainAxisSize: MainAxisSize.min,
+                                                mainAxisSize:
+                                                    MainAxisSize.min,
                                                 children: [
                                                   Icon(
                                                     Icons.downloading_rounded,
-                                                    color:
-                                                        AppColor().successColor,
+                                                    color: AppColor()
+                                                        .successColor,
                                                     size: 50,
                                                   ),
-                                                  AppWidgetUtils.buildSizedBox(
-                                                      custHeight: 10),
+                                                  AppWidgetUtils
+                                                      .buildSizedBox(
+                                                          custHeight: 10),
                                                   const Text(
                                                     AppConstants.printInvoice,
-                                                    style:
-                                                        TextStyle(fontSize: 20),
+                                                    style: TextStyle(
+                                                        fontSize: 20),
                                                   )
                                                 ],
                                               ),
@@ -399,23 +404,23 @@ class _PurchaseViewState extends State<PurchaseView>
           icon: const Icon(Icons.more_vert),
           itemBuilder: (BuildContext context) {
             return <PopupMenuEntry>[
-            const PopupMenuItem(
-              value: 'option1',
-              child: Text('View'),
-            ),
-            const PopupMenuItem(
-              value: 'option2',
-              child: Text('Re-Entry'),
-            ),
-            const PopupMenuItem(
-              value: 'option3',
-              child: Text('Cancel'),
-            ),
-            const PopupMenuItem(
-              value: 'option4',
-              child: Text('Approve'),
-            ),
-          ];
+              const PopupMenuItem(
+                value: 'option1',
+                child: Text('View'),
+              ),
+              const PopupMenuItem(
+                value: 'option2',
+                child: Text('Re-Entry'),
+              ),
+              const PopupMenuItem(
+                value: 'option3',
+                child: Text('Cancel'),
+              ),
+              const PopupMenuItem(
+                value: 'option4',
+                child: Text('Approve'),
+              ),
+            ];
           },
           onSelected: (value) {
             switch (value) {
@@ -587,5 +592,4 @@ class _PurchaseViewState extends State<PurchaseView>
       ),
     );
   }
-
 }
