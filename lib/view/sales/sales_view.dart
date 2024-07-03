@@ -44,10 +44,16 @@ class _SalesViewScreenState extends State<SalesViewScreen>
     getBranchName();
   }
 
+  @override
+  void dispose() {
+    _salesViewBloc.salesBillCancelReasonTextController.clear();
+    super.dispose();
+  }
+
   Future<void> getBranchName() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
-      _salesViewBloc.branchId = prefs.getString('branchName') ?? '';
+      // _salesViewBloc.branchId = prefs.getString('branchName') ?? '';
       _salesViewBloc.isMainBranch = prefs.getBool('mainBranch');
     });
   }
@@ -536,6 +542,7 @@ class _SalesViewScreenState extends State<SalesViewScreen>
                         ),
                         AppConstants.salesCancelledDes,
                         _appColors.successLightColor);
+                    _salesViewBloc.reasonTextEditingController.clear();
                   } else {
                     AppWidgetUtils.buildToast(
                         context,

@@ -306,7 +306,7 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 _buildCustomTextWidget(vehicle.itemName ?? '',
-                    fontSize: 14, fontWeight: FontWeight.w500),
+                    fontSize: 12, fontWeight: FontWeight.w700),
               ],
             ),
             _buildCustomTextWidget(vehicle.partNo ?? '',
@@ -430,6 +430,7 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
       {Color? color, FontWeight? fontWeight, double? fontSize}) {
     return Text(
       text,
+      overflow: TextOverflow.fade,
       style: GoogleFonts.poppins(
           color: color, fontWeight: fontWeight, fontSize: fontSize),
     );
@@ -463,7 +464,7 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
                 _buildCustomTextWidget(
                   accessories.itemName ?? '',
                   fontWeight: FontWeight.w500,
-                  fontSize: 14,
+                  fontSize: 12,
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -471,7 +472,7 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
                     _buildCustomTextWidget(
                       accessories.partNo ?? '',
                       fontWeight: FontWeight.w500,
-                      fontSize: 14,
+                      fontSize: 12,
                       color: _appColors.liteGrayColor,
                     ),
                     Expanded(

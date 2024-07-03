@@ -1331,11 +1331,13 @@ class AppServiceUtilImpl extends AppServiceUtil {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var token = prefs.getString('token');
     String branchId = prefs.getString('branchId') ?? '';
+
     dio.options.headers['Authorization'] = 'Bearer $token';
     String stocksListUrl = '${AppUrl.stock}?branchId=$branchId';
     if (categoryName!.isNotEmpty) {
       stocksListUrl += '&categoryName=$categoryName';
     }
+
     final response = await dio.get(stocksListUrl);
     print(stocksListUrl);
     return parentResponseModelFromJson(jsonEncode(response.data))
@@ -1472,6 +1474,8 @@ class AppServiceUtilImpl extends AppServiceUtil {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       var token = prefs.getString('token');
       dio.options.headers['Authorization'] = 'Bearer $token';
+      bool isMainBranch = prefs.getBool('mainBranch') ?? false;
+      String branchIds = prefs.getString('branchId') ?? '';
 
       String url = '${AppUrl.stock}/cumulative/page?page=$currentIndex&size=10';
       if (status != null && status.isNotEmpty) {
@@ -1482,10 +1486,20 @@ class AppServiceUtilImpl extends AppServiceUtil {
         if (vehicleName != null && vehicleName.isNotEmpty) {
           url += '&itemName=$vehicleName';
         }
-        if (branchId != null && branchId.isNotEmpty) {
+        // if (branchId != null && branchId.isNotEmpty) {
+        //   url += '&branchId=$branchId';
+        // }
+
+        if (!isMainBranch) {
+          url += '&branchId=$branchIds';
+        }
+
+        if (branchId != null && branchId != '') {
           url += '&branchId=$branchId';
         }
       }
+
+      print(url);
       var response = await dio.get(url);
       final responseList =
           parentResponseModelFromJson(jsonEncode(response.data));

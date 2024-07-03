@@ -5,6 +5,7 @@ import 'package:tlbilling/api_service/app_service_utils.dart';
 import 'package:tlbilling/models/get_model/get_all_branch_model.dart';
 import 'package:tlbilling/models/get_model/get_all_branches_by_pagination.dart';
 import 'package:tlbilling/models/get_model/get_all_stock_with_pagination.dart';
+import 'package:tlbilling/utils/app_constants.dart';
 
 abstract class StocksViewBloc {
   TextEditingController get partNumberSearchController;
@@ -28,6 +29,8 @@ abstract class StocksViewBloc {
   Future<GetAllBranchList?> getBranchById();
 
   String? get branchId;
+
+  bool? get isMainBranch;
 }
 
 class StocksViewBlocImpl extends StocksViewBloc {
@@ -40,7 +43,9 @@ class StocksViewBlocImpl extends StocksViewBloc {
   int _currentPage = 0;
   final _pageNumberStreamController = StreamController<int>.broadcast();
   final _branchNameStreamController = StreamController<bool>.broadcast();
-  String? _selectedBranch;
+  String? _selectedBranch = AppConstants.allBranch;
+
+  bool? _isMainBranch;
 
   String? _branchId;
 
@@ -129,5 +134,12 @@ class StocksViewBlocImpl extends StocksViewBloc {
 
   set branchId(String? newValue) {
     _branchId = newValue;
+  }
+
+  @override
+  bool? get isMainBranch => _isMainBranch;
+
+  set isMainBranch(bool? value) {
+    _isMainBranch = value;
   }
 }

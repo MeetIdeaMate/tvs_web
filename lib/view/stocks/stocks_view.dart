@@ -35,6 +35,8 @@ class _StocksViewState extends State<StocksView>
   Future<void> getBranchId() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     _stocksViewBloc.branchId = prefs.getString('branchId') ?? '';
+    _stocksViewBloc.isMainBranch = prefs.getBool('mainBranch') ?? false;
+    print(_stocksViewBloc.isMainBranch);
     _stocksViewBloc.getBranchesList().then((value) {
       for (BranchDetail element in value ?? []) {
         if (_stocksViewBloc.branchId == element.branchId) {
@@ -144,7 +146,7 @@ class _StocksViewState extends State<StocksView>
           },
         ),
         _buildDefaultWidth(),
-        _buildBranchList()
+        if (_stocksViewBloc.isMainBranch ?? false) _buildBranchList()
       ],
     );
   }
@@ -177,10 +179,19 @@ class _StocksViewState extends State<StocksView>
                     dropDownValue: _stocksViewBloc.selectedBranch,
                     onChange: (String? newValue) async {
                       _stocksViewBloc.selectedBranch = newValue ?? '';
-                      BranchDetail? selectedBranch = branches.firstWhere(
-                        (branch) => branch.branchName == newValue,
-                      );
-                      _stocksViewBloc.branchId = selectedBranch.branchId ?? '';
+                      if (newValue == AppConstants.allBranch) {
+                        _stocksViewBloc.branchId =
+                            ''; // handle all branches case
+                      } else {
+                        BranchDetail? selectedBranch = branches.firstWhere(
+                          (branch) => branch.branchName == newValue,
+                        );
+                        _stocksViewBloc.branchId =
+                            selectedBranch.branchId ?? '';
+                      }
+                      print(
+                          'Selected branch: ${_stocksViewBloc.selectedBranch}');
+                      print('Branch ID: ${_stocksViewBloc.branchId}');
                       _stocksViewBloc.branchNameDropdownStreamController(true);
                       _stocksViewBloc.pageNumberUpdateStreamController(0);
                     },
@@ -190,7 +201,7 @@ class _StocksViewState extends State<StocksView>
             ],
           );
         }
-        return const Text('no Data');
+        return const Text('No Data');
       },
     );
   }
