@@ -66,7 +66,7 @@ class _AddSalesState extends State<AddSales> {
             flex: 1,
             child: _buildCustomerAndPaymentDetails(),
           ),
-        ],
+        ], 
       ),
     );
   }

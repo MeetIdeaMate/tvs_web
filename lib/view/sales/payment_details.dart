@@ -72,16 +72,21 @@ class _PaymentDetailsState extends State<PaymentDetails> {
   }
 
   Widget _buildGstDetails() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildHeadingText(AppConstants.gstDetails),
-        AppWidgetUtils.buildSizedBox(custHeight: 10),
-        _buildHsnCodeField(),
-        AppWidgetUtils.buildSizedBox(custHeight: 18),
-        _buildGstRadioBtns(),
-      ],
+    return StreamBuilder<bool>(
+      stream: widget.addSalesBloc.gstDetailsStream,
+      builder: (context, snapshot) {
+        return Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildHeadingText(AppConstants.gstDetails),
+            AppWidgetUtils.buildSizedBox(custHeight: 10),
+            _buildHsnCodeField(),
+            AppWidgetUtils.buildSizedBox(custHeight: 18),
+            _buildGstRadioBtns(),
+          ],
+        );
+      }
     );
   }
 
