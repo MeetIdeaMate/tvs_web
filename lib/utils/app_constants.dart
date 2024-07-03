@@ -252,6 +252,7 @@ class AppConstants {
   static const accessories = 'Accessories';
   static const quantity = 'Qty';
   static const totalInvAmount = 'Total Inv Amount';
+  static const netAmt = 'Net Amount';
   static const pendingInvAmt = 'Pending Inv Amount';
   static const balanceAmt = 'Balance Amount';
   static const createdBy = 'Created By';
