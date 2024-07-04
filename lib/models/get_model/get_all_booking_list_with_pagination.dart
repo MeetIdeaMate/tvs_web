@@ -91,6 +91,7 @@ class BookingDetails {
   String? executiveName;
   bool? cancelled;
   String? branchName;
+   DateTime? targetInvoiceDate;
 
   BookingDetails(
       {this.bookingNo,
@@ -108,7 +109,7 @@ class BookingDetails {
       this.executiveId,
       this.executiveName,
       this.cancelled,
-      this.branchName});
+      this.branchName,this.targetInvoiceDate,});
 
   factory BookingDetails.fromJson(Map<String, dynamic> json) => BookingDetails(
       bookingNo: json["bookingNo"],
@@ -124,6 +125,7 @@ class BookingDetails {
       categoryName: json["categoryName"],
       itemName: json["itemName"],
       additionalInfo: json["additionalInfo"],
+       targetInvoiceDate: json["targetInvoiceDate"] == null ? null : DateTime.parse(json["targetInvoiceDate"]),
       paidDetail: json["paidDetail"] == null
           ? null
           : PaidDetail.fromJson(json["paidDetail"]),
@@ -149,7 +151,8 @@ class BookingDetails {
         "executiveId": executiveId,
         "executiveName": executiveName,
         "cancelled": cancelled,
-        'branchName': branchName
+        'branchName': branchName,
+        "targetInvoiceDate": "${targetInvoiceDate!.year.toString().padLeft(4, '0')}-${targetInvoiceDate!.month.toString().padLeft(2, '0')}-${targetInvoiceDate!.day.toString().padLeft(2, '0')}",
       };
 }
 

@@ -1,15 +1,20 @@
+import 'package:flutter/services.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import 'dart:typed_data';
 import 'package:tlbilling/models/get_model/get_all_sales_list_model.dart';
 import 'package:tlbilling/utils/app_constants.dart';
+import 'package:tlbilling/utils/app_util_widgets.dart';
 import 'package:tlbilling/utils/app_utils.dart';
 
 class SalesPdfPrinter {
   static Future<Uint8List> generatePdf(Content sale) async {
     final pdf = pw.Document();
     final header = await imageFromAssetBundle(AppConstants.imgPdfHeader);
+
+    final pw.Font regularFont =
+        pw.Font.ttf(await rootBundle.load("assets/fonts/Roboto-Regular.ttf"));
 
     pdf.addPage(
       pw.MultiPage(
@@ -35,7 +40,7 @@ class SalesPdfPrinter {
               child: pw.Column(
                 children: [
                   pw.Center(
-                    child: _buildTitleText('VEHICLE INVOICE'),
+                    child: _buildTitleText('INVOICE', regularFont),
                   ),
                   pw.SizedBox(height: 18),
                   pw.Row(
@@ -45,14 +50,18 @@ class SalesPdfPrinter {
                       pw.Column(
                         crossAxisAlignment: pw.CrossAxisAlignment.start,
                         children: [
-                          _buildNormalText('To'),
-                          _buildNormalText(sale.customerName ?? ''),
-                          _buildNormalText(sale.customerId ?? ''),
-                          _buildNormalText(sale.mobileNo ?? ''),
-                          _buildNormalText('Bill Type: ${sale.billType}'),
+                          _buildNormalText('To', regularFont),
+                          _buildNormalText(
+                              sale.customerName ?? '', regularFont),
+                          _buildNormalText(sale.customerId ?? '', regularFont),
+                          _buildNormalText(sale.mobileNo ?? '', regularFont),
+                          _buildNormalText(
+                              'Bill Type: ${sale.billType}', regularFont),
                         ],
                       ),
-                      _buildNormalText('INVOICE DATE: ${sale.invoiceDate}'),
+                      _buildNormalText(
+                          'INVOICE DATE: ${AppUtils.apiToAppDateFormat(sale.invoiceDate.toString())}',
+                          regularFont),
                     ],
                   ),
                   pw.SizedBox(height: 18),
@@ -62,28 +71,31 @@ class SalesPdfPrinter {
                     children: [
                       pw.TableRow(
                         children: [
-                          _buildText('Particulors'),
-                          _buildText('Qty'),
-                          _buildText('Rate'),
-                          _buildText('HSN code'),
-                          _buildText('Disc'),
-                          _buildText('Taxable value'),
+                          _buildText('Particulors', regularFont),
+                          _buildText('Qty', regularFont),
+                          _buildText('Rate', regularFont),
+                          _buildText('HSN code', regularFont),
+                          _buildText('Disc', regularFont),
+                          _buildText('Taxable value', regularFont),
                         ],
                       ),
-
-                      // Generate table rows for each item in the sale
                       ...sale.itemDetails!.map((item) {
                         return pw.TableRow(
                           children: [
-                            _buildText(item.itemName ?? ''),
-                            _buildText(item.quantity.toString()),
+                            _buildText(item.itemName ?? '', regularFont),
+                            _buildText(item.quantity.toString(), regularFont),
                             _buildText(
-                                AppUtils.formatCurrency(item.unitRate ?? 0)),
-                            _buildText(item.hsnSacCode ?? ''),
-                            _buildText(AppUtils.formatCurrency(
-                                item.discount?.toDouble() ?? 0)),
-                            _buildText(AppUtils.formatCurrency(
-                                item.taxableValue?.toDouble() ?? 0)),
+                                AppUtils.formatCurrency(item.unitRate ?? 0),
+                                regularFont),
+                            _buildText(item.hsnSacCode ?? '', regularFont),
+                            _buildText(
+                                AppUtils.formatCurrency(
+                                    item.discount?.toDouble() ?? 0),
+                                regularFont),
+                            _buildText(
+                                AppUtils.formatCurrency(
+                                    item.taxableValue?.toDouble() ?? 0),
+                                regularFont),
                           ],
                         );
                       }),
@@ -96,33 +108,30 @@ class SalesPdfPrinter {
                       pw.Column(
                         crossAxisAlignment: pw.CrossAxisAlignment.start,
                         children: [
-                          _buildNormalText('Sub total:'),
-                          _buildNormalText('SGST %'),
-                          _buildNormalText('CGST %'),
-                          _buildNormalText('Net Amount:'),
+                          ...sale.itemDetails!.map((item) {
+                            return pw.Column(
+                              crossAxisAlignment: pw.CrossAxisAlignment.start,
+                              children: [
+                                _buildNormalText(
+                                    "Sub Total :${AppUtils.formatCurrency(item.taxableValue ?? 0)}",
+                                    regularFont),
+                                _buildNormalText(
+                                    _formatGstDetails(
+                                        sale, 'SGST', regularFont),
+                                    regularFont),
+                                _buildNormalText(
+                                    _formatGstDetails(
+                                        sale, 'CGST', regularFont),
+                                    regularFont),
+                                _buildNormalText(
+                                    "Net Amount : ${AppUtils.formatCurrency(
+                                        item.finalInvoiceValue ?? 0)}",
+                                    regularFont),
+                              ],
+                            );
+                          })
                         ],
                       ),
-                      ...sale.itemDetails!.map((item) {
-                        return pw.Column(
-                          crossAxisAlignment: pw.CrossAxisAlignment.start,
-                          children: [
-                            _buildNormalText(item.taxableValue.toString()),
-                            _buildNormalText(sale.itemDetails!
-                                .map((item) => item.gstDetails?.firstWhere(
-                                    (element) => element.gstName == 'CGST',
-                                    orElse: () => GstDetail(
-                                        gstName: 'CGST', gstAmount: 0)))
-                                .toString()),
-                            _buildNormalText(sale.itemDetails!
-                                .map((item) => item.gstDetails?.firstWhere(
-                                    (element) => element.gstName == 'SGST',
-                                    orElse: () => GstDetail(
-                                        gstName: 'SGST', gstAmount: 0)))
-                                .toString()),
-                            _buildNormalText(item.finalInvoiceValue.toString()),
-                          ],
-                        );
-                      })
                     ],
                   ),
                   pw.SizedBox(height: 18),
@@ -132,9 +141,9 @@ class SalesPdfPrinter {
                     children: [
                       pw.TableRow(
                         children: [
-                          _buildText('Part No'),
-                          _buildText('Frame Number'),
-                          _buildText('Engine Number'),
+                          _buildText('Part No', regularFont),
+                          _buildText('Frame Number', regularFont),
+                          _buildText('Engine Number', regularFont),
                           // _buildText('CWI BookltNo'),
                           // _buildText('Key No'),
                         ],
@@ -142,9 +151,11 @@ class SalesPdfPrinter {
                       ...sale.itemDetails!.map((item) {
                         return pw.TableRow(
                           children: [
-                            _buildText(item.partNo ?? ''),
-                            _buildText(item.mainSpecValue?.engineNumber ?? ''),
-                            _buildText(item.mainSpecValue?.frameNumber ?? ''),
+                            _buildText(item.partNo ?? '', regularFont),
+                            _buildText(item.mainSpecValue?.engineNumber ?? '',
+                                regularFont),
+                            _buildText(item.mainSpecValue?.frameNumber ?? '',
+                                regularFont),
                           ],
                         );
                       }),
@@ -155,29 +166,32 @@ class SalesPdfPrinter {
                     mainAxisAlignment: pw.MainAxisAlignment.start,
                     children: [
                       pw.Column(
+                        mainAxisAlignment: pw.MainAxisAlignment.start,
                         crossAxisAlignment: pw.CrossAxisAlignment.start,
                         children: [
-                          _buildNormalText('Ex Showroom Price:'),
-                          _buildNormalText('Booking No:'),
-                          _buildNormalText('Received \n1.Tools:'),
-                          _buildNormalText('2.Manual Book - HardCopy: '),
-                          _buildNormalText('3.Duplicate Keys:'),
+                          _buildNormalText('Mandatory Addons:', regularFont),
+                          pw.SizedBox(height: 18),
+                          ...sale.itemDetails!.map((item) {
+                            return pw.Column(
+                              mainAxisAlignment: pw.MainAxisAlignment.start,
+                              crossAxisAlignment: pw.CrossAxisAlignment.start,
+                              children: [
+                                if (sale.mandatoryAddons != null &&
+                                    sale.mandatoryAddons!.addonsMap.isNotEmpty)
+                                  ...sale.mandatoryAddons!.addonsMap.entries
+                                      .map((entry) => pw.Text(
+                                            '${entry.key} : ${entry.value}',
+                                            style: pw.TextStyle(
+                                              fontSize: 10,
+                                              color: PdfColors.black,
+                                              font: regularFont,
+                                            ),
+                                          )),
+                              ],
+                            );
+                          })
                         ],
                       ),
-                      ...sale.itemDetails!.map((item) {
-                        return pw.Column(
-                          crossAxisAlignment: pw.CrossAxisAlignment.start,
-                          children: [
-                            _buildNormalText(sale.roundOffAmt.toString()),
-                            _buildNormalText('3905\n\n'),
-                            // _buildNormalText(sale.mandatoryAddons?.tools ?? ''),
-                            // _buildNormalText(
-                            //     sale.mandatoryAddons?.manualBook ?? ''),
-                            // _buildNormalText(
-                            //     sale.mandatoryAddons?.duplicateKey ?? ''),
-                          ],
-                        );
-                      })
                     ],
                   ),
                   pw.SizedBox(height: 18),
@@ -192,77 +206,47 @@ class SalesPdfPrinter {
     return pdf.save();
   }
 
-  static pw.Widget _buildHeader() {
-    return pw.Container(
-      decoration: pw.BoxDecoration(
-        border: pw.Border.all(
-          color: PdfColors.black,
-          width: 0.5,
-        ),
-      ),
-      child: pw.Padding(
-        padding: const pw.EdgeInsets.all(16),
-        child: pw.Center(
-          child: pw.Column(
-            crossAxisAlignment: pw.CrossAxisAlignment.center,
-            children: [
-              _buildTitleText('HAASAINI'),
-              _buildSubtitleText('MOTORS'),
-              pw.SizedBox(height: 8),
-              pw.Center(
-                child: pw.Text(
-                  'HAASINI MOTORS PRIVATE LIMITED\n46 THANJAVUR ROAD, PALAIYAM, PATTUKOTTAI - 614601,\nPh: 9585011115',
-                  textAlign: pw.TextAlign.center,
-                  style: const pw.TextStyle(
-                    fontSize: 10,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  static pw.Widget _buildText(String text) {
+  static pw.Widget _buildText(String text, pw.Font regularFont) {
     return pw.Padding(
       padding: const pw.EdgeInsets.all(4),
       child: pw.Text(
         text,
-        style: const pw.TextStyle(fontSize: 9, color: PdfColors.black),
+        style: pw.TextStyle(
+            fontSize: 9, color: PdfColors.black, font: regularFont),
       ),
     );
   }
 
-  static pw.Widget _buildTitleText(String text) {
+  static pw.Widget _buildTitleText(String text, pw.Font regularFont) {
     return pw.Text(
       text,
       style: pw.TextStyle(
         fontSize: 18,
         fontWeight: pw.FontWeight.bold,
+        font: regularFont,
       ),
     );
   }
 
-  static pw.Widget _buildSubtitleText(String text) {
-    return pw.Text(
-      text,
-      style: pw.TextStyle(
-        fontSize: 12,
-        fontWeight: pw.FontWeight.bold,
-      ),
-    );
-  }
-
-  static pw.Widget _buildNormalText(String text) {
+  static pw.Widget _buildNormalText(String text, pw.Font regularFont) {
     return pw.Text(
       text,
       style: pw.TextStyle(
         fontSize: 10,
         color: PdfColors.black,
         fontWeight: pw.FontWeight.bold,
+        font: regularFont,
       ),
     );
+  }
+
+  static String _formatGstDetails(
+      Content sale, String gstName, pw.Font regularFont) {
+    final gstDetail = sale.itemDetails!
+        .expand((item) => item.gstDetails!)
+        .firstWhere((element) => element.gstName == gstName,
+            orElse: () => GstDetail(gstName: gstName, gstAmount: 0));
+
+    return '${gstDetail.gstName} (${gstDetail.percentage}%): ${AppUtils.formatCurrency(gstDetail.gstAmount ?? 0)}';
   }
 }

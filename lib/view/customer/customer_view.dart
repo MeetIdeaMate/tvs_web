@@ -74,6 +74,7 @@ class _CustomerViewState extends State<CustomerView> {
   _buildsearchAndAddButton(BuildContext context) {
     return Row(
       children: [
+        
         StreamBuilder(
           stream: _customerScreenBlocImpl.customerNameStreamController,
           builder: (context, snapshot) {
@@ -104,9 +105,9 @@ class _CustomerViewState extends State<CustomerView> {
                 AppConstants.city);
           },
         ),
-        AppWidgetUtils.buildSizedBox(custWidth: 5),
-        if (_customerScreenBlocImpl.isMainBranch ?? false)
-          _buildBranchDropdown(),
+        AppWidgetUtils.buildSizedBox(custWidth: 20),
+        // if (_customerScreenBlocImpl.isMainBranch ?? false)
+        //   _buildBranchDropdown(),
         if (_customerScreenBlocImpl.isMainBranch == false) const Spacer(),
         _buildAddCustomerButton(context)
       ],
@@ -277,11 +278,7 @@ class _CustomerViewState extends State<CustomerView> {
                                   _buildTableHeader(
                                     AppConstants.mobileNumber,
                                   ),
-                                  if (_customerScreenBlocImpl.isMainBranch ??
-                                      false)
-                                    _buildTableHeader(
-                                      AppConstants.branchName,
-                                    ),
+                                 
                                   _buildTableHeader(
                                     AppConstants.city,
                                   ),
@@ -312,12 +309,7 @@ class _CustomerViewState extends State<CustomerView> {
                                                   DataCell(Text(
                                                       entry.value.mobileNo ??
                                                           '')),
-                                                  if (_customerScreenBlocImpl
-                                                          .isMainBranch ??
-                                                      false)
-                                                    DataCell(Text(entry
-                                                            .value.branchName ??
-                                                        '')),
+                                                
                                                   DataCell(Text(
                                                       entry.value.city ?? '')),
                                                   DataCell(
