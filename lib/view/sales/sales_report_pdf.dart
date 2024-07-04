@@ -2,16 +2,13 @@ import 'package:flutter/services.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
-import 'dart:typed_data';
 import 'package:tlbilling/models/get_model/get_all_sales_list_model.dart';
-import 'package:tlbilling/utils/app_constants.dart';
-import 'package:tlbilling/utils/app_util_widgets.dart';
 import 'package:tlbilling/utils/app_utils.dart';
 
 class SalesPdfPrinter {
   static Future<Uint8List> generatePdf(Content sale) async {
     final pdf = pw.Document();
-    final header = await imageFromAssetBundle(AppConstants.imgPdfHeader);
+    final header = await imageFromAssetBundle('assets/images/img_pdf_header.png');
 
     final pw.Font regularFont =
         pw.Font.ttf(await rootBundle.load("assets/fonts/Roboto-Regular.ttf"));
