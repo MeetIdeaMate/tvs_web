@@ -273,17 +273,17 @@ class _MyWidgetState extends State<BranchView> {
                                               .branchTablePageStream(0));
                                         },
                                       ),
-                                      IconButton(
-                                          icon: SvgPicture.asset(
-                                              AppConstants.icdelete),
-                                          onPressed: () {
-                                            showDialog(
-                                              context: context,
-                                              builder: (context) {
-                                                return _deleteDialog(entry);
-                                              },
-                                            );
-                                          }),
+                                      // IconButton(
+                                      //     icon: SvgPicture.asset(
+                                      //         AppConstants.icdelete),
+                                      //     onPressed: () {
+                                      //       showDialog(
+                                      //         context: context,
+                                      //         builder: (context) {
+                                      //           return _deleteDialog(entry);
+                                      //         },
+                                      //       );
+                                      //     }),
                                     ],
                                   ),
                                 )
