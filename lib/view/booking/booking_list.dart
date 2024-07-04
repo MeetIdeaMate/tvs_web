@@ -353,8 +353,8 @@ class _BookingListState extends State<BookingList> {
           DataCell(Text(AppUtils.formatCurrency(
               entry.value.paidDetail?.paidAmount?.toDouble() ?? 0))),
           DataCell(Text(entry.value.executiveName ?? '')),
-          DataCell(Text(
-              AppUtils.apiToAppDateFormat(entry.value.bookingDate.toString()))),
+          DataCell(Text(AppUtils.apiToAppDateFormat(AppUtils.apiToAppDateFormat(
+              entry.value.targetInvoiceDate.toString())))),
           DataCell(entry.value.cancelled == false
               ? _buildCancelButton(entry)
               : Chip(

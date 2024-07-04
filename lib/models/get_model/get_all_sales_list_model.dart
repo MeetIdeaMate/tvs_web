@@ -450,13 +450,24 @@ class Incentive {
 }
 
 class MandatoryAddons {
-  MandatoryAddons();
+  Map<String, dynamic> addonsMap;
 
-  factory MandatoryAddons.fromJson(Map<String, dynamic> json) =>
-      MandatoryAddons();
+  MandatoryAddons({required this.addonsMap});
 
-  Map<String, dynamic> toJson() => {};
+  factory MandatoryAddons.fromJson(Map<String, dynamic> json) {
+    return MandatoryAddons(
+      addonsMap: json,
+    );
+  }
+
+  Map<String, dynamic> toJson() => addonsMap;
+
+  @override
+  String toString() {
+    return 'MandatoryAddons(addonsMap: $addonsMap)';
+  }
 }
+
 
 class Tax {
   double? percentage;
