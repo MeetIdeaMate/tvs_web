@@ -47,6 +47,8 @@ abstract class CreateBranchDialogBloc {
   String? get mainBranchId;
 
   String? get mainBranchName;
+
+  Stream<bool> get cityRefreshStream;
 }
 
 class CreateBranchDialogBlocImpl extends CreateBranchDialogBloc {
@@ -65,6 +67,7 @@ class CreateBranchDialogBlocImpl extends CreateBranchDialogBloc {
   final _appService = AppServiceUtilImpl();
   bool? _isMainBranch;
   bool? _isAsyncCall = false;
+  final _cityRefreshStream = StreamController<bool>.broadcast();
 
   @override
   TextEditingController get addressController => _addressController;
@@ -183,5 +186,12 @@ class CreateBranchDialogBlocImpl extends CreateBranchDialogBloc {
 
   set mainBranchName(String? newValue) {
     _mainBranchName = newValue;
+  }
+
+  @override
+  Stream<bool> get cityRefreshStream => _cityRefreshStream.stream;
+
+  cityRefreshStreamController(bool value) {
+    _cityRefreshStream.add(true);
   }
 }

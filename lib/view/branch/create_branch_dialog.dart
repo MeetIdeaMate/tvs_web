@@ -8,8 +8,10 @@ import 'package:tlbilling/models/get_model/get_all_branch_model.dart';
 import 'package:tlbilling/utils/app_colors.dart';
 import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/utils/app_util_widgets.dart';
+import 'package:tlbilling/utils/input_formates.dart';
 import 'package:tlbilling/utils/input_validation.dart';
 import 'package:tlbilling/view/branch/create_branch_dialog_bloc.dart';
+import 'package:tlds_flutter/components/tlds_input_formaters.dart';
 import 'package:toastification/toastification.dart';
 
 class CreateBranchDialog extends StatefulWidget {
@@ -203,6 +205,7 @@ class _CreateBranchDialogState extends State<CreateBranchDialog> {
               validator: (value) {
                 return InputValidations.branchValidation(value ?? '');
               },
+              inputFormatters: TldsInputFormatters.onlyAllowAlphabetAndNumber,
               hintText: AppConstants.hintbranch,
               controller: _createBranchDialogBlocImpl.branchNameController),
         ),
@@ -218,20 +221,24 @@ class _CreateBranchDialogState extends State<CreateBranchDialog> {
     return FutureBuilder(
       future: _createBranchDialogBlocImpl.getCities(),
       builder: (context, snapshot) {
-        return CustomDropDownButtonFormField(
-          // height: 72,
-          requiredLabelText:
-              AppWidgetUtils.labelTextWithRequired(AppConstants.city),
-          dropDownItems: snapshot.data ?? [],
-          hintText: AppConstants.exSelect,
-          dropDownValue: _createBranchDialogBlocImpl.selectedCity,
-          validator: (value) {
-            return InputValidations.nameValidation(value ?? '');
-          },
-          onChange: (String? newValue) {
-            _createBranchDialogBlocImpl.selectedCity = newValue ?? '';
-          },
-        );
+        return StreamBuilder<bool>(
+            stream: _createBranchDialogBlocImpl.cityRefreshStream,
+            builder: (context, streamSnapshot) {
+              return CustomDropDownButtonFormField(
+                // height: 72,
+                requiredLabelText:
+                    AppWidgetUtils.labelTextWithRequired(AppConstants.city),
+                dropDownItems: snapshot.data ?? [],
+                hintText: AppConstants.exSelect,
+                dropDownValue: _createBranchDialogBlocImpl.selectedCity,
+                validator: (value) {
+                  return InputValidations.nameValidation(value ?? '');
+                },
+                onChange: (String? newValue) {
+                  _createBranchDialogBlocImpl.selectedCity = newValue ?? '';
+                },
+              );
+            });
       },
     );
   }
@@ -257,6 +264,7 @@ class _CreateBranchDialogState extends State<CreateBranchDialog> {
               CustomFormField(
                   labelText: AppConstants.pinCode,
                   maxLength: 6,
+                  inputFormatters: TlInputFormatters.onlyAllowNumbers,
                   validator: (value) {
                     return InputValidations.pinCodeValidation(value ?? '');
                   },
@@ -395,6 +403,9 @@ class _CreateBranchDialogState extends State<CreateBranchDialog> {
     _createBranchDialogBlocImpl.mobileNoController.text =
         editableValueData?.mobileNo ?? '';
     _createBranchDialogBlocImpl.selectedCity = editableValueData?.city ?? '';
+
+    _createBranchDialogBlocImpl.cityRefreshStreamController(true);
+
     _createBranchDialogBlocImpl.addressController.text =
         editableValueData?.address ?? '';
     _createBranchDialogBlocImpl.mainBranchId = editableValueData?.mainBranchId;
