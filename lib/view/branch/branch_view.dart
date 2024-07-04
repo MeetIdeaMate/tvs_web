@@ -218,7 +218,7 @@ class _MyWidgetState extends State<BranchView> {
                             _buildBranchTableHeader(AppConstants.mobileNumber),
                             _buildBranchTableHeader(AppConstants.city),
                             _buildBranchTableHeader(AppConstants.pinCode),
-                            _buildBranchTableHeader(AppConstants.subBranch),
+                            _buildBranchTableHeader(AppConstants.branch),
                             _buildBranchTableHeader(AppConstants.action),
                           ],
                           rows: userData.asMap().entries.map((entry) {
@@ -234,27 +234,30 @@ class _MyWidgetState extends State<BranchView> {
                                 _buildTableRow(entry.value.mobileNo ?? ''),
                                 _buildTableRow(entry.value.city ?? ''),
                                 _buildTableRow(entry.value.pinCode ?? ''),
-                                DataCell(
-                                  IconButton(
-                                    icon: SvgPicture.asset(
-                                      AppConstants.icBranch,
-                                      colorFilter: ColorFilter.mode(
-                                          _appColors.green, BlendMode.srcIn),
-                                    ),
-                                    onPressed: () {
-                                      showDialog(
-                                        context: context,
-                                        builder: (context) {
-                                          return BranchDetails(
-                                              subBranches:
-                                                  entry.value.subBranches,
-                                              mainBranchName:
-                                                  entry.value.branchName);
-                                        },
-                                      );
-                                    },
-                                  ),
-                                ),
+                                entry.value.mainBranch ?? false
+                                    ? DataCell(
+                                        IconButton(
+                                          icon: SvgPicture.asset(
+                                            AppConstants.icBranch,
+                                            colorFilter: ColorFilter.mode(
+                                                _appColors.green,
+                                                BlendMode.srcIn),
+                                          ),
+                                          onPressed: () {
+                                            showDialog(
+                                              context: context,
+                                              builder: (context) {
+                                                return BranchDetails(
+                                                    subBranches:
+                                                        entry.value.subBranches,
+                                                    mainBranchName:
+                                                        entry.value.branchName);
+                                              },
+                                            );
+                                          },
+                                        ),
+                                      )
+                                    : const DataCell(Text('Sub Branch')),
                                 DataCell(
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.start,
