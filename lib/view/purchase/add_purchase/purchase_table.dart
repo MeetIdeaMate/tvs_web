@@ -625,6 +625,7 @@ class _PurchaseTableState extends State<PurchaseTable> {
     for (var itemData in widget.purchaseBloc.purchaseBillDataList) {
       for (var vehicleData in itemData.vehicleDetails!) {
         final itemDetail = ItemDetail(
+          hsnSacCode: widget.purchaseBloc.hsnCodeController.text,
           categoryId: vehicleData.categoryId.toString(),
           discount: 0,
           gstDetails: List.from(gstDetailsList),
@@ -657,7 +658,6 @@ class _PurchaseTableState extends State<PurchaseTable> {
       pInvoiceNo: widget.purchaseBloc.invoiceNumberController.text,
       pOrderRefNo: widget.purchaseBloc.purchaseRefController.text,
       totalQty: totalQty,
-      hsnSacCode: widget.purchaseBloc.hsnCodeController.text,
       vendorId: widget.purchaseBloc.selectedVendorId.toString(),
     );
 

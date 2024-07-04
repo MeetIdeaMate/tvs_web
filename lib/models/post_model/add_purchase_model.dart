@@ -6,17 +6,16 @@ class AddPurchaseModel {
   String pOrderRefNo;
   int totalQty;
   String vendorId;
-  String hsnSacCode;
 
-  AddPurchaseModel(
-      {required this.branchId,
-      this.itemDetails,
-      required this.pInvoiceDate,
-      required this.pInvoiceNo,
-      required this.pOrderRefNo,
-      required this.totalQty,
-      required this.vendorId,
-      required this.hsnSacCode});
+  AddPurchaseModel({
+    required this.branchId,
+    this.itemDetails,
+    required this.pInvoiceDate,
+    required this.pInvoiceNo,
+    required this.pOrderRefNo,
+    required this.totalQty,
+    required this.vendorId,
+  });
 
   Map<String, dynamic> toJson() {
     return {
@@ -27,7 +26,6 @@ class AddPurchaseModel {
       'p_orderRefNo': pOrderRefNo,
       'totalQty': totalQty,
       'vendorId': vendorId,
-      'hsnSacCode': hsnSacCode
     };
   }
 }
@@ -44,20 +42,21 @@ class ItemDetail {
   SpecificationsValue? specificationsValue;
   List<Tax> taxes;
   double unitRate;
+  String hsnSacCode;
 
-  ItemDetail({
-    required this.categoryId,
-    required this.discount,
-    required this.gstDetails,
-    required this.incentives,
-    required this.itemName,
-    this.mainSpecInfos,
-    required this.partNo,
-    required this.quantity,
-    this.specificationsValue,
-    required this.taxes,
-    required this.unitRate,
-  });
+  ItemDetail(
+      {required this.categoryId,
+      required this.discount,
+      required this.gstDetails,
+      required this.incentives,
+      required this.itemName,
+      this.mainSpecInfos,
+      required this.partNo,
+      required this.quantity,
+      this.specificationsValue,
+      required this.taxes,
+      required this.unitRate,
+      required this.hsnSacCode});
 
   Map<String, dynamic> toJson() {
     return {
@@ -72,6 +71,7 @@ class ItemDetail {
       'specificationsValue': specificationsValue?.toJson(),
       'taxes': taxes.map((i) => i.toJson()).toList(),
       'unitRate': unitRate,
+      'hsnSacCode': hsnSacCode
     };
   }
 }
