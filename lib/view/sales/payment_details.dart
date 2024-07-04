@@ -553,7 +553,7 @@ class _PaymentDetailsState extends State<PaymentDetails> {
             builder: (context, snapshot) {
               if (snapshot.hasData) {
                 return SizedBox(
-                  height: 250,
+                  height: 150,
                   child: ListView.separated(
                     itemCount: snapshot.data?.length ?? 0,
                     itemBuilder: (context, index) => _buildCustomRadioTile(
@@ -563,13 +563,12 @@ class _PaymentDetailsState extends State<PaymentDetails> {
                         setState(() {});
                         widget.addSalesBloc.selectedPaymentOption = value!;
                         widget.addSalesBloc.paymentOptionStreamController(true);
-                        print(widget.addSalesBloc.selectedPaymentOption);
                       },
                       icon: Icons.payment,
                       label: snapshot.data?[index].toUpperCase() ?? '',
                     ),
                     separatorBuilder: (BuildContext context, int index) {
-                      return AppWidgetUtils.buildSizedBox(custHeight: 8);
+                      return AppWidgetUtils.buildSizedBox(custHeight: 5);
                     },
                   ),
                 );
@@ -692,7 +691,7 @@ class _PaymentDetailsState extends State<PaymentDetails> {
 
   _buildSplitPayment() {
     return Visibility(
-      visible: widget.addSalesBloc.selectedPaymentOption == 'Credit',
+      visible: widget.addSalesBloc.selectedPaymentOption == 'Pay',
       child: Column(
         children: [
           StreamBuilder<bool>(

@@ -1585,7 +1585,12 @@ class AppServiceUtilImpl extends AppServiceUtil {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var token = prefs.getString('token');
     dio.options.headers['Authorization'] = 'Bearer $token';
+    bool isMainBranch = prefs.getBool('mainBranch') ?? false;
+    String branchId = prefs.getString('branchId') ?? '';
     String employeeList = AppUrl.employee;
+    if (!isMainBranch) {
+      employeeList += '?branchId=$branchId';
+    }
     final response = await dio.get(employeeList);
 
     return parentResponseModelFromJson(jsonEncode(response.data))
