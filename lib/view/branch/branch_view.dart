@@ -64,7 +64,7 @@ class _MyWidgetState extends State<BranchView> {
         AppWidgetUtils.buildSizedBox(custWidth: 5),
         _buildPinCodeFilter(),
         AppWidgetUtils.buildSizedBox(custWidth: 5),
-        _buildCityFilter(),
+        // _buildCityFilter(),
         const Spacer(),
         _buildAddBranchButton(context)
       ],

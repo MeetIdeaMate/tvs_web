@@ -224,7 +224,7 @@ class _PaymentDailogState extends State<PaymentDailog> {
             },
           ),
         ),
-        AppWidgetUtils.buildSizedBox(custWidth: 5),
+        AppWidgetUtils.buildSizedBox(custWidth: 8),
         Expanded(
           child: Padding(
             padding: const EdgeInsets.only(top: 20),
@@ -273,43 +273,42 @@ class _PaymentDailogState extends State<PaymentDailog> {
                   widget.salesViewBloc.paymentStreamController(true);
                 },
               ),
-        AppWidgetUtils.buildSizedBox(custWidth: 8),
-        Row(
-          children: [
-            Expanded(
-              child: TldsInputFormField(
-                requiredLabelText:
-                    AppWidgetUtils.labelTextWithRequired(AppConstants.paidAmt),
-                controller: widget.salesViewBloc.paidAmountTextController,
-                hintText: AppConstants.amount,
-                inputFormatters: TlInputFormatters.onlyAllowDecimalNumbers,
-                validator: (value) {
-                  if (value?.isEmpty == true) {
-                    return AppConstants.enterAmt;
-                  }
-                  return null;
-                },
-                onChanged: (value) {
-                  double totalInv = double.tryParse(widget
-                          .salesViewBloc.totalInvAmtPaymentController.text) ??
-                      0;
-                  double paidAmt = double.tryParse(
-                          widget.salesViewBloc.paidAmountTextController.text) ??
-                      0;
-
-                  if (paidAmt > totalInv) {
-                    widget.salesViewBloc.paidAmountTextController.text = '';
-                    widget.salesViewBloc.balanceAmtController.text = '';
-                  }
-                  double balanceAmt = totalInv - paidAmt;
-                  widget.salesViewBloc.balanceAmtController.text =
-                      balanceAmt.toString();
-                },
+        AppWidgetUtils.buildSizedBox(custWidth: 15),
+        Padding(
+          padding: const EdgeInsets.only(top: 10),
+          child: Row(
+            children: [
+              Expanded(
+                child: TldsInputFormField(
+                  //   readOnly: true,
+                  requiredLabelText: AppWidgetUtils.labelTextWithRequired(
+                      AppConstants.paidAmt),
+                  controller: widget.salesViewBloc.paidAmountTextController,
+                  hintText: AppConstants.amount,
+                  inputFormatters: TlInputFormatters.onlyAllowDecimalNumbers,
+                  validator: (value) {
+                    if (value?.isEmpty == true) {
+                      return AppConstants.enterAmt;
+                    }
+                    return null;
+                  },
+                  onChanged: (value) {
+                    double totalInv = double.tryParse(widget
+                            .salesViewBloc.totalInvAmtPaymentController.text) ??
+                        0;
+                    double paidAmt = double.tryParse(widget
+                            .salesViewBloc.paidAmountTextController.text) ??
+                        0;
+                    double balanceAmt = totalInv - paidAmt;
+                    widget.salesViewBloc.balanceAmtController.text =
+                        balanceAmt.toString();
+                  },
+                ),
               ),
-            ),
-            AppWidgetUtils.buildSizedBox(custWidth: 8),
-            balanceAmt(),
-          ],
+              AppWidgetUtils.buildSizedBox(custWidth: 8),
+              balanceAmt(),
+            ],
+          ),
         ),
         Visibility(
           visible: ['UPI ', 'CARD', 'CHEQUE']
