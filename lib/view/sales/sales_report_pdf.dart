@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -169,8 +169,11 @@ class SalesPdfPrinter {
                           mainAxisAlignment: pw.MainAxisAlignment.start,
                           crossAxisAlignment: pw.CrossAxisAlignment.start,
                           children: [
-                            _buildNormalText('Mandatory Addons:', regularFont),
-                            pw.SizedBox(height: 18),
+                            if (sale.mandatoryAddons != null &&
+                                sale.mandatoryAddons!.addonsMap.isNotEmpty)
+                              _buildNormalText(
+                                  'Mandatory Addons:', regularFont),
+                            pw.SizedBox(height: 10),
                             ...sale.itemDetails!.map((item) {
                               return pw.Column(
                                 mainAxisAlignment: pw.MainAxisAlignment.start,
@@ -188,6 +191,52 @@ class SalesPdfPrinter {
                                                 font: regularFont,
                                               ),
                                             )),
+                                ],
+                              );
+                            })
+                          ],
+                        ),
+                      ],
+                    ),
+                  pw.SizedBox(height: 18),
+                  if (sale.invoiceType == 'E-Vehicle')
+                    pw.Row(
+                      mainAxisAlignment: pw.MainAxisAlignment.start,
+                      children: [
+                        pw.Column(
+                          mainAxisAlignment: pw.MainAxisAlignment.start,
+                          crossAxisAlignment: pw.CrossAxisAlignment.start,
+                          children: [
+                            if (sale.evBattery?.evBatteryName != '' ||
+                                sale.evBattery?.evBatteryCapacity != null)
+                              _buildNormalText(
+                                  'E-Vehicle Components:', regularFont),
+                            pw.SizedBox(height: 10),
+                            ...sale.itemDetails!.map((item) {
+                              return pw.Column(
+                                mainAxisAlignment: pw.MainAxisAlignment.start,
+                                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                                children: [
+                                  if (sale.evBattery?.evBatteryCapacity != null)
+                                    pw.Row(
+                                      children: [
+                                        pw.Text('BatteryCapacity:'),
+                                        pw.SizedBox(width: 10),
+                                        pw.Text(sale
+                                                .evBattery?.evBatteryCapacity
+                                                .toString() ??
+                                            '')
+                                      ],
+                                    ),
+                                  if (sale.evBattery?.evBatteryName != '')
+                                    pw.Row(
+                                      children: [
+                                        pw.Text('Battery Name:'),
+                                        pw.Text(sale.evBattery?.evBatteryName
+                                                .toString() ??
+                                            '')
+                                      ],
+                                    )
                                 ],
                               );
                             })

@@ -11,13 +11,16 @@ import 'package:tlbilling/utils/app_util_widgets.dart';
 import 'package:tlbilling/utils/app_utils.dart';
 import 'package:tlbilling/view/purchase/add_purchase/add_vehicle_and_accesories/add_vehicle_and_accessories_bloc.dart';
 import 'package:tlbilling/view/purchase/add_purchase/purchase_invoice_pdf.dart';
+import 'package:tlbilling/view/purchase/purchase_view_bloc.dart';
 import 'package:tlds_flutter/util/app_colors.dart';
 import 'package:toastification/toastification.dart';
 
 class PurchaseTable extends StatefulWidget {
   final AddVehicleAndAccessoriesBlocImpl purchaseBloc;
+  final PurchaseViewBlocImpl purchaseViewBloc;
 
-  const PurchaseTable({super.key, required this.purchaseBloc});
+  const PurchaseTable(
+      {super.key, required this.purchaseBloc, required this.purchaseViewBloc});
 
   @override
   State<PurchaseTable> createState() => _PurchaseTableState();
@@ -458,6 +461,8 @@ class _PurchaseTableState extends State<PurchaseTable> {
                                   _purchasePostData(), (statusCode, response) {
                                 if (statusCode == 201 || statusCode == 200) {
                                   Navigator.pop(context);
+                                  widget.purchaseViewBloc
+                                      .pageNumberUpdateStreamController(0);
                                   _isLoadingState(state: false);
                                   AppWidgetUtils.buildToast(
                                       context,
@@ -469,6 +474,7 @@ class _PurchaseTableState extends State<PurchaseTable> {
                                       _appColors.successLightColor);
                                   showDialog(
                                     context: context,
+                                    barrierDismissible: true,
                                     builder: (context) {
                                       return AlertDialog(
                                           surfaceTintColor:
@@ -514,6 +520,7 @@ class _PurchaseTableState extends State<PurchaseTable> {
                                 }
                               });
                             } else {
+                              _isLoadingState(state: false);
                               AppWidgetUtils.buildToast(
                                   context,
                                   ToastificationType.error,

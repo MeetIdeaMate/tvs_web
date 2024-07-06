@@ -171,6 +171,9 @@ class _CustomerDetailsState extends State<CustomerDetails> {
                       widget.addSalesBloc
                           .selectedCustomerDetailsStreamController(true);
 
+                      _updateTotalInvoiceAmount();
+                      widget.addSalesBloc.paymentDetailsStreamController(true);
+
                       widget.addSalesBloc
                           .getCustomerBookingDetails(selectedVendor.customerId)
                           .then((value) {

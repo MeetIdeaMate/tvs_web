@@ -5,10 +5,12 @@ import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/view/purchase/add_purchase/add_vehicle_and_accesories/add_vehicle_and_accessories.dart';
 import 'package:tlbilling/view/purchase/add_purchase/add_vehicle_and_accesories/add_vehicle_and_accessories_bloc.dart';
 import 'package:tlbilling/view/purchase/add_purchase/purchase_table.dart';
+import 'package:tlbilling/view/purchase/purchase_view_bloc.dart';
 import 'package:tlds_flutter/export.dart';
 
 class AddPurchase extends StatefulWidget {
-  const AddPurchase({super.key});
+  final PurchaseViewBlocImpl purchaseViewBloc;
+  const AddPurchase({super.key, required this.purchaseViewBloc});
 
   @override
   State<AddPurchase> createState() => _AddPurchaseState();
@@ -32,8 +34,8 @@ class _AddPurchaseState extends State<AddPurchase> {
         child: Row(
           children: [
             PurchaseTable(
-              purchaseBloc: _purchaseBloc,
-            ),
+                purchaseBloc: _purchaseBloc,
+                purchaseViewBloc: widget.purchaseViewBloc),
             AddVehicleAndAccessories(
               purchaseBloc: _purchaseBloc,
             ),

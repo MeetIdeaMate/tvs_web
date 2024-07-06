@@ -156,7 +156,7 @@ class _SalesViewScreenState extends State<SalesViewScreen>
               .where((branchName) => branchName != null)
               .cast<String>()
               .toList();
-          branchNameList?.insert(0, AppConstants.all);
+          branchNameList?.insert(0, AppConstants.allBranch);
           return _buildDropDown(
             dropDownItems: (snapshot.hasData &&
                     (snapshot.data?.result?.getAllBranchList?.isNotEmpty ==
@@ -168,7 +168,7 @@ class _SalesViewScreenState extends State<SalesViewScreen>
                 : (snapshot.hasError || snapshot.data == null)
                     ? AppConstants.errorLoading
                     : AppConstants.branchName,
-            selectedvalue: 'All',
+            selectedvalue: AppConstants.allBranch,
             onChange: (value) {
               _salesViewBloc.branchId = value;
 
@@ -328,6 +328,7 @@ class _SalesViewScreenState extends State<SalesViewScreen>
                             // _buildVehicleTableHeader(AppConstants.customerId),
                             _buildVehicleTableHeader(AppConstants.customerName),
                             _buildVehicleTableHeader(AppConstants.mobileNumber),
+                            _buildVehicleTableHeader(AppConstants.categoryName),
                             _buildVehicleTableHeader(AppConstants.paymentType),
                             _buildVehicleTableHeader(
                                 AppConstants.totalInvAmount),
@@ -362,6 +363,7 @@ class _SalesViewScreenState extends State<SalesViewScreen>
                                 //  DataCell(Text(entry.value.customerId ?? '')),
                                 DataCell(Text(entry.value.customerName ?? '')),
                                 DataCell(Text(entry.value.mobileNo ?? '')),
+                                DataCell(Text(entry.value.invoiceType ?? '')),
                                 DataCell(Text(entry.value.billType.toString())),
                                 DataCell(Text(AppUtils.formatCurrency(
                                     entry.value.totalInvoiceAmt?.toDouble() ??

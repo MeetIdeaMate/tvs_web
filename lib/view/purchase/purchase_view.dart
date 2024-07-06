@@ -132,11 +132,9 @@ class _PurchaseViewState extends State<PurchaseView>
                 Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const AddPurchase(),
-                    )).then((value) {
-                  _purchaseViewBloc.getAllPurchaseList();
-                  _purchaseViewBloc.pageNumberUpdateStreamController(0);
-                });
+                      builder: (context) =>
+                          AddPurchase(purchaseViewBloc: _purchaseViewBloc),
+                    ));
               },
             )
           ],
@@ -365,10 +363,10 @@ class _PurchaseViewState extends State<PurchaseView>
                 value: 'option1',
                 child: Text('View'),
               ),
-              const PopupMenuItem(
-                value: 'option2',
-                child: Text('Re-Entry'),
-              ),
+              // const PopupMenuItem(
+              //   value: 'option2',
+              //   child: Text('Re-Entry'),
+              // ),
               const PopupMenuItem(
                 value: 'option3',
                 child: Text('Cancel'),
@@ -384,6 +382,7 @@ class _PurchaseViewState extends State<PurchaseView>
               case 'option1':
                 showDialog(
                   context: context,
+                  barrierDismissible: false,
                   builder: (context) {
                     return VehicleDetailsDialog(
                       purchaseBills: entry.value.itemDetails,
@@ -394,10 +393,10 @@ class _PurchaseViewState extends State<PurchaseView>
                   },
                 );
                 break;
-              case 'option2':
-                break;
+
               case 'option3':
                 showDialog(
+                  barrierDismissible: false,
                   context: context,
                   builder: (context) {
                     return _showCancelDialog(entry);
@@ -407,6 +406,7 @@ class _PurchaseViewState extends State<PurchaseView>
                 break;
               case 'option4':
                 showDialog(
+                  barrierDismissible: false,
                   context: context,
                   builder: (context) {
                     return _showApproveDialog(entry, context);

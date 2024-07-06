@@ -276,6 +276,8 @@ class _AddVehicleAndAccessoriesState extends State<AddVehicleAndAccessories> {
                     width: 100,
                     height: 40,
                     controller: widget.purchaseBloc.tcsvalueTextController,
+                    inputFormatters:
+                        TldsInputFormatters.onlyAllowDecimalAfterTwoDigits,
                     onChanged: (tcsValue) {
                       double? parsedTcsValue = double.tryParse(
                           widget.purchaseBloc.tcsvalueTextController.text);
@@ -313,6 +315,8 @@ class _AddVehicleAndAccessoriesState extends State<AddVehicleAndAccessories> {
                       hintText: AppConstants.rupeeHint,
                       width: 100,
                       height: 40,
+                      inputFormatters:
+                          TldsInputFormatters.onlyAllowDecimalAfterTwoDigits,
                       controller:
                           widget.purchaseBloc.empsIncentiveTextController,
                       onChanged: (empsInc) {
@@ -326,6 +330,8 @@ class _AddVehicleAndAccessoriesState extends State<AddVehicleAndAccessories> {
                       hintText: AppConstants.rupeeHint,
                       width: 100,
                       height: 40,
+                      inputFormatters:
+                          TldsInputFormatters.onlyAllowDecimalAfterTwoDigits,
                       controller:
                           widget.purchaseBloc.stateIncentiveTextController,
                       onChanged: (stateInc) {
