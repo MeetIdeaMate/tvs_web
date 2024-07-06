@@ -73,21 +73,20 @@ class _PaymentDetailsState extends State<PaymentDetails> {
 
   Widget _buildGstDetails() {
     return StreamBuilder<bool>(
-      stream: widget.addSalesBloc.gstDetailsStream,
-      builder: (context, snapshot) {
-        return Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildHeadingText(AppConstants.gstDetails),
-            AppWidgetUtils.buildSizedBox(custHeight: 10),
-            _buildHsnCodeField(),
-            AppWidgetUtils.buildSizedBox(custHeight: 18),
-            _buildGstRadioBtns(),
-          ],
-        );
-      }
-    );
+        stream: widget.addSalesBloc.gstDetailsStream,
+        builder: (context, snapshot) {
+          return Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildHeadingText(AppConstants.gstDetails),
+              AppWidgetUtils.buildSizedBox(custHeight: 10),
+              _buildHsnCodeField(),
+              AppWidgetUtils.buildSizedBox(custHeight: 18),
+              _buildGstRadioBtns(),
+            ],
+          );
+        });
   }
 
   Widget _buildHsnCodeField() {
@@ -126,8 +125,6 @@ class _PaymentDetailsState extends State<PaymentDetails> {
                         value: gstTypeOption,
                         groupValue: widget.addSalesBloc.selectedGstType,
                         onChanged: (String? value) {
-                          //   print('Selected GST Type: $value');
-
                           widget.addSalesBloc.selectedGstType = value;
                           FocusScope.of(context)
                               .requestFocus(widget.addSalesBloc.igstFocus);
@@ -199,20 +196,15 @@ class _PaymentDetailsState extends State<PaymentDetails> {
     double sgstPercent = double.tryParse(
             widget.addSalesBloc.cgstPresentageTextController.text) ??
         0;
-
     widget.addSalesBloc.taxableValue = totalValues;
     widget.addSalesBloc.cgstAmount = (totalValues / 100) * cgstPercent;
     widget.addSalesBloc.sgstAmount = (totalValues / 100) * sgstPercent;
     double cgstAmt =
         double.tryParse(widget.addSalesBloc.cgstAmount.toString()) ?? 0;
-
     double taxableValue = widget.addSalesBloc.taxableValue ?? 0;
     double gstAmt = cgstAmt + cgstAmt;
-
     widget.addSalesBloc.invAmount = taxableValue + (gstAmt);
     _updateTotalInvoiceAmount();
-    print('gstAmt: $gstAmt');
-
     widget.addSalesBloc.paymentDetailsStreamController(true);
     widget.addSalesBloc.gstRadioBtnRefreashStreamController(true);
   }
@@ -224,22 +216,16 @@ class _PaymentDetailsState extends State<PaymentDetails> {
     double? stateIncValue = double.tryParse(
             widget.addSalesBloc.stateIncentiveTextController.text) ??
         0.0;
-
     double totalIncentive = empsIncValue + stateIncValue;
-
     if ((widget.addSalesBloc.invAmount ?? 0) != -1) {
       widget.addSalesBloc.totalInvAmount =
           (widget.addSalesBloc.invAmount ?? 0) - totalIncentive;
     } else {
       widget.addSalesBloc.totalInvAmount = 0.0;
     }
-
     double advanceAmt = widget.addSalesBloc.advanceAmt ?? 0;
     double totalInvAmt = widget.addSalesBloc.totalInvAmount ?? 0;
     widget.addSalesBloc.toBePayedAmt = totalInvAmt - advanceAmt;
-    print(
-        'Rounded Difference: ${(double.parse(widget.addSalesBloc.toBePayedAmt?.toString() ?? '0') - (widget.addSalesBloc.toBePayedAmt?.round() ?? 0)).toString()}');
-
     widget.addSalesBloc.paymentDetailsStreamController(true);
   }
 
@@ -278,8 +264,6 @@ class _PaymentDetailsState extends State<PaymentDetails> {
                 widget.addSalesBloc.paymentDetailsStreamController(true);
                 _updateTotalInvoiceAmount();
                 widget.addSalesBloc.paymentDetailsStreamController(true);
-
-                // print('IGST changed: $igst');
               },
               onSubmit: (value) {
                 FocusScope.of(context)

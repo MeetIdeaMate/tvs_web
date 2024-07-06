@@ -99,7 +99,8 @@ class AppWidgetUtils {
       String titleText,
       Widget? icon,
       String description,
-      Color? backgroundColor) {
+      Color? backgroundColor,
+      {int? seconds}) {
     return toastification.show(
       showProgressBar: false,
       backgroundColor: backgroundColor,
@@ -110,7 +111,7 @@ class AppWidgetUtils {
       title: Text(titleText),
       icon: icon,
       description: Text(description),
-      autoCloseDuration: const Duration(seconds: 5),
+      autoCloseDuration: Duration(seconds: seconds ?? 3),
     );
   }
 

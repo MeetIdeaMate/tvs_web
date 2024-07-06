@@ -303,7 +303,9 @@ class AppConstants {
   static const transferDate = 'Transfer Date';
   static const totalQty = 'Tot Qty';
   static const transferred = 'TRANSFERED';
+  static const transferredSm = 'Transferred';
   static const received = 'RECEIVED';
+  static const receivedSm =  'Received';
   static const allStatus = 'All Status';
   static const allVehicles = 'All Vehicles';
   static const transferStatus = 'transferStatus';
@@ -479,6 +481,7 @@ class AppConstants {
   static const String approved = 'Approved';
   static const String approve = 'Approved';
   static const String notApproved = 'Not Approved';
+  static const String approveItem = 'Approve';
 
   //Purchase Validation ErrorMessage
   static const selectVendorName = 'Please Select Vendor Name';
@@ -595,4 +598,24 @@ class AppConstants {
   static const String bookAdvAmt = 'Booking Advance Amt';
   static const String toBePayed = 'To be payed';
   static const String splitPayment = 'Split Payment';
+
+  static const String allPayments = 'All Payments';
+  static const String allBranchs = 'All Branchs';
+  static const String cancelBookingDialogMsg =
+      'Are you sure you want to cancel the booking';
+
+  static const String noBookingDataAvailable = 'No Booking Data Available';
+  static const String noStockDataAvailable = 'No Stock Data Available';
+  static const String noDataAvailable = 'No Data Available';
+  static const String noTransportDataAvailable = 'No Transport Data Available';
+  static const String noTransferDataAvailable =
+      'No Transfer/Received Data Available';
+  static const String selectTargetInvoicedDate = 'Select Target Invoice Date';
+  static const String selectExcutive = 'Select Executive';
+  static const String enterAmount = 'Enter Amount';
+  static const String selectPaymentType = 'Select Payment Type';
+  static const String available = 'Available';
+  static const String initiated = 'INITIATED';
+  static const String noTApproved = 'NOT_APPROVED';
+  static const String allDesignation = 'All Designation';
 }

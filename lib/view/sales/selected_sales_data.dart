@@ -178,9 +178,7 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
   }
 
   void printBatteryDetails() {
-    // Print battery details map
     widget.addSalesBloc.batteryDetailsMap.forEach((key, value) {
-      print('$key: $value');
     });
   }
 
@@ -322,16 +320,12 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
                 AppWidgetUtils.buildSizedBox(custWidth: 5),
                 Expanded(
                   child: TldsInputFormField(
-                    // width: MediaQuery.sizeOf(context).width * 0.03,
                     height: 40,
                     controller: TextEditingController(),
                     inputFormatters: TlInputFormatters.onlyAllowDecimalNumbers,
                     hintText: AppConstants.rupeeHint,
                     onChanged: (value) {
                       widget.addSalesBloc.unitRates[index] = value;
-
-                      print(widget.addSalesBloc.unitRates[index]);
-
                       _buildPaymentCalculation();
                     },
                   ),
@@ -417,12 +411,9 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
     } else {
       widget.addSalesBloc.totalInvAmount = 0.0;
     }
-
     double advanceAmt = widget.addSalesBloc.advanceAmt ?? 0;
-    // print(advanceAmt);
     double totalInvAmt = widget.addSalesBloc.totalInvAmount ?? 0;
     widget.addSalesBloc.toBePayedAmt = totalInvAmt - advanceAmt;
-
     widget.addSalesBloc.paymentDetailsStreamController(true);
   }
 
@@ -603,18 +594,13 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
     double totalUnitValue = 0.0;
     int accessoriesQty =
         widget.addSalesBloc.slectedAccessoriesList?.length ?? 0;
-
     for (int i = 0; i < accessoriesQty; i++) {
-      print(widget.addSalesBloc.accessoriesQty[i]);
       int qty = int.tryParse(widget.addSalesBloc.accessoriesQty[i] ?? '0') ?? 1;
       double unitRate =
           double.tryParse(widget.addSalesBloc.unitRates[i] ?? '0.0') ?? 0.0;
       totalUnitValue += unitRate * qty;
     }
-    print(totalUnitValue);
-
     widget.addSalesBloc.paymentDetailsStreamController(true);
-
     double cgstPercent = double.tryParse(
             widget.addSalesBloc.cgstPresentageTextController.text) ??
         0;
@@ -622,17 +608,14 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
             widget.addSalesBloc.cgstPresentageTextController.text) ??
         0;
     widget.addSalesBloc.totalValue = totalUnitValue * accessoriesQty;
-    print('***************${widget.addSalesBloc.totalValue}');
     widget.addSalesBloc.paymentDetailsStreamController(true);
     widget.addSalesBloc.taxableValue = widget.addSalesBloc.totalValue;
     widget.addSalesBloc.cgstAmount = (totalUnitValue / 100) * cgstPercent;
     widget.addSalesBloc.sgstAmount = (totalUnitValue / 100) * sgstPercent;
-
     double taxableValue = widget.addSalesBloc.taxableValue ?? 0;
     widget.addSalesBloc.invAmount =
         taxableValue + (widget.addSalesBloc.sgstAmount ?? 0) * 2;
     _updateTotalInvoiceAmount();
-
     widget.addSalesBloc.paymentDetailsStreamController(true);
     widget.addSalesBloc.gstRadioBtnRefreashStreamController(true);
   }

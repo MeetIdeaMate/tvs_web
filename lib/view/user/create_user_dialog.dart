@@ -314,7 +314,8 @@ class _CreateUserDialogState extends State<CreateUserDialog> {
               return Padding(
                 padding: const EdgeInsets.only(top: 18),
                 child: TldsInputFormField(
-                  labelText: AppConstants.passwordLable,
+                  requiredLabelText: AppWidgetUtils.labelTextWithRequired(
+                      AppConstants.passwordLable),
                   controller: _createUserDialogBlocImpl.passwordController,
                   hintText: AppConstants.passwordLable,
                   obscure: !_createUserDialogBlocImpl.ispasswordVisible,
@@ -329,7 +330,7 @@ class _CreateUserDialogState extends State<CreateUserDialog> {
                         _createUserDialogBlocImpl.ispasswordVisible
                             ? Icons.visibility_outlined
                             : Icons.visibility_off_outlined,
-                        color: _appColors.greyColor),
+                        color: _appColors.primaryColor),
                   ),
                   validator: (validation) =>
                       InputValidations.passwordValidation(validation!),

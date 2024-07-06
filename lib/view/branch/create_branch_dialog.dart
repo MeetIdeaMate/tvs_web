@@ -9,13 +9,14 @@ import 'package:tlbilling/utils/app_colors.dart';
 import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/utils/app_util_widgets.dart';
 import 'package:tlbilling/utils/input_validation.dart';
+import 'package:tlbilling/view/branch/branch_view_bloc.dart';
 import 'package:tlbilling/view/branch/create_branch_dialog_bloc.dart';
 import 'package:toastification/toastification.dart';
 
 class CreateBranchDialog extends StatefulWidget {
   final String? branchId;
-
-  const CreateBranchDialog({super.key, this.branchId});
+  final BranchViewBlocImpl? branchViewBlocImpl;
+  const CreateBranchDialog({super.key, this.branchId, this.branchViewBlocImpl});
 
   @override
   State<CreateBranchDialog> createState() => _CreateBranchDialogState();
@@ -112,6 +113,7 @@ class _CreateBranchDialogState extends State<CreateBranchDialog> {
               (statusCode) {
                 if (statusCode == 200 || statusCode == 201) {
                   _isLoading(false);
+                  widget.branchViewBlocImpl?.branchTablePageStream(0);
                   Navigator.pop(context);
                   AppWidgetUtils.buildToast(
                       context,
@@ -142,6 +144,7 @@ class _CreateBranchDialogState extends State<CreateBranchDialog> {
             _createBranchDialogBlocImpl.addBranch((statusCode) {
               if (statusCode == 200 || statusCode == 201) {
                 _isLoading(false);
+                widget.branchViewBlocImpl?.branchTablePageStream(0);
                 Navigator.pop(context);
                 AppWidgetUtils.buildToast(
                     context,

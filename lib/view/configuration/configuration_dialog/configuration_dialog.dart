@@ -248,7 +248,6 @@ class _ConfigurationDialogState extends State<ConfigurationDialog> {
       },
     );
     await Future.delayed(const Duration(seconds: 3));
-    print('**************after 3 seconds******');
     Navigator.pop(context);
   }*/
 

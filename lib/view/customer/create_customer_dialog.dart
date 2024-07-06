@@ -12,6 +12,7 @@ import 'package:tlbilling/utils/app_utils.dart';
 import 'package:tlbilling/utils/input_formates.dart';
 import 'package:tlbilling/utils/input_validation.dart';
 import 'package:tlbilling/view/customer/create_customer_dialog_bloc.dart';
+import 'package:tlbilling/view/customer/customer_view_bloc.dart';
 import 'package:tlbilling/view/sales/add_sales_bloc.dart';
 import 'package:tlds_flutter/components/tlds_input_form_field.dart';
 import 'package:tlds_flutter/components/tlds_input_formaters.dart';
@@ -21,8 +22,9 @@ import 'package:toastification/toastification.dart';
 class CreateCustomerDialog extends StatefulWidget {
   final String? customerId;
   final AddSalesBlocImpl? bloc;
-
-  const CreateCustomerDialog({super.key, this.customerId, this.bloc});
+  final CustomerViewBlocImpl? customerScreenBlocImpl;
+  const CreateCustomerDialog(
+      {super.key, this.customerId, this.bloc, this.customerScreenBlocImpl});
 
   @override
   State<CreateCustomerDialog> createState() => _CreateCustomerDialogState();
@@ -131,9 +133,6 @@ class _CreateCustomerDialogState extends State<CreateCustomerDialog> {
     return TldsInputFormField(
       maxLine: 100,
       height: 92,
-      // validator: (value) {
-      //   return InputValidations.addressValidation(value ?? '');
-      // },
       controller: _createCustomerDialogBlocImpl.customerAddressTextController,
       hintText: AppConstants.hintAddress,
       labelText: AppConstants.address,
@@ -267,8 +266,10 @@ class _CreateCustomerDialogState extends State<CreateCustomerDialog> {
               (statusCode) {
                 if (statusCode == 200 || statusCode == 201) {
                   _isLoading(false);
+                  widget.customerScreenBlocImpl?.customerTableStream(true);
+                  widget.customerScreenBlocImpl
+                      ?.pageNumberUpdateStreamController(0);
                   Navigator.pop(context);
-
                   AppWidgetUtils.buildToast(
                       context,
                       ToastificationType.success,
@@ -299,6 +300,9 @@ class _CreateCustomerDialogState extends State<CreateCustomerDialog> {
                 .addCustomer((statusCode, customerName, customerId) {
               if (statusCode == 200 || statusCode == 201) {
                 _isLoading(false);
+                widget.customerScreenBlocImpl?.customerTableStream(true);
+                widget.customerScreenBlocImpl
+                    ?.pageNumberUpdateStreamController(0);
                 Navigator.pop(context);
 
                 AppWidgetUtils.buildToast(
@@ -311,13 +315,10 @@ class _CreateCustomerDialogState extends State<CreateCustomerDialog> {
                     ),
                     AppConstants.customerUpdateSuccessfully,
                     _appColors.successLightColor);
-
                 widget.bloc?.selectedCustomerDetailsStreamController(true);
                 widget.bloc?.selectedCustomer = customerName ?? '';
                 widget.bloc?.selectedCustomerId = customerId ?? '';
                 widget.bloc?.customerNameStreamcontroller(true);
-                print(widget.bloc?.selectedCustomer);
-                print(widget.bloc?.selectedCustomerId);
                 widget.bloc?.selectedCustomerDetailsStreamController(true);
               } else {
                 _isLoading(false);

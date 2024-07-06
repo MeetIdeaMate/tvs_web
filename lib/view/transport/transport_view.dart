@@ -61,7 +61,7 @@ class _TransportViewState extends State<TransportView> {
           stream: _transportBlocImpl.transportMobileNumberStreamController,
           builder: (context, snapshot) {
             return _buildFormField(
-                inputFormatters: TldsInputFormatters.onlyAllowNumbers,
+                inputFormatters: TldsInputFormatters.phoneNumberInputFormatter,
                 _transportBlocImpl.transportMobNoSearchController,
                 AppConstants.mobileNumber);
           },
@@ -82,6 +82,7 @@ class _TransportViewState extends State<TransportView> {
           text: AppConstants.addTransport,
           onPressed: () {
             showDialog(
+              barrierDismissible: false,
               context: context,
               builder: (context) {
                 return const CreateTransportDialog();
@@ -161,7 +162,22 @@ class _TransportViewState extends State<TransportView> {
                     child: Text(AppConstants.somethingWentWrong));
               } else if (!snapshot.hasData ||
                   snapshot.data?.transportDetails?.isEmpty == true) {
-                return Center(child: SvgPicture.asset(AppConstants.imgNoData));
+                return Expanded(
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        SvgPicture.asset(AppConstants.imgNoData),
+                        AppWidgetUtils.buildSizedBox(custHeight: 8),
+                        Text(
+                          AppConstants.noTransportDataAvailable,
+                          style: TextStyle(color: _appColors.grey),
+                        )
+                      ],
+                    ),
+                  ),
+                );
               }
 
               GetTransportByPaginationModel? getTransportByPaginationModel =
@@ -201,20 +217,19 @@ class _TransportViewState extends State<TransportView> {
                                   Row(
                                     children: [
                                       IconButton(
-                                        icon: SvgPicture.asset(
-                                            AppConstants.icEdit),
-                                        onPressed: () {
-                                          showDialog(
-                                            context: context,
-                                            builder: (context) {
-                                              return CreateTransportDialog(
-                                                  transportId:
-                                                      entry.value.transportId);
-                                            },
-                                          ).then((value) => _transportBlocImpl
-                                              .tablePageNoStream(0));
-                                        },
-                                      ),
+                                          icon: SvgPicture.asset(
+                                              AppConstants.icEdit),
+                                          onPressed: () {
+                                            showDialog(
+                                              barrierDismissible: false,
+                                              context: context,
+                                              builder: (context) {
+                                                return CreateTransportDialog(
+                                                    transportId: entry
+                                                        .value.transportId);
+                                              },
+                                            );
+                                          }),
                                     ],
                                   ),
                                 ),

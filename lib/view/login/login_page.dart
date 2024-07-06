@@ -26,8 +26,8 @@ class _LoginPageState extends State<LoginPage> {
   @override
   void initState() {
     super.initState();
-    // _loginPageBlocImpl.mobileNumberTextController.text = '9597550652';
-    // _loginPageBlocImpl.passwordTextController.text = '1234';
+    _loginPageBlocImpl.mobileNumberTextController.text = '9876543210';
+    _loginPageBlocImpl.passwordTextController.text = '1234';
   }
 
   @override
@@ -164,7 +164,7 @@ class _LoginPageState extends State<LoginPage> {
                 _loginPageBlocImpl.ispasswordVisible
                     ? Icons.visibility_outlined
                     : Icons.visibility_off_outlined,
-                color: _appColors.greyColor),
+                color: _appColors.primaryColor),
           ),
           validator: (validation) =>
               InputValidations.passwordValidation(validation!),
@@ -187,8 +187,8 @@ class _LoginPageState extends State<LoginPage> {
 
   _buiuldOnPressed() async {
     if (_loginPageBlocImpl.loginFormKey.currentState!.validate()) {
+      _isLoadingState(state: true);
       _loginPageBlocImpl.login((statusCode) {
-        //  print('statusCode $statusCode');
         if (statusCode == 200 || statusCode == 201) {
           _isLoadingState(state: true);
           const Center(
@@ -213,6 +213,7 @@ class _LoginPageState extends State<LoginPage> {
             ));
           });
         } else {
+          _isLoadingState(state: false);
           AppWidgetUtils.buildToast(
               context,
               ToastificationType.error,

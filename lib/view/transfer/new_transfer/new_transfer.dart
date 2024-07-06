@@ -9,10 +9,12 @@ import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/utils/app_util_widgets.dart';
 import 'package:tlbilling/view/transfer/new_transfer/new_transfer_bloc.dart';
 import 'package:tlbilling/view/transfer/new_transfer/tranfer_details.dart';
+import 'package:tlbilling/view/transfer/transfer_view_bloc.dart';
 import 'package:tlds_flutter/components/tlds_input_form_field.dart';
 
 class NewTransfer extends StatefulWidget {
-  const NewTransfer({super.key});
+  final TransferViewBlocImpl? transferViewBloc;
+  const NewTransfer({super.key, this.transferViewBloc});
 
   @override
   State<NewTransfer> createState() => _NewTransferState();
@@ -48,7 +50,10 @@ class _NewTransferState extends State<NewTransfer> {
           child: Row(
             children: [
               _buildVehicleDetails(),
-              TransferDetails(newTransferBloc: _newTransferBloc),
+              TransferDetails(
+                newTransferBloc: _newTransferBloc,
+                transferViewBloc: widget.transferViewBloc,
+              ),
             ],
           )),
     );
@@ -175,34 +180,41 @@ class _NewTransferState extends State<NewTransfer> {
         final IconData iconData = isTextEmpty ? Icons.search : Icons.close;
         final Color iconColor =
             isTextEmpty ? _appColors.primaryColor : Colors.red;
-        return TldsInputFormField(
-          width: MediaQuery.sizeOf(context).width,
-          height: 40,
-          controller: _newTransferBloc.vehicleAndEngineNumberController,
-          hintText: AppConstants.vehicleNameAndEngineNumber,
-          suffixIcon: IconButton(
-            onPressed: () {
-              isTextEmpty
-                  ? null
-                  : _newTransferBloc.vehicleAndEngineNumberController.clear();
+        bool showSearchBar =
+            _newTransferBloc.selectedVehicleAndAccessories == 'Accessories'
+                ? (_newTransferBloc.accessoriesList?.isNotEmpty ?? false)
+                : (_newTransferBloc.vehicleData?.isNotEmpty ?? false);
+        return Visibility(
+          visible: showSearchBar,
+          child: TldsInputFormField(
+            width: MediaQuery.sizeOf(context).width,
+            height: 40,
+            controller: _newTransferBloc.vehicleAndEngineNumberController,
+            hintText: AppConstants.vehicleNameAndEngineNumber,
+            suffixIcon: IconButton(
+              onPressed: () {
+                isTextEmpty
+                    ? null
+                    : _newTransferBloc.vehicleAndEngineNumberController.clear();
+                _newTransferBloc.vehicleAndEngineNumberStreamController(true);
+                _newTransferBloc.availableVehicleListStream(true);
+                _newTransferBloc.selectedItemStream(true);
+              },
+              icon: Icon(
+                iconData,
+                color: iconColor,
+              ),
+            ),
+            onSubmit: (vehicleAndEngineNumber) {
               _newTransferBloc.vehicleAndEngineNumberStreamController(true);
               _newTransferBloc.availableVehicleListStream(true);
               _newTransferBloc.selectedItemStream(true);
             },
-            icon: Icon(
-              iconData,
-              color: iconColor,
-            ),
+            onChanged: (p0) {
+              _newTransferBloc.availableVehicleListStream(true);
+              _newTransferBloc.selectedItemStream(true);
+            },
           ),
-          onSubmit: (vehicleAndEngineNumber) {
-            _newTransferBloc.vehicleAndEngineNumberStreamController(true);
-            _newTransferBloc.availableVehicleListStream(true);
-            _newTransferBloc.selectedItemStream(true);
-          },
-          onChanged: (p0) {
-            _newTransferBloc.availableVehicleListStream(true);
-            _newTransferBloc.selectedItemStream(true);
-          },
         );
       },
     );
@@ -213,9 +225,28 @@ class _NewTransferState extends State<NewTransfer> {
       future: _newTransferBloc.stockListWithOutPagination(),
       builder: (context, futureSnapshot) {
         _newTransferBloc.vehicleData = futureSnapshot.data;
+        _newTransferBloc.vehicleAndEngineNumberStreamController(true);
         if (futureSnapshot.connectionState == ConnectionState.waiting) {
           return Center(
             child: AppWidgetUtils.buildLoading(),
+          );
+        } else if (!futureSnapshot.hasData ||
+            futureSnapshot.data?.isEmpty == true) {
+          return Expanded(
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  SvgPicture.asset(AppConstants.imgNoData),
+                  AppWidgetUtils.buildSizedBox(custHeight: 8),
+                  Text(
+                    AppConstants.noDataAvailable,
+                    style: TextStyle(color: _appColors.grey),
+                  )
+                ],
+              ),
+            ),
           );
         } else if (futureSnapshot.hasData) {
           if (futureSnapshot.data != null) {
@@ -236,6 +267,24 @@ class _NewTransferState extends State<NewTransfer> {
                                 .contains(searchTerm.toLowerCase()) ??
                             false))
                     .toList();
+                if (_newTransferBloc.filteredVehicleData?.isEmpty == true) {
+                  return Expanded(
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          SvgPicture.asset(AppConstants.imgNoData),
+                          AppWidgetUtils.buildSizedBox(custHeight: 8),
+                          Text(
+                            AppConstants.noDataAvailable,
+                            style: TextStyle(color: _appColors.grey),
+                          )
+                        ],
+                      ),
+                    ),
+                  );
+                }
                 return Expanded(
                     child: ListView.builder(
                   itemCount: _newTransferBloc.filteredVehicleData?.length,
@@ -247,13 +296,39 @@ class _NewTransferState extends State<NewTransfer> {
               },
             );
           } else {
-            return Center(
-              child: SvgPicture.asset(AppConstants.imgNoData),
+            return Expanded(
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    SvgPicture.asset(AppConstants.imgNoData),
+                    AppWidgetUtils.buildSizedBox(custHeight: 8),
+                    Text(
+                      AppConstants.noDataAvailable,
+                      style: TextStyle(color: _appColors.grey),
+                    )
+                  ],
+                ),
+              ),
             );
           }
         }
-        return Center(
-          child: SvgPicture.asset(AppConstants.imgNoData),
+        return Expanded(
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                SvgPicture.asset(AppConstants.imgNoData),
+                AppWidgetUtils.buildSizedBox(custHeight: 8),
+                Text(
+                  AppConstants.noDataAvailable,
+                  style: TextStyle(color: _appColors.grey),
+                )
+              ],
+            ),
+          ),
         );
       },
     );
@@ -277,8 +352,6 @@ class _NewTransferState extends State<NewTransfer> {
               children: [
                 _buildCustomTextWidget(vehicle?.itemName ?? '',
                     fontSize: 14, fontWeight: FontWeight.w500),
-                /*_buildCustomTextWidget('${vehicle[AppConstants.color]}',
-                    fontSize: 12, fontWeight: FontWeight.w500),*/
               ],
             ),
             _buildCustomTextWidget(vehicle?.partNo ?? '',
@@ -316,6 +389,8 @@ class _NewTransferState extends State<NewTransfer> {
                           _newTransferBloc
                               .selectedVehicleListStreamController(true);
                           _newTransferBloc.selectedItemStream(true);
+                          _newTransferBloc
+                              .vehicleAndEngineNumberStreamController(true);
                         },
                         icon: SvgPicture.asset(
                           AppConstants.icFilledAdd,
@@ -337,31 +412,32 @@ class _NewTransferState extends State<NewTransfer> {
       future: _newTransferBloc.stockListWithOutPagination(),
       builder: (context, futureSnapshot) {
         _newTransferBloc.accessoriesList = futureSnapshot.data;
+        _newTransferBloc.vehicleAndEngineNumberStreamController(true);
         return StreamBuilder(
           stream: _newTransferBloc.availableAccListStreamController,
           builder: (context, snapshot) {
-            /*String searchTerm =
-                _newTransferBloc.vehicleAndEngineNumberController.text;
-            _newTransferBloc.filteredVehicleData = _newTransferBloc
-                .vehicleData
-                ?.where((vehicle) =>
-            (vehicle.mainSpecValue?.engineNo
-                ?.toLowerCase()
-                .contains(searchTerm.toLowerCase()) ??
-                false) ||
-                (vehicle.itemName
-                    ?.toLowerCase()
-                    .contains(searchTerm.toLowerCase()) ??
-                    false))
-                .toList();*/
             if (futureSnapshot.connectionState == ConnectionState.waiting) {
               return Center(
                 child: AppWidgetUtils.buildLoading(),
               );
             } else if (futureSnapshot.hasData) {
-              if (_newTransferBloc.accessoriesList?.isEmpty == true) {
-                return Center(
-                  child: SvgPicture.asset(AppConstants.imgNoData),
+              if (!futureSnapshot.hasData ||
+                  _newTransferBloc.accessoriesList?.isEmpty == true) {
+                return Expanded(
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        SvgPicture.asset(AppConstants.imgNoData),
+                        AppWidgetUtils.buildSizedBox(custHeight: 8),
+                        Text(
+                          AppConstants.noDataAvailable,
+                          style: TextStyle(color: _appColors.grey),
+                        )
+                      ],
+                    ),
+                  ),
                 );
               } else {
                 return Expanded(
@@ -422,6 +498,9 @@ class _NewTransferState extends State<NewTransfer> {
                                           ?.add(accessoriesData!);
                                       _newTransferBloc
                                           .filteredAccListStream(true);
+                                      _newTransferBloc
+                                          .vehicleAndEngineNumberStreamController(
+                                              true);
                                     },
                                     icon: SvgPicture.asset(
                                       AppConstants.icFilledAdd,
@@ -438,8 +517,21 @@ class _NewTransferState extends State<NewTransfer> {
                 ));
               }
             } else {
-              return Center(
-                child: SvgPicture.asset(AppConstants.imgNoData),
+              return Expanded(
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      SvgPicture.asset(AppConstants.imgNoData),
+                      AppWidgetUtils.buildSizedBox(custHeight: 8),
+                      Text(
+                        AppConstants.noDataAvailable,
+                        style: TextStyle(color: _appColors.grey),
+                      )
+                    ],
+                  ),
+                ),
               );
             }
           },
@@ -454,7 +546,8 @@ class _NewTransferState extends State<NewTransfer> {
       Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildCustomTextWidget(AppConstants.selectedVehicle,
+          _buildCustomTextWidget(
+              'Selected ${_newTransferBloc.selectedVehicleAndAccessories}',
               color: _appColors.primaryColor,
               fontWeight: FontWeight.w700,
               fontSize: 19),
@@ -463,8 +556,21 @@ class _NewTransferState extends State<NewTransfer> {
               stream: _newTransferBloc.selectedItemStreamController,
               builder: (context, streamSnapshot) {
                 if (_newTransferBloc.selectedVehicleList?.isEmpty == true) {
-                  return Center(
-                    child: SvgPicture.asset(AppConstants.imgNoData),
+                  return Expanded(
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          SvgPicture.asset(AppConstants.imgNoData),
+                          AppWidgetUtils.buildSizedBox(custHeight: 8),
+                          Text(
+                            AppConstants.noDataAvailable,
+                            style: TextStyle(color: _appColors.grey),
+                          )
+                        ],
+                      ),
+                    ),
                   );
                 } else {
                   return ListView.builder(
@@ -495,11 +601,6 @@ class _NewTransferState extends State<NewTransfer> {
                                     fontSize: 14,
                                     fontWeight: FontWeight.w500,
                                   ),
-                                  /*_buildCustomTextWidget(
-                                    '${selectedVehicleData[AppConstants.color]}',
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w500,
-                                  ),*/
                                 ],
                               ),
                               _buildCustomTextWidget(
@@ -536,12 +637,13 @@ class _NewTransferState extends State<NewTransfer> {
                                               ?.removeAt(index);
                                           _newTransferBloc
                                               .selectedItemStream(true);
-                                          // _newTransferBloc.filteredVehicleData
-                                          //     ?.add(selectedVehicleData!);
                                           _newTransferBloc.vehicleData
                                               ?.add(selectedVehicleData!);
                                           _newTransferBloc
                                               .availableVehicleListStream(true);
+                                          _newTransferBloc
+                                              .vehicleAndEngineNumberStreamController(
+                                                  true);
                                         },
                                         icon: SvgPicture.asset(
                                           AppConstants.icFilledClose,
@@ -629,34 +731,32 @@ class _NewTransferState extends State<NewTransfer> {
                 color: _appColors.liteGrayColor)
           ],
         ),
-        Container(
-          child: Row(
-            children: [
-              IconButton(
-                onPressed: () {
-                  _newTransferBloc.updateAccessoriesQuantity(
-                      accessoriesDetails, false);
-                },
-                icon: SvgPicture.asset(
-                  AppConstants.icFilledMinus,
-                  width: 24,
-                  height: 24,
-                ),
+        Row(
+          children: [
+            IconButton(
+              onPressed: () {
+                _newTransferBloc.updateAccessoriesQuantity(
+                    accessoriesDetails, false);
+              },
+              icon: SvgPicture.asset(
+                AppConstants.icFilledMinus,
+                width: 24,
+                height: 24,
               ),
-              Text(accessoriesDetails?.selectedQuantity.toString() ?? ''),
-              IconButton(
-                onPressed: () {
-                  _newTransferBloc.updateAccessoriesQuantity(
-                      accessoriesDetails, true);
-                },
-                icon: SvgPicture.asset(
-                  AppConstants.icFilledAdd,
-                  width: 24,
-                  height: 24,
-                ),
+            ),
+            Text(accessoriesDetails?.selectedQuantity.toString() ?? ''),
+            IconButton(
+              onPressed: () {
+                _newTransferBloc.updateAccessoriesQuantity(
+                    accessoriesDetails, true);
+              },
+              icon: SvgPicture.asset(
+                AppConstants.icFilledAdd,
+                width: 24,
+                height: 24,
               ),
-            ],
-          ),
+            ),
+          ],
         ),
         IconButton(
             onPressed: () {
@@ -664,6 +764,7 @@ class _NewTransferState extends State<NewTransfer> {
               _newTransferBloc.filteredAccListStream(true);
               _newTransferBloc.accessoriesList?.add(accessoriesDetails!);
               _newTransferBloc.availableAccListStream(true);
+              _newTransferBloc.vehicleAndEngineNumberStreamController(true);
             },
             icon: SvgPicture.asset(AppConstants.icFilledClose))
       ],
@@ -694,11 +795,6 @@ class _NewTransferState extends State<NewTransfer> {
           color: color, fontWeight: fontWeight, fontSize: fontSize),
     );
   }
-
-  /*Widget? _buildDefaultWidth({double? width}) {
-    return AppWidgetUtils.buildSizedBox(
-        custWidth: width ?? MediaQuery.sizeOf(context).width * 0.01);
-  }*/
 
   Widget _buildDefaultHeight({double? height}) {
     return AppWidgetUtils.buildSizedBox(

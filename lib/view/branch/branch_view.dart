@@ -5,8 +5,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:tlbilling/components/custom_pagenation.dart';
 import 'package:tlbilling/models/get_model/get_all_branches_by_pagination.dart';
 import 'package:tlbilling/utils/app_colors.dart';
-
-//import 'package:tlbilling/utils/app_colors.dart';
 import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/utils/app_util_widgets.dart';
 import 'package:tlbilling/view/action_dialog/delete_dialog.dart';
@@ -76,13 +74,12 @@ class _MyWidgetState extends State<BranchView> {
   _buildAddBranchButton(BuildContext context) {
     return AppWidgetUtils.buildAddbutton(flex: 1, context, onPressed: () {
       return showDialog(
+        barrierDismissible: false,
         context: context,
         builder: (context) {
-          return const CreateBranchDialog();
+          return CreateBranchDialog(branchViewBlocImpl: _branchViewBlocImpl);
         },
-      ).then((value) {
-        _branchViewBlocImpl.branchTablePageStream(0);
-      });
+      );
     }, text: AppConstants.addBranch);
   }
 
@@ -243,6 +240,7 @@ class _MyWidgetState extends State<BranchView> {
                                     ),
                                     onPressed: () {
                                       showDialog(
+                                        barrierDismissible: false,
                                         context: context,
                                         builder: (context) {
                                           return BranchDetails(
@@ -264,26 +262,15 @@ class _MyWidgetState extends State<BranchView> {
                                             AppConstants.icEdit),
                                         onPressed: () {
                                           showDialog(
+                                            barrierDismissible: false,
                                             context: context,
                                             builder: (context) =>
                                                 CreateBranchDialog(
                                                     branchId:
                                                         entry.value.branchId),
-                                          ).then((value) => _branchViewBlocImpl
-                                              .branchTablePageStream(0));
+                                          );
                                         },
                                       ),
-                                      // IconButton(
-                                      //     icon: SvgPicture.asset(
-                                      //         AppConstants.icdelete),
-                                      //     onPressed: () {
-                                      //       showDialog(
-                                      //         context: context,
-                                      //         builder: (context) {
-                                      //           return _deleteDialog(entry);
-                                      //         },
-                                      //       );
-                                      //     }),
                                     ],
                                   ),
                                 )

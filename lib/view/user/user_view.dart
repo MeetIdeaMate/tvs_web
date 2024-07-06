@@ -29,6 +29,9 @@ class _UserViewState extends State<UserView> {
     setState(() {
       _userViewBlocImpl.branchName = prefs.getString('branchName') ?? '';
       _userViewBlocImpl.isMainBranch = prefs.getBool('mainBranch');
+      if (_userViewBlocImpl.isMainBranch ?? false) {
+        _userViewBlocImpl.branchId = AppConstants.allBranch;
+      }
     });
   }
 
@@ -72,6 +75,7 @@ class _UserViewState extends State<UserView> {
           context,
           onPressed: () {
             showDialog(
+              barrierDismissible: false,
               context: context,
               builder: (context) {
                 return CreateUserDialog(userViewBloc: _userViewBlocImpl);
@@ -99,9 +103,8 @@ class _UserViewState extends State<UserView> {
             for (var branch in snapshot.data!.result!.getAllBranchList!)
               if (branch.branchName != null) branch.branchName!: branch.branchId
           };
-
           final branchNameList = branchMap.keys.toList();
-
+          branchNameList.insert(0, AppConstants.allBranch);
           return _buildDropDown(
             dropDownItems:
                 (branchNameList.isNotEmpty) ? branchNameList : List.empty(),
@@ -110,7 +113,6 @@ class _UserViewState extends State<UserView> {
             onChange: (value) {
               _userViewBlocImpl.branchId = branchMap[value];
               _userViewBlocImpl.branchName = value;
-
               _userViewBlocImpl.pageNumberUpdateStreamController(0);
             },
           );
@@ -146,12 +148,11 @@ class _UserViewState extends State<UserView> {
           configId: AppConstants.designation),
       builder: (context, snapshot) {
         List<String> designationList = snapshot.data ?? [];
-        designationList.insert(0, AppConstants.all);
-
+        designationList.insert(0, AppConstants.allDesignation);
         return CustomDropDownButtonFormField(
           width: MediaQuery.sizeOf(context).width * 0.15,
           height: 40,
-          dropDownValue: AppConstants.all,
+          dropDownValue: AppConstants.allDesignation,
           dropDownItems:
               (snapshot.hasData && (snapshot.data?.isNotEmpty == true))
                   ? designationList
@@ -190,7 +191,6 @@ class _UserViewState extends State<UserView> {
               isSearch: true,
               width: MediaQuery.of(context).size.width * 0.19,
               inputFormatters: tlds.TldsInputFormatters.allowAlphabetsAndSpaces,
-              //   hintColor: AppColors().hintColor,
               suffixIcon: IconButton(
                 onPressed: () {
                   if (iconPath == Icons.search) {
@@ -231,7 +231,6 @@ class _UserViewState extends State<UserView> {
             int currentPage = streamSnapshot.data ?? 0;
             if (currentPage < 0) currentPage = 0;
             _userViewBlocImpl.currentPage = currentPage;
-
             return FutureBuilder(
               future: _userViewBlocImpl.getUserList(),
               builder: (context, snapshot) {
@@ -241,7 +240,6 @@ class _UserViewState extends State<UserView> {
                   );
                 } else if (snapshot.hasData) {
                   UsersListModel userList = snapshot.data!;
-
                   List<UserDetailsList>? userData = snapshot.data?.content;
                   if (userData != null && userData.isNotEmpty) {
                     return Column(
@@ -302,34 +300,6 @@ class _UserViewState extends State<UserView> {
                                             DataCell(
                                               _buildUserActiveInActiveSwitch(
                                                   entry),
-                                              // Row(
-                                              //   mainAxisAlignment:
-                                              //       MainAxisAlignment.start,
-                                              //   children: [
-                                              //     IconButton(
-                                              //       icon: SvgPicture.asset(
-                                              //           AppConstants.icEdit),
-                                              //       onPressed: () {},
-                                              //     ),
-                                              //     IconButton(
-                                              //         icon: SvgPicture.asset(
-                                              //             AppConstants
-                                              //                 .icdelete),
-                                              //         onPressed: () {
-                                              //           showDialog(
-                                              //             context: context,
-                                              //             builder: (context) {
-                                              //               return DeleteDialog(
-                                              //                 content:
-                                              //                     AppConstants
-                                              //                         .deleteMsg,
-                                              //                 onPressed: () {},
-                                              //               );
-                                              //             },
-                                              //           );
-                                              //         }),
-                                              //   ],
-                                              // ),
                                             ),
                                           ],
                                         ))
@@ -380,17 +350,16 @@ class _UserViewState extends State<UserView> {
       value: entry.value.userStatus == 'ACTIVE' ? true : false,
       onChanged: (value) {
         showDialog(
+          barrierDismissible: false,
           context: context,
           builder: (context) {
             return UserActiveInActiveDialog(
+              userViewBlocImpl: _userViewBlocImpl,
               userStatus: entry.value.userStatus,
               userId: entry.value.userId,
             );
           },
-        ).then((value) {
-          _userViewBlocImpl.getUserList();
-          _userViewBlocImpl.pageNumberUpdateStreamController(0);
-        });
+        );
       },
     );
   }

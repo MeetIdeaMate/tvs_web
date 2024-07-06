@@ -6,6 +6,7 @@ import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/utils/app_util_widgets.dart';
 import 'package:tlbilling/utils/input_validation.dart';
 import 'package:tlbilling/view/transport/create_transport_dialog_bloc.dart';
+import 'package:tlbilling/view/transport/transport_view_bloc.dart';
 import 'package:tlds_flutter/components/tlds_input_form_field.dart';
 import 'package:tlds_flutter/components/tlds_input_formaters.dart';
 import 'package:tlds_flutter/export.dart' as tlds;
@@ -13,8 +14,10 @@ import 'package:toastification/toastification.dart';
 
 class CreateTransportDialog extends StatefulWidget {
   final String? transportId;
+  final TransportBlocImpl? transportBlocImpl;
 
-  const CreateTransportDialog({super.key, this.transportId});
+  const CreateTransportDialog(
+      {super.key, this.transportId, this.transportBlocImpl});
 
   @override
   State<CreateTransportDialog> createState() =>
@@ -121,6 +124,7 @@ class _CreateTransportDialogDialogState extends State<CreateTransportDialog> {
               (statusCode) {
                 if (statusCode == 200 || statusCode == 201) {
                   _isLoading(false);
+                  widget.transportBlocImpl?.tablePageNoStream(0);
                   Navigator.pop(context);
                   AppWidgetUtils.buildToast(
                       context,
@@ -152,6 +156,7 @@ class _CreateTransportDialogDialogState extends State<CreateTransportDialog> {
               (statusCode) {
                 if (statusCode == 200 || statusCode == 201) {
                   _isLoading(false);
+                  widget.transportBlocImpl?.tablePageNoStream(0);
                   Navigator.pop(context);
                   AppWidgetUtils.buildToast(
                       context,
@@ -186,7 +191,6 @@ class _CreateTransportDialogDialogState extends State<CreateTransportDialog> {
 
   transportNameFeilds() {
     return TldsInputFormField(
-        width: MediaQuery.sizeOf(context).width * 0.188,
         inputFormatters: tlds.TldsInputFormatters.onlyAllowAlphabetAndNumber,
         requiredLabelText:
             AppWidgetUtils.labelTextWithRequired(AppConstants.transportName),

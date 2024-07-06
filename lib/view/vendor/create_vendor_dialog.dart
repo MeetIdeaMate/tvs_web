@@ -10,6 +10,7 @@ import 'package:tlbilling/utils/input_validation.dart';
 import 'package:tlbilling/view/vendor/create_vendor_dialog_bloc.dart';
 import 'package:tlbilling/view/vendor/vendor_view_bloc.dart';
 import 'package:tlds_flutter/components/tlds_input_form_field.dart';
+import 'package:tlds_flutter/components/tlds_input_formaters.dart';
 import 'package:tlds_flutter/export.dart' as tlds;
 import 'package:toastification/toastification.dart';
 
@@ -144,7 +145,7 @@ class _CreateVendorDialogState extends State<CreateVendorDialog> {
       children: [
         Expanded(
           child: TldsInputFormField(
-              inputFormatters: tlds.TldsInputFormatters.onlyAllowAlphabets,
+              inputFormatters: TlInputFormatters.onlyAllowAlphabetsAndSpaces,
               requiredLabelText:
                   AppWidgetUtils.labelTextWithRequired(AppConstants.name),
               validator: (value) {
@@ -158,9 +159,7 @@ class _CreateVendorDialogState extends State<CreateVendorDialog> {
           child: TldsInputFormField(
               maxLength: 10,
               counterText: '',
-              inputFormatters: [
-                FilteringTextInputFormatter.digitsOnly,
-              ],
+              inputFormatters: TlInputFormatters.onlyAllowNumbers,
               requiredLabelText: AppWidgetUtils.labelTextWithRequired(
                   AppConstants.mobileNumber),
               validator: (value) {
@@ -180,9 +179,7 @@ class _CreateVendorDialogState extends State<CreateVendorDialog> {
         AppWidgetUtils.buildSizedBox(custWidth: 14),
         Expanded(
           child: TldsInputFormField(
-              inputFormatters: [
-                FilteringTextInputFormatter.allow(RegExp("[a-z A-Z ]")),
-              ],
+              inputFormatters: TlInputFormatters.onlyAllowAlphabetsAndSpaces,
               requiredLabelText:
                   AppWidgetUtils.labelTextWithRequired(AppConstants.city),
               validator: (value) {
@@ -202,9 +199,7 @@ class _CreateVendorDialogState extends State<CreateVendorDialog> {
           child: TldsInputFormField(
               maxLength: 15,
               counterText: '',
-              inputFormatters: [
-                FilteringTextInputFormatter.allow(RegExp("[0-9 A-Z a-z]")),
-              ],
+              inputFormatters: TlInputFormatters.onlyAllowAlphabetAndNumber,
               requiredLabelText:
                   AppWidgetUtils.labelTextWithRequired(AppConstants.gstNo),
               validator: (value) {
@@ -229,12 +224,10 @@ class _CreateVendorDialogState extends State<CreateVendorDialog> {
 
   _buildAddressFields() {
     return TldsInputFormField(
+        inputFormatters: TlInputFormatters.onlyAllowAlphabetsAndSpaces,
         maxLine: 100,
         height: 80,
         labelText: AppConstants.address,
-        // validator: (value) {
-        //   return InputValidations.nameValidation(value ?? '');
-        // },
         hintText: AppConstants.hintAddress,
         controller: _createVendorDialogBlocImpl.vendorAddressController);
   }
@@ -331,10 +324,9 @@ class _CreateVendorDialogState extends State<CreateVendorDialog> {
       children: [
         Expanded(
           child: TldsInputFormField(
-              inputFormatters: TlInputFormatters.onlyAllowNumbers,
+              inputFormatters: TlInputFormatters.onlyAllowAlphabetAndNumber,
               maxLength: 18,
               counterText: '',
-              //   minLength : 7,
               labelText: AppConstants.accNo,
               hintText: AppConstants.hintAccNo,
               controller: _createVendorDialogBlocImpl.vendorAccNoController),
