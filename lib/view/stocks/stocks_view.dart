@@ -7,6 +7,7 @@ import 'package:tlbilling/models/get_model/get_all_stock_with_pagination.dart';
 import 'package:tlbilling/utils/app_colors.dart';
 import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/utils/app_util_widgets.dart';
+import 'package:tlbilling/utils/input_formates.dart';
 import 'package:tlbilling/view/stocks/stocks_view_bloc.dart';
 import 'package:tlds_flutter/components/tlds_dropdown_button_form_field.dart';
 import 'package:tlds_flutter/components/tlds_input_form_field.dart';
@@ -36,12 +37,11 @@ class _StocksViewState extends State<StocksView>
     SharedPreferences prefs = await SharedPreferences.getInstance();
     _stocksViewBloc.branchId = prefs.getString('branchId') ?? '';
     _stocksViewBloc.isMainBranch = prefs.getBool('mainBranch') ?? false;
-    print(_stocksViewBloc.isMainBranch);
     _stocksViewBloc.getBranchesList().then((value) {
       for (BranchDetail element in value ?? []) {
         if (_stocksViewBloc.branchId == element.branchId) {
           setState(() {
-            _stocksViewBloc.selectedBranch = element.branchName;
+            _stocksViewBloc.selectedBranch = AppConstants.allBranch;
           });
         }
       }
@@ -80,6 +80,7 @@ class _StocksViewState extends State<StocksView>
             final Color iconColor =
                 isTextEmpty ? _appColors.primaryColor : Colors.red;
             return TldsInputFormField(
+              inputFormatters: TlInputFormatters.onlyAllowAlphabetAndNumber,
               width: 203,
               height: 40,
               controller: _stocksViewBloc.partNumberSearchController,
@@ -118,6 +119,7 @@ class _StocksViewState extends State<StocksView>
             final Color iconColor =
                 isTextEmpty ? _appColors.primaryColor : Colors.red;
             return TldsInputFormField(
+              inputFormatters: TlInputFormatters.onlyAllowAlphabetsAndSpaces,
               width: 203,
               height: 40,
               isSearch: true,
@@ -180,8 +182,7 @@ class _StocksViewState extends State<StocksView>
                     onChange: (String? newValue) async {
                       _stocksViewBloc.selectedBranch = newValue ?? '';
                       if (newValue == AppConstants.allBranch) {
-                        _stocksViewBloc.branchId =
-                            ''; // handle all branches case
+                        _stocksViewBloc.branchId = '';
                       } else {
                         BranchDetail? selectedBranch = branches.firstWhere(
                           (branch) => branch.branchName == newValue,
@@ -189,9 +190,6 @@ class _StocksViewState extends State<StocksView>
                         _stocksViewBloc.branchId =
                             selectedBranch.branchId ?? '';
                       }
-                      print(
-                          'Selected branch: ${_stocksViewBloc.selectedBranch}');
-                      print('Branch ID: ${_stocksViewBloc.branchId}');
                       _stocksViewBloc.branchNameDropdownStreamController(true);
                       _stocksViewBloc.pageNumberUpdateStreamController(0);
                     },
@@ -250,7 +248,6 @@ class _StocksViewState extends State<StocksView>
         int currentPage = streamSnapshot.data ?? 0;
         if (currentPage < 0) currentPage = 0;
         _stocksViewBloc.currentPage = currentPage;
-
         return FutureBuilder(
           future: _stocksViewBloc.getAllStockByPagenation(() {
             switch (_stocksViewBloc.stocksTableTableController.index) {
@@ -269,87 +266,99 @@ class _StocksViewState extends State<StocksView>
               return const Center(child: Text(AppConstants.somethingWentWrong));
             } else if (!snapshot.hasData ||
                 snapshot.data?.stockDetailsList?.isEmpty == true) {
-              return Center(child: SvgPicture.asset(AppConstants.imgNoData));
+            return Expanded(
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        SvgPicture.asset(AppConstants.imgNoData),
+                        AppWidgetUtils.buildSizedBox(custHeight: 8),
+                        Text(
+                          AppConstants.noStockDataAvailable,
+                          style: TextStyle(color: _appColors.grey),
+                        )
+                      ],
+                    ),
+                  ),
+                );
             }
-
             GetAllStocksByPagenation stockListModel = snapshot.data!;
             List<StockDetailsList> purchasedata =
                 stockListModel.stockDetailsList ?? [];
-
             return Column(
               children: [
                 Expanded(
                   child: SizedBox(
                     width: MediaQuery.of(context).size.width,
-                    child: Scrollbar(
-                      thumbVisibility: true,
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: DataTable(
-                          dividerThickness: 0.01,
-                          columns: [
-                            _buildVehicleTableHeader(AppConstants.sno),
-                            _buildVehicleTableHeader(AppConstants.branch),
-                            _buildVehicleTableHeader(AppConstants.partNo),
-                            _buildVehicleTableHeader(AppConstants.vehicleName),
-                            _buildVehicleTableHeader(AppConstants.categoryName),
-                            _buildVehicleTableHeader(AppConstants.stockStatus),
-                            _buildVehicleTableHeader(AppConstants.quantity),
-                            _buildVehicleTableHeader(AppConstants.action),
-                          ],
-                          rows: purchasedata.asMap().entries.map((entry) {
-                            return DataRow(
-                              color: MaterialStateColor.resolveWith((states) {
-                                return entry.key % 2 == 0
-                                    ? Colors.white
-                                    : _appColors.transparentBlueColor;
-                              }),
-                              cells: [
-                                _buildTableRow('${entry.key + 1}'),
-                                _buildTableRow(entry.value.branchName),
-                                _buildTableRow(entry.value.partNo),
-                                _buildTableRow(entry.value.itemName),
-                                _buildTableRow(entry.value.categoryName),
-                                //  _buildTableRow(entry.value.stockStatus),
-                                DataCell(Chip(
-                                    side: BorderSide(
-                                        color:
-                                            entry.value.stockStatus == 'Available'
-                                                ? _appColors.successColor
-                                                : _appColors.yellowColor),
-                                    backgroundColor: _appColors.whiteColor,
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(50)),
-                                    label: Text(
-                                      entry.value.stockStatus == 'Available'
-                                          ? 'Available'
-                                          : AppConstants.transfer,
-                                      style: TextStyle(
-                                          color: entry.value.stockStatus ==
-                                                  'Available'
-                                              ? _appColors.successColor
-                                              : _appColors.yellowColor),
-                                    ))),
-                                _buildTableRow(
-                                    entry.value.totalQuantity.toString()),
-                                DataCell(IconButton(
-                                    onPressed: () {
-                                      showDialog(
-                                        context: context,
-                                        builder: (context) {
-                                          return _buildStockDetailsDialog(
-                                              entry.value);
-                                        },
-                                      );
-                                    },
-                                    icon: Icon(
-                                      Icons.table_chart_outlined,
-                                      color: AppColor().primaryColor,
-                                    ))),
-                              ],
-                            );
-                          }).toList(),
-                        ),
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: DataTable(
+                        dividerThickness: 0.01,
+                        columns: [
+                          _buildVehicleTableHeader(AppConstants.sno),
+                          _buildVehicleTableHeader(AppConstants.branch),
+                          _buildVehicleTableHeader(AppConstants.partNo),
+                          _buildVehicleTableHeader(AppConstants.vehicleName),
+                          _buildVehicleTableHeader(AppConstants.categoryName),
+                          _buildVehicleTableHeader(AppConstants.stockStatus),
+                          _buildVehicleTableHeader(AppConstants.quantity),
+                          _buildVehicleTableHeader(AppConstants.action),
+                        ],
+                        rows: purchasedata.asMap().entries.map((entry) {
+                          return DataRow(
+                            color: MaterialStateColor.resolveWith((states) {
+                              return entry.key % 2 == 0
+                                  ? Colors.white
+                                  : _appColors.transparentBlueColor;
+                            }),
+                            cells: [
+                              _buildTableRow('${entry.key + 1}'),
+                              _buildTableRow(entry.value.branchName),
+                              _buildTableRow(entry.value.partNo),
+                              _buildTableRow(entry.value.itemName),
+                              _buildTableRow(entry.value.categoryName),
+                              //  _buildTableRow(entry.value.stockStatus),
+                              DataCell(Chip(
+                                  side: BorderSide(
+                                      color: entry.value.stockStatus ==
+                                              AppConstants.available
+                                          ? _appColors.successColor
+                                          : _appColors.yellowColor),
+                                  backgroundColor: _appColors.whiteColor,
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius:
+                                          BorderRadius.circular(50)),
+                                  label: Text(
+                                    entry.value.stockStatus ==
+                                            AppConstants.available
+                                        ? AppConstants.available
+                                        : AppConstants.transfer,
+                                    style: TextStyle(
+                                        color: entry.value.stockStatus ==
+                                                AppConstants.available
+                                            ? _appColors.successColor
+                                            : _appColors.yellowColor),
+                                  ))),
+                              _buildTableRow(
+                                  entry.value.totalQuantity.toString()),
+                              DataCell(IconButton(
+                                  onPressed: () {
+                                    showDialog(
+                                      context: context,
+                                      builder: (context) {
+                                        return _buildStockDetailsDialog(
+                                            entry.value);
+                                      },
+                                    );
+                                  },
+                                  icon: Icon(
+                                    Icons.table_chart_outlined,
+                                    color: AppColor().primaryColor,
+                                  ))),
+                            ],
+                          );
+                        }).toList(),
                       ),
                     ),
                   ),
@@ -393,7 +402,7 @@ class _StocksViewState extends State<StocksView>
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
-            'Vehicle Details',
+            AppConstants.vehicleDetails,
             style: TextStyle(color: AppColor().primaryColor),
           ),
           IconButton(
@@ -413,7 +422,10 @@ class _StocksViewState extends State<StocksView>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               ExpansionTile(
-                title: Text(stockDetails.itemName ?? 'N/A'),
+                title: Text(
+                  stockDetails.itemName ?? 'N/A',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
                 subtitle: Text(stockDetails.partNo ?? 'N/A'),
                 expandedAlignment: Alignment.topLeft,
                 dense: true,

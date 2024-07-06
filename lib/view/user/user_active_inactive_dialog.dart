@@ -3,13 +3,16 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:tlbilling/components/custom_action_button.dart';
 import 'package:tlbilling/utils/app_util_widgets.dart';
 import 'package:tlbilling/view/user/create_user_dialog_bloc.dart';
+import 'package:tlbilling/view/user/user_view_bloc.dart';
 import 'package:tlds_flutter/util/app_colors.dart';
 
 class UserActiveInActiveDialog extends StatefulWidget {
   final String? userStatus;
   final String? userId;
+  final UserViewBlocImpl? userViewBlocImpl;
 
-  const UserActiveInActiveDialog({super.key, this.userStatus, this.userId});
+  const UserActiveInActiveDialog(
+      {super.key, this.userStatus, this.userId, this.userViewBlocImpl});
 
   @override
   State<UserActiveInActiveDialog> createState() =>
@@ -23,9 +26,16 @@ class _UserActiveInActiveDialogState extends State<UserActiveInActiveDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       backgroundColor: _appColor.whiteColor,
       surfaceTintColor: _appColor.whiteColor,
       content: Column(mainAxisSize: MainAxisSize.min, children: [
+        Icon(
+          Icons.lock_person_rounded,
+          color: _appColor.primaryColor,
+          size: 40,
+        ),
+        AppWidgetUtils.buildSizedBox(custHeight: 10),
         Text(
           'Are you sure! \n want to change the ${widget.userStatus ?? 'user'} status',
           textAlign: TextAlign.center,
@@ -44,6 +54,8 @@ class _UserActiveInActiveDialogState extends State<UserActiveInActiveDialog> {
                 widget.userId,
                 (statusCode) {
                   if (statusCode == 200) {
+                    widget.userViewBlocImpl
+                        ?.pageNumberUpdateStreamController(0);
                     Navigator.pop(context);
                   }
                 },

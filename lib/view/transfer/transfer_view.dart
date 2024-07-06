@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tlbilling/components/custom_action_button.dart';
 import 'package:tlbilling/components/custom_elevated_button.dart';
@@ -13,9 +11,7 @@ import 'package:tlbilling/utils/app_util_widgets.dart';
 import 'package:tlbilling/utils/app_utils.dart';
 import 'package:tlbilling/view/transfer/new_transfer/new_transfer.dart';
 import 'package:tlbilling/view/transfer/transfer_view_bloc.dart';
-import 'package:tlds_flutter/components/tlds_date_picker.dart';
 import 'package:tlds_flutter/components/tlds_dropdown_button_form_field.dart';
-import 'package:tlds_flutter/components/tlds_input_form_field.dart';
 import 'package:toastification/toastification.dart';
 
 class TransferView extends StatefulWidget {
@@ -49,13 +45,9 @@ class _TransferViewState extends State<TransferView>
 
   Future<void> getBranchId() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-
     setState(() {
       _transferViewBloc.branchId = prefs.getString('branchId') ?? '';
       _transferViewBloc.isMainbranch = prefs.getBool('mainBranch');
-
-      print('*********brancis main => ${prefs.getBool('mainBranch')}');
-      print('*********sub branch main => ${_transferViewBloc.isMainbranch}');
     });
     _transferViewBloc.getBranchesList().then((value) {
       for (BranchDetail element in value ?? []) {
@@ -116,13 +108,9 @@ class _TransferViewState extends State<TransferView>
             ),
             _buildDefaultWidth(),
             _buildFromAndToBranchDropdown(),
-            // _buildDefaultWidth(),
-            // _buildFromDateAndToDate(),
           ],
         ),
-        Row(
-          children: [_buildNewTransfer()],
-        )
+        _buildNewTransfer()
       ],
     );
   }
@@ -133,7 +121,7 @@ class _TransferViewState extends State<TransferView>
         FutureBuilder(
           future: _transferViewBloc.getBranchesList(),
           builder: (context, futureSnapshot) {
-            List<String> branchNameList = ['All Branch'];
+            List<String> branchNameList = [AppConstants.allBranch];
             branchNameList.addAll(
                 futureSnapshot.data?.map((e) => e.branchName ?? '').toList() ??
                     []);
@@ -173,7 +161,7 @@ class _TransferViewState extends State<TransferView>
                           onChange: (String? newValue) async {
                             _transferViewBloc.selectedFromBranch =
                                 newValue ?? '';
-                            if (newValue == 'All Branch') {
+                            if (newValue == AppConstants.allBranch) {
                               _transferViewBloc.fromBranchId = null;
                             } else {
                               for (var element in futureSnapshot.data ?? []) {
@@ -205,7 +193,7 @@ class _TransferViewState extends State<TransferView>
                         dropDownValue: _transferViewBloc.selectedToBranch,
                         onChange: (String? newValue) {
                           _transferViewBloc.selectedToBranch = newValue ?? '';
-                          if (newValue == 'All Branch') {
+                          if (newValue == AppConstants.allBranch) {
                             _transferViewBloc.toBranchId = null;
                           } else {
                             for (var element in futureSnapshot.data ?? []) {
@@ -223,50 +211,6 @@ class _TransferViewState extends State<TransferView>
               );
             }
           },
-        ),
-      ],
-    );
-  }
-
-  Widget _buildFromDateAndToDate() {
-    return Row(
-      children: [
-        TldsDatePicker(
-          firstDate: DateTime(2000, 1, 1),
-          height: 40,
-          onChanged: (p0) {
-            _transferViewBloc.tableRefreshStream(true);
-          },
-          suffixIcon: SvgPicture.asset(
-            AppConstants.icDate,
-            colorFilter: ColorFilter.mode(
-              _appColors.primaryColor,
-              BlendMode.srcIn,
-            ),
-          ),
-          fontSize: 14,
-          width: 150,
-          hintText: AppConstants.fromDate,
-          controller: _transferViewBloc.fromDateTextController,
-        ),
-        _buildDefaultWidth(),
-        TldsDatePicker(
-          firstDate: DateTime(2000, 1, 1),
-          height: 40,
-          onChanged: (p0) {
-            _transferViewBloc.tableRefreshStream(true);
-          },
-          suffixIcon: SvgPicture.asset(
-            AppConstants.icDate,
-            colorFilter: ColorFilter.mode(
-              _appColors.primaryColor,
-              BlendMode.srcIn,
-            ),
-          ),
-          fontSize: 14,
-          width: 150,
-          hintText: AppConstants.toDate,
-          controller: _transferViewBloc.toDateTextController,
         ),
       ],
     );
@@ -293,11 +237,10 @@ class _TransferViewState extends State<TransferView>
         Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => const NewTransfer(),
-            )).then((value) {
-          _transferViewBloc.tabBarStream(true);
-          _transferViewBloc.tableRefreshStream(true);
-        });
+              builder: (context) => NewTransfer(
+                transferViewBloc: _transferViewBloc,
+              ),
+            ));
       },
     );
   }
@@ -316,16 +259,14 @@ class _TransferViewState extends State<TransferView>
                 isLabelVisible:
                     (_transferViewBloc.transferedBadgeCount ?? 0) > 0,
                 label: Text(_transferViewBloc.transferedBadgeCount.toString()),
-                child: const Text(
-                  'Transferred',
-                ),
+                child: const Text(AppConstants.transferredSm),
               )),
               Tab(
                   child: Badge(
                 isLabelVisible: (_transferViewBloc.receivedBadgeCount ?? 0) > 0,
                 label: Text(_transferViewBloc.receivedBadgeCount.toString()),
                 child: const Text(
-                  'Received',
+                  AppConstants.receivedSm,
                 ),
               )),
             ],
@@ -350,70 +291,75 @@ class _TransferViewState extends State<TransferView>
   }
 
   _buildTransferTableView(BuildContext context) {
-    return Column(
-      // mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: StreamBuilder(
-            stream: _transferViewBloc.tableRefreshStreamController,
-            builder: (context, snapshot) {
-              return FutureBuilder(
-                  future: _transferViewBloc.getTransferList(() {
-                switch (_transferViewBloc.transferScreenTabController.index) {
-                  case 0:
-                    return AppConstants.transferred;
-                  case 1:
-                    return AppConstants.received;
-                  default:
-                    return '';
-                }
-              }()), builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(
-                    child: AppWidgetUtils.buildLoading(),
-                  );
-                }
-                if (!snapshot.hasData || snapshot.data?.isEmpty == true) {
-                  return Center(
-                    child: SvgPicture.asset(AppConstants.imgNoData),
-                  );
-                } else {
-                  var transferList = snapshot.data;
-
-                  _transferViewBloc.transferedBadgeCount =
-                      transferList?.where((transfer) {
-                    print(
-                        "*******************T STATUS => ${transfer.transferStatus}");
-                    return transfer.transferStatus == 'INITIATED';
-                  }).length;
-
-                  _transferViewBloc.receivedBadgeCount =
-                      transferList?.where((transfer) {
-                    print(
-                        "*******************R STATUS => ${transfer.transferStatus}");
-                    return transfer.transferStatus == 'NOT_APPROVED';
-                  }).length;
-
-                  return SingleChildScrollView(
-                    scrollDirection: Axis.vertical,
-                    child: DataTable(
-                      key: UniqueKey(),
-                      dividerThickness: 0.01,
-                      columns: _tableHeaders(),
-                      rows: _tableRows(snapshot),
-                    ),
-                  );
-                }
-              }
-                  // return SvgPicture.asset(AppConstants.imgNoData);
-
-                  );
-            },
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: StreamBuilder(
+              stream: _transferViewBloc.tableRefreshStreamController,
+              builder: (context, snapshot) {
+                return FutureBuilder(
+                    future: _transferViewBloc.getTransferList(() {
+                  switch (_transferViewBloc.transferScreenTabController.index) {
+                    case 0:
+                      return AppConstants.transferred;
+                    case 1:
+                      return AppConstants.received;
+                    default:
+                      return '';
+                  }
+                }()), builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(
+                      child: AppWidgetUtils.buildLoading(),
+                    );
+                  }
+                  if (!snapshot.hasData || snapshot.data?.isEmpty == true) {
+                    return Expanded(
+                      child: Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            SvgPicture.asset(AppConstants.imgNoData),
+                            AppWidgetUtils.buildSizedBox(custHeight: 8),
+                            Text(
+                              AppConstants.noTransferDataAvailable,
+                              style: TextStyle(color: _appColors.grey),
+                            )
+                          ],
+                        ),
+                      ),
+                    );
+                  } else {
+                    var transferList = snapshot.data;
+                    _transferViewBloc.transferedBadgeCount =
+                        transferList?.where((transfer) {
+                      return transfer.transferStatus == AppConstants.initiated;
+                    }).length;
+                    _transferViewBloc.receivedBadgeCount =
+                        transferList?.where((transfer) {
+                      return transfer.transferStatus ==
+                          AppConstants.noTApproved;
+                    }).length;
+                    return SingleChildScrollView(
+                      scrollDirection: Axis.vertical,
+                      child: DataTable(
+                        key: UniqueKey(),
+                        dividerThickness: 0.01,
+                        columns: _tableHeaders(),
+                        rows: _tableRows(snapshot),
+                      ),
+                    );
+                  }
+                });
+              },
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -428,7 +374,7 @@ class _TransferViewState extends State<TransferView>
       _buildTransferTableHeader(AppConstants.toBranch),
       _buildTransferTableHeader(AppConstants.totalQty),
       _buildTransferTableHeader(AppConstants.status),
-        _buildTransferTableHeader(AppConstants.action),
+      _buildTransferTableHeader(AppConstants.action),
     ];
   }
 
@@ -462,8 +408,10 @@ class _TransferViewState extends State<TransferView>
                     Chip(
                       label: _buildTransferStatus(entry.value),
                       side: BorderSide(
-                          color: entry.value.transferStatus == 'COMPLETED' ||
-                                  entry.value.transferStatus == 'APPROVED'
+                          color: entry.value.transferStatus ==
+                                      AppConstants.completed.toUpperCase() ||
+                                  entry.value.transferStatus ==
+                                      AppConstants.approved.toUpperCase()
                               ? _appColors.successColor
                               : _appColors.yellowColor),
                       surfaceTintColor: _appColors.whiteColor,
@@ -471,46 +419,49 @@ class _TransferViewState extends State<TransferView>
                           borderRadius: BorderRadius.circular(50)),
                     ),
                   ),
-                    DataCell(
-                      Row(
-                        children: [
-                          PopupMenuButton(
-                            itemBuilder: (context) {
-                              return <PopupMenuEntry>[
+                  DataCell(
+                    Row(
+                      children: [
+                        PopupMenuButton(
+                          surfaceTintColor: _appColors.whiteColor,
+                          itemBuilder: (context) {
+                            return <PopupMenuEntry>[
+                              const PopupMenuItem(
+                                  value: 'option0',
+                                  child: Text(AppConstants.view)),
+                              if (_transferViewBloc
+                                      .transferScreenTabController.index !=
+                                  0)
                                 const PopupMenuItem(
-                                    value: 'option0', child: Text('View')),
-                  if (_transferViewBloc.transferScreenTabController.index != 0)
-
-                                const PopupMenuItem(
-                                    value: 'option1', child: Text('Approve')),
-                              ];
-                            },
-                            onSelected: (value) {
-                              switch (value) {
-                                case 'option0':
-                                  showDialog(
-                                      context: context,
-                                      builder: (context) =>
-                                          _buildVehicleDetails(
-                                            entry.value.transferItems,
-                                          ));
-                                  break;
-                                  
-                                case 'option1':
-                                  showDialog(
+                                    value: 'option1',
+                                    child: Text(AppConstants.approveItem)),
+                            ];
+                          },
+                          onSelected: (value) {
+                            switch (value) {
+                              case 'option0':
+                                showDialog(
                                     context: context,
-                                    builder: (context) => _buildApproveDialog(
-                                      entry.value.transferId.toString(),
-                                    ),
-                                  ).then((value) => _transferViewBloc
-                                      .tableRefreshStream(true));
-                                  break;
-                              }
-                            },
-                          ),
-                        ],
-                      ),
+                                    builder: (context) => _buildVehicleDetails(
+                                          entry.value.transferItems,
+                                        ));
+                                break;
+
+                              case 'option1':
+                                showDialog(
+                                  context: context,
+                                  builder: (context) => _buildApproveDialog(
+                                    entry.value.transferId.toString(),
+                                  ),
+                                ).then((value) =>
+                                    _transferViewBloc.tableRefreshStream(true));
+                                break;
+                            }
+                          },
+                        ),
+                      ],
                     ),
+                  ),
                 ],
               ),
             )
@@ -630,10 +581,6 @@ class _TransferViewState extends State<TransferView>
             .map(
               (entry) => DataRow(
                 color: MaterialStateColor.resolveWith((states) {
-                  print(
-                      '******en************${entry.value.mainSpecValue?.engineNo ?? ''}');
-                  print(
-                      '******fn************${entry.value.mainSpecValue?.frameNo ?? ''}');
                   if (entry.key % 2 == 0) {
                     return Colors.white;
                   } else {
@@ -658,13 +605,15 @@ class _TransferViewState extends State<TransferView>
         Text(
           data.transferStatus ?? '',
           style: TextStyle(
-              color: data.transferStatus == 'COMPLETED' ||
-                      data.transferStatus == 'APPROVED'
+              color: data.transferStatus ==
+                          AppConstants.completed.toUpperCase() ||
+                      data.transferStatus == AppConstants.approved.toUpperCase()
                   ? _appColors.successColor
                   : _appColors.yellowColor),
         ),
         AppWidgetUtils.buildSizedBox(custWidth: 4),
-        data.transferStatus == 'COMPLETED' || data.transferStatus == 'APPROVED'
+        data.transferStatus == AppConstants.completed.toUpperCase() ||
+                data.transferStatus == AppConstants.approved.toUpperCase()
             ? Icon(
                 Icons.check,
                 color: _appColors.successColor,
@@ -693,62 +642,4 @@ class _TransferViewState extends State<TransferView>
     return AppWidgetUtils.buildSizedBox(
         custHeight: MediaQuery.sizeOf(context).height * 0.02);
   }
-
-  Widget _buildFormField(TextEditingController textController, String hintText,
-      List<TextInputFormatter>? inputFormatters) {
-    final bool isTextEmpty = textController.text.isEmpty;
-    final IconData iconData = isTextEmpty ? Icons.search : Icons.close;
-    final Color iconColor = isTextEmpty ? _appColors.primaryColor : Colors.red;
-    return TldsInputFormField(
-      width: 203,
-      height: 40,
-      controller: textController,
-      hintText: hintText,
-      isSearch: true,
-      inputFormatters: inputFormatters,
-      suffixIcon: IconButton(
-        onPressed: iconData == Icons.search
-            ? () {
-                //add search cont here
-                _checkController(hintText);
-              }
-            : () {
-                textController.clear();
-                _checkController(hintText);
-              },
-        icon: Icon(
-          iconData,
-          color: iconColor,
-        ),
-      ),
-      onSubmit: (p0) {
-        //add search cont here
-        _checkController(hintText);
-      },
-    );
-  }
-
-  void _checkController(String transporterName) {
-    if (AppConstants.transporterName == transporterName) {
-      _transferViewBloc.transporterNameStreamController(true);
-    } else {
-      _transferViewBloc.vehicleNameSearchStreamController(true);
-    }
-  }
-
-  DataColumn _buildVehicleTableHeader(String headerValue) {
-    return DataColumn(
-      label: Text(
-        headerValue,
-        style: const TextStyle(fontWeight: FontWeight.bold),
-      ),
-    );
-  }
-
-  DataCell _buildTableRow(String? text) => DataCell(
-        Text(
-          text ?? '',
-          style: const TextStyle(fontSize: 14),
-        ),
-      );
 }

@@ -296,7 +296,6 @@ class _NewVoucherState extends State<NewVoucher> {
             _isLoadingState(state: true);
             _newVoucherBloc.addNewVouchar(
               (statusCode) {
-                print(' statusCode $statusCode');
                 if (statusCode == 200 || statusCode == 201) {
                   _isLoadingState(state: false);
                   Navigator.pop(context);

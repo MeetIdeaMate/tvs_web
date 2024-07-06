@@ -51,18 +51,6 @@ class _CustomerViewState extends State<CustomerView> {
             AppWidgetUtils.buildHeaderText(AppConstants.customer),
             AppWidgetUtils.buildSizedBox(custHeight: 26),
             _buildsearchAndAddButton(context),
-            // Center(
-            //   child: Column(
-            //     children: [
-            //       SvgPicture.asset(AppConstants.imgNoData),
-            //       _buildText(
-            //           name: AppConstants.noDataStore,
-            //           color: _appcolors.greyColor,
-            //           fontWeight: FontWeight.bold,
-            //           fontSize: 15)
-            //     ],
-            //   ),
-            // )
             AppWidgetUtils.buildSizedBox(custHeight: 28),
             _buildDataTable(context)
           ],
@@ -74,7 +62,6 @@ class _CustomerViewState extends State<CustomerView> {
   _buildsearchAndAddButton(BuildContext context) {
     return Row(
       children: [
-        
         StreamBuilder(
           stream: _customerScreenBlocImpl.customerNameStreamController,
           builder: (context, snapshot) {
@@ -106,8 +93,6 @@ class _CustomerViewState extends State<CustomerView> {
           },
         ),
         AppWidgetUtils.buildSizedBox(custWidth: 20),
-        // if (_customerScreenBlocImpl.isMainBranch ?? false)
-        //   _buildBranchDropdown(),
         if (_customerScreenBlocImpl.isMainBranch == false) const Spacer(),
         _buildAddCustomerButton(context)
       ],
@@ -222,14 +207,12 @@ class _CustomerViewState extends State<CustomerView> {
   _buildAddCustomerButton(BuildContext context) {
     return AppWidgetUtils.buildAddbutton(context, onPressed: () {
       showDialog(
+        barrierDismissible: false,
         context: context,
         builder: (context) {
           return const CreateCustomerDialog();
         },
-      ).then((value) => {
-            _customerScreenBlocImpl.customerTableStream(true),
-            _customerScreenBlocImpl.pageNumberUpdateStreamController(0)
-          });
+      );
     }, text: AppConstants.addCustomer, flex: 2);
   }
 
@@ -278,7 +261,6 @@ class _CustomerViewState extends State<CustomerView> {
                                   _buildTableHeader(
                                     AppConstants.mobileNumber,
                                   ),
-                                 
                                   _buildTableHeader(
                                     AppConstants.city,
                                   ),
@@ -309,7 +291,6 @@ class _CustomerViewState extends State<CustomerView> {
                                                   DataCell(Text(
                                                       entry.value.mobileNo ??
                                                           '')),
-                                                
                                                   DataCell(Text(
                                                       entry.value.city ?? '')),
                                                   DataCell(
@@ -318,25 +299,18 @@ class _CustomerViewState extends State<CustomerView> {
                                                           AppConstants.icEdit),
                                                       onPressed: () {
                                                         showDialog(
+                                                          barrierDismissible:
+                                                              false,
                                                           context: context,
                                                           builder: (context) {
                                                             return CreateCustomerDialog(
+                                                                customerScreenBlocImpl:
+                                                                    _customerScreenBlocImpl,
                                                                 customerId: entry
                                                                     .value
                                                                     .customerId);
                                                           },
-                                                        ).then((value) {
-                                                          if (entry.value
-                                                                  .customerId !=
-                                                              null) {
-                                                            _customerScreenBlocImpl
-                                                                .customerTableStream(
-                                                                    true);
-                                                            _customerScreenBlocImpl
-                                                                .pageNumberUpdateStreamController(
-                                                                    0);
-                                                          }
-                                                        });
+                                                        );
                                                       },
                                                     ),
                                                   ),

@@ -29,8 +29,10 @@ abstract class BookingListBloc {
   int get currentPage;
 
   String? get branchId;
+  String? get selectedBranchName;
 
   bool? get isMainBranch;
+  bool? get isLoading;
 
   Stream<int> get pageNumberStream;
   Future<ParentResponseModel> getBranchName();
@@ -51,7 +53,9 @@ class BookingListBlocImpl extends BookingListBloc {
   int _currentPage = 0;
   final _pageNumberStreamController = StreamController<int>.broadcast();
   String? _branchId;
+  String? _selectedBranchName;
   bool? _isMainBranch;
+  bool? _isLoading = false;
   @override
   Stream get bookingIdFieldStreamController =>
       _bookingIdFieldStreamController.stream;
@@ -146,5 +150,19 @@ class BookingListBlocImpl extends BookingListBloc {
   bool? get isMainBranch => _isMainBranch;
   set isMainBranch(bool? newValue) {
     _isMainBranch = newValue;
+  }
+
+  @override
+  String? get selectedBranchName => _selectedBranchName;
+
+  set selectedBranchName(String? value) {
+    _selectedBranchName = value;
+  }
+
+  @override
+  bool? get isLoading => _isLoading;
+
+  set isLoading(bool? newValue) {
+    _isLoading = newValue;
   }
 }

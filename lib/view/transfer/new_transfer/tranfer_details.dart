@@ -17,8 +17,10 @@ import 'package:toastification/toastification.dart';
 
 class TransferDetails extends StatefulWidget {
   final NewTransferBlocImpl? newTransferBloc;
+  final TransferViewBlocImpl? transferViewBloc;
 
-  const TransferDetails({super.key, this.newTransferBloc});
+  const TransferDetails(
+      {super.key, this.newTransferBloc, this.transferViewBloc});
 
   @override
   State<TransferDetails> createState() => _TransferDetailsState();
@@ -33,7 +35,7 @@ class _TransferDetailsState extends State<TransferDetails> {
   Widget build(BuildContext context) {
     return BlurryModalProgressHUD(
       inAsyncCall: widget.newTransferBloc?.isLoading ?? false,
-      progressIndicator: CircularProgressIndicator(),
+      progressIndicator: AppWidgetUtils.buildLoading(),
       child: Container(
           decoration: BoxDecoration(
               border: Border(top: BorderSide(color: _appColors.greyColor)),
@@ -72,7 +74,6 @@ class _TransferDetailsState extends State<TransferDetails> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // _buildTransPorterDetails(),
         _buildDefaultHeight(),
         CustomActionButtons(
             onPressed: () {
@@ -217,6 +218,10 @@ class _TransferDetailsState extends State<TransferDetails> {
         if (statusCode == 200 || statusCode == 201) {
           _loadingStatus(false);
           Navigator.pop(context);
+          widget.transferViewBloc?.tabBarStream(true);
+          widget.transferViewBloc?.tableRefreshStream(true);
+          _transferViewBloc.tabBarStream(true);
+          _transferViewBloc.tableRefreshStream(true);
           AppWidgetUtils.buildToast(
               context,
               ToastificationType.success,
@@ -387,11 +392,6 @@ class _TransferDetailsState extends State<TransferDetails> {
           color: color, fontWeight: fontWeight, fontSize: fontSize),
     );
   }
-
-  /*Widget? _buildDefaultWidth({double? width}) {
-    return AppWidgetUtils.buildSizedBox(
-        custWidth: width ?? MediaQuery.sizeOf(context).width * 0.01);
-  }*/
 
   Widget _buildDefaultHeight({double? height}) {
     return AppWidgetUtils.buildSizedBox(

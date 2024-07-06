@@ -1,3 +1,4 @@
+import 'package:blurry_modal_progress_hud/blurry_modal_progress_hud.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -30,14 +31,16 @@ class _BookingListState extends State<BookingList> {
   Future<void> getBranchName() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
-      _bookingListBloc.branchId = prefs.getString('branchName') ?? '';
       _bookingListBloc.isMainBranch = prefs.getBool('mainBranch');
     });
   }
 
   @override
   void initState() {
+    _bookingListBloc.selectedPaymentType = AppConstants.allPayments;
+    _bookingListBloc.selectedBranchName = AppConstants.allBranchs;
     getBranchName();
+
     super.initState();
   }
 
@@ -64,6 +67,7 @@ class _BookingListState extends State<BookingList> {
 
   Widget _buildSearchFieldsAndAddBookButton() {
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Row(
@@ -91,7 +95,7 @@ class _BookingListState extends State<BookingList> {
               .where((branchName) => branchName != null)
               .cast<String>()
               .toList();
-          branchNameList?.insert(0, AppConstants.all);
+          branchNameList?.insert(0, AppConstants.allBranchs);
           return _buildDropDown(
             dropDownItems: (snapshot.hasData &&
                     (snapshot.data?.result?.getAllBranchList?.isNotEmpty ==
@@ -103,10 +107,9 @@ class _BookingListState extends State<BookingList> {
                 : (snapshot.hasError || snapshot.data == null)
                     ? AppConstants.errorLoading
                     : AppConstants.branchName,
-            selectedvalue: _bookingListBloc.branchId,
+            selectedvalue: _bookingListBloc.selectedBranchName,
             onChange: (value) {
               _bookingListBloc.branchId = value;
-
               _bookingListBloc.pageNumberUpdateStreamController(0);
             },
           );
@@ -164,15 +167,13 @@ class _BookingListState extends State<BookingList> {
     return FutureBuilder(
       future: _bookingListBloc.getPaymentsList(),
       builder: (context, snapshot) {
-        List<String> paymentTypesList = ['All'];
+        List<String> paymentTypesList = [AppConstants.allPayments];
         if (snapshot.hasData) {
           paymentTypesList.addAll(snapshot.data?.configuration ?? []);
         }
-
         if (_bookingListBloc.selectedPaymentType?.isEmpty ?? false) {
-          _bookingListBloc.selectedPaymentType = 'All';
+          _bookingListBloc.selectedPaymentType = AppConstants.allPayments;
         }
-
         return TldsDropDownButtonFormField(
           height: 40,
           width: 203,
@@ -199,11 +200,12 @@ class _BookingListState extends State<BookingList> {
       suffixIcon: SvgPicture.asset(AppConstants.icAdd),
       onPressed: () {
         showDialog(
+          barrierDismissible: false,
           context: context,
-          builder: (context) => const AddBookingDialog(),
-        ).then((value) {
-          _bookingListBloc.pageNumberUpdateStreamController(0);
-        });
+          builder: (context) => AddBookingDialog(
+            bookingListBloc: _bookingListBloc,
+          ),
+        );
       },
     );
   }
@@ -272,33 +274,54 @@ class _BookingListState extends State<BookingList> {
                   child: Center(child: AppWidgetUtils.buildLoading()));
             } else if (snapshot.hasData) {
               GetBookingListWithPagination? bookingList = snapshot.data;
-
-              return Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    SingleChildScrollView(
-                      scrollDirection: Axis.vertical,
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: DataTable(
-                            columns: _buildBookingListTableColumns(),
-                            rows: _buildBookingListTableRows(bookingDetails)),
-                      ),
+              if (!snapshot.hasData || bookingDetails.isEmpty == true) {
+                return Expanded(
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        SvgPicture.asset(AppConstants.imgNoData),
+                        AppWidgetUtils.buildSizedBox(custHeight: 8),
+                        Text(
+                          AppConstants.noBookingDataAvailable,
+                          style: TextStyle(color: _appColors.grey),
+                        )
+                      ],
                     ),
-                    CustomPagination(
-                      itemsOnLastPage: bookingList?.totalElements ?? 0,
-                      currentPage: currentPage,
-                      totalPages: bookingList?.totalPages ?? 0,
-                      onPageChanged: (pageValue) {
-                        _bookingListBloc
-                            .pageNumberUpdateStreamController(pageValue);
-                      },
+                  ),
+                );
+              } else {
+                return Expanded(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        SingleChildScrollView(
+                          scrollDirection: Axis.vertical,
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: DataTable(
+                                columns: _buildBookingListTableColumns(),
+                                rows:
+                                    _buildBookingListTableRows(bookingDetails)),
+                          ),
+                        ),
+                        CustomPagination(
+                          itemsOnLastPage: bookingList?.totalElements ?? 0,
+                          currentPage: currentPage,
+                          totalPages: bookingList?.totalPages ?? 0,
+                          onPageChanged: (pageValue) {
+                            _bookingListBloc
+                                .pageNumberUpdateStreamController(pageValue);
+                          },
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-              );
+                  ),
+                );
+              }
             } else {
               return Expanded(
                   child:
@@ -317,7 +340,6 @@ class _BookingListState extends State<BookingList> {
       _buildTableHeader(AppConstants.date, flex: 2),
       _buildTableHeader(AppConstants.customerName, flex: 2),
       _buildTableHeader(AppConstants.vehicleName, flex: 2),
-      _buildTableHeader(AppConstants.additionalInfo, flex: 2),
       _buildTableHeader(AppConstants.paymentType, flex: 2),
       if (_bookingListBloc.isMainBranch ?? false)
         _buildTableHeader(AppConstants.branchName, flex: 2),
@@ -345,16 +367,42 @@ class _BookingListState extends State<BookingList> {
           DataCell(Text(
               AppUtils.apiToAppDateFormat(entry.value.bookingDate.toString()))),
           DataCell(Text(entry.value.customerName ?? '')),
-          DataCell(Text(entry.value.itemName ?? '')),
-          DataCell(Text(entry.value.additionalInfo ?? '')),
+          DataCell(Row(
+            children: [
+              Text(entry.value.itemName ?? ''),
+              AppWidgetUtils.buildSizedBox(custWidth: 5),
+              Visibility(
+                visible: entry.value.additionalInfo?.isNotEmpty ?? false,
+                child: Tooltip(
+                  richMessage: TextSpan(
+                    children: [
+                      const TextSpan(
+                        text: '${AppConstants.additionalInfo}\n',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      TextSpan(
+                        text: entry.value.additionalInfo,
+                        style: const TextStyle(
+                            color: Colors.white, fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                  child: Icon(
+                    Icons.info_outline_rounded,
+                    color: _appColors.primaryColor,
+                  ),
+                ),
+              )
+            ],
+          )),
           DataCell(Text(entry.value.paidDetail?.paymentType ?? '')),
           if (_bookingListBloc.isMainBranch ?? false)
             DataCell(Text(entry.value.branchName ?? '')),
           DataCell(Text(AppUtils.formatCurrency(
               entry.value.paidDetail?.paidAmount?.toDouble() ?? 0))),
           DataCell(Text(entry.value.executiveName ?? '')),
-          DataCell(Text(AppUtils.apiToAppDateFormat(AppUtils.apiToAppDateFormat(
-              entry.value.targetInvoiceDate.toString())))),
+          DataCell(Text(AppUtils.apiToAppDateFormat(
+              entry.value.targetInvoiceDate.toString()))),
           DataCell(entry.value.cancelled == false
               ? _buildCancelButton(entry)
               : Chip(
@@ -362,7 +410,7 @@ class _BookingListState extends State<BookingList> {
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10)),
                   label: Text(
-                    'Cancelled',
+                    AppConstants.cancelled,
                     style: TextStyle(color: _appColors.errorColor),
                   ))),
         ],
@@ -370,64 +418,73 @@ class _BookingListState extends State<BookingList> {
     }).toList();
   }
 
-  IconButton _buildCancelButton(MapEntry<int, BookingDetails> entry) {
+  Widget _buildCancelButton(MapEntry<int, BookingDetails> entry) {
     return IconButton(
         onPressed: () {
           showDialog(
+            barrierDismissible: false,
             context: context,
-            builder: (context) => AlertDialog(
-              surfaceTintColor: _appColors.whiteColor,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8)),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    Icons.cancel,
-                    color: _appColors.red,
-                    size: 35,
-                  ),
-                  AppWidgetUtils.buildSizedBox(custHeight: 10),
-                  const Text(
-                    'Are you sure you want to cancel the booking',
-                    style: TextStyle(fontSize: 16),
-                  )
+            builder: (context) => BlurryModalProgressHUD(
+              inAsyncCall: _bookingListBloc.isLoading,
+              progressIndicator: AppWidgetUtils.buildLoading(),
+              child: AlertDialog(
+                surfaceTintColor: _appColors.whiteColor,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8)),
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.cancel,
+                      color: _appColors.red,
+                      size: 35,
+                    ),
+                    AppWidgetUtils.buildSizedBox(custHeight: 10),
+                    const Text(
+                      AppConstants.cancelBookingDialogMsg,
+                      style: TextStyle(fontSize: 16),
+                    )
+                  ],
+                ),
+                actions: [
+                  CustomActionButtons(
+                      onPressed: () {
+                        _isLoading(true);
+                        _bookingListBloc.bookingCancel(entry.value.bookingNo,
+                            (statusCode) {
+                          if (statusCode == 200 || statusCode == 201) {
+                            _isLoading(false);
+                            Navigator.pop(context);
+                            _bookingListBloc
+                                .pageNumberUpdateStreamController(0);
+                            AppWidgetUtils.buildToast(
+                                context,
+                                ToastificationType.success,
+                                AppConstants.bookingCancelled,
+                                Icon(
+                                  Icons.check_circle_outline_rounded,
+                                  color: _appColors.successColor,
+                                ),
+                                AppConstants.bookingCancelledDes,
+                                _appColors.successLightColor);
+                          } else {
+                            _isLoading(false);
+                            AppWidgetUtils.buildToast(
+                                context,
+                                ToastificationType.error,
+                                AppConstants.bookingCancelledErr,
+                                Icon(
+                                  Icons.error_outline_outlined,
+                                  color: _appColors.errorColor,
+                                ),
+                                AppConstants.somethingWentWrong,
+                                _appColors.errorLightColor);
+                          }
+                        });
+                      },
+                      buttonText: AppConstants.submit)
                 ],
               ),
-              actions: [
-                CustomActionButtons(
-                    onPressed: () {
-                      _bookingListBloc.bookingCancel(entry.value.bookingNo,
-                          (statusCode) {
-                        if (statusCode == 200 || statusCode == 201) {
-                          Navigator.pop(context);
-                          _bookingListBloc.pageNumberUpdateStreamController(0);
-                          AppWidgetUtils.buildToast(
-                              context,
-                              ToastificationType.success,
-                              AppConstants.bookingCancelled,
-                              Icon(
-                                Icons.check_circle_outline_rounded,
-                                color: _appColors.successColor,
-                              ),
-                              AppConstants.bookingCancelledDes,
-                              _appColors.successLightColor);
-                        } else {
-                          AppWidgetUtils.buildToast(
-                              context,
-                              ToastificationType.error,
-                              AppConstants.bookingCancelledErr,
-                              Icon(
-                                Icons.error_outline_outlined,
-                                color: _appColors.errorColor,
-                              ),
-                              AppConstants.somethingWentWrong,
-                              _appColors.errorLightColor);
-                        }
-                      });
-                    },
-                    buttonText: AppConstants.submit)
-              ],
             ),
           );
         },
@@ -435,40 +492,6 @@ class _BookingListState extends State<BookingList> {
           Icons.cancel,
           color: _appColors.errorColor,
         ));
-  }
-
-  Widget _buildPopMenuItem(
-    BuildContext context,
-    MapEntry<int, BookingDetails> entry,
-  ) {
-    return Row(
-      children: [
-        PopupMenuButton(
-          surfaceTintColor: _appColors.whiteColor,
-          icon: const Icon(Icons.more_vert),
-          itemBuilder: (BuildContext context) {
-            return <PopupMenuEntry>[
-              const PopupMenuItem(
-                value: 'option1',
-                child: Text('View'),
-              ),
-              const PopupMenuItem(
-                value: 'option2',
-                child: Text('Edit'),
-              ),
-            ];
-          },
-          onSelected: (value) {
-            switch (value) {
-              case 'option1':
-                break;
-              case 'option2':
-                break;
-            }
-          },
-        ),
-      ],
-    );
   }
 
   DataColumn _buildTableHeader(String headerValue, {int flex = 1}) =>
@@ -489,5 +512,11 @@ class _BookingListState extends State<BookingList> {
   Widget _buildDefaultHeight({double? height}) {
     return AppWidgetUtils.buildSizedBox(
         custHeight: height ?? MediaQuery.sizeOf(context).height * 0.02);
+  }
+
+  _isLoading(bool? isLoadingState) {
+    setState(() {
+      _bookingListBloc.isLoading = isLoadingState;
+    });
   }
 }

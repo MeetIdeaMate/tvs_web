@@ -15,15 +15,18 @@ import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/utils/app_util_widgets.dart';
 import 'package:tlbilling/utils/app_utils.dart';
 import 'package:tlbilling/view/booking/add_booking/add_booking_dialog_bloc.dart';
+import 'package:tlbilling/view/booking/booking_list_bloc.dart';
 import 'package:tlbilling/view/customer/create_customer_dialog.dart';
 import 'package:tlds_flutter/components/tlds_date_picker.dart';
 import 'package:tlds_flutter/components/tlds_dropdown_button_form_field.dart';
 import 'package:tlds_flutter/components/tlds_input_form_field.dart';
 import 'package:tlds_flutter/components/tlds_input_formaters.dart';
 import 'package:toastification/toastification.dart';
+import 'package:intl/intl.dart';
 
 class AddBookingDialog extends StatefulWidget {
-  const AddBookingDialog({super.key});
+  final BookingListBlocImpl bookingListBloc;
+  const AddBookingDialog({super.key, required this.bookingListBloc});
 
   @override
   State<AddBookingDialog> createState() => _AddBookingDialogState();
@@ -37,6 +40,8 @@ class _AddBookingDialogState extends State<AddBookingDialog> {
   void initState() {
     super.initState();
     getBranchId();
+    _addBookingDialogBloc.bookingDateTextController.text =
+        DateFormat('dd-MM-yyyy').format(DateTime.now());
   }
 
   Future<void> getBranchId() async {
@@ -66,21 +71,20 @@ class _AddBookingDialogState extends State<AddBookingDialog> {
           width: MediaQuery.sizeOf(context).width * 0.4,
           child: Form(
             key: _addBookingDialogBloc.bookinFormKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _buildHeader(),
-                _buildDateCustomerNameAndAddCustomer(),
-                AppWidgetUtils.buildSizedBox(custHeight: 10),
-                _buildVehicleNameList(),
-                AppWidgetUtils.buildSizedBox(custHeight: 10),
-                _buildAdditionalInfoField(),
-                AppWidgetUtils.buildSizedBox(custHeight: 10),
-                _buildPaymentTypeAndAmount(),
-                AppWidgetUtils.buildSizedBox(custHeight: 10),
-                _buildExecutiveFromAndTargetInvoiceDate(),
-              ],
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _buildHeader(),
+                  const Divider(),
+                  _buildDateCustomerNameAndAddCustomer(),
+                  _buildVehicleNameList(),
+                  _buildAdditionalInfoField(),
+                  _buildPaymentTypeAndAmount(),
+                  _buildExecutiveFromAndTargetInvoiceDate(),
+                ],
+              ),
             ),
           ),
         ),
@@ -106,7 +110,7 @@ class _AddBookingDialogState extends State<AddBookingDialog> {
   Widget _buildDateCustomerNameAndAddCustomer() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      crossAxisAlignment: CrossAxisAlignment.end,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         _buildDatePicker(),
         AppWidgetUtils.buildSizedBox(custWidth: 10),
@@ -120,9 +124,10 @@ class _AddBookingDialogState extends State<AddBookingDialog> {
   Widget _buildDatePicker() {
     return Expanded(
       child: TldsDatePicker(
-        labelText: AppConstants.date,
+        height: 70,
+        requiredLabelText:
+            AppWidgetUtils.labelTextWithRequired(AppConstants.date),
         firstDate: DateTime(2000, 1, 1),
-        height: 40,
         suffixIcon: SvgPicture.asset(
           AppConstants.icDate,
           colorFilter: ColorFilter.mode(
@@ -153,8 +158,9 @@ class _AddBookingDialogState extends State<AddBookingDialog> {
             customerList.map((result) => result.customerName ?? "").toSet();
         List<String> customerNamesList = customerNamesSet.toList();
         return _buildCustomTyAhead(
+          requiredLabelText:
+              AppWidgetUtils.labelTextWithRequired(AppConstants.customerName),
           width: 200,
-          labelText: AppConstants.customerName,
           textEditingController:
               _addBookingDialogBloc.customerNameTextController,
           hintText: AppConstants.select,
@@ -162,15 +168,12 @@ class _AddBookingDialogState extends State<AddBookingDialog> {
           list: customerNamesList,
           onSelected: (String suggestion) {
             _addBookingDialogBloc.customerNameTextController.text = suggestion;
-
             final selectedCustomer = customerList.firstWhere(
               (customer) => customer.customerName == suggestion,
               orElse: () => GetAllCustomerNameList(),
             );
-            setState(() {
-              _addBookingDialogBloc.selectedCustomerId =
-                  selectedCustomer.customerId;
-            });
+            _addBookingDialogBloc.selectedCustomerId =
+                selectedCustomer.customerId;
           },
         );
       },
@@ -179,13 +182,13 @@ class _AddBookingDialogState extends State<AddBookingDialog> {
 
   Widget _buildAddNewCustomerButton() {
     return CustomElevatedButton(
-      height: 40,
       width: 100,
       text: '',
+      height: 50,
       fontSize: 14,
       buttonBackgroundColor: _appColors.primaryColor,
       fontColor: _appColors.whiteColor,
-      suffixIcon: SvgPicture.asset(AppConstants.icAdd),
+      suffixIcon: SvgPicture.asset(AppConstants.icCustomers),
       onPressed: () {
         showDialog(
           context: context,
@@ -209,8 +212,9 @@ class _AddBookingDialogState extends State<AddBookingDialog> {
         List<String> vehicleNameList =
             snapshot.data?.map((e) => e.itemName ?? '').toList() ?? [];
         return _buildCustomTyAhead(
+          requiredLabelText:
+              AppWidgetUtils.labelTextWithRequired(AppConstants.vehicleName),
           width: MediaQuery.sizeOf(context).width,
-          labelText: AppConstants.vehicleName,
           textEditingController:
               _addBookingDialogBloc.vehicleNameTextController,
           hintText: AppConstants.select,
@@ -222,10 +226,8 @@ class _AddBookingDialogState extends State<AddBookingDialog> {
               (vehicle) => vehicle.itemName == suggestion,
               orElse: () => GetAllStocksWithoutPaginationModel(),
             );
-            setState(() {
-              _addBookingDialogBloc.selectedVehiclePartNo =
-                  selectedVehicle?.partNo ?? '';
-            });
+            _addBookingDialogBloc.selectedVehiclePartNo =
+                selectedVehicle?.partNo ?? '';
           },
         );
       },
@@ -236,8 +238,7 @@ class _AddBookingDialogState extends State<AddBookingDialog> {
     return _buildFormField(
       _addBookingDialogBloc.additionalInfoTextController,
       AppConstants.additionalInfo,
-      TldsInputFormatters.onlyAllowAlphabetAndNumber,
-      width: MediaQuery.sizeOf(context).width,
+      TldsInputFormatters.allowAlphabetsAndSpaces,
       labelText: AppConstants.additionalInfo,
     );
   }
@@ -260,14 +261,20 @@ class _AddBookingDialogState extends State<AddBookingDialog> {
       builder: (context, snapshot) {
         List<String> paymentTypesList = snapshot.data?.configuration ?? [];
         return TldsDropDownButtonFormField(
-          labelText: AppConstants.paymentType,
-          height: 40,
-          width: 300,
+          requiredLabelText:
+              AppWidgetUtils.labelTextWithRequired(AppConstants.paymentType),
+          height: 70,
           hintText: AppConstants.payments,
           dropDownItems: paymentTypesList,
           dropDownValue: _addBookingDialogBloc.selectedPaymentType,
           onChange: (String? newValue) {
             _addBookingDialogBloc.selectedPaymentType = newValue ?? '';
+          },
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return AppConstants.selectPaymentType;
+            }
+            return null;
           },
         );
       },
@@ -275,9 +282,19 @@ class _AddBookingDialogState extends State<AddBookingDialog> {
   }
 
   Widget _buildAmountFiled() {
-    return _buildFormField(_addBookingDialogBloc.amountTextController,
-        AppConstants.amount, TldsInputFormatters.onlyAllowNumbers,
-        width: null, labelText: AppConstants.amount);
+    return _buildFormField(
+      requiredLabelText:
+          AppWidgetUtils.labelTextWithRequired(AppConstants.amount),
+      _addBookingDialogBloc.amountTextController,
+      AppConstants.amount,
+      TldsInputFormatters.onlyAllowDecimalAfterTwoDigits,
+      validator: (amount) {
+        if (amount?.isEmpty ?? false) {
+          return AppConstants.enterAmount;
+        }
+        return null;
+      },
+    );
   }
 
   Widget _buildExecutiveFromAndTargetInvoiceDate() {
@@ -299,12 +316,17 @@ class _AddBookingDialogState extends State<AddBookingDialog> {
         List<String> employeeNames =
             employeeList.map((e) => e?.employeeName ?? '').toList();
         return TldsDropDownButtonFormField(
-          labelText: AppConstants.executiveName,
-          height: 40,
-          width: 300,
+          requiredLabelText:  AppWidgetUtils.labelTextWithRequired(AppConstants.executiveName),
+          height: 70,
           hintText: AppConstants.executiveName,
           dropDownItems: employeeNames,
           dropDownValue: _addBookingDialogBloc.selectedPaymentType,
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return AppConstants.selectExcutive;
+            }
+            return null;
+          },
           onChange: (String? newValue) {
             if (newValue != null) {
               GetAllEmployeeModel? selectedEmployee = employeeList.firstWhere(
@@ -321,9 +343,8 @@ class _AddBookingDialogState extends State<AddBookingDialog> {
 
   Widget _buildTargetInvoiceDate() {
     return TldsDatePicker(
-      labelText: AppConstants.targetInvDate,
-      firstDate: DateTime(2000, 1, 1),
-      height: 40,
+      requiredLabelText:  AppWidgetUtils.labelTextWithRequired(AppConstants.targetInvDate),
+      height: 70,
       suffixIcon: SvgPicture.asset(
         AppConstants.icDate,
         colorFilter: ColorFilter.mode(
@@ -334,6 +355,12 @@ class _AddBookingDialogState extends State<AddBookingDialog> {
       fontSize: 14,
       hintText: AppConstants.targetInvDate,
       controller: _addBookingDialogBloc.targetInvoiceDateTextController,
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return AppConstants.selectTargetInvoicedDate;
+        }
+        return null;
+      },
     );
   }
 
@@ -345,7 +372,8 @@ class _AddBookingDialogState extends State<AddBookingDialog> {
       double? width,
       String? hintText,
       Function(String)? onChanged,
-      Function(String)? onSelected}) {
+      Function(String)? onSelected,
+      Widget? requiredLabelText}) {
     return TypeAheadField(
       controller: textEditingController,
       itemBuilder: (context, String suggestion) {
@@ -362,9 +390,10 @@ class _AddBookingDialogState extends State<AddBookingDialog> {
       },
       builder: (context, controller, focusNode) {
         return TldsInputFormField(
+          requiredLabelText: requiredLabelText,
           suffixIcon: const Icon(Icons.arrow_drop_down),
           width: width,
-          height: 40,
+          height: 70,
           focusNode: focusNode,
           labelText: labelText,
           hintText: hintText,
@@ -383,16 +412,17 @@ class _AddBookingDialogState extends State<AddBookingDialog> {
 
   Widget _buildFormField(TextEditingController textController, String hintText,
       List<TextInputFormatter>? inputFormatters,
-      {String? labelText, double? width}) {
+      {String? labelText,
+      String? Function(String?)? validator,
+      Widget? requiredLabelText}) {
     return TldsInputFormField(
-      maxLine: 10,
+      requiredLabelText: requiredLabelText,
       labelText: labelText,
-      width: width,
-      height: 40,
+      height: 70,
+      validator: validator,
       inputFormatters: inputFormatters,
       controller: textController,
       hintText: hintText,
-      isSearch: true,
       onSubmit: (p0) {},
     );
   }
@@ -405,6 +435,7 @@ class _AddBookingDialogState extends State<AddBookingDialog> {
 
   void _bookingPostServiceOnPress() {
     if (_addBookingDialogBloc.bookinFormKey.currentState!.validate()) {
+       _isLoading(true);
       _addBookingDialogBloc.addNewBookingDetails(
           BookingModel(
               branchId: _addBookingDialogBloc.branchId ?? '',
@@ -427,6 +458,7 @@ class _AddBookingDialogState extends State<AddBookingDialog> {
           (statusCode) {
         if (statusCode == 200 || statusCode == 201) {
           _isLoading(false);
+          widget.bookingListBloc.pageNumberUpdateStreamController(0);
           Navigator.pop(context);
           AppWidgetUtils.buildToast(
               context,

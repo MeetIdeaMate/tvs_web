@@ -13,6 +13,7 @@ import 'package:tlbilling/view/customer/customer_view.dart';
 import 'package:tlbilling/view/employee/employee_view_screen.dart';
 import 'package:tlbilling/view/insuranse/insuranse_view.dart';
 import 'package:tlbilling/view/login/login_page.dart';
+import 'package:tlbilling/view/login/logout_dialog.dart';
 import 'package:tlbilling/view/purchase/purchase_view.dart';
 import 'package:tlbilling/view/report/report_screen.dart';
 import 'package:tlbilling/view/sales/sales_view.dart';
@@ -420,11 +421,12 @@ class _SideMenuNavigationState extends State<SideMenuNavigation> {
         ),
         InkWell(
           onTap: () {
-            Navigator.pushReplacement(context, MaterialPageRoute(
+            showDialog(
+              context: context,
               builder: (context) {
-                return const LoginPage();
+                return const LogoutDialog();
               },
-            ));
+            );
           },
           child: SvgPicture.asset(AppConstants.icLogout),
         ),

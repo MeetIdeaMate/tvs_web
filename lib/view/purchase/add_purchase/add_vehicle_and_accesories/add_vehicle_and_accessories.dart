@@ -637,32 +637,24 @@ class _AddVehicleAndAccessoriesState extends State<AddVehicleAndAccessories> {
                       .selectedPurchaseTypeStreamController(true);
                   setState(() {
                     widget.purchaseBloc.optionsSet = newValue;
-
                     widget.purchaseBloc.selectedPurchaseType =
                         widget.purchaseBloc.optionsSet.first;
-                    print(widget.purchaseBloc.selectedPurchaseType);
-
                     String categoryId = snapshot.data!.category!
                         .where((e) =>
                             e.categoryName ==
                             widget.purchaseBloc.selectedPurchaseType)
                         .map((e) => e.categoryId)
                         .toString();
-
                     categoryId = categoryId.substring(1, categoryId.length - 1);
-
                     widget.purchaseBloc.categoryId = categoryId;
-
                     final selectedCategory =
                         snapshot.data!.category!.firstWhere(
                       (category) =>
                           category.categoryName ==
                           widget.purchaseBloc.selectedPurchaseType,
                     );
-
                     widget.purchaseBloc.hsnCodeController.text =
                         selectedCategory.hsnSacCode ?? '';
-
                     widget.purchaseBloc.selectedCategory = selectedCategory;
                     widget.purchaseBloc
                         .selectedPurchaseTypeStreamController(true);
@@ -1153,7 +1145,6 @@ class _AddVehicleAndAccessoriesState extends State<AddVehicleAndAccessories> {
           widget.purchaseBloc.hsnCodeController.text =
               firstCategory.hsnSacCode ?? '';
           widget.purchaseBloc.selectedCategory = firstCategory;
-          print(widget.purchaseBloc.selectedCategory);
           widget.purchaseBloc.selectedPurchaseTypeStreamController(true);
         });
       }

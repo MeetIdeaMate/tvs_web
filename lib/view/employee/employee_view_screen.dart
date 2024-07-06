@@ -25,17 +25,19 @@ class _EmployeeViewState extends State<EmployeeView> {
   Future<void> getBranchName() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
-      _employeeViewBloc.employeeBranch = prefs.getString('branchName') ?? '';
       _employeeViewBloc.isMainBranch = prefs.getBool('mainBranch');
+      if (_employeeViewBloc.isMainBranch ?? false) {
+        _employeeViewBloc.employeeBranch = AppConstants.allBranch;
+      }
     });
-    print('*******branch name int*********${_employeeViewBloc.employeeBranch}');
-    print('*******is main bracnh*********${_employeeViewBloc.isMainBranch}');
   }
 
   @override
   void initState() {
     super.initState();
     getBranchName();
+        _employeeViewBloc.employeeWorktype = AppConstants.allWorkType;
+
   }
 
   @override
@@ -63,7 +65,7 @@ class _EmployeeViewState extends State<EmployeeView> {
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
         _buildEmpNameSearchFilter(),
-        _buildEmpCityDropdown(),
+        // _buildEmpCityDropdown(),
         _buildEmpWorkTypeDropdown(),
         if (_employeeViewBloc.isMainBranch ?? false) _buildEmpBranchDropdown(),
         const Spacer(),
@@ -81,7 +83,6 @@ class _EmployeeViewState extends State<EmployeeView> {
         IconData iconPath = isTextEmpty ? Icons.search : Icons.close;
         Color iconColor =
             isTextEmpty ? _appColors.primaryColor : _appColors.red;
-
         return AppWidgetUtils.buildSearchField(AppConstants.empName,
             _employeeViewBloc.empNameAndMobNoFilterController, context,
             suffixIcon: IconButton(
@@ -148,9 +149,7 @@ class _EmployeeViewState extends State<EmployeeView> {
           configId: AppConstants.designation),
       builder: (context, snapshot) {
         List<String> designationList = snapshot.data ?? [];
-        designationList.insert(0, AppConstants.all);
-        _employeeViewBloc.employeeWorktype = AppConstants.all;
-
+        designationList.insert(0,  AppConstants.allWorkType);
         return _buildDropDown(
           dropDownItems:
               (snapshot.hasData && (snapshot.data?.isNotEmpty == true))
@@ -182,7 +181,7 @@ class _EmployeeViewState extends State<EmployeeView> {
               .where((branchName) => branchName != null)
               .cast<String>()
               .toList();
-          branchNameList?.insert(0, AppConstants.all);
+          branchNameList?.insert(0, AppConstants.allBranch);
           return _buildDropDown(
             dropDownItems: (snapshot.hasData &&
                     (snapshot.data?.result?.getAllBranchList?.isNotEmpty ==
@@ -211,6 +210,7 @@ class _EmployeeViewState extends State<EmployeeView> {
       flex: 1,
       onPressed: () {
         showDialog(
+          barrierDismissible: false,
           context: context,
           builder: (context) {
             return CreateEmployeeDialog(employeeViewBloc: _employeeViewBloc);
@@ -235,18 +235,28 @@ class _EmployeeViewState extends State<EmployeeView> {
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return Center(child: AppWidgetUtils.buildLoading());
-              } else if (snapshot.hasError) {
-                return const Center(
-                    child: Text(AppConstants.somethingWentWrong));
               } else if (!snapshot.hasData ||
                   snapshot.data?.content?.isEmpty == true) {
-                return Center(child: SvgPicture.asset(AppConstants.imgNoData));
+                return Expanded(
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        SvgPicture.asset(AppConstants.imgNoData),
+                        AppWidgetUtils.buildSizedBox(custHeight: 8),
+                        Text(
+                          AppConstants.noDataAvailable,
+                          style: TextStyle(color: _appColors.grey),
+                        )
+                      ],
+                    ),
+                  ),
+                );
               }
               GetAllEmployeesByPaginationModel employeeListmodel =
                   snapshot.data!;
-
               List<Content> userData = snapshot.data?.content ?? [];
-
               return Column(
                 children: [
                   Expanded(
@@ -287,6 +297,7 @@ class _EmployeeViewState extends State<EmployeeView> {
                                             AppConstants.icEdit),
                                         onPressed: () {
                                           showDialog(
+                                            barrierDismissible: false,
                                             context: context,
                                             builder: (context) {
                                               return CreateEmployeeDialog(
@@ -299,21 +310,6 @@ class _EmployeeViewState extends State<EmployeeView> {
                                           );
                                         },
                                       ),
-                                      // IconButton(
-                                      //   icon: SvgPicture.asset(
-                                      //       AppConstants.icdelete),
-                                      //   onPressed: () {
-                                      //     showDialog(
-                                      //       context: context,
-                                      //       builder: (context) {
-                                      //         return DeleteDialog(
-                                      //           content: AppConstants.deleteMsg,
-                                      //           onPressed: () {},
-                                      //         );
-                                      //       },
-                                      //     );
-                                      //   },
-                                      // ),
                                     ],
                                   ),
                                 ),

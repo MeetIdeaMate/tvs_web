@@ -3,7 +3,6 @@ import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tlbilling/api_service/app_url.dart';
 import 'package:intl/intl.dart';
-
 import 'package:tlbilling/models/get_employee_by_id.dart';
 import 'package:tlbilling/models/get_model/get_all_booking_list_with_pagination.dart';
 import 'package:tlbilling/models/get_model/get_all_branch_by_id_model.dart';
@@ -297,7 +296,6 @@ class AppServiceUtilImpl extends AppServiceUtil {
         var branchId = response.data['result']['login']['branchId'] ?? '';
         var branchName = response.data['result']['login']['branchName'] ?? '';
         var isMainBranch = response.data['result']['login']['mainBranch'] ?? '';
-        //  print('************loign branch id********$branchId');
         SharedPreferences prefs = await SharedPreferences.getInstance();
         prefs.setString(AppConstants.token, token);
         prefs.setString(AppConstants.designation, designation);
@@ -342,7 +340,7 @@ class AppServiceUtilImpl extends AppServiceUtil {
     if (userName.isNotEmpty) {
       userListUrl += '&userName=$userName';
     }
-    if (selectedDesignation.isNotEmpty && selectedDesignation != 'All') {
+    if (selectedDesignation.isNotEmpty && selectedDesignation != 'All Designation') {
       userListUrl += '&designation=$selectedDesignation';
     }
 
@@ -372,35 +370,12 @@ class AppServiceUtilImpl extends AppServiceUtil {
       var response =
           await dio.post(AppUrl.customer, data: jsonEncode(addEmployeeModel));
       var responseData = response.data;
-      //  print('*****************$responseData');
       var cuctomerId = responseData['customerId'];
       var customerName = responseData['customerName'];
-      // print(cuctomerId);
-      // print(customerName);
       onSuccessCallBack(response.statusCode ?? 0, customerName, cuctomerId);
-      //onSuccessCallBack(response.statusCode);
     } on DioException catch (e) {
       onSuccessCallBack(e.response?.statusCode, '', '');
     }
-
-    // SharedPreferences prefs = await SharedPreferences.getInstance();
-    // var token = prefs.getString('token');
-    // dio.options.headers['Authorization'] = 'Bearer $token';
-    // var jsonData = json.encode(addEmployeeModel);
-
-    // var response = await dio.post(AppUrl.purchase, data: jsonData);
-    // var responseData = response.data;
-    // print(responseData);
-    // print(response.statusCode);
-
-    // if (response.statusCode == 200 || response.statusCode == 201) {
-    //   GetAllCustomersModel addCustomerResponse =
-    //       GetAllCustomersModel.fromJson(responseData['result']['customer']);
-    //   onSuccessCallBack(response.statusCode ?? 0, addCustomerResponse);
-    // } else {
-    //   onSuccessCallBack(
-    //       response.statusCode ?? 0, responseData['result']['customer']);
-    // }
   }
 
   @override
@@ -435,8 +410,6 @@ class AppServiceUtilImpl extends AppServiceUtil {
       if (branchName.isNotEmpty && branchName != 'All Branch') {
         url += '&branchName=$branchName';
       }
-
-      print(url);
       var response = await dio.get(url);
       return parentResponseModelFromJson(jsonEncode(response.data))
           .result
@@ -524,23 +497,19 @@ class AppServiceUtilImpl extends AppServiceUtil {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var token = prefs.getString('token');
     dio.options.headers['Authorization'] = 'Bearer $token';
-
     String employeeListUrl =
         '${AppUrl.employeeByPagination}page=$currentPage&pageSize=10';
-
     if (employeeName.isNotEmpty) {
       employeeListUrl += '&employeeName=$employeeName';
     }
-    if (designation.isNotEmpty && designation != 'All') {
+    if (designation.isNotEmpty && designation != AppConstants.allWorkType) {
       employeeListUrl += '&designation=$designation';
     }
-    if (branchName.isNotEmpty && branchName != 'All') {
+    if (branchName.isNotEmpty && branchName != AppConstants.allBranch) {
       employeeListUrl += '&branch=$branchName';
     }
-
     var response = await dio.get(employeeListUrl);
     final responseList = parentResponseModelFromJson(jsonEncode(response.data));
-
     return responseList.result!.getAllEmployeesByPaginationModel!;
   }
 
@@ -680,27 +649,19 @@ class AppServiceUtilImpl extends AppServiceUtil {
       {String? categoryName}) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var token = prefs.getString('token');
-
     dio.options.headers['Authorization'] = 'Bearer $token';
     String purchaseListUrl =
         '${AppUrl.purchase}/page?page=$currentIndex&size=10';
-    // String purchaseListUrl =
-    // '${AppUrl.purchase}/page?page=$currentIndex&size=10&branchId=$branchId';
     if (invoiceNo!.isNotEmpty) {
       purchaseListUrl += '&p_invoiceNo=$invoiceNo';
     }
-
     if (purchaseNo!.isNotEmpty) {
       purchaseListUrl += '&purchaseNo==$purchaseNo';
     }
     if (categoryName != null && categoryName.isNotEmpty && categoryName != '') {
       purchaseListUrl += '&categoryName=$categoryName';
     }
-
     var response = await dio.get(purchaseListUrl);
-    // print('^^^^^^^^^purchase sc^^^^^^^^^^${response.statusCode}');
-    // print('^^^^^^^^^purchase rb^^^^^^^^^^${response.data}');
-
     final responseList = parentResponseModelFromJson(jsonEncode(response.data));
     return responseList.result!.getAllPurchaseByPageNation;
   }
@@ -729,7 +690,6 @@ class AppServiceUtilImpl extends AppServiceUtil {
     if (!isMainBranch) {
       customerNameListUrl += '?branchId=$branchId';
     }
-    print(customerNameListUrl);
     final response = await dio.get(customerNameListUrl);
     return parentResponseModelFromJson(jsonEncode(response.data))
         .result
@@ -1019,10 +979,8 @@ class AppServiceUtilImpl extends AppServiceUtil {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var token = prefs.getString('token');
     dio.options.headers['Authorization'] = 'Bearer $token';
-
     String vendorListUrl =
         '${AppUrl.vendorByPagination}page=$currentPage&pageSize=10';
-
     if (vendorName.isNotEmpty) {
       vendorListUrl += '&vendorName=$vendorName';
     }
@@ -1032,12 +990,8 @@ class AppServiceUtilImpl extends AppServiceUtil {
     if (city.isNotEmpty) {
       vendorListUrl += '&city=$city';
     }
-    //  print(vendorListUrl);
-
     var response = await dio.get(vendorListUrl);
-
     final responseList = parentResponseModelFromJson(jsonEncode(response.data));
-
     return responseList.result!.getAllVendorByPagination!;
   }
 
@@ -1050,7 +1004,6 @@ class AppServiceUtilImpl extends AppServiceUtil {
       dio.options.headers['Authorization'] = 'Bearer $token';
       var response =
           await dio.post(AppUrl.addVendor, data: jsonEncode(vendorObj));
-
       statusCode(response.statusCode);
     } on DioException catch (e) {
       statusCode(e.response?.statusCode);
@@ -1079,11 +1032,9 @@ class AppServiceUtilImpl extends AppServiceUtil {
     var token = prefs.getString('token');
     dio.options.headers['Authorization'] = 'Bearer $token';
     var response = await dio.get(vendorUrl);
-
     var vendorDetails = parentResponseModelFromJson(jsonEncode(response.data))
         .result
         ?.vendorById;
-
     return vendorDetails;
   }
 
@@ -1108,13 +1059,9 @@ class AppServiceUtilImpl extends AppServiceUtil {
     var token = prefs.getString('token');
     dio.options.headers['Authorization'] = 'Bearer $token';
     var jsonData = json.encode(purchaseData);
-
     var response = await dio.post(AppUrl.purchase, data: jsonData);
     var responseData = response.data;
-    print('**************888${purchaseData.toJson()}');
-
     if (response.statusCode == 200 || response.statusCode == 201) {
-      print(responseData);
       PurchaseBill purchaseBill =
           PurchaseBill.fromJson(responseData['result']['purchase']);
       onSuccessCallBack(response.statusCode ?? 0, purchaseBill);
@@ -1122,8 +1069,6 @@ class AppServiceUtilImpl extends AppServiceUtil {
       onSuccessCallBack(
           response.statusCode ?? 0, responseData['result']['purchase']);
     }
-
-    print(responseData);
   }
 
   @override
@@ -1152,10 +1097,8 @@ class AppServiceUtilImpl extends AppServiceUtil {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       var token = prefs.getString('token');
       dio.options.headers['Authorization'] = 'Bearer $token';
-
       var response = await dio
           .get('${AppUrl.stock}?branchId=$branchId&categoryName=$categoryName');
-
       var stocksList = parentResponseModelFromJson(jsonEncode(response.data))
           .result
           ?.getAllStocksWithoutPagination;
@@ -1174,7 +1117,6 @@ class AppServiceUtilImpl extends AppServiceUtil {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       var token = prefs.getString('token');
       dio.options.headers['Authorization'] = 'Bearer $token';
-      // ignore: unused_local_variable
       var response = await dio.post('${AppUrl.stock}/transfer',
           data: jsonEncode(addNewTransfer));
       onSuccessCallBack(response.statusCode ?? 0);
@@ -1205,7 +1147,6 @@ class AppServiceUtilImpl extends AppServiceUtil {
         url += '&mobileNo=$mobileNumber';
       }
       var response = await dio.get(url);
-
       return parentResponseModelFromJson(jsonEncode(response.data))
           .result
           ?.getAllInsuranceModel;
@@ -1230,21 +1171,18 @@ class AppServiceUtilImpl extends AppServiceUtil {
     String branchNames = prefs.getString('branchName') ?? '';
     dio.options.headers['Authorization'] = 'Bearer $token';
     String salesListUrl = '${AppUrl.sales}page?page=$currentPage&size=10';
-
     if (paymentStatus == 'PENDING' && iscancelled == false) {
       salesListUrl += '&paymentStatus=$paymentStatus&isCancelled=$iscancelled';
     }
     if (paymentStatus == 'COMPLETED' && iscancelled == false) {
       salesListUrl += '&paymentStatus=$paymentStatus&isCancelled=$iscancelled';
     }
-
     if (invoiceNo.isNotEmpty) {
       salesListUrl += '&invoiceNo=$invoiceNo';
     }
     if (paymentType.isNotEmpty) {
       salesListUrl += '&billType=$paymentType';
     }
-
     if (customerName.isNotEmpty) {
       salesListUrl += '&customerName=$customerName';
     }
@@ -1253,24 +1191,16 @@ class AppServiceUtilImpl extends AppServiceUtil {
       salesListUrl +=
           '&fromDate=$paymentStatus&toDate=$paymentStatus&isCancelled=$iscancelled';
     }
-
     if (!isMainBranch) {
       salesListUrl += '&branchName=$branchNames';
     }
-
     if (branchName.isNotEmpty && branchName != 'All') {
       salesListUrl += '&branchName=$branchName';
     }
-
-    print('**************Salse url => $salesListUrl');
-
     if (iscancelled == true) {
       salesListUrl += '&isCancelled=$iscancelled';
     }
-
-    print(salesListUrl);
     final response = await dio.get(salesListUrl);
-
     return parentResponseModelFromJson(jsonEncode(response.data))
         .result
         ?.getAllSalesList;
@@ -1283,11 +1213,9 @@ class AppServiceUtilImpl extends AppServiceUtil {
     var token = prefs.getString('token');
     dio.options.headers['Authorization'] = 'Bearer $token';
     var response = await dio.get(branchUrl);
-
     var branchDetails = parentResponseModelFromJson(jsonEncode(response.data))
         .result
         ?.getBranchId;
-
     return branchDetails;
   }
 
@@ -1335,15 +1263,12 @@ class AppServiceUtilImpl extends AppServiceUtil {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var token = prefs.getString('token');
     String branchId = prefs.getString('branchId') ?? '';
-
     dio.options.headers['Authorization'] = 'Bearer $token';
     String stocksListUrl = '${AppUrl.stock}?branchId=$branchId';
     if (categoryName!.isNotEmpty) {
       stocksListUrl += '&categoryName=$categoryName';
     }
-
     final response = await dio.get(stocksListUrl);
-    print(stocksListUrl);
     return parentResponseModelFromJson(jsonEncode(response.data))
         .result
         ?.getAllStockDetails;
@@ -1362,7 +1287,6 @@ class AppServiceUtilImpl extends AppServiceUtil {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       var token = prefs.getString('token');
       var branchId = prefs.getString('branchId');
-      bool isMainBranch = prefs.getBool('mainBranch') ?? false;
       dio.options.headers['Authorization'] = 'Bearer $token';
       String url = '${AppUrl.stock}/transferd?transferType=$selectedStatus';
       if (transferStatus != null) {
@@ -1372,26 +1296,14 @@ class AppServiceUtilImpl extends AppServiceUtil {
           url += '&transferStatus=$transferStatus';
         }
       }
-
       if (toBranchId?.isNotEmpty ?? false) {
         url += '&toBranchId=$toBranchId';
       }
-
       if (selectedStatus == AppConstants.transferred) {
         url += '&fromBranchId=$branchId';
       } else {
         url += '&toBranchId=$branchId';
       }
-
-      print('*************transfer url => $url');
-      /*if (fromDateTextController != null) {
-        url +=
-            '&fromDate=${AppUtils.appToAPIDateFormat(fromDateTextController.toString())}';
-      }
-      if (toDateTextController != null) {
-        url +=
-            '&toDate=${AppUtils.appToAPIDateFormat(fromDateTextController.toString())}';
-      }*/
       var response = await dio.get(url);
       return parentResponseModelFromJson(jsonEncode(response.data))
           .result
@@ -1413,7 +1325,6 @@ class AppServiceUtilImpl extends AppServiceUtil {
     var response = await dio.patch(
       '${AppUrl.stockTransfer}?branchId=$approvalBranchId&transferId=$transferId',
     );
-    // print(object)
     if (onSuccessCallback != null) {
       onSuccessCallback(response.statusCode ?? 0);
     }
@@ -1490,22 +1401,15 @@ class AppServiceUtilImpl extends AppServiceUtil {
         if (vehicleName != null && vehicleName.isNotEmpty) {
           url += '&itemName=$vehicleName';
         }
-        // if (branchId != null && branchId.isNotEmpty) {
-        //   url += '&branchId=$branchId';
-        // }
-
         if (branchId != null && branchId.isNotEmpty) {
           url += '&branchId=$branchId';
         } else if (!isMainBranch) {
           url += '&branchId=$branchIds';
         }
       }
-
-      print(url);
       var response = await dio.get(url);
       final responseList =
           parentResponseModelFromJson(jsonEncode(response.data));
-
       return responseList.result?.getAllStocksByPagenation;
     } on DioException catch (e) {
       e.response?.statusCode ?? 0;
@@ -1527,9 +1431,7 @@ class AppServiceUtilImpl extends AppServiceUtil {
       dio.options.headers['Authorization'] = 'Bearer $token';
       bool isMainBranch = prefs.getBool('mainBranch') ?? false;
       String branchId = prefs.getString('branchId') ?? '';
-
       String url = '${AppUrl.booking}/page?page=$currentPage&size=10';
-
       if (bookingId != null && bookingId.isNotEmpty) {
         url += '&bookingNo=$bookingId';
       }
@@ -1538,22 +1440,18 @@ class AppServiceUtilImpl extends AppServiceUtil {
       }
       if (paymentType != null &&
           paymentType.isNotEmpty &&
-          paymentType != 'All') {
+          paymentType != 'All Payments') {
         url += '&paymentType=$paymentType';
       }
-
       if (!isMainBranch) {
         url += '&branchId=$branchId';
       }
-
-      if (branchName != null && branchName.isNotEmpty && branchName != 'All') {
+      if (branchName != null &&
+          branchName.isNotEmpty &&
+          branchName != 'All Branchs') {
         url += '&branchName=$branchName';
       }
-
-      print(url);
-
       var response = await dio.get(url);
-
       return parentResponseModelFromJson(jsonEncode(response.data))
           .result
           ?.getAllBookingListWithPagination;
@@ -1592,7 +1490,6 @@ class AppServiceUtilImpl extends AppServiceUtil {
       employeeList += '?branchId=$branchId';
     }
     final response = await dio.get(employeeList);
-
     return parentResponseModelFromJson(jsonEncode(response.data))
         .result
         ?.getAllEmployeeListWithouPagenation;
@@ -1606,12 +1503,9 @@ class AppServiceUtilImpl extends AppServiceUtil {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       var token = prefs.getString('token');
-
       dio.options.headers['Authorization'] = 'Bearer $token';
       var jsonData = json.encode(salesdata);
-
       var response = await dio.post(AppUrl.sales, data: jsonData);
-
       if (response.statusCode == 200 || response.statusCode == 201) {
         onSuccessCallBack(response.statusCode!);
       } else {
@@ -1629,10 +1523,8 @@ class AppServiceUtilImpl extends AppServiceUtil {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       var token = prefs.getString('token');
       dio.options.headers['Authorization'] = 'Bearer $token';
-
       var response =
           await dio.post(AppUrl.newVouchar, data: jsonEncode(voucharObj));
-
       statusCode(response.statusCode);
     } on DioException catch (e) {
       statusCode(e.response?.statusCode);
@@ -1682,7 +1574,6 @@ class AppServiceUtilImpl extends AppServiceUtil {
       "paymentDate": paymentDate,
       "paymentType": paymentType
     });
-    print(response);
     onSuccessCallBack(response.statusCode ?? 0);
   }
 
@@ -1693,11 +1584,7 @@ class AppServiceUtilImpl extends AppServiceUtil {
     var token = prefs.getString('token');
     dio.options.headers['Authorization'] = 'Bearer $token';
     String advanceGetUrl = '${AppUrl.booking}/booking/$customerId';
-    print('**********Customer boking url =. $advanceGetUrl');
-
     final response = await dio.get(advanceGetUrl);
-    print('**********Customer boking data =. ${response.data}');
-
     return parentResponseModelFromJson(jsonEncode(response.data))
         .result
         ?.getCustomerBookingDetails;
@@ -1713,8 +1600,6 @@ class AppServiceUtilImpl extends AppServiceUtil {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var token = prefs.getString('token');
     dio.options.headers['Authorization'] = 'Bearer $token';
-    print(
-        '************Cancel url => ${AppUrl.sales}cancel/$salesId?paymentId=$paymentId&reason=$reason');
     var response = await dio.patch(
       '${AppUrl.sales}cancel/$salesId?paymentId=$paymentId&reason=$reason',
     );
@@ -1730,8 +1615,6 @@ class AppServiceUtilImpl extends AppServiceUtil {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var token = prefs.getString('token');
     dio.options.headers['Authorization'] = 'Bearer $token';
-    print(
-        '************Cancel url => ${AppUrl.salesBilCancel}$salesId?reason=$reason');
     var response = await dio.patch(
       '${AppUrl.salesBilCancel}$salesId?reason=$reason',
     );
