@@ -311,8 +311,6 @@ class PurchaseInvoicePrint {
       await Printing.layoutPdf(
         onLayout: (PdfPageFormat format) async => pdf.save(),
       );
-    } catch (e) {
-      print('Error generating PDF: $e');
-    }
+    } catch (e) {}
   }
 }

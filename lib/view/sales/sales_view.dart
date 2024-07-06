@@ -156,7 +156,7 @@ class _SalesViewScreenState extends State<SalesViewScreen>
               .where((branchName) => branchName != null)
               .cast<String>()
               .toList();
-          branchNameList?.insert(0, AppConstants.all);
+          branchNameList?.insert(0, AppConstants.allBranch);
           return _buildDropDown(
             dropDownItems: (snapshot.hasData &&
                     (snapshot.data?.result?.getAllBranchList?.isNotEmpty ==
@@ -168,7 +168,7 @@ class _SalesViewScreenState extends State<SalesViewScreen>
                 : (snapshot.hasError || snapshot.data == null)
                     ? AppConstants.errorLoading
                     : AppConstants.branchName,
-            selectedvalue: _salesViewBloc.branchId,
+            selectedvalue: AppConstants.allBranch,
             onChange: (value) {
               _salesViewBloc.branchId = value;
 
@@ -255,7 +255,6 @@ class _SalesViewScreenState extends State<SalesViewScreen>
       child: TabBar(
         controller: _salesViewBloc.salesTabController,
         tabs: const [
-          //   Tab(text: AppConstants.all),
           Tab(text: AppConstants.today),
           Tab(text: AppConstants.pending),
           Tab(text: AppConstants.completed),
@@ -271,7 +270,6 @@ class _SalesViewScreenState extends State<SalesViewScreen>
         physics: const NeverScrollableScrollPhysics(),
         controller: _salesViewBloc.salesTabController,
         children: [
-          // _buildSalesTableView(context),
           _buildSalesTableView(
               context, DateFormat('yyyy-MM-dd').format(DateTime.now()), false),
           _buildSalesTableView(context, 'PENDING', false),
@@ -298,7 +296,14 @@ class _SalesViewScreenState extends State<SalesViewScreen>
               return Center(child: AppWidgetUtils.buildLoading());
             } else if (!snapshot.hasData ||
                 snapshot.data?.content?.isEmpty == true) {
-              return Center(child: SvgPicture.asset(AppConstants.imgNoData));
+              return Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Center(child: SvgPicture.asset(AppConstants.imgNoData)),
+                  const Text('No Sales data')
+                ],
+              );
             }
             List<Content> salesList = snapshot.data?.content ?? [];
             GetAllSales salesDetails = snapshot.data!;
@@ -318,9 +323,9 @@ class _SalesViewScreenState extends State<SalesViewScreen>
                             _buildVehicleTableHeader(AppConstants.sno),
                             _buildVehicleTableHeader(AppConstants.invoiceNo),
                             _buildVehicleTableHeader(AppConstants.invoiceDate),
-                            // _buildVehicleTableHeader(AppConstants.customerId),
                             _buildVehicleTableHeader(AppConstants.customerName),
                             _buildVehicleTableHeader(AppConstants.mobileNumber),
+                            _buildVehicleTableHeader(AppConstants.categoryName),
                             _buildVehicleTableHeader(AppConstants.paymentType),
                             _buildVehicleTableHeader(
                                 AppConstants.totalInvAmount),
@@ -330,7 +335,6 @@ class _SalesViewScreenState extends State<SalesViewScreen>
                             if (!iscancelled)
                               _buildVehicleTableHeader(
                                   AppConstants.pendingInvAmt),
-
                             if (!iscancelled)
                               _buildVehicleTableHeader(AppConstants.status),
                             _buildVehicleTableHeader(AppConstants.createdBy),
@@ -352,16 +356,15 @@ class _SalesViewScreenState extends State<SalesViewScreen>
                                 DataCell(Text(entry.value.invoiceNo ?? '')),
                                 DataCell(Text(AppUtils.apiToAppDateFormat(
                                     entry.value.invoiceDate.toString()))),
-                                //  DataCell(Text(entry.value.customerId ?? '')),
                                 DataCell(Text(entry.value.customerName ?? '')),
                                 DataCell(Text(entry.value.mobileNo ?? '')),
+                                DataCell(Text(entry.value.invoiceType ?? '')),
                                 DataCell(Text(entry.value.billType.toString())),
                                 DataCell(Text(AppUtils.formatCurrency(
                                     entry.value.totalInvoiceAmt?.toDouble() ??
                                         0))),
                                 DataCell(Text(AppUtils.formatCurrency(
                                     entry.value.netAmt?.toDouble() ?? 0))),
-
                                 if (!iscancelled)
                                   DataCell(Text(AppUtils.formatCurrency(
                                       entry.value.totalPaidAmt?.toDouble() ??
@@ -370,8 +373,6 @@ class _SalesViewScreenState extends State<SalesViewScreen>
                                   DataCell(Text(AppUtils.formatCurrency(
                                       entry.value.pendingAmt?.toDouble() ??
                                           0))),
-                                // DataCell(Text(AppUtils.formatCurrency(
-                                //     entry.value.pendingAmt!.toDouble()))),
                                 if (!iscancelled)
                                   DataCell(Chip(
                                       side: BorderSide(
@@ -405,6 +406,7 @@ class _SalesViewScreenState extends State<SalesViewScreen>
                                           onPressed: () {
                                             showDialog(
                                               context: context,
+                                              barrierDismissible: false,
                                               builder: (context) {
                                                 return PaymentDailog(
                                                   salesdata: entry.value,
@@ -431,7 +433,11 @@ class _SalesViewScreenState extends State<SalesViewScreen>
                                         },
                                       );
                                     },
-                                    icon: const Icon(Icons.print),
+                                    icon: SvgPicture.asset(
+                                      AppConstants.icPrint,
+                                      colorFilter: const ColorFilter.mode(
+                                          Colors.black, BlendMode.srcIn),
+                                    ),
                                   )),
                                 DataCell(
                                   PopupMenuButton(
@@ -452,6 +458,7 @@ class _SalesViewScreenState extends State<SalesViewScreen>
                                     onSelected: (value) {
                                       if (value == 'cancel') {
                                         showDialog(
+                                          barrierDismissible: false,
                                           context: context,
                                           builder: (context) =>
                                               _buildSalesBillCancelDialog(
@@ -463,6 +470,7 @@ class _SalesViewScreenState extends State<SalesViewScreen>
                                         });
                                       } else if (value == 'view') {
                                         showDialog(
+                                          barrierDismissible: false,
                                           context: context,
                                           builder: (context) {
                                             return _buildPaymentDetailsListView(
@@ -580,12 +588,21 @@ class _SalesViewScreenState extends State<SalesViewScreen>
             surfaceTintColor: _appColors.whiteColor,
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-            title: Text(
-              AppConstants.vehicleDetails,
-              style: TextStyle(
-                color: _appColors.primaryColor,
-                fontWeight: FontWeight.bold,
-              ),
+            title: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(AppConstants.vehicleDetails,
+                    style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: _appColors.primaryColor)),
+                IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
             ),
             content: SizedBox(
               width: 650,
@@ -715,6 +732,7 @@ class _SalesViewScreenState extends State<SalesViewScreen>
                         ? IconButton(
                             onPressed: () {
                               showDialog(
+                                barrierDismissible: false,
                                 context: context,
                                 builder: (context) => AlertDialog(
                                   surfaceTintColor: _appColors.whiteColor,

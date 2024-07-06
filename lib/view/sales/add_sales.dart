@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:tlbilling/utils/app_colors.dart';
 import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/utils/app_util_widgets.dart';
@@ -66,7 +65,7 @@ class _AddSalesState extends State<AddSales> {
             flex: 1,
             child: _buildCustomerAndPaymentDetails(),
           ),
-        ], 
+        ],
       ),
     );
   }
@@ -108,15 +107,13 @@ class _AddSalesState extends State<AddSales> {
   Widget _buildVehicleAndAccessoriesList() {
     return Column(
       children: [
-        Expanded(
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10),
-            decoration: BoxDecoration(
-              color: _appColors.whiteColor,
-            ),
-            child: CustomerDetails(
-              addSalesBloc: _addSalesBloc,
-            ),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          decoration: BoxDecoration(
+            color: _appColors.whiteColor,
+          ),
+          child: CustomerDetails(
+            addSalesBloc: _addSalesBloc,
           ),
         ),
         Expanded(

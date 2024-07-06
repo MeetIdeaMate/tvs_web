@@ -91,25 +91,27 @@ class BookingDetails {
   String? executiveName;
   bool? cancelled;
   String? branchName;
-   DateTime? targetInvoiceDate;
+  DateTime? targetInvoiceDate;
 
-  BookingDetails(
-      {this.bookingNo,
-      this.bookingDate,
-      this.customerId,
-      this.customerName,
-      this.mobileNo,
-      this.address,
-      this.partNo,
-      this.categoryId,
-      this.categoryName,
-      this.itemName,
-      this.additionalInfo,
-      this.paidDetail,
-      this.executiveId,
-      this.executiveName,
-      this.cancelled,
-      this.branchName,this.targetInvoiceDate,});
+  BookingDetails({
+    this.bookingNo,
+    this.bookingDate,
+    this.customerId,
+    this.customerName,
+    this.mobileNo,
+    this.address,
+    this.partNo,
+    this.categoryId,
+    this.categoryName,
+    this.itemName,
+    this.additionalInfo,
+    this.paidDetail,
+    this.executiveId,
+    this.executiveName,
+    this.cancelled,
+    this.branchName,
+    this.targetInvoiceDate,
+  });
 
   factory BookingDetails.fromJson(Map<String, dynamic> json) => BookingDetails(
       bookingNo: json["bookingNo"],
@@ -125,7 +127,9 @@ class BookingDetails {
       categoryName: json["categoryName"],
       itemName: json["itemName"],
       additionalInfo: json["additionalInfo"],
-       targetInvoiceDate: json["targetInvoiceDate"] == null ? null : DateTime.parse(json["targetInvoiceDate"]),
+      targetInvoiceDate: json["targetInvoiceDate"] == null
+          ? null
+          : DateTime.parse(json["targetInvoiceDate"]),
       paidDetail: json["paidDetail"] == null
           ? null
           : PaidDetail.fromJson(json["paidDetail"]),
@@ -152,7 +156,8 @@ class BookingDetails {
         "executiveName": executiveName,
         "cancelled": cancelled,
         'branchName': branchName,
-        "targetInvoiceDate": "${targetInvoiceDate!.year.toString().padLeft(4, '0')}-${targetInvoiceDate!.month.toString().padLeft(2, '0')}-${targetInvoiceDate!.day.toString().padLeft(2, '0')}",
+        "targetInvoiceDate":
+            "${targetInvoiceDate!.year.toString().padLeft(4, '0')}-${targetInvoiceDate!.month.toString().padLeft(2, '0')}-${targetInvoiceDate!.day.toString().padLeft(2, '0')}",
       };
 }
 

@@ -1,5 +1,6 @@
 import 'package:blurry_modal_progress_hud/blurry_modal_progress_hud.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:tlbilling/components/custom_action_button.dart';
 import 'package:tlbilling/models/get_model/get_all_sales_list_model.dart';
 import 'package:tlbilling/utils/app_colors.dart';
@@ -51,6 +52,8 @@ class _PaymentDailogState extends State<PaymentDailog> {
     });
     widget.salesViewBloc.totalInvAmtPaymentController.text =
         widget.salesdata?.pendingAmt?.toString() ?? '';
+    widget.salesViewBloc.paymentDateTextController.text =
+        DateFormat('dd-MM-yyyy').format(DateTime.now());
   }
 
   @override
@@ -123,6 +126,7 @@ class _PaymentDailogState extends State<PaymentDailog> {
                 ? () {
                     if (widget.salesViewBloc.paidAmtFormKey.currentState!
                         .validate()) {
+                      _isLoadingState(state: true);
                       widget.salesViewBloc.salesPaymentUpdate(
                           AppUtils.appToAPIDateFormat(widget
                               .salesViewBloc.paymentDateTextController.text),
@@ -134,6 +138,7 @@ class _PaymentDailogState extends State<PaymentDailog> {
                           widget.salesViewBloc.reasonTextEditingController.text,
                           (statusCode) {
                         if (statusCode == 200 || statusCode == 201) {
+                          _isLoadingState(state: false);
                           Navigator.pop(context);
                           widget.salesViewBloc
                               .pageNumberUpdateStreamController(0);
@@ -150,6 +155,7 @@ class _PaymentDailogState extends State<PaymentDailog> {
                           widget.salesViewBloc.paymentDateTextController
                               .clear();
                         } else {
+                          _isLoadingState(state: false);
                           AppWidgetUtils.buildToast(
                               context,
                               ToastificationType.success,
@@ -227,6 +233,7 @@ class _PaymentDailogState extends State<PaymentDailog> {
                   AppWidgetUtils.labelTextWithRequired(AppConstants.date),
               controller: widget.salesViewBloc.paymentDateTextController,
               height: 70,
+              hintText: AppConstants.date,
               validator: (value) {
                 if (value!.isEmpty) {
                   return 'Please Select date';
@@ -244,9 +251,6 @@ class _PaymentDailogState extends State<PaymentDailog> {
     return TldsInputFormField(
       maxLine: 100,
       height: 80,
-      // validator: (value) {
-      //   return InputValidations.addressValidation(value ?? '');
-      // },
       controller: widget.salesViewBloc.reasonTextEditingController,
       hintText: AppConstants.reason,
       labelText: AppConstants.reason,
@@ -263,13 +267,10 @@ class _PaymentDailogState extends State<PaymentDailog> {
                 dropDownItems: _paymentsListFuture ?? [],
                 dropDownValue: widget.salesViewBloc.selectedPaymentName,
                 hintText: '',
-                // height: 40,
                 width: double.infinity,
                 onChange: (value) {
                   widget.salesViewBloc.selectedPaymentName = value;
                   widget.salesViewBloc.paymentStreamController(true);
-                  //  setState(() {});
-                  //  widget.addSalesBloc.isSplitPaymentStreamController(true);
                 },
               ),
         AppWidgetUtils.buildSizedBox(custWidth: 8),
@@ -277,7 +278,6 @@ class _PaymentDailogState extends State<PaymentDailog> {
           children: [
             Expanded(
               child: TldsInputFormField(
-                //   readOnly: true,
                 requiredLabelText:
                     AppWidgetUtils.labelTextWithRequired(AppConstants.paidAmt),
                 controller: widget.salesViewBloc.paidAmountTextController,
@@ -296,6 +296,11 @@ class _PaymentDailogState extends State<PaymentDailog> {
                   double paidAmt = double.tryParse(
                           widget.salesViewBloc.paidAmountTextController.text) ??
                       0;
+
+                  if (paidAmt > totalInv) {
+                    widget.salesViewBloc.paidAmountTextController.text = '';
+                    widget.salesViewBloc.balanceAmtController.text = '';
+                  }
                   double balanceAmt = totalInv - paidAmt;
                   widget.salesViewBloc.balanceAmtController.text =
                       balanceAmt.toString();

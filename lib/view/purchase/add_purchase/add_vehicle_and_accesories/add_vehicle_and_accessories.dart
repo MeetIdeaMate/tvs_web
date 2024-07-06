@@ -180,9 +180,18 @@ class _AddVehicleAndAccessoriesState extends State<AddVehicleAndAccessories> {
                     hintText: AppConstants.rupeeHint,
                     width: 100,
                     height: 40,
+                    inputFormatters:
+                        TldsInputFormatters.onlyAllowDecimalNumbers,
                     controller: widget.purchaseBloc.discountTextController,
                     onChanged: (discount) {
                       double? discountAmount = double.tryParse(discount);
+                      double totalValue = widget.purchaseBloc.totalValue ?? 0;
+                      if (discountAmount != null &&
+                          discountAmount > totalValue) {
+                        discountAmount = 0;
+                        widget.purchaseBloc.discountTextController.text =
+                            discountAmount.toStringAsFixed(2);
+                      }
 
                       widget.purchaseBloc.taxableValue =
                           (widget.purchaseBloc.totalValue ?? 0) -
@@ -267,6 +276,8 @@ class _AddVehicleAndAccessoriesState extends State<AddVehicleAndAccessories> {
                     width: 100,
                     height: 40,
                     controller: widget.purchaseBloc.tcsvalueTextController,
+                    inputFormatters:
+                        TldsInputFormatters.onlyAllowDecimalAfterTwoDigits,
                     onChanged: (tcsValue) {
                       double? parsedTcsValue = double.tryParse(
                           widget.purchaseBloc.tcsvalueTextController.text);
@@ -304,6 +315,8 @@ class _AddVehicleAndAccessoriesState extends State<AddVehicleAndAccessories> {
                       hintText: AppConstants.rupeeHint,
                       width: 100,
                       height: 40,
+                      inputFormatters:
+                          TldsInputFormatters.onlyAllowDecimalAfterTwoDigits,
                       controller:
                           widget.purchaseBloc.empsIncentiveTextController,
                       onChanged: (empsInc) {
@@ -317,6 +330,8 @@ class _AddVehicleAndAccessoriesState extends State<AddVehicleAndAccessories> {
                       hintText: AppConstants.rupeeHint,
                       width: 100,
                       height: 40,
+                      inputFormatters:
+                          TldsInputFormatters.onlyAllowDecimalAfterTwoDigits,
                       controller:
                           widget.purchaseBloc.stateIncentiveTextController,
                       onChanged: (stateInc) {
@@ -417,7 +432,13 @@ class _AddVehicleAndAccessoriesState extends State<AddVehicleAndAccessories> {
                   inputFormatters: TlInputFormatters.onlyAllowDecimalNumbers,
                   hintText: AppConstants.cgstPercent,
                   controller: widget.purchaseBloc.cgstPresentageTextController,
+                  maxLength: 5,
+                  counterText: '',
                   onChanged: (cgst) {
+                    double cgstPercent = double.tryParse(cgst) ?? 0;
+                    if (cgstPercent > 100) {
+                      widget.purchaseBloc.cgstPresentageTextController.clear();
+                    }
                     var cgstPercentage = double.tryParse(widget
                             .purchaseBloc.cgstPresentageTextController.text) ??
                         0.0;
@@ -457,7 +478,13 @@ class _AddVehicleAndAccessoriesState extends State<AddVehicleAndAccessories> {
                   inputFormatters: TlInputFormatters.onlyAllowDecimalNumbers,
                   hintText: AppConstants.igstPercent,
                   controller: widget.purchaseBloc.igstPresentageTextController,
+                  maxLength: 5,
+                  counterText: '',
                   onChanged: (igst) {
+                    double igstPercent = double.tryParse(igst) ?? 0;
+                    if (igstPercent > 100) {
+                      widget.purchaseBloc.igstPresentageTextController.clear();
+                    }
                     var igstPresentage = double.tryParse(widget
                             .purchaseBloc.igstPresentageTextController.text) ??
                         0.0;
@@ -791,6 +818,7 @@ class _AddVehicleAndAccessoriesState extends State<AddVehicleAndAccessories> {
           child: TldsInputFormField(
             labelText: AppConstants.quantity,
             hintText: AppConstants.quantity,
+            inputFormatters: TldsInputFormatters.onlyAllowNumbers,
             width: 180,
             controller: widget.purchaseBloc.quantityController,
             onChanged: (qty) {
@@ -843,11 +871,6 @@ class _AddVehicleAndAccessoriesState extends State<AddVehicleAndAccessories> {
             totalInvoiceValue: widget.purchaseBloc.totalInvAmount,
             totalValue: widget.purchaseBloc.totalValue!,
             igstAmount: widget.purchaseBloc.igstAmount,
-            // discountPresentage:
-            // widget.purchaseBloc.discountTextController.text.isEmpty
-            //     ? double.tryParse(
-            //         widget.purchaseBloc.discountTextController.text)
-            //     : 0,
             discountValue:
                 widget.purchaseBloc.discountTextController.text.isNotEmpty
                     ? double.tryParse(
@@ -951,8 +974,23 @@ class _AddVehicleAndAccessoriesState extends State<AddVehicleAndAccessories> {
         0.0;
 
     double totalIncentive = empsIncValue + stateIncValue;
-    widget.purchaseBloc.totalInvAmount =
-        (widget.purchaseBloc.invAmount ?? 0) - totalIncentive;
+
+    double invoiceAmount = widget.purchaseBloc.invAmount ?? 0;
+
+    if (totalIncentive > invoiceAmount) {
+      totalIncentive = invoiceAmount;
+
+      if (empsIncValue > invoiceAmount) {
+        widget.purchaseBloc.empsIncentiveTextController.text =
+            invoiceAmount.toStringAsFixed(2);
+        widget.purchaseBloc.stateIncentiveTextController.text = '';
+      } else {
+        widget.purchaseBloc.stateIncentiveTextController.text =
+            (invoiceAmount - empsIncValue).toStringAsFixed(2);
+      }
+    }
+
+    widget.purchaseBloc.totalInvAmount = invoiceAmount - totalIncentive;
 
     widget.purchaseBloc.paymentDetailsStreamController(true);
   }
@@ -1002,14 +1040,23 @@ class _AddVehicleAndAccessoriesState extends State<AddVehicleAndAccessories> {
               unitRate;
     }
     widget.purchaseBloc.totalValue = totalValue;
-    var discount =
-        double.tryParse(widget.purchaseBloc.discountTextController.text) ?? 0.0;
-    var taxableValue = totalValue - discount;
+
+    double? discountAmount =
+        double.tryParse(widget.purchaseBloc.discountTextController.text) ?? 0;
+    totalValue = widget.purchaseBloc.totalValue ?? 0;
+    if (discountAmount > totalValue) {
+      discountAmount = 0;
+      widget.purchaseBloc.discountTextController.text =
+          discountAmount.toStringAsFixed(2);
+    }
+    var taxableValue = totalValue - discountAmount;
     widget.purchaseBloc.taxableValue = taxableValue;
-    var discountPercentage =
-        double.tryParse(widget.purchaseBloc.discountTextController.text) ?? 0.0;
-    var discountValue = totalValue * (discountPercentage / 100);
-    widget.purchaseBloc.discountValue = discountValue;
+    widget.purchaseBloc.taxableValue =
+        (widget.purchaseBloc.totalValue ?? 0) - (discountAmount);
+
+    widget.purchaseBloc.totalInvAmount =
+        ((widget.purchaseBloc.invAmount ?? 0) - (discountAmount));
+
     var tcsValue =
         double.tryParse(widget.purchaseBloc.tcsvalueTextController.text) ?? 0.0;
     double gstAmount = 0.0;
@@ -1034,15 +1081,7 @@ class _AddVehicleAndAccessoriesState extends State<AddVehicleAndAccessories> {
     }
     var invoiceValue = taxableValue + gstAmount;
     widget.purchaseBloc.invAmount = invoiceValue + tcsValue;
-    var empsIncentive =
-        double.tryParse(widget.purchaseBloc.empsIncentiveTextController.text) ??
-            0.0;
-    var stateIncentive = double.tryParse(
-            widget.purchaseBloc.stateIncentiveTextController.text) ??
-        0.0;
-    var totalIncentive = empsIncentive + stateIncentive;
-    var totalInvoiceAmount = invoiceValue - totalIncentive;
-    widget.purchaseBloc.totalInvAmount = totalInvoiceAmount;
+    _updateTotalInvoiceAmount();
   }
 
   void _getAndSetValuesForInputFields(ParentResponseModel partDetails) {
@@ -1052,7 +1091,6 @@ class _AddVehicleAndAccessoriesState extends State<AddVehicleAndAccessories> {
           vehchileById?.itemName ?? '';
       widget.purchaseBloc.unitRateController.text =
           vehchileById?.unitRate.toString() ?? '';
-      // Set GST values
       for (var gstDetail in vehchileById?.gstDetails ?? []) {
         if (gstDetail.gstName == 'CGST' || gstDetail.gstName == 'SGST') {
           widget.purchaseBloc.selectedGstType = AppConstants.gstPercent;
@@ -1061,7 +1099,6 @@ class _AddVehicleAndAccessoriesState extends State<AddVehicleAndAccessories> {
               gstDetail.percentage?.toString() ?? '';
           widget.purchaseBloc.sgstPresentageTextController.text =
               gstDetail.percentage?.toString() ?? '';
-          // _purchaseTableAmountCalculation();
 
           widget.purchaseBloc.engineDetailsStreamController(true);
           widget.purchaseBloc.gstRadioBtnRefreshStreamController(true);
@@ -1075,40 +1112,7 @@ class _AddVehicleAndAccessoriesState extends State<AddVehicleAndAccessories> {
           widget.purchaseBloc.paymentDetailsStreamController(true);
         }
       }
-      // Set incentives
-      // for (var incentive in vehchileById?.incentives ?? []) {
-      //   if (incentive.incentiveName == 'StateIncentive') {
-      //     widget.purchaseBloc.isStateIncChecked = true;
 
-      //     widget.purchaseBloc.incentiveCheckBoxStreamController(true);
-      //     widget.purchaseBloc.stateIncentiveTextController.text =
-      //         incentive.incentiveAmount?.toString() ?? '';
-      //     widget.purchaseBloc.paymentDetailsStreamController(true);
-      //   } else if (incentive.incentiveName == 'EMPS 2024 Incentive') {
-      //     widget.purchaseBloc.isEmpsIncChecked = true;
-      //     widget.purchaseBloc.incentiveCheckBoxStreamController(true);
-      //     widget.purchaseBloc.empsIncentiveTextController.text =
-      //         incentive.incentiveAmount?.toString() ?? '';
-      //     widget.purchaseBloc.paymentDetailsStreamController(true);
-      //   }
-      // }
-      // Set taxes
-      // for (var tax in vehchileById?.taxes ?? []) {
-      //   if (tax.taxName == 'TcsValue') {
-      //     widget.purchaseBloc.isTcsValueChecked = true;
-      //     widget.purchaseBloc.taxValueCheckboxStreamController(true);
-      //     widget.purchaseBloc.tcsvalueTextController.text =
-      //         tax.taxAmount?.toString() ?? '';
-      //     widget.purchaseBloc.isTcsValueChecked = tax.percentage > 0;
-      //     widget.purchaseBloc.paymentDetailsStreamController(true);
-      //   }
-      // }
-      // Update total values
-      // widget.purchaseBloc.totalValue = vehchileById?.value?.toDouble();
-      // widget.purchaseBloc.discountValue = vehchileById?.discount?.toDouble();
-      // widget.purchaseBloc.taxableValue = vehchileById?.taxableValue?.toDouble();
-      // widget.purchaseBloc.totalInvAmount =
-      //     vehchileById?.finalInvoiceValue?.toDouble();
       widget.purchaseBloc.paymentDetailsStreamController(true);
     });
   }
@@ -1161,7 +1165,6 @@ class _AddVehicleAndAccessoriesState extends State<AddVehicleAndAccessories> {
         double.tryParse(widget.purchaseBloc.quantityController.text);
     widget.purchaseBloc.engineDetailsStreamController(true);
     widget.purchaseBloc.gstRadioBtnRefreshStreamController(true);
-
     widget.purchaseBloc.totalValue = (unitRate ?? 0) * (totalQty ?? 0);
 
     widget.purchaseBloc.taxableValue = (unitRate ?? 0) * (totalQty ?? 0);

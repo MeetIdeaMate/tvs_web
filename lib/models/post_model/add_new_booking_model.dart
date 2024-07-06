@@ -25,7 +25,7 @@ class BookingModel {
       'bookingDate': bookingDate,
       'customerId': customerId,
       'executiveId': executiveId,
-      'paidDetail': paidDetail?.toJson(), 
+      'paidDetail': paidDetail?.toJson(),
       'partNo': partNo,
       'targetInvoiceDate': targetInvoiceDate,
       'branchId': branchId,

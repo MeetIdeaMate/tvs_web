@@ -468,7 +468,6 @@ class MandatoryAddons {
   }
 }
 
-
 class Tax {
   double? percentage;
   double? taxAmount;

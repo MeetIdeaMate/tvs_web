@@ -1,4 +1,3 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:tlbilling/components/custom_elevated_button.dart';
@@ -25,6 +24,7 @@ class CustomerDetails extends StatefulWidget {
 
 class _CustomerDetailsState extends State<CustomerDetails> {
   final _appColors = AppColors();
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -40,16 +40,15 @@ class _CustomerDetailsState extends State<CustomerDetails> {
         ),
         AppWidgetUtils.buildSizedBox(custHeight: 10),
         _buildSelectCustomerAndAddCustomer(),
-        AppWidgetUtils.buildSizedBox(custHeight: 10),
-        //  if (widget.addSalesBloc.selectedCustomer != null)
-        _buildSelectedCustomerDetails(),
+        if (widget.addSalesBloc.selectedCustomer != '')
+          _buildSelectedCustomerDetails(),
       ],
     );
   }
 
   Widget _buildSelectedCustomerDetails() {
     return Container(
-      padding: const EdgeInsets.all(15),
+      padding: const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
         color: _appColors.whiteColor,
@@ -74,31 +73,33 @@ class _CustomerDetailsState extends State<CustomerDetails> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      customer?.customerName ?? 'ajith',
+                      customer?.customerName ?? '',
                       style: TextStyle(
                           color: _appColors.primaryColor, fontSize: 20),
                     ),
-                    AppWidgetUtils.buildSizedBox(custHeight: 10),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    AppWidgetUtils.buildSizedBox(custHeight: 8),
+                    Wrap(
+                      spacing: 20,
+                      runSpacing: 20,
                       children: [
-                        _buildCustomerColumn([
+                        if (customer?.mobileNo != '')
                           _buildCustomerData(
                               customer?.mobileNo ?? '', AppConstants.icCall),
+                        if (customer?.accountNo != '')
                           _buildCustomerData(
                               customer?.accountNo ?? '', AppConstants.icBank),
+                        if (customer?.address != '')
                           _buildCustomerData(
                               customer?.address ?? '', AppConstants.icLocation),
-                        ]),
-                        _buildCustomerColumn([
+                        if (customer?.emailId != '')
                           _buildCustomerData(
                               customer?.emailId ?? '', AppConstants.icMail),
+                        if (customer?.aadharNo != '')
                           _buildCustomerData(
                               customer?.aadharNo ?? '', AppConstants.icCard),
+                        if (customer?.city != '')
                           _buildCustomerData(
                               customer?.city ?? '', AppConstants.icCity),
-                        ]),
                       ],
                     ),
                   ],
@@ -109,20 +110,9 @@ class _CustomerDetailsState extends State<CustomerDetails> {
     );
   }
 
-  Widget _buildCustomerColumn(List<Widget> children) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        for (var child in children) ...[
-          child,
-          AppWidgetUtils.buildSizedBox(custHeight: 10),
-        ],
-      ],
-    );
-  }
-
   Widget _buildCustomerData(String? textValue, String svgPath) {
     return Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
         SvgPicture.asset(
           svgPath,
@@ -130,7 +120,8 @@ class _CustomerDetailsState extends State<CustomerDetails> {
               ColorFilter.mode(_appColors.primaryColor, BlendMode.srcIn),
         ),
         AppWidgetUtils.buildSizedBox(custWidth: 10),
-        Text(textValue ?? '')
+        Text(textValue ?? ''),
+        AppWidgetUtils.buildSizedBox(custWidth: 5),
       ],
     );
   }
@@ -161,7 +152,7 @@ class _CustomerDetailsState extends State<CustomerDetails> {
                       customerList?.map((e) => e.customerName ?? '').toList();
 
                   return TldsDropDownButtonFormField(
-                    height: 70,
+                    // height: 50,
                     validator: (String? value) {
                       if (value == null || value.isEmpty) {
                         return AppConstants.selectCustomer;
@@ -180,6 +171,9 @@ class _CustomerDetailsState extends State<CustomerDetails> {
                       widget.addSalesBloc
                           .selectedCustomerDetailsStreamController(true);
 
+                      _updateTotalInvoiceAmount();
+                      widget.addSalesBloc.paymentDetailsStreamController(true);
+
                       widget.addSalesBloc
                           .getCustomerBookingDetails(selectedVendor.customerId)
                           .then((value) {
@@ -188,14 +182,54 @@ class _CustomerDetailsState extends State<CustomerDetails> {
                               in value ?? []) {
                             widget.addSalesBloc.advanceAmt =
                                 element.paidDetail?.paidAmount ?? 0;
+
                             widget.addSalesBloc
                                 .advanceAmountRefreshStreamController(true);
                             widget
                                 .addSalesBloc
                                 .vehicleNoAndEngineNoSearchController
                                 .text = element.partNo ?? '';
+                            widget.addSalesBloc
+                                .vehicleAndEngineNumberStreamController(true);
                             widget.addSalesBloc.selectedVehicleAndAccessories =
                                 element.categoryName;
+                            //    var selectedValue = newValue.first;
+                            widget.addSalesBloc
+                                .batteryDetailsRefreshStreamController(true);
+
+                            widget.addSalesBloc
+                                .batteryDetailsRefreshStreamController(true);
+                            widget.addSalesBloc.selectedVehiclesList?.clear();
+                            widget.addSalesBloc.slectedAccessoriesList?.clear();
+                            widget.addSalesBloc
+                                .batteryDetailsRefreshStreamController(true);
+                            widget.addSalesBloc.selectedMandatoryAddOns.clear();
+                            widget.addSalesBloc
+                                .batteryDetailsRefreshStreamController(true);
+                            widget.addSalesBloc
+                                .selectedVehicleAndAccessoriesListStreamController(
+                                    true);
+                            _updateTotalInvoiceAmount();
+                            widget.addSalesBloc
+                                .paymentDetailsStreamController(true);
+
+                            // widget.addSalesBloc.selectedVehiclesList = [];
+                            widget.addSalesBloc
+                                .batteryDetailsRefreshStreamController(true);
+                            widget.addSalesBloc.selectedItemStream(true);
+                            widget.addSalesBloc
+                                .selectedVehiclesListStreamController(true);
+
+                            widget.addSalesBloc
+                                .selectedVehicleAndAccessoriesStreamController(
+                                    true);
+                            widget.addSalesBloc
+                                .changeVehicleAndAccessoriesListStreamController(
+                                    true);
+                            widget.addSalesBloc
+                                .selectedVehicleAndAccessoriesListStreamController(
+                                    true);
+
                             widget.addSalesBloc
                                 .selectedVehicleAndAccessoriesListStreamController(
                                     true);
@@ -213,7 +247,7 @@ class _CustomerDetailsState extends State<CustomerDetails> {
         Padding(
           padding: const EdgeInsets.only(top: 5),
           child: CustomElevatedButton(
-            height: 40,
+            height: 50,
             width: MediaQuery.sizeOf(context).width * 0.12,
             text: AppConstants.addNew,
             fontSize: 16,
@@ -232,5 +266,30 @@ class _CustomerDetailsState extends State<CustomerDetails> {
         ),
       ],
     );
+  }
+
+  void _updateTotalInvoiceAmount() {
+    double? empsIncValue =
+        double.tryParse(widget.addSalesBloc.empsIncentiveTextController.text) ??
+            0.0;
+    double? stateIncValue = double.tryParse(
+            widget.addSalesBloc.stateIncentiveTextController.text) ??
+        0.0;
+
+    double totalIncentive = empsIncValue + stateIncValue;
+
+    if ((widget.addSalesBloc.invAmount ?? 0) != -1) {
+      widget.addSalesBloc.totalInvAmount =
+          (widget.addSalesBloc.invAmount ?? 0) - totalIncentive;
+    } else {
+      widget.addSalesBloc.totalInvAmount = 0.0;
+    }
+
+    double advanceAmt = widget.addSalesBloc.advanceAmt ?? 0;
+    double totalInvAmt = widget.addSalesBloc.totalInvAmount ?? 0;
+    widget.addSalesBloc.toBePayedAmt = totalInvAmt - advanceAmt;
+    widget.addSalesBloc.toBePayedAmt = double.parse(
+        widget.addSalesBloc.toBePayedAmt?.round().toString() ?? '');
+    widget.addSalesBloc.paymentDetailsStreamController(true);
   }
 }

@@ -4,55 +4,61 @@
 
 import 'dart:convert';
 
-List<GetAllCustomerNameModel> getAllCustomerNameModelFromJson(String str) => List<GetAllCustomerNameModel>.from(json.decode(str).map((x) => GetAllCustomerNameModel.fromJson(x)));
+List<GetAllCustomerNameModel> getAllCustomerNameModelFromJson(String str) =>
+    List<GetAllCustomerNameModel>.from(
+        json.decode(str).map((x) => GetAllCustomerNameModel.fromJson(x)));
 
-String getAllCustomerNameModelToJson(List<GetAllCustomerNameModel> data) => json.encode(List<dynamic>.from(data.map((x) => x.toJson())));
+String getAllCustomerNameModelToJson(List<GetAllCustomerNameModel> data) =>
+    json.encode(List<dynamic>.from(data.map((x) => x.toJson())));
 
 class GetAllCustomerNameModel {
-    String? aadharNo;
-    String? accountNo;
-    String? address;
-    String? branchName;
-    String? city;
-    String? createdBy;
-    DateTime? createdDateTime;
-    String? customerId;
-    String? customerName;
-    String? emailId;
-    String? id;
-    String? ifsc;
-    String? image;
-    String? mobileNo;
-    String? updatedBy;
-    DateTime? updatedDateTime;
+  String? aadharNo;
+  String? accountNo;
+  String? address;
+  String? branchName;
+  String? city;
+  String? createdBy;
+  DateTime? createdDateTime;
+  String? customerId;
+  String? customerName;
+  String? emailId;
+  String? id;
+  String? ifsc;
+  String? image;
+  String? mobileNo;
+  String? updatedBy;
+  DateTime? updatedDateTime;
 
-    GetAllCustomerNameModel({
-        this.aadharNo,
-        this.accountNo,
-        this.address,
-        this.branchName,
-        this.city,
-        this.createdBy,
-        this.createdDateTime,
-        this.customerId,
-        this.customerName,
-        this.emailId,
-        this.id,
-        this.ifsc,
-        this.image,
-        this.mobileNo,
-        this.updatedBy,
-        this.updatedDateTime,
-    });
+  GetAllCustomerNameModel({
+    this.aadharNo,
+    this.accountNo,
+    this.address,
+    this.branchName,
+    this.city,
+    this.createdBy,
+    this.createdDateTime,
+    this.customerId,
+    this.customerName,
+    this.emailId,
+    this.id,
+    this.ifsc,
+    this.image,
+    this.mobileNo,
+    this.updatedBy,
+    this.updatedDateTime,
+  });
 
-    factory GetAllCustomerNameModel.fromJson(Map<String, dynamic> json) => GetAllCustomerNameModel(
+  factory GetAllCustomerNameModel.fromJson(Map<String, dynamic> json) =>
+      GetAllCustomerNameModel(
         aadharNo: json["aadharNo"],
         accountNo: json["accountNo"],
         address: json["address"],
         branchName: json["branchName"],
         city: json["city"],
         createdBy: json["createdBy"],
-        createdDateTime: json["createdDateTime"] == null ? null : DateTime.parse(json["createdDateTime"]),
+        createdDateTime: json["createdDateTime"] == null
+            ? null
+            : DateTime.parse(json["createdDateTime"]),
         customerId: json["customerId"],
         customerName: json["customerName"],
         emailId: json["emailId"],
@@ -61,10 +67,12 @@ class GetAllCustomerNameModel {
         image: json["image"],
         mobileNo: json["mobileNo"],
         updatedBy: json["updatedBy"],
-        updatedDateTime: json["updatedDateTime"] == null ? null : DateTime.parse(json["updatedDateTime"]),
-    );
+        updatedDateTime: json["updatedDateTime"] == null
+            ? null
+            : DateTime.parse(json["updatedDateTime"]),
+      );
 
-    Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toJson() => {
         "aadharNo": aadharNo,
         "accountNo": accountNo,
         "address": address,
@@ -81,5 +89,5 @@ class GetAllCustomerNameModel {
         "mobileNo": mobileNo,
         "updatedBy": updatedBy,
         "updatedDateTime": updatedDateTime?.toIso8601String(),
-    };
+      };
 }

@@ -316,7 +316,8 @@ class _AddBookingDialogState extends State<AddBookingDialog> {
         List<String> employeeNames =
             employeeList.map((e) => e?.employeeName ?? '').toList();
         return TldsDropDownButtonFormField(
-          requiredLabelText:  AppWidgetUtils.labelTextWithRequired(AppConstants.executiveName),
+          requiredLabelText:
+              AppWidgetUtils.labelTextWithRequired(AppConstants.executiveName),
           height: 70,
           hintText: AppConstants.executiveName,
           dropDownItems: employeeNames,
@@ -343,7 +344,8 @@ class _AddBookingDialogState extends State<AddBookingDialog> {
 
   Widget _buildTargetInvoiceDate() {
     return TldsDatePicker(
-      requiredLabelText:  AppWidgetUtils.labelTextWithRequired(AppConstants.targetInvDate),
+      requiredLabelText:
+          AppWidgetUtils.labelTextWithRequired(AppConstants.targetInvDate),
       height: 70,
       suffixIcon: SvgPicture.asset(
         AppConstants.icDate,
@@ -435,7 +437,7 @@ class _AddBookingDialogState extends State<AddBookingDialog> {
 
   void _bookingPostServiceOnPress() {
     if (_addBookingDialogBloc.bookinFormKey.currentState!.validate()) {
-       _isLoading(true);
+      _isLoading(true);
       _addBookingDialogBloc.addNewBookingDetails(
           BookingModel(
               branchId: _addBookingDialogBloc.branchId ?? '',
