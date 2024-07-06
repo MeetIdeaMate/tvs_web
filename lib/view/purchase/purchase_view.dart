@@ -295,7 +295,7 @@ class _PurchaseViewState extends State<PurchaseView>
                                     0.0)),
                                 DataCell(Chip(
                                     side: BorderSide(
-                                        color: entry.value.stockUpdated == true
+                                        color: entry.value.stockUpdated ?? false
                                             ? _appColors.successColor
                                             : _appColors.yellowColor),
                                     backgroundColor: _appColors.whiteColor,
@@ -303,7 +303,7 @@ class _PurchaseViewState extends State<PurchaseView>
                                         borderRadius:
                                             BorderRadius.circular(50)),
                                     label: Text(
-                                      entry.value.stockUpdated == true
+                                      entry.value.stockUpdated ?? false
                                           ? AppConstants.approved
                                           : AppConstants.pending,
                                       style: TextStyle(
@@ -363,10 +363,6 @@ class _PurchaseViewState extends State<PurchaseView>
                 value: 'option1',
                 child: Text('View'),
               ),
-              // const PopupMenuItem(
-              //   value: 'option2',
-              //   child: Text('Re-Entry'),
-              // ),
               const PopupMenuItem(
                 value: 'option3',
                 child: Text('Cancel'),

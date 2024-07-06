@@ -429,23 +429,6 @@ class _PurchaseTableState extends State<PurchaseTable> {
           return Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              // CustomElevatedButton(
-              //   text: AppConstants.preview,
-              //   fontSize: 16,
-              //   buttonBackgroundColor: _appColors.primaryColor,
-              //   fontColor: _appColors.whiteColor,
-              //   onPressed: () {
-              //     Navigator.push(
-              //         context,
-              //         PageRouteBuilder(
-              //           pageBuilder: (context, animation, secondaryAnimation) =>
-              //               PurchaseTablePreview(
-              //             purchaseBloc: widget.purchaseBloc,
-              //           ),
-              //         ));
-              //   },
-              // ),
-
               StreamBuilder<bool>(
                   stream: widget.purchaseBloc.isTableDataVerifyedStream,
                   builder: (context, snapshot) {
@@ -543,7 +526,6 @@ class _PurchaseTableState extends State<PurchaseTable> {
     SpecificationsValue specValue = SpecificationsValue(specs: {});
     List<Map<String, dynamic>> mainSpecInfos = [];
 
-    // Collecting engine details
     for (var mainSpecValue in widget.purchaseBloc.purchaseBillDataList) {
       for (var vehicle in mainSpecValue.vehicleDetails!) {
         for (var element in vehicle.engineDetails) {

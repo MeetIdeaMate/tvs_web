@@ -220,7 +220,7 @@ class AddSalesBlocImpl extends AddSalesBloc {
   final _gstDetailsStreamController = StreamController<bool>.broadcast();
 
   final _paymentFormKey = GlobalKey<FormState>();
-  String? _selectedPaymentOption = 'Pay';
+  String? _selectedPaymentOption = AppConstants.pay;
   String? _selectedCustomerId;
   double? _taxableValue;
   double? _totalValue;

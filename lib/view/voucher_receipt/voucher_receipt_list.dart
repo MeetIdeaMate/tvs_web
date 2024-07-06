@@ -62,21 +62,6 @@ class _VoucherReceiptListState extends State<VoucherReceiptList>
         fontWeight: FontWeight.w700);
   }
 
-  // Widget _buildTabBar() {
-  //   return SizedBox(
-  //     width: 250,
-  //     child: TabBar(
-  //       isScrollable: false,
-  //       physics: const NeverScrollableScrollPhysics(),
-  //       controller: _voucherReceiptBloc.receiptVoucherTabController,
-  //       tabs: const [
-  //         Tab(text: AppConstants.receipt),
-  //         Tab(text: AppConstants.voucher),
-  //       ],
-  //     ),
-  //   );
-  // }
-
   Widget _buildSearchFilters() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,

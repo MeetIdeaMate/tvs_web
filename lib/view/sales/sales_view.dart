@@ -255,7 +255,6 @@ class _SalesViewScreenState extends State<SalesViewScreen>
       child: TabBar(
         controller: _salesViewBloc.salesTabController,
         tabs: const [
-          //   Tab(text: AppConstants.all),
           Tab(text: AppConstants.today),
           Tab(text: AppConstants.pending),
           Tab(text: AppConstants.completed),
@@ -271,7 +270,6 @@ class _SalesViewScreenState extends State<SalesViewScreen>
         physics: const NeverScrollableScrollPhysics(),
         controller: _salesViewBloc.salesTabController,
         children: [
-          // _buildSalesTableView(context),
           _buildSalesTableView(
               context, DateFormat('yyyy-MM-dd').format(DateTime.now()), false),
           _buildSalesTableView(context, 'PENDING', false),
@@ -325,7 +323,6 @@ class _SalesViewScreenState extends State<SalesViewScreen>
                             _buildVehicleTableHeader(AppConstants.sno),
                             _buildVehicleTableHeader(AppConstants.invoiceNo),
                             _buildVehicleTableHeader(AppConstants.invoiceDate),
-                            // _buildVehicleTableHeader(AppConstants.customerId),
                             _buildVehicleTableHeader(AppConstants.customerName),
                             _buildVehicleTableHeader(AppConstants.mobileNumber),
                             _buildVehicleTableHeader(AppConstants.categoryName),
@@ -338,7 +335,6 @@ class _SalesViewScreenState extends State<SalesViewScreen>
                             if (!iscancelled)
                               _buildVehicleTableHeader(
                                   AppConstants.pendingInvAmt),
-
                             if (!iscancelled)
                               _buildVehicleTableHeader(AppConstants.status),
                             _buildVehicleTableHeader(AppConstants.createdBy),
@@ -360,7 +356,6 @@ class _SalesViewScreenState extends State<SalesViewScreen>
                                 DataCell(Text(entry.value.invoiceNo ?? '')),
                                 DataCell(Text(AppUtils.apiToAppDateFormat(
                                     entry.value.invoiceDate.toString()))),
-                                //  DataCell(Text(entry.value.customerId ?? '')),
                                 DataCell(Text(entry.value.customerName ?? '')),
                                 DataCell(Text(entry.value.mobileNo ?? '')),
                                 DataCell(Text(entry.value.invoiceType ?? '')),
@@ -370,7 +365,6 @@ class _SalesViewScreenState extends State<SalesViewScreen>
                                         0))),
                                 DataCell(Text(AppUtils.formatCurrency(
                                     entry.value.netAmt?.toDouble() ?? 0))),
-
                                 if (!iscancelled)
                                   DataCell(Text(AppUtils.formatCurrency(
                                       entry.value.totalPaidAmt?.toDouble() ??
@@ -379,8 +373,6 @@ class _SalesViewScreenState extends State<SalesViewScreen>
                                   DataCell(Text(AppUtils.formatCurrency(
                                       entry.value.pendingAmt?.toDouble() ??
                                           0))),
-                                // DataCell(Text(AppUtils.formatCurrency(
-                                //     entry.value.pendingAmt!.toDouble()))),
                                 if (!iscancelled)
                                   DataCell(Chip(
                                       side: BorderSide(

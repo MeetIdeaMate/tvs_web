@@ -181,10 +181,8 @@ class _VehicleAccessoriesListState extends State<VehicleAccessoriesList> {
                                         widget.addSalesBloc
                                             .batteryDetailsRefreshStreamController(
                                                 true);
-                                        print(filteredVehicleData?.length);
                                         if (filteredVehicleData?.isEmpty ??
                                             false) {
-                                          print(filteredVehicleData?.length);
                                           Center(
                                               child: SvgPicture.asset(
                                                   AppConstants.imgNoData));
@@ -375,7 +373,6 @@ class _VehicleAccessoriesListState extends State<VehicleAccessoriesList> {
                         widget.addSalesBloc
                             .paymentDetailsStreamController(true);
 
-                        // widget.addSalesBloc.selectedVehiclesList = [];
                         widget.addSalesBloc
                             .batteryDetailsRefreshStreamController(true);
                         widget.addSalesBloc.selectedItemStream(true);
@@ -440,7 +437,6 @@ class _VehicleAccessoriesListState extends State<VehicleAccessoriesList> {
                         .clear();
                     widget.addSalesBloc
                         .vehicleAndEngineNumberStreamController(true);
-                    //  updateFilteredVehicleList('');
                   }
                 },
                 icon: Icon(

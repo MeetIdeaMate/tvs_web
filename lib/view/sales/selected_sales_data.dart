@@ -57,19 +57,19 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
                 AppWidgetUtils.buildSizedBox(custHeight: 10),
                 _buildHeadingText(
                     widget.addSalesBloc.selectedVehicleAndAccessories ==
-                            'Accessories'
-                        ? ' Selected Accessories'
+                            AppConstants.accessories
+                        ? AppConstants.selectedAccessories
                         : widget.addSalesBloc.selectedVehicleAndAccessories ==
-                                'E-Vehicle'
-                            ? ' selected E-Vehicle'
-                            : 'Selected M-Vehicle'),
+                                AppConstants.eVehicle
+                            ? AppConstants.selectEVehicle
+                            : AppConstants.selectMVehicle),
                 _buildSelectedDataList(),
                 AppWidgetUtils.buildSizedBox(custHeight: 10),
                 if (widget.addSalesBloc.selectedVehicleAndAccessories !=
-                    'Accessories')
+                    AppConstants.accessories)
                   _buildHeadingText(AppConstants.mandatoryAddons),
                 if (widget.addSalesBloc.selectedVehicleAndAccessories !=
-                    'Accessories')
+                    AppConstants.accessories)
                   FutureBuilder(
                     future: widget.addSalesBloc.getMandantoryAddOns(),
                     builder: (context, snapshot) {
@@ -88,7 +88,7 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
                             .addSalesBloc.selectedMandatoryAddOns.isEmpty) {
                           for (String addOn in mandatoryAddOns) {
                             widget.addSalesBloc.selectedMandatoryAddOns[addOn] =
-                                'YES';
+                                AppConstants.yesC;
                           }
                         }
 
@@ -105,7 +105,7 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
                                   addOn,
                                   widget.addSalesBloc
                                           .selectedMandatoryAddOns[addOn] ??
-                                      'YES',
+                                      AppConstants.yesC,
                                   (value) {
                                     widget.addSalesBloc
                                         .mandatoryRefereshStreamController(
@@ -125,7 +125,7 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
                   ),
                 const SizedBox(height: 15),
                 if (widget.addSalesBloc.selectedVehicleAndAccessories ==
-                    'E-Vehicle')
+                    AppConstants.eVehicle)
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -235,17 +235,17 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
 
           return ListView.builder(
             itemCount: widget.addSalesBloc.selectedVehicleAndAccessories ==
-                    'M-Vehicle'
+                    AppConstants.yesC
                 ? (hasVehicles ? selectedVehiclesList.length : 0)
                 : (widget.addSalesBloc.selectedVehicleAndAccessories ==
-                        'E-Vehicle'
+                        AppConstants.eVehicle
                     ? (hasVehicles ? selectedVehiclesList.length : 0)
                     : (hasAccessories ? selectedAccessoriesList.length : 0)),
             itemBuilder: (BuildContext context, int index) {
               if (widget.addSalesBloc.selectedVehicleAndAccessories ==
-                      'M-Vehicle' ||
+                      AppConstants.mVehicle ||
                   widget.addSalesBloc.selectedVehicleAndAccessories ==
-                      'E-Vehicle') {
+                      AppConstants.eVehicle) {
                 if (hasVehicles) {
                   GetAllStockDetails? vehicle = selectedVehiclesList[index];
 
@@ -283,7 +283,7 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
         Row(
           children: [
             Radio(
-              value: 'YES',
+              value: AppConstants.yesC,
               groupValue: groupValue,
               onChanged: onChanged,
             ),
@@ -294,7 +294,7 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
               ),
             ),
             Radio(
-              value: 'NO',
+              value: AppConstants.noC,
               groupValue: groupValue,
               onChanged: onChanged,
             ),
@@ -501,7 +501,7 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
                               height: 40,
                               controller: qtyController,
                               textAlign: TextAlign.center,
-                              hintText: 'Qty',
+                              hintText: AppConstants.quantity,
                               inputFormatters:
                                   TlInputFormatters.onlyAllowNumbers,
                               onChanged: (value) {

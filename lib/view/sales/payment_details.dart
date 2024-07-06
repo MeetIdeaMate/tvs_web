@@ -175,12 +175,6 @@ class _PaymentDetailsState extends State<PaymentDetails> {
                 FocusScope.of(context)
                     .requestFocus(widget.addSalesBloc.discountFocus);
               },
-              // validator: (value) {
-              //   if (value!.isEmpty) {
-              //     return 'Enter Gst Perecent';
-              //   }
-              //   return null;
-              // }
             ),
           ),
           const SizedBox(width: 10),

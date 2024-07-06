@@ -251,9 +251,6 @@ class _PaymentDailogState extends State<PaymentDailog> {
     return TldsInputFormField(
       maxLine: 100,
       height: 80,
-      // validator: (value) {
-      //   return InputValidations.addressValidation(value ?? '');
-      // },
       controller: widget.salesViewBloc.reasonTextEditingController,
       hintText: AppConstants.reason,
       labelText: AppConstants.reason,
@@ -270,13 +267,10 @@ class _PaymentDailogState extends State<PaymentDailog> {
                 dropDownItems: _paymentsListFuture ?? [],
                 dropDownValue: widget.salesViewBloc.selectedPaymentName,
                 hintText: '',
-                // height: 40,
                 width: double.infinity,
                 onChange: (value) {
                   widget.salesViewBloc.selectedPaymentName = value;
                   widget.salesViewBloc.paymentStreamController(true);
-                  //  setState(() {});
-                  //  widget.addSalesBloc.isSplitPaymentStreamController(true);
                 },
               ),
         AppWidgetUtils.buildSizedBox(custWidth: 8),
@@ -284,7 +278,6 @@ class _PaymentDailogState extends State<PaymentDailog> {
           children: [
             Expanded(
               child: TldsInputFormField(
-                //   readOnly: true,
                 requiredLabelText:
                     AppWidgetUtils.labelTextWithRequired(AppConstants.paidAmt),
                 controller: widget.salesViewBloc.paidAmountTextController,

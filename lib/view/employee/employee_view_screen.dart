@@ -36,8 +36,7 @@ class _EmployeeViewState extends State<EmployeeView> {
   void initState() {
     super.initState();
     getBranchName();
-        _employeeViewBloc.employeeWorktype = AppConstants.allWorkType;
-
+    _employeeViewBloc.employeeWorktype = AppConstants.allWorkType;
   }
 
   @override
@@ -149,7 +148,7 @@ class _EmployeeViewState extends State<EmployeeView> {
           configId: AppConstants.designation),
       builder: (context, snapshot) {
         List<String> designationList = snapshot.data ?? [];
-        designationList.insert(0,  AppConstants.allWorkType);
+        designationList.insert(0, AppConstants.allWorkType);
         return _buildDropDown(
           dropDownItems:
               (snapshot.hasData && (snapshot.data?.isNotEmpty == true))
