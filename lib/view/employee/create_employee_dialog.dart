@@ -66,11 +66,10 @@ class _CreateEmployeeDialogState extends State<CreateEmployeeDialog> {
           value?.emailId ?? '';
       _createEmployeeDialogBlocImpl.empaddressController.text =
           value?.address ?? '';
+      _createEmployeeDialogBlocImpl.selectEmpBranchId = value?.branchId ?? '';
       _createEmployeeDialogBlocImpl.selectedEmpBranch = value?.branchName ?? '';
-
       _createEmployeeDialogBlocImpl.selectEmpGender = value?.gender ?? '';
       _createEmployeeDialogBlocImpl.selectedEmpType = value?.designation ?? '';
-
       _createEmployeeDialogBlocImpl.selectGenderStreamController(true);
       _createEmployeeDialogBlocImpl.selectBranchStreamController(true);
       _createEmployeeDialogBlocImpl.selectDesiganationStreamController(true);
@@ -133,6 +132,7 @@ class _CreateEmployeeDialogState extends State<CreateEmployeeDialog> {
     return Form(
       key: _createEmployeeDialogBlocImpl.empFormkey,
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           AppWidgetUtils.buildSizedBox(custHeight: 10),
           _buildEmpNameAndEmailFields(),
@@ -142,6 +142,7 @@ class _CreateEmployeeDialogState extends State<CreateEmployeeDialog> {
           _buildAgeGenderAndCityFields(),
           AppWidgetUtils.buildSizedBox(custHeight: 13),
           _buildMobNoAndAddressFields(),
+          AppWidgetUtils.buildSizedBox(custHeight: 13),
         ],
       ),
     );
