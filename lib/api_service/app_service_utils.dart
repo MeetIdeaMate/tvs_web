@@ -340,7 +340,8 @@ class AppServiceUtilImpl extends AppServiceUtil {
     if (userName.isNotEmpty) {
       userListUrl += '&userName=$userName';
     }
-    if (selectedDesignation.isNotEmpty && selectedDesignation != 'All Designation') {
+    if (selectedDesignation.isNotEmpty &&
+        selectedDesignation != 'All Designation') {
       userListUrl += '&designation=$selectedDesignation';
     }
 
@@ -1194,7 +1195,7 @@ class AppServiceUtilImpl extends AppServiceUtil {
     if (!isMainBranch) {
       salesListUrl += '&branchName=$branchNames';
     }
-    if (branchName.isNotEmpty && branchName != 'All') {
+    if (branchName.isNotEmpty && branchName != AppConstants.allBranch) {
       salesListUrl += '&branchName=$branchName';
     }
     if (iscancelled == true) {

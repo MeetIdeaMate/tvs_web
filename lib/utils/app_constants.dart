@@ -5,6 +5,8 @@ class AppConstants {
   static const filter = 'Filters';
   static const no = 'No';
   static const yes = 'Yes';
+  static const yesC = 'YES';
+  static const noC = 'NO';
   static const cancel = 'Cancel';
   static const save = 'Save';
   static const preview = 'Preview';
@@ -23,6 +25,7 @@ class AppConstants {
   static const cancelled = 'Cancelled';
   static const netAmount = 'Net Amount';
   static const enterCancelReason = 'Enter Cancel Reason';
+  static const selected = 'Selected Accessories';
 
   //SharedPreference
   static const designation = 'designation';
@@ -294,6 +297,8 @@ class AppConstants {
   static const selectVehicleAndAccessories = 'Selected Vehicle / Accessories';
   static const selectedVehicle = 'Selected Vehicle';
   static const selectedAccessories = 'Selected Accessories';
+  static const selectEVehicle = 'Select E - Vehicle';
+  static const selectMVehicle = 'Select M - Vehicle';
   static const transferDetails = 'Transfer Details';
   static const selectFromBranchAndToBranch = 'Select From Branch & To Branch';
   static const transporterDetails = 'Transporter Details';
@@ -305,7 +310,7 @@ class AppConstants {
   static const transferred = 'TRANSFERED';
   static const transferredSm = 'Transferred';
   static const received = 'RECEIVED';
-  static const receivedSm =  'Received';
+  static const receivedSm = 'Received';
   static const allStatus = 'All Status';
   static const allVehicles = 'All Vehicles';
   static const transferStatus = 'transferStatus';

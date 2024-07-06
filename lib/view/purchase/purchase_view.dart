@@ -132,11 +132,9 @@ class _PurchaseViewState extends State<PurchaseView>
                 Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const AddPurchase(),
-                    )).then((value) {
-                  _purchaseViewBloc.getAllPurchaseList();
-                  _purchaseViewBloc.pageNumberUpdateStreamController(0);
-                });
+                      builder: (context) =>
+                          AddPurchase(purchaseViewBloc: _purchaseViewBloc),
+                    ));
               },
             )
           ],
@@ -260,11 +258,9 @@ class _PurchaseViewState extends State<PurchaseView>
                           columns: [
                             _buildVehicleTableHeader(AppConstants.sno),
                             _buildVehicleTableHeader(AppConstants.purchaseID),
-                            _buildVehicleTableHeader(
-                                AppConstants.purchaseRef),
+                            _buildVehicleTableHeader(AppConstants.purchaseRef),
                             _buildVehicleTableHeader(AppConstants.invoiceNo),
-                            _buildVehicleTableHeader(
-                                AppConstants.invoiceDate),
+                            _buildVehicleTableHeader(AppConstants.invoiceDate),
                             _buildVehicleTableHeader(AppConstants.vendorName),
                             _buildVehicleTableHeader(AppConstants.quantity),
                             _buildVehicleTableHeader(AppConstants.branchName),
@@ -289,8 +285,8 @@ class _PurchaseViewState extends State<PurchaseView>
                                 _buildTableRow(AppUtils.apiToAppDateFormat(
                                     entry.value.pInvoiceDate.toString())),
                                 _buildTableRow(entry.value.vendorName),
-                                _buildTableRow(entry.value.itemDetails?.length
-                                    .toString()),
+                                _buildTableRow(
+                                    entry.value.itemDetails?.length.toString()),
                                 _buildTableRow(
                                     entry.value.branchName.toString()),
                                 _buildTableRow(AppUtils.formatCurrency(entry
@@ -299,16 +295,15 @@ class _PurchaseViewState extends State<PurchaseView>
                                     0.0)),
                                 DataCell(Chip(
                                     side: BorderSide(
-                                        color:
-                                            entry.value.stockUpdated == true
-                                                ? _appColors.successColor
-                                                : _appColors.yellowColor),
+                                        color: entry.value.stockUpdated ?? false
+                                            ? _appColors.successColor
+                                            : _appColors.yellowColor),
                                     backgroundColor: _appColors.whiteColor,
                                     shape: RoundedRectangleBorder(
                                         borderRadius:
                                             BorderRadius.circular(50)),
                                     label: Text(
-                                      entry.value.stockUpdated == true
+                                      entry.value.stockUpdated ?? false
                                           ? AppConstants.approved
                                           : AppConstants.pending,
                                       style: TextStyle(
@@ -319,53 +314,13 @@ class _PurchaseViewState extends State<PurchaseView>
                                     ))),
                                 DataCell(IconButton(
                                     onPressed: () {
-                                      showDialog(
-                                        context: context,
-                                        builder: (context) {
-                                          return AlertDialog(
-                                              surfaceTintColor:
-                                                  AppColor().whiteColor,
-                                              shape: RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          10)),
-                                              content: Column(
-                                                mainAxisSize:
-                                                    MainAxisSize.min,
-                                                children: [
-                                                  Icon(
-                                                    Icons.downloading_rounded,
-                                                    color: AppColor()
-                                                        .successColor,
-                                                    size: 50,
-                                                  ),
-                                                  AppWidgetUtils
-                                                      .buildSizedBox(
-                                                          custHeight: 10),
-                                                  const Text(
-                                                    AppConstants.printInvoice,
-                                                    style: TextStyle(
-                                                        fontSize: 20),
-                                                  )
-                                                ],
-                                              ),
-                                              actions: [
-                                                CustomActionButtons(
-                                                    onPressed: () {
-                                                      PurchaseInvoicePrint()
-                                                          .printDocument(
-                                                              entry.value);
-                                                    },
-                                                    buttonText:
-                                                        AppConstants.print),
-                                              ]);
-                                        },
-                                      );
+                                      PurchaseInvoicePrint()
+                                          .printDocument(entry.value);
                                     },
                                     icon: SvgPicture.asset(
                                       AppConstants.icPrint,
                                       colorFilter: const ColorFilter.mode(
-                                          Colors.green, BlendMode.srcIn),
+                                          Colors.black, BlendMode.srcIn),
                                     ))),
                                 DataCell(_buildPopMenuItem(context, entry)),
                               ],
@@ -409,10 +364,6 @@ class _PurchaseViewState extends State<PurchaseView>
                 child: Text('View'),
               ),
               const PopupMenuItem(
-                value: 'option2',
-                child: Text('Re-Entry'),
-              ),
-              const PopupMenuItem(
                 value: 'option3',
                 child: Text('Cancel'),
               ),
@@ -427,6 +378,7 @@ class _PurchaseViewState extends State<PurchaseView>
               case 'option1':
                 showDialog(
                   context: context,
+                  barrierDismissible: false,
                   builder: (context) {
                     return VehicleDetailsDialog(
                       purchaseBills: entry.value.itemDetails,
@@ -437,10 +389,10 @@ class _PurchaseViewState extends State<PurchaseView>
                   },
                 );
                 break;
-              case 'option2':
-                break;
+
               case 'option3':
                 showDialog(
+                  barrierDismissible: false,
                   context: context,
                   builder: (context) {
                     return _showCancelDialog(entry);
@@ -450,6 +402,7 @@ class _PurchaseViewState extends State<PurchaseView>
                 break;
               case 'option4':
                 showDialog(
+                  barrierDismissible: false,
                   context: context,
                   builder: (context) {
                     return _showApproveDialog(entry, context);
@@ -541,12 +494,12 @@ class _PurchaseViewState extends State<PurchaseView>
         actions: [
           CustomActionButtons(
               onPressed: () {
-                List<String> _partNumbersList = [];
+                List<String> partNumbersList = [];
                 for (ItemDetail itemDetails in entry.value.itemDetails ?? []) {
-                  _partNumbersList.add(itemDetails.partNo ?? '');
+                  partNumbersList.add(itemDetails.partNo ?? '');
                 }
                 _purchaseViewBloc.createStockFromPurchase(
-                    entry.value.purchaseId, _partNumbersList, (statusCode) {
+                    entry.value.purchaseId, partNumbersList, (statusCode) {
                   if (statusCode == 200 || statusCode == 201) {
                     Navigator.pop(context);
                     AppWidgetUtils.buildToast(

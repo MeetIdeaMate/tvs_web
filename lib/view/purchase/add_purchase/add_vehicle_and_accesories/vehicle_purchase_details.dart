@@ -1,4 +1,3 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -154,7 +153,6 @@ class _EngineAndFrameNumberEntryState extends State<EngineAndFrameNumberEntry> {
                   if (widget.addVehicleAndAccessoriesBloc.engineNumberController
                       .text.isNotEmpty) {
                     _engineNumberAndFrameNumberOnSubmit();
-                    // updateTotalValue();
                     _purchaseTableAmountCalculation();
                   }
                 },
@@ -307,79 +305,6 @@ class _EngineAndFrameNumberEntryState extends State<EngineAndFrameNumberEntry> {
       }
     });
   }
-  // void _getAndSetValuesForInputFields(ParentResponseModel partDetails) {
-  //   var vehchileById = partDetails.result?.purchaseByPartNo;
-
-  //   setState(() {
-  //     widget.addVehicleAndAccessoriesBloc.vehicleNameTextController.text =
-  //         vehchileById?.itemName ?? '';
-
-  //     widget.addVehicleAndAccessoriesBloc.unitRateController.text =
-  //         vehchileById?.unitRate.toString() ?? '';
-
-  //     // Set GST values
-  //     for (var gstDetail in vehchileById?.gstDetails ?? []) {
-  //       if (gstDetail.gstName == 'CGST' || gstDetail.gstName == 'SGST') {
-  //         widget.addVehicleAndAccessoriesBloc.selectedGstType =
-  //             AppConstants.gstPercent;
-  //         widget.addVehicleAndAccessoriesBloc
-  //             .gstRadioBtnRefreshStreamController(true);
-  //         widget.addVehicleAndAccessoriesBloc.cgstPresentageTextController
-  //             .text = gstDetail.percentage?.toString() ?? '';
-  //         widget.addVehicleAndAccessoriesBloc.sgstPresentageTextController
-  //             .text = gstDetail.percentage?.toString() ?? '';
-  //       } else {
-  //         widget.addVehicleAndAccessoriesBloc.selectedGstType =
-  //             AppConstants.igstPercent;
-  //         widget.addVehicleAndAccessoriesBloc
-  //             .gstRadioBtnRefreshStreamController(true);
-  //         widget.addVehicleAndAccessoriesBloc.igstPresentageTextController
-  //             .text = gstDetail.percentage?.toString() ?? '';
-  //       }
-  //     }
-
-  //     // Set incentives
-  //     for (var incentive in vehchileById?.incentives ?? []) {
-  //       if (incentive.incentiveName == 'StateIncentive') {
-  //         widget.addVehicleAndAccessoriesBloc.isStateIncChecked = true;
-
-  //         widget.addVehicleAndAccessoriesBloc
-  //             .incentiveCheckBoxStreamController(true);
-  //         widget.addVehicleAndAccessoriesBloc.stateIncentiveTextController
-  //             .text = incentive.incentiveAmount?.toString() ?? '';
-  //       } else if (incentive.incentiveName == 'EMPS 2024 Incentive') {
-  //         widget.addVehicleAndAccessoriesBloc.isEmpsIncChecked = true;
-  //         widget.addVehicleAndAccessoriesBloc
-  //             .incentiveCheckBoxStreamController(true);
-  //         widget.addVehicleAndAccessoriesBloc.empsIncentiveTextController.text =
-  //             incentive.incentiveAmount?.toString() ?? '';
-  //       }
-  //     }
-
-  //     // Set taxes
-  //     for (var tax in vehchileById?.taxes ?? []) {
-  //       if (tax.taxName == 'TcsValue') {
-  //         widget.addVehicleAndAccessoriesBloc.isTcsValueChecked = true;
-  //         widget.addVehicleAndAccessoriesBloc
-  //             .taxValueCheckboxStreamController(true);
-  //         widget.addVehicleAndAccessoriesBloc.tcsvalueTextController.text =
-  //             tax.taxAmount?.toString() ?? '';
-  //         widget.addVehicleAndAccessoriesBloc.isTcsValueChecked =
-  //             tax.percentage > 0;
-  //       }
-  //     }
-
-  //     // Update total values
-  //     widget.addVehicleAndAccessoriesBloc.totalValue =
-  //         vehchileById?.value?.toDouble();
-  //     widget.addVehicleAndAccessoriesBloc.discountValue =
-  //         vehchileById?.discount?.toDouble();
-  //     widget.addVehicleAndAccessoriesBloc.taxableValue =
-  //         vehchileById?.taxableValue?.toDouble();
-  //     widget.addVehicleAndAccessoriesBloc.totalInvAmount =
-  //         vehchileById?.finalInvoiceValue?.toDouble();
-  //   });
-  // }
 
   void _purchaseTableAmountCalculation() {
     var qty = double.tryParse(widget
@@ -398,16 +323,26 @@ class _EngineAndFrameNumberEntryState extends State<EngineAndFrameNumberEntry> {
           unitRate;
     }
     widget.addVehicleAndAccessoriesBloc.totalValue = totalValue;
-    var discount = double.tryParse(
+
+    double? discountAmount = double.tryParse(
             widget.addVehicleAndAccessoriesBloc.discountTextController.text) ??
-        0.0;
-    var taxableValue = totalValue - discount;
+        0;
+    totalValue = widget.addVehicleAndAccessoriesBloc.totalValue ?? 0;
+    if (discountAmount > totalValue) {
+      discountAmount = 0;
+      widget.addVehicleAndAccessoriesBloc.discountTextController.text =
+          discountAmount.toStringAsFixed(2);
+    }
+    var taxableValue = totalValue - discountAmount;
     widget.addVehicleAndAccessoriesBloc.taxableValue = taxableValue;
-    var discountPercentage = double.tryParse(
-            widget.addVehicleAndAccessoriesBloc.discountTextController.text) ??
-        0.0;
-    var discountValue = totalValue * (discountPercentage / 100);
-    widget.addVehicleAndAccessoriesBloc.discountValue = discountValue;
+    widget.addVehicleAndAccessoriesBloc.taxableValue =
+        (widget.addVehicleAndAccessoriesBloc.totalValue ?? 0) -
+            (discountAmount);
+
+    widget.addVehicleAndAccessoriesBloc.totalInvAmount =
+        ((widget.addVehicleAndAccessoriesBloc.invAmount ?? 0) -
+            (discountAmount));
+
     var tcsValue = double.tryParse(
             widget.addVehicleAndAccessoriesBloc.tcsvalueTextController.text) ??
         0.0;
@@ -434,16 +369,38 @@ class _EngineAndFrameNumberEntryState extends State<EngineAndFrameNumberEntry> {
     }
     var invoiceValue = taxableValue + gstAmount;
     widget.addVehicleAndAccessoriesBloc.invAmount = invoiceValue + tcsValue;
-    var empsIncentive = double.tryParse(widget
+    _updateTotalInvoiceAmount();
+  }
+
+  void _updateTotalInvoiceAmount() {
+    double? empsIncValue = double.tryParse(widget
             .addVehicleAndAccessoriesBloc.empsIncentiveTextController.text) ??
         0.0;
-    var stateIncentive = double.tryParse(widget
+    double? stateIncValue = double.tryParse(widget
             .addVehicleAndAccessoriesBloc.stateIncentiveTextController.text) ??
         0.0;
-    var totalIncentive = empsIncentive + stateIncentive;
 
-    var totalInvoiceAmount =
-        invoiceValue + tcsValue - totalIncentive; // Update here
-    widget.addVehicleAndAccessoriesBloc.totalInvAmount = totalInvoiceAmount;
+    double totalIncentive = empsIncValue + stateIncValue;
+
+    double invoiceAmount = widget.addVehicleAndAccessoriesBloc.invAmount ?? 0;
+
+    if (totalIncentive > invoiceAmount) {
+      totalIncentive = invoiceAmount;
+
+      if (empsIncValue > invoiceAmount) {
+        widget.addVehicleAndAccessoriesBloc.empsIncentiveTextController.text =
+            invoiceAmount.toStringAsFixed(2);
+        widget.addVehicleAndAccessoriesBloc.stateIncentiveTextController.text =
+            '';
+      } else {
+        widget.addVehicleAndAccessoriesBloc.stateIncentiveTextController.text =
+            (invoiceAmount - empsIncValue).toStringAsFixed(2);
+      }
+    }
+
+    widget.addVehicleAndAccessoriesBloc.totalInvAmount =
+        invoiceAmount - totalIncentive;
+
+    widget.addVehicleAndAccessoriesBloc.paymentDetailsStreamController(true);
   }
 }

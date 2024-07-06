@@ -155,12 +155,8 @@ class _PurchaseReportState extends State<PurchaseReport>
               },
               dropDownValue:
                   _purchaseAccessoriesBlocImpl.selectedAccessoriesType,
-              fromDateOnSuccessCallBack: () {
-                // Add your callback function here
-              },
-              toDateOnSuccessCallBack: () {
-                // Add your callback function here
-              },
+              fromDateOnSuccessCallBack: () {},
+              toDateOnSuccessCallBack: () {},
             );
           }
         });
@@ -192,12 +188,8 @@ class _PurchaseReportState extends State<PurchaseReport>
               _purchaseVechicleBlocImpl.selectedVehiclesType = value;
             },
             dropDownValue: _purchaseVechicleBlocImpl.selectedVehiclesType,
-            fromDateOnSuccessCallBack: () {
-              // Add your callback function here
-            },
-            toDateOnSuccessCallBack: () {
-              // Add your callback function here
-            },
+            fromDateOnSuccessCallBack: () {},
+            toDateOnSuccessCallBack: () {},
           );
         }
       },

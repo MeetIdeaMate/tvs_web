@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tlbilling/utils/app_colors.dart';
 
 class AppUtils {
@@ -54,6 +53,4 @@ class AppUtils {
       );
     }
   }
-
- 
 }

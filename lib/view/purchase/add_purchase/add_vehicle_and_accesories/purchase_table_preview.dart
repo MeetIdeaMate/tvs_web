@@ -49,10 +49,10 @@ class _PurchaseTablePreviewState extends State<PurchaseTablePreview> {
                       subtitle:
                           Text(billData.vehicleDetails?.first.partNo ?? ''),
                     ),
-                    Container(
-                      height: 100, // Set a fixed height for the nested ListView
+                    SizedBox(
+                      height: 100,
                       child: DataTable(
-                        columns: [
+                        columns: const [
                           DataColumn(label: Text('S.No')),
                           DataColumn(label: Text('Engine No')),
                           DataColumn(label: Text('Frame No')),

@@ -38,32 +38,31 @@ class VehicleDetails {
   double? totalInvoiceValue;
   List<EngineDetails> engineDetails;
 
-  VehicleDetails({
-    required this.partNo,
-    required this.vehicleName,
-    required this.hsnCode,
-    required this.unitRate,
-    required this.qty,
-    this.totalValue,
-    this.taxableValue,
-    this.gstType,
-    this.cgstPercentage,
-    this.cgstAmount,
-    this.sgstPercentage,
-    this.sgstAmount,
-    this.igstPercentage,
-    this.igstAmount,
-    this.incentiveType,
-    this.empsIncentive,
-    this.discountPresentage,
-    this.stateIncentive,
-    this.tcsValue,
-    this.invoiceValue,
-    this.discountValue,
-    this.totalInvoiceValue,
-    required this.engineDetails,
-    this.categoryId
-  });
+  VehicleDetails(
+      {required this.partNo,
+      required this.vehicleName,
+      required this.hsnCode,
+      required this.unitRate,
+      required this.qty,
+      this.totalValue,
+      this.taxableValue,
+      this.gstType,
+      this.cgstPercentage,
+      this.cgstAmount,
+      this.sgstPercentage,
+      this.sgstAmount,
+      this.igstPercentage,
+      this.igstAmount,
+      this.incentiveType,
+      this.empsIncentive,
+      this.discountPresentage,
+      this.stateIncentive,
+      this.tcsValue,
+      this.invoiceValue,
+      this.discountValue,
+      this.totalInvoiceValue,
+      required this.engineDetails,
+      this.categoryId});
 
   Map<String, dynamic> toJson() {
     return {
@@ -75,7 +74,7 @@ class VehicleDetails {
       "taxableValue": taxableValue,
       "qty": qty,
       "gstType": gstType,
-      "cgstPercentage": cgstPercentage ,
+      "cgstPercentage": cgstPercentage,
       "cgstAmount": cgstAmount,
       "sgstPercentage": sgstPercentage,
       "sgstAmount": sgstAmount,

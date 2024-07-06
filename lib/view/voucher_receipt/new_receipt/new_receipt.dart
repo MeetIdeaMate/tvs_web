@@ -83,8 +83,7 @@ class _NewReceiptState extends State<NewReceipt> {
                 } else if (!snapshot.hasData || snapshot.data == null) {
                   return const Center(child: Text(AppConstants.noData));
                 }
-                final customerList =
-                    snapshot.data ?? [];
+                final customerList = snapshot.data ?? [];
                 final customerNamesSet = customerList
                     .map((result) => result.customerName ?? "")
                     .toSet();
