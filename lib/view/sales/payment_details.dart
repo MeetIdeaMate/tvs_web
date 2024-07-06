@@ -55,7 +55,7 @@ class _PaymentDetailsState extends State<PaymentDetails> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(top: 45, right: 30, left: 30),
+      padding: const EdgeInsets.only(top: 45, right: 30, left: 30, bottom: 20),
       child: SingleChildScrollView(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
@@ -82,7 +82,7 @@ class _PaymentDetailsState extends State<PaymentDetails> {
               _buildHeadingText(AppConstants.gstDetails),
               AppWidgetUtils.buildSizedBox(custHeight: 10),
               _buildHsnCodeField(),
-              AppWidgetUtils.buildSizedBox(custHeight: 18),
+              AppWidgetUtils.buildSizedBox(custHeight: 10),
               _buildGstRadioBtns(),
             ],
           );
@@ -96,6 +96,7 @@ class _PaymentDetailsState extends State<PaymentDetails> {
       labelText: AppConstants.hsnCode,
       controller: widget.addSalesBloc.hsnCodeTextController,
       onChanged: (hsn) {},
+      height: 70,
       validator: (value) {
         if (value!.isEmpty) {
           return AppConstants.enterHsnCode;
@@ -156,28 +157,37 @@ class _PaymentDetailsState extends State<PaymentDetails> {
         children: [
           Expanded(
             child: TldsInputFormField(
-                inputFormatters: TlInputFormatters.onlyAllowDecimalNumbers,
-                hintText: AppConstants.cgstPercent,
-                controller: widget.addSalesBloc.cgstPresentageTextController,
-                focusNode: widget.addSalesBloc.cgstFocus,
-                onChanged: (cgst) {
-                  _calculateGST();
-                },
-                onSubmit: (value) {
-                  FocusScope.of(context)
-                      .requestFocus(widget.addSalesBloc.discountFocus);
-                },
-                validator: (value) {
-                  if (value!.isEmpty) {
-                    return 'Enter Gst Perecent';
-                  }
-                  return null;
-                }),
+              inputFormatters: TlInputFormatters.onlyAllowDecimalNumbers,
+              hintText: AppConstants.cgstPercent,
+              controller: widget.addSalesBloc.cgstPresentageTextController,
+              focusNode: widget.addSalesBloc.cgstFocus,
+              height: 40,
+              maxLength: 5,
+              counterText: '',
+              onChanged: (cgst) {
+                _calculateGST();
+                double cgstPercentage = double.tryParse(cgst) ?? 0;
+                if (cgstPercentage > 100) {
+                  widget.addSalesBloc.cgstPresentageTextController.clear();
+                }
+              },
+              onSubmit: (value) {
+                FocusScope.of(context)
+                    .requestFocus(widget.addSalesBloc.discountFocus);
+              },
+              // validator: (value) {
+              //   if (value!.isEmpty) {
+              //     return 'Enter Gst Perecent';
+              //   }
+              //   return null;
+              // }
+            ),
           ),
           const SizedBox(width: 10),
           Expanded(
             child: TldsInputFormField(
               enabled: false,
+              height: 40,
               inputFormatters: TlInputFormatters.onlyAllowDecimalNumbers,
               hintText: AppConstants.sgstPercent,
               controller: widget.addSalesBloc.cgstPresentageTextController,
@@ -205,6 +215,7 @@ class _PaymentDetailsState extends State<PaymentDetails> {
     double gstAmt = cgstAmt + cgstAmt;
     widget.addSalesBloc.invAmount = taxableValue + (gstAmt);
     _updateTotalInvoiceAmount();
+
     widget.addSalesBloc.paymentDetailsStreamController(true);
     widget.addSalesBloc.gstRadioBtnRefreashStreamController(true);
   }
@@ -226,6 +237,8 @@ class _PaymentDetailsState extends State<PaymentDetails> {
     double advanceAmt = widget.addSalesBloc.advanceAmt ?? 0;
     double totalInvAmt = widget.addSalesBloc.totalInvAmount ?? 0;
     widget.addSalesBloc.toBePayedAmt = totalInvAmt - advanceAmt;
+    widget.addSalesBloc.toBePayedAmt = double.parse(
+        widget.addSalesBloc.toBePayedAmt?.round().toString() ?? '');
     widget.addSalesBloc.paymentDetailsStreamController(true);
   }
 
@@ -249,7 +262,14 @@ class _PaymentDetailsState extends State<PaymentDetails> {
               hintText: AppConstants.igstPercent,
               controller: widget.addSalesBloc.igstPresentageTextController,
               focusNode: widget.addSalesBloc.igstFocus,
+              height: 40,
+              maxLength: 5,
+              counterText: '',
               onChanged: (igst) {
+                double igstPercent = double.tryParse(igst) ?? 0;
+                if (igstPercent > 100) {
+                  widget.addSalesBloc.igstPresentageTextController.clear();
+                }
                 double igstPersent = double.parse(igst);
                 widget.addSalesBloc.paymentDetailsStreamController(true);
                 widget.addSalesBloc.gstRadioBtnRefreashStreamController(true);
@@ -280,227 +300,30 @@ class _PaymentDetailsState extends State<PaymentDetails> {
     return StreamBuilder<bool>(
         stream: widget.addSalesBloc.paymentDetailsStream,
         builder: (context, snapshot) {
-          return Container(
-            padding: const EdgeInsets.all(12),
+          return SizedBox(
+            // padding: const EdgeInsets.all(12),
             width: MediaQuery.sizeOf(context).width * 0.36,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildPaymentDetailTile(
-                    AppConstants.totalValue,
-                    Text(
-                      AppUtils.formatCurrency(
-                          widget.addSalesBloc.totalValue ?? 0.0),
-                      style: const TextStyle(
-                          fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
-                    subTitle: AppConstants.totalValueA),
-                _buildPaymentDetailTile(
-                  AppConstants.discount,
-                  subTitle: AppConstants.discountB,
-                  TldsInputFormField(
-                    hintText: AppConstants.rupeeHint,
-                    inputFormatters:
-                        TldsInputFormatters.onlyAllowDecimalNumbers,
-                    width: 100,
-                    height: 40,
-                    controller: widget.addSalesBloc.discountTextController,
-                    focusNode: widget.addSalesBloc.discountFocus,
-                    onChanged: (discount) {
-                      double? discountAmount = double.tryParse(discount);
-
-                      if (widget.addSalesBloc.totalValue != 0) {
-                        widget.addSalesBloc.taxableValue =
-                            (widget.addSalesBloc.totalValue ?? 0) -
-                                (discountAmount ?? 0);
-
-                        widget.addSalesBloc.totalInvAmount =
-                            ((widget.addSalesBloc.invAmount ?? 0) -
-                                (discountAmount ?? 0));
-                      }
-                      _calculateGST();
-                      _updateTotalInvoiceAmount();
-
-                      widget.addSalesBloc.paymentDetailsStreamController(true);
-                    },
-                    onSubmit: (value) {
-                      FocusScope.of(context)
-                          .requestFocus(widget.addSalesBloc.empsIncentiveFocus);
-                    },
-                  ),
-                ),
-                _buildPaymentDetailTile(
-                    AppConstants.taxableValue,
-                    subTitle: AppConstants.taxableValueAB,
-                    Text(
-                      AppUtils.formatCurrency(
-                          widget.addSalesBloc.taxableValue ?? 0.0),
-                      style: const TextStyle(
-                          fontSize: 16, fontWeight: FontWeight.bold),
-                    )),
-                Text(
-                  AppConstants.gstThree,
-                  style: TextStyle(
-                      color: _appColors.primaryColor,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold),
-                ),
+                _buildTotalValue(),
+                _buildDiscountfield(context),
+                _buildTaxableValueText(),
+                _buildgstSubText(),
                 AppWidgetUtils.buildSizedBox(custHeight: 10),
-                Container(
-                    decoration: BoxDecoration(
-                        color: _appColors.amountBgColor,
-                        borderRadius: BorderRadius.circular(10)),
-                    padding: const EdgeInsets.all(10),
-                    child: Column(
-                      children: [
-                        Visibility(
-                          visible: widget.addSalesBloc.selectedGstType ==
-                              AppConstants.igstPercent,
-                          child: _buildPaymentDetailTile(
-                              AppConstants.igstAmount,
-                              Text(
-                                AppUtils.formatCurrency(
-                                    widget.addSalesBloc.igstAmount ?? 0.0),
-                                style: const TextStyle(
-                                    fontSize: 16, fontWeight: FontWeight.bold),
-                              )),
-                        ),
-                        Visibility(
-                          visible: widget.addSalesBloc.selectedGstType ==
-                              AppConstants.gstPercent,
-                          child: _buildPaymentDetailTile(
-                              AppConstants.cgstAmount,
-                              Text(
-                                AppUtils.formatCurrency(
-                                    widget.addSalesBloc.cgstAmount ?? 0.0),
-                                style: const TextStyle(
-                                    fontSize: 16, fontWeight: FontWeight.bold),
-                              )),
-                        ),
-                        Visibility(
-                          visible: widget.addSalesBloc.selectedGstType ==
-                              AppConstants.gstPercent,
-                          child: _buildPaymentDetailTile(
-                              AppConstants.sgstAmount,
-                              Text(
-                                AppUtils.formatCurrency(
-                                    widget.addSalesBloc.sgstAmount ?? 0.0),
-                                style: const TextStyle(
-                                    fontSize: 16, fontWeight: FontWeight.bold),
-                              )),
-                        ),
-                      ],
-                    )),
+                _buildgstAmountText(),
                 AppWidgetUtils.buildSizedBox(custHeight: 10),
-                _buildPaymentDetailTile(
-                    AppConstants.invoiceValue,
-                    subTitle: AppConstants.invoiceValueThree,
-                    Text(
-                      AppUtils.formatCurrency(
-                          widget.addSalesBloc.invAmount ?? 0.0),
-                      style: const TextStyle(
-                          fontSize: 16, fontWeight: FontWeight.bold),
-                    )),
-                _buildPaymentDetailTile(
-                    AppConstants.empsIncentive,
-                    subTitle: AppConstants.empsIncentiveFour,
-                    TldsInputFormField(
-                      hintText: AppConstants.rupeeHint,
-                      inputFormatters:
-                          TldsInputFormatters.onlyAllowDecimalNumbers,
-                      focusNode: widget.addSalesBloc.empsIncentiveFocus,
-                      width: 100,
-                      height: 40,
-                      controller:
-                          widget.addSalesBloc.empsIncentiveTextController,
-                      onChanged: (empsInc) {
-                        _updateTotalInvoiceAmount();
-                      },
-                      onSubmit: (value) {
-                        FocusScope.of(context).requestFocus(
-                            widget.addSalesBloc.stateIncentiveFocus);
-                      },
-                    )),
-                _buildPaymentDetailTile(
-                    AppConstants.stateIncentive,
-                    subTitle: AppConstants.stateIncentiveFive,
-                    TldsInputFormField(
-                      hintText: AppConstants.rupeeHint,
-                      inputFormatters:
-                          TldsInputFormatters.onlyAllowDecimalNumbers,
-                      focusNode: widget.addSalesBloc.stateIncentiveFocus,
-                      width: 100,
-                      height: 40,
-                      controller:
-                          widget.addSalesBloc.stateIncentiveTextController,
-                      onChanged: (stateInc) {
-                        _updateTotalInvoiceAmount();
-                      },
-                    )),
+                _buildInvoiceText(),
+                _buildEmpsInsentive(context),
+                _buildStateInsentive(),
                 AppWidgetUtils.buildSizedBox(custHeight: 10),
-                ListTile(
-                  title: const Text(AppConstants.totalInvoiceAmount,
-                      style:
-                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                  subtitle: Text(
-                    AppConstants.totalInvoiceAmountCalTwo,
-                    style: TextStyle(color: _appColors.grey),
-                  ),
-                  trailing: Text(
-                    AppUtils.formatCurrency(
-                        widget.addSalesBloc.totalInvAmount ?? 0.0),
-                    style: const TextStyle(
-                        fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                ),
+                _buildTotalInvAmtText(),
                 AppWidgetUtils.buildSizedBox(custHeight: 10),
                 if (widget.addSalesBloc.selectedVehicleAndAccessories !=
                     'Accessories')
-                  StreamBuilder<bool>(
-                      stream: widget.addSalesBloc.advanceAmountRefreshStream,
-                      builder: (context, snapshot) {
-                        return Container(
-                          decoration: BoxDecoration(
-                              color: _appColors.amountBgColor,
-                              borderRadius: BorderRadius.circular(10)),
-                          padding: const EdgeInsets.all(5),
-                          child: ListTile(
-                            title: Text(
-                              AppConstants.bookAdvAmt,
-                              style: TextStyle(
-                                  fontSize: 16, color: _appColors.primaryColor),
-                            ),
-                            // tileColor: _appColors.primaryColor,
-                            trailing: Text(
-                              AppUtils.formatCurrency(
-                                  widget.addSalesBloc.advanceAmt ?? 0),
-                              style: TextStyle(
-                                  color: _appColors.primaryColor, fontSize: 16),
-                            ),
-                          ),
-                        );
-                      }),
+                  _buildAdvAmount(),
                 AppWidgetUtils.buildSizedBox(custHeight: 10),
-                Container(
-                  decoration: BoxDecoration(
-                      color: _appColors.transparentGreenColor,
-                      borderRadius: BorderRadius.circular(10)),
-                  padding: const EdgeInsets.all(5),
-                  child: ListTile(
-                    title: const Text(
-                      AppConstants.toBePayed,
-                      style:
-                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
-                    // tileColor: _appColors.primaryColor,
-                    trailing: Text(
-                      AppUtils.formatCurrency(
-                          widget.addSalesBloc.toBePayedAmt ?? 0.00),
-                      style: const TextStyle(
-                          fontWeight: FontWeight.bold, fontSize: 16),
-                    ),
-                  ),
-                ),
+                _buildToBePaidAmt(),
                 AppWidgetUtils.buildSizedBox(custHeight: 10),
                 _buildHeadingText(AppConstants.paymentMethod),
                 AppWidgetUtils.buildSizedBox(custHeight: 5),
@@ -512,6 +335,247 @@ class _PaymentDetailsState extends State<PaymentDetails> {
             ),
           );
         });
+  }
+
+  Container _buildToBePaidAmt() {
+    return Container(
+      decoration: BoxDecoration(
+          color: _appColors.transparentGreenColor,
+          borderRadius: BorderRadius.circular(10)),
+      padding: const EdgeInsets.all(5),
+      child: ListTile(
+        title: const Text(
+          AppConstants.toBePayed,
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        ),
+        trailing: Text(
+          AppUtils.formatCurrency(widget.addSalesBloc.toBePayedAmt ?? 0.00),
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+        ),
+      ),
+    );
+  }
+
+  StreamBuilder<bool> _buildAdvAmount() {
+    return StreamBuilder<bool>(
+        stream: widget.addSalesBloc.advanceAmountRefreshStream,
+        builder: (context, snapshot) {
+          return Container(
+            decoration: BoxDecoration(
+                color: _appColors.amountBgColor,
+                borderRadius: BorderRadius.circular(10)),
+            padding: const EdgeInsets.all(5),
+            child: ListTile(
+              title: Text(
+                AppConstants.bookAdvAmt,
+                style: TextStyle(fontSize: 16, color: _appColors.primaryColor),
+              ),
+              trailing: Text(
+                AppUtils.formatCurrency(widget.addSalesBloc.advanceAmt ?? 0),
+                style: TextStyle(color: _appColors.primaryColor, fontSize: 16),
+              ),
+            ),
+          );
+        });
+  }
+
+  ListTile _buildTotalInvAmtText() {
+    return ListTile(
+      title: const Text(AppConstants.totalInvoiceAmount,
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+      subtitle: Text(
+        AppConstants.totalInvoiceAmountCalTwo,
+        style: TextStyle(color: _appColors.grey),
+      ),
+      trailing: Text(
+        AppUtils.formatCurrency(widget.addSalesBloc.totalInvAmount ?? 0.0),
+        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+      ),
+    );
+  }
+
+  Widget _buildStateInsentive() {
+    return _buildPaymentDetailTile(
+      AppConstants.stateIncentive,
+      subTitle: AppConstants.stateIncentiveFive,
+      TldsInputFormField(
+        hintText: AppConstants.rupeeHint,
+        inputFormatters: TldsInputFormatters.onlyAllowDecimalNumbers,
+        focusNode: widget.addSalesBloc.stateIncentiveFocus,
+        width: 100,
+        height: 40,
+        controller: widget.addSalesBloc.stateIncentiveTextController,
+        onChanged: (stateInc) {
+          double? stateIncentive = double.tryParse(stateInc);
+          double totalInvAmount = widget.addSalesBloc.totalInvAmount ?? 0;
+
+          if (stateIncentive != null && stateIncentive >= totalInvAmount) {
+            stateIncentive = 0;
+            widget.addSalesBloc.stateIncentiveTextController.text =
+                stateIncentive.toString();
+          }
+
+          _updateTotalInvoiceAmount();
+        },
+      ),
+    );
+  }
+
+  Widget _buildEmpsInsentive(BuildContext context) {
+    return _buildPaymentDetailTile(
+      AppConstants.empsIncentive,
+      subTitle: AppConstants.empsIncentiveFour,
+      TldsInputFormField(
+        hintText: AppConstants.rupeeHint,
+        inputFormatters: TldsInputFormatters.onlyAllowDecimalNumbers,
+        focusNode: widget.addSalesBloc.empsIncentiveFocus,
+        width: 100,
+        height: 40,
+        controller: widget.addSalesBloc.empsIncentiveTextController,
+        onChanged: (empsInc) {
+          double? empsIncentive = double.tryParse(empsInc);
+          double totalInvAmount = widget.addSalesBloc.totalInvAmount ?? 0;
+
+          if (empsIncentive != null && empsIncentive >= totalInvAmount) {
+            empsIncentive = 0;
+            widget.addSalesBloc.empsIncentiveTextController.text =
+                empsIncentive.toString();
+          }
+
+          _updateTotalInvoiceAmount();
+        },
+        onSubmit: (value) {
+          FocusScope.of(context)
+              .requestFocus(widget.addSalesBloc.stateIncentiveFocus);
+        },
+      ),
+    );
+  }
+
+  Widget _buildInvoiceText() {
+    return _buildPaymentDetailTile(
+        AppConstants.invoiceValue,
+        subTitle: AppConstants.invoiceValueThree,
+        Text(
+          AppUtils.formatCurrency(widget.addSalesBloc.invAmount ?? 0.0),
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        ));
+  }
+
+  Container _buildgstAmountText() {
+    return Container(
+        decoration: BoxDecoration(
+            color: _appColors.amountBgColor,
+            borderRadius: BorderRadius.circular(10)),
+        padding: const EdgeInsets.all(10),
+        child: Column(
+          children: [
+            Visibility(
+              visible: widget.addSalesBloc.selectedGstType ==
+                  AppConstants.igstPercent,
+              child: _buildPaymentDetailTile(
+                  AppConstants.igstAmount,
+                  Text(
+                    AppUtils.formatCurrency(
+                        widget.addSalesBloc.igstAmount ?? 0.0),
+                    style: const TextStyle(
+                        fontSize: 16, fontWeight: FontWeight.bold),
+                  )),
+            ),
+            Visibility(
+              visible: widget.addSalesBloc.selectedGstType ==
+                  AppConstants.gstPercent,
+              child: _buildPaymentDetailTile(
+                  AppConstants.cgstAmount,
+                  Text(
+                    AppUtils.formatCurrency(
+                        widget.addSalesBloc.cgstAmount ?? 0.0),
+                    style: const TextStyle(
+                        fontSize: 16, fontWeight: FontWeight.bold),
+                  )),
+            ),
+            Visibility(
+              visible: widget.addSalesBloc.selectedGstType ==
+                  AppConstants.gstPercent,
+              child: _buildPaymentDetailTile(
+                  AppConstants.sgstAmount,
+                  Text(
+                    AppUtils.formatCurrency(
+                        widget.addSalesBloc.sgstAmount ?? 0.0),
+                    style: const TextStyle(
+                        fontSize: 16, fontWeight: FontWeight.bold),
+                  )),
+            ),
+          ],
+        ));
+  }
+
+  Text _buildgstSubText() {
+    return Text(
+      AppConstants.gstThree,
+      style: TextStyle(
+          color: _appColors.primaryColor,
+          fontSize: 18,
+          fontWeight: FontWeight.bold),
+    );
+  }
+
+  Widget _buildTaxableValueText() {
+    return _buildPaymentDetailTile(
+        AppConstants.taxableValue,
+        subTitle: AppConstants.taxableValueAB,
+        Text(
+          AppUtils.formatCurrency(widget.addSalesBloc.taxableValue ?? 0.0),
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        ));
+  }
+
+  Widget _buildDiscountfield(BuildContext context) {
+    return _buildPaymentDetailTile(
+      AppConstants.discount,
+      subTitle: AppConstants.discountB,
+      TldsInputFormField(
+        hintText: AppConstants.rupeeHint,
+        inputFormatters: TldsInputFormatters.onlyAllowDecimalNumbers,
+        width: 100,
+        height: 40,
+        controller: widget.addSalesBloc.discountTextController,
+        focusNode: widget.addSalesBloc.discountFocus,
+        onChanged: (discount) {
+          double? discountAmount = double.tryParse(discount);
+          double totalValue = widget.addSalesBloc.totalValue ?? 0;
+
+          if (discountAmount != null && discountAmount >= totalValue) {
+            discountAmount = 0;
+            widget.addSalesBloc.discountTextController.text =
+                discountAmount.toStringAsFixed(2);
+          }
+
+          widget.addSalesBloc.taxableValue = totalValue - (discountAmount ?? 0);
+          widget.addSalesBloc.totalInvAmount =
+              (widget.addSalesBloc.invAmount ?? 0) - (discountAmount ?? 0);
+
+          _calculateGST();
+          _updateTotalInvoiceAmount();
+
+          widget.addSalesBloc.paymentDetailsStreamController(true);
+        },
+        onSubmit: (value) {
+          FocusScope.of(context)
+              .requestFocus(widget.addSalesBloc.empsIncentiveFocus);
+        },
+      ),
+    );
+  }
+
+  Widget _buildTotalValue() {
+    return _buildPaymentDetailTile(
+        AppConstants.totalValue,
+        Text(
+          AppUtils.formatCurrency(widget.addSalesBloc.totalValue ?? 0.0),
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        ),
+        subTitle: AppConstants.totalValueA);
   }
 
   Widget _buildPaymentDetailTile(String? title, Widget? textField,
@@ -586,7 +650,6 @@ class _PaymentDetailsState extends State<PaymentDetails> {
       },
       child: Container(
         margin: const EdgeInsets.all(8.0),
-        width: 180,
         height: 50,
         decoration: BoxDecoration(
           color: Colors.white,
@@ -640,29 +703,30 @@ class _PaymentDetailsState extends State<PaymentDetails> {
                 dropDownItems: _paymentsListFuture ?? [],
                 dropDownValue: widget.addSalesBloc.selectedPaymentList,
                 hintText: '',
-                // height: 40,
                 width: double.infinity,
                 onChange: (value) {
                   setState(() {
                     widget.addSalesBloc.selectedPaymentList = value;
                   });
-
-                  //  widget.addSalesBloc.isSplitPaymentStreamController(true);
                 },
               ),
         TldsInputFormField(
           controller: widget.addSalesBloc.paidAmountController,
           hintText: AppConstants.amount,
           inputFormatters: TlInputFormatters.onlyAllowDecimalNumbers,
-          validator: (value) {
-            if (value?.isEmpty == true) {
-              return AppConstants.enterAmt;
+          onChanged: (value) {
+            double? paidAmount = double.tryParse(value);
+            double toBePaidAmt = widget.addSalesBloc.toBePayedAmt ?? 0;
+
+            if (paidAmount != null && paidAmount >= toBePaidAmt) {
+              paidAmount = toBePaidAmt;
+              widget.addSalesBloc.paidAmountController.text =
+                  paidAmount.toStringAsFixed(2);
             }
-            return null;
           },
         ),
         Visibility(
-          visible: ['UPI ', 'CARD', 'CHEQUE']
+          visible: ['UPI', 'CARD', 'CHEQUE']
               .contains(widget.addSalesBloc.selectedPaymentList),
           child: Padding(
             padding: const EdgeInsets.only(bottom: 13),
@@ -695,6 +759,7 @@ class _PaymentDetailsState extends State<PaymentDetails> {
                         widget.addSalesBloc.isSplitPayment = value;
                         widget.addSalesBloc
                             .isSplitPaymentStreamController(true);
+                        widget.addSalesBloc.paidAmountController.clear();
 
                         if (!value) {
                           clearSplitPaymentData();
@@ -712,7 +777,6 @@ class _PaymentDetailsState extends State<PaymentDetails> {
           ),
           if (widget.addSalesBloc.isSplitPayment)
             SizedBox(
-              height: 400,
               child: _paymentsListFuture?.isEmpty == true
                   ? const Center(child: Text('No payments available'))
                   : ListView.builder(
@@ -724,13 +788,10 @@ class _PaymentDetailsState extends State<PaymentDetails> {
                                 _paymentsListFuture?[index] == 'CARD' ||
                                 _paymentsListFuture?[index] == 'UPI ';
 
-                        // Initialize _checkedList safely
                         if (_checkedList.length <= index) {
-                          _checkedList
-                              .add(false); // Initialize if not already done
+                          _checkedList.add(false);
                         }
 
-                        // Initialize controllers outside the builder
                         TextEditingController paidAmountController =
                             TextEditingController(
                                 text:
@@ -757,13 +818,11 @@ class _PaymentDetailsState extends State<PaymentDetails> {
                                         _checkedList[index] = newValue ?? false;
                                         if (!(newValue ?? false)) {
                                           paidAmountController.clear();
-                                          idController
-                                              .clear(); // Clear ID field when unchecked
+                                          idController.clear();
                                           widget.addSalesBloc
                                               .splitPaymentAmt[index] = '';
                                           widget.addSalesBloc
-                                                  .splitPaymentId[index] =
-                                              ''; // Clear ID data
+                                              .splitPaymentId[index] = '';
                                         }
                                         widget.addSalesBloc.paymentName[index] =
                                             _paymentsListFuture?[index] ?? '';
@@ -786,9 +845,28 @@ class _PaymentDetailsState extends State<PaymentDetails> {
                                       inputFormatters: TlInputFormatters
                                           .onlyAllowDecimalNumbers,
                                       onChanged: (value) {
-                                        // Update the splitPaymentAmt directly
                                         widget.addSalesBloc
                                             .splitPaymentAmt[index] = value;
+
+                                        double totalSplitPaymentAmt = 0;
+                                        widget.addSalesBloc.splitPaymentAmt
+                                            .forEach((key, amt) {
+                                          totalSplitPaymentAmt +=
+                                              double.tryParse(amt) ?? 0;
+                                        });
+
+                                        if (totalSplitPaymentAmt >
+                                            (widget.addSalesBloc.toBePayedAmt ??
+                                                0)) {
+                                          setState(() {});
+
+                                          widget.addSalesBloc
+                                              .splitPaymentAmt[index] = '';
+                                        }
+
+                                        widget.addSalesBloc
+                                            .isSplitPaymentStreamController(
+                                                true);
                                       },
                                     ),
                                   ),
@@ -806,7 +884,6 @@ class _PaymentDetailsState extends State<PaymentDetails> {
                                     hintText:
                                         '${_paymentsListFuture?[index]} ID',
                                     onChanged: (value) {
-                                      // Update the splitPaymentId directly
                                       widget.addSalesBloc
                                           .splitPaymentId[index] = value;
                                     },
@@ -827,13 +904,11 @@ class _PaymentDetailsState extends State<PaymentDetails> {
   }
 
   void clearSplitPaymentData() {
-    // Clear all split payment data when switching off
     for (int i = 0; i < widget.addSalesBloc.splitPaymentAmt.length; i++) {
       widget.addSalesBloc.splitPaymentAmt[i] = '';
       widget.addSalesBloc.splitPaymentId[i] = '';
       _checkedList[i] = false;
     }
-    // Notify streams or controllers if needed
     widget.addSalesBloc.splitPaymentCheckBoxStreamController(true);
   }
 
@@ -1020,7 +1095,6 @@ class _PaymentDetailsState extends State<PaymentDetails> {
         invoiceDate: DateFormat('yyyy-MM-dd').format(DateTime.now()),
         invoiceType: widget.addSalesBloc.selectedVehicleAndAccessories,
         itemDetails: itemdetails,
-        // loaninfo: Loaninfo(bankName: '', loanAmt: 0, loanId: ''),
         mandatoryAddons: mandatoryAddonsMap,
         netAmt: double.parse(
             widget.addSalesBloc.toBePayedAmt?.round().toString() ?? ''),

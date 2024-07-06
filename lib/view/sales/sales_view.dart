@@ -168,7 +168,7 @@ class _SalesViewScreenState extends State<SalesViewScreen>
                 : (snapshot.hasError || snapshot.data == null)
                     ? AppConstants.errorLoading
                     : AppConstants.branchName,
-            selectedvalue: _salesViewBloc.branchId,
+            selectedvalue: 'All',
             onChange: (value) {
               _salesViewBloc.branchId = value;
 
@@ -298,7 +298,14 @@ class _SalesViewScreenState extends State<SalesViewScreen>
               return Center(child: AppWidgetUtils.buildLoading());
             } else if (!snapshot.hasData ||
                 snapshot.data?.content?.isEmpty == true) {
-              return Center(child: SvgPicture.asset(AppConstants.imgNoData));
+              return Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Center(child: SvgPicture.asset(AppConstants.imgNoData)),
+                  const Text('No Sales data')
+                ],
+              );
             }
             List<Content> salesList = snapshot.data?.content ?? [];
             GetAllSales salesDetails = snapshot.data!;
@@ -405,6 +412,7 @@ class _SalesViewScreenState extends State<SalesViewScreen>
                                           onPressed: () {
                                             showDialog(
                                               context: context,
+                                              barrierDismissible: false,
                                               builder: (context) {
                                                 return PaymentDailog(
                                                   salesdata: entry.value,
@@ -431,7 +439,11 @@ class _SalesViewScreenState extends State<SalesViewScreen>
                                         },
                                       );
                                     },
-                                    icon: const Icon(Icons.print),
+                                    icon: SvgPicture.asset(
+                                      AppConstants.icPrint,
+                                      colorFilter: const ColorFilter.mode(
+                                          Colors.black, BlendMode.srcIn),
+                                    ),
                                   )),
                                 DataCell(
                                   PopupMenuButton(
@@ -452,6 +464,7 @@ class _SalesViewScreenState extends State<SalesViewScreen>
                                     onSelected: (value) {
                                       if (value == 'cancel') {
                                         showDialog(
+                                          barrierDismissible: false,
                                           context: context,
                                           builder: (context) =>
                                               _buildSalesBillCancelDialog(
@@ -463,6 +476,7 @@ class _SalesViewScreenState extends State<SalesViewScreen>
                                         });
                                       } else if (value == 'view') {
                                         showDialog(
+                                          barrierDismissible: false,
                                           context: context,
                                           builder: (context) {
                                             return _buildPaymentDetailsListView(
@@ -580,12 +594,21 @@ class _SalesViewScreenState extends State<SalesViewScreen>
             surfaceTintColor: _appColors.whiteColor,
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-            title: Text(
-              AppConstants.vehicleDetails,
-              style: TextStyle(
-                color: _appColors.primaryColor,
-                fontWeight: FontWeight.bold,
-              ),
+            title: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(AppConstants.vehicleDetails,
+                    style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: _appColors.primaryColor)),
+                IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
             ),
             content: SizedBox(
               width: 650,
@@ -715,6 +738,7 @@ class _SalesViewScreenState extends State<SalesViewScreen>
                         ? IconButton(
                             onPressed: () {
                               showDialog(
+                                barrierDismissible: false,
                                 context: context,
                                 builder: (context) => AlertDialog(
                                   surfaceTintColor: _appColors.whiteColor,

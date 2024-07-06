@@ -20,7 +20,8 @@ class TlInputFormatters {
   static final List<TextInputFormatter> onlyAllowDecimalNumbers = [
     FilteringTextInputFormatter.allow(RegExp(r'[0-9.]')),
     TextInputFormatter.withFunction((oldValue, newValue) {
-      if (newValue.text.contains('.') && newValue.text.split('.').length > 2) {
+      if (newValue.text.contains('.') &&
+          newValue.text.split('.')[1].length > 2) {
         return oldValue;
       }
       return newValue;

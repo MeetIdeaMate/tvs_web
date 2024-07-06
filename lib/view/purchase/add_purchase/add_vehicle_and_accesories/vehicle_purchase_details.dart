@@ -398,16 +398,31 @@ class _EngineAndFrameNumberEntryState extends State<EngineAndFrameNumberEntry> {
           unitRate;
     }
     widget.addVehicleAndAccessoriesBloc.totalValue = totalValue;
-    var discount = double.tryParse(
+
+    // var discountPercentage =
+    //     double.tryParse(widget.addVehicleAndAccessoriesBloc.discountTextController.text) ?? 0.0;
+    // var discountValue = totalValue * (discountPercentage / 100);
+    // widget.addVehicleAndAccessoriesBloc.discountValue = discountValue;
+    double? discountAmount = double.tryParse(
             widget.addVehicleAndAccessoriesBloc.discountTextController.text) ??
-        0.0;
-    var taxableValue = totalValue - discount;
+        0;
+    totalValue = widget.addVehicleAndAccessoriesBloc.totalValue ?? 0;
+    if (discountAmount > totalValue) {
+      discountAmount = 0;
+      widget.addVehicleAndAccessoriesBloc.discountTextController.text =
+          discountAmount.toStringAsFixed(2);
+    }
+    var taxableValue = totalValue - discountAmount;
     widget.addVehicleAndAccessoriesBloc.taxableValue = taxableValue;
-    var discountPercentage = double.tryParse(
-            widget.addVehicleAndAccessoriesBloc.discountTextController.text) ??
-        0.0;
-    var discountValue = totalValue * (discountPercentage / 100);
-    widget.addVehicleAndAccessoriesBloc.discountValue = discountValue;
+    widget.addVehicleAndAccessoriesBloc.taxableValue =
+        (widget.addVehicleAndAccessoriesBloc.totalValue ?? 0) -
+            (discountAmount);
+
+    widget.addVehicleAndAccessoriesBloc.totalInvAmount =
+        ((widget.addVehicleAndAccessoriesBloc.invAmount ?? 0) -
+            (discountAmount));
+
+    //  widget.addVehicleAndAccessoriesBloc.paymentDetailsStreamController(true);
     var tcsValue = double.tryParse(
             widget.addVehicleAndAccessoriesBloc.tcsvalueTextController.text) ??
         0.0;
@@ -434,16 +449,47 @@ class _EngineAndFrameNumberEntryState extends State<EngineAndFrameNumberEntry> {
     }
     var invoiceValue = taxableValue + gstAmount;
     widget.addVehicleAndAccessoriesBloc.invAmount = invoiceValue + tcsValue;
-    var empsIncentive = double.tryParse(widget
+    _updateTotalInvoiceAmount();
+    // var empsIncentive =
+    //     double.tryParse(widget.addVehicleAndAccessoriesBloc.empsIncentiveTextController.text) ??
+    //         0.0;
+    // var stateIncentive = double.tryParse(
+    //         widget.addVehicleAndAccessoriesBloc.stateIncentiveTextController.text) ??
+    //     0.0;
+    // var totalIncentive = empsIncentive + stateIncentive;
+    // var totalInvoiceAmount = invoiceValue - totalIncentive;
+    // widget.addVehicleAndAccessoriesBloc.totalInvAmount = totalInvoiceAmount;
+  }
+
+  void _updateTotalInvoiceAmount() {
+    double? empsIncValue = double.tryParse(widget
             .addVehicleAndAccessoriesBloc.empsIncentiveTextController.text) ??
         0.0;
-    var stateIncentive = double.tryParse(widget
+    double? stateIncValue = double.tryParse(widget
             .addVehicleAndAccessoriesBloc.stateIncentiveTextController.text) ??
         0.0;
-    var totalIncentive = empsIncentive + stateIncentive;
 
-    var totalInvoiceAmount =
-        invoiceValue + tcsValue - totalIncentive; // Update here
-    widget.addVehicleAndAccessoriesBloc.totalInvAmount = totalInvoiceAmount;
+    double totalIncentive = empsIncValue + stateIncValue;
+
+    double invoiceAmount = widget.addVehicleAndAccessoriesBloc.invAmount ?? 0;
+
+    if (totalIncentive > invoiceAmount) {
+      totalIncentive = invoiceAmount;
+
+      if (empsIncValue > invoiceAmount) {
+        widget.addVehicleAndAccessoriesBloc.empsIncentiveTextController.text =
+            invoiceAmount.toStringAsFixed(2);
+        widget.addVehicleAndAccessoriesBloc.stateIncentiveTextController.text =
+            '';
+      } else {
+        widget.addVehicleAndAccessoriesBloc.stateIncentiveTextController.text =
+            (invoiceAmount - empsIncValue).toStringAsFixed(2);
+      }
+    }
+
+    widget.addVehicleAndAccessoriesBloc.totalInvAmount =
+        invoiceAmount - totalIncentive;
+
+    widget.addVehicleAndAccessoriesBloc.paymentDetailsStreamController(true);
   }
 }

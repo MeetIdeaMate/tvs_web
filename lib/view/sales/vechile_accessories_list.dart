@@ -31,18 +31,15 @@ class _VehicleAccessoriesListState extends State<VehicleAccessoriesList> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Column(
-        children: [
-          _buildDefaultHeight(),
-          _buildHeadingAndSegmentedButton(),
-          _buildDefaultHeight(),
-          _buildVehicleNameAndEngineNumberSearch(),
-          _buildDefaultHeight(),
-          _buildVehicleAndAccessoriesList()
-        ],
-      ),
+    return Column(
+      children: [
+        _buildDefaultHeight(),
+        _buildHeadingAndSegmentedButton(),
+        _buildDefaultHeight(),
+        _buildVehicleNameAndEngineNumberSearch(),
+        _buildDefaultHeight(),
+        _buildVehicleAndAccessoriesList()
+      ],
     );
   }
 
@@ -78,6 +75,7 @@ class _VehicleAccessoriesListState extends State<VehicleAccessoriesList> {
           return Center(child: SvgPicture.asset(AppConstants.imgNoData));
         }
         widget.addSalesBloc.vehicleData = snapshot.data;
+        widget.addSalesBloc.vehicleAndEngineNumberStreamController(true);
 
         return StreamBuilder(
           stream: widget.addSalesBloc.vehicleAndEngineNumberStream,
@@ -100,6 +98,18 @@ class _VehicleAccessoriesListState extends State<VehicleAccessoriesList> {
                             .contains(searchTerm.toLowerCase()) ??
                         false))
                 .toList();
+
+            if (filteredVehicleData?.isEmpty ?? false) {
+              return Expanded(
+                  child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Center(child: SvgPicture.asset(AppConstants.imgNoData)),
+                  AppWidgetUtils.buildSizedBox(custHeight: 5),
+                  Text('No $category')
+                ],
+              ));
+            }
 
             return Expanded(
               child: ListView.builder(
@@ -168,6 +178,17 @@ class _VehicleAccessoriesListState extends State<VehicleAccessoriesList> {
                                             .text = vehicle?.hsnSacCode ?? '';
                                         widget.addSalesBloc
                                             .gstDetailsStreamController(true);
+                                        widget.addSalesBloc
+                                            .batteryDetailsRefreshStreamController(
+                                                true);
+                                        print(filteredVehicleData?.length);
+                                        if (filteredVehicleData?.isEmpty ??
+                                            false) {
+                                          print(filteredVehicleData?.length);
+                                          Center(
+                                              child: SvgPicture.asset(
+                                                  AppConstants.imgNoData));
+                                        }
                                       },
                                       icon: SvgPicture.asset(
                                         AppConstants.icFilledAdd,
@@ -204,9 +225,22 @@ class _VehicleAccessoriesListState extends State<VehicleAccessoriesList> {
           return Center(child: SvgPicture.asset(AppConstants.imgNoData));
         }
         widget.addSalesBloc.accessoriesData = snapshot.data;
+        widget.addSalesBloc.vehicleAndEngineNumberStreamController(true);
         return StreamBuilder(
             stream: widget.addSalesBloc.availableAccListStreamController,
             builder: (context, streamSnapshot) {
+              if (widget.addSalesBloc.accessoriesData?.isEmpty ?? false) {
+                return Expanded(
+                    child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Center(child: SvgPicture.asset(AppConstants.imgNoData)),
+                    AppWidgetUtils.buildSizedBox(custHeight: 5),
+                    const Text('No Accessories')
+                  ],
+                ));
+              }
+
               return Expanded(
                   child: ListView.builder(
                 itemCount: widget.addSalesBloc.accessoriesData?.length ?? 0,
@@ -261,8 +295,15 @@ class _VehicleAccessoriesListState extends State<VehicleAccessoriesList> {
                                     widget.addSalesBloc
                                         .selectedAccessoriesListStreamController(
                                             true);
+
                                     widget.addSalesBloc
                                         .selectedItemStream(true);
+                                    widget.addSalesBloc
+                                        .vehicleAndEngineNumberStreamController(
+                                            true);
+                                    widget.addSalesBloc
+                                        .batteryDetailsRefreshStreamController(
+                                            true);
                                   },
                                   icon: SvgPicture.asset(
                                     AppConstants.icFilledAdd,
@@ -379,29 +420,39 @@ class _VehicleAccessoriesListState extends State<VehicleAccessoriesList> {
           final IconData iconData = isTextEmpty ? Icons.search : Icons.close;
           final Color iconColor =
               isTextEmpty ? _appColors.primaryColor : Colors.red;
-          return TldsInputFormField(
-            height: 40,
-            controller:
-                widget.addSalesBloc.vehicleNoAndEngineNoSearchController,
-            hintText: AppConstants.vehicleNameAndEngineNumber,
-            suffixIcon: IconButton(
-              onPressed: () {
-                if (!isTextEmpty) {
-                  widget.addSalesBloc.vehicleNoAndEngineNoSearchController
-                      .clear();
-                  widget.addSalesBloc
-                      .vehicleAndEngineNumberStreamController(true);
-                  //  updateFilteredVehicleList('');
-                }
-              },
-              icon: Icon(
-                iconData,
-                color: iconColor,
+          widget.addSalesBloc
+              .selectedVehicleAndAccessoriesStreamController(true);
+          bool showSearchBar =
+              widget.addSalesBloc.selectedVehicleAndAccessories == 'Accessories'
+                  ? (widget.addSalesBloc.accessoriesData?.isNotEmpty ?? false)
+                  : (widget.addSalesBloc.vehicleData?.isNotEmpty ?? false);
+          return Visibility(
+            visible: showSearchBar,
+            child: TldsInputFormField(
+              height: 40,
+              controller:
+                  widget.addSalesBloc.vehicleNoAndEngineNoSearchController,
+              hintText: AppConstants.vehicleNameAndEngineNumber,
+              suffixIcon: IconButton(
+                onPressed: () {
+                  if (!isTextEmpty) {
+                    widget.addSalesBloc.vehicleNoAndEngineNoSearchController
+                        .clear();
+                    widget.addSalesBloc
+                        .vehicleAndEngineNumberStreamController(true);
+                    //  updateFilteredVehicleList('');
+                  }
+                },
+                icon: Icon(
+                  iconData,
+                  color: iconColor,
+                ),
               ),
+              onChanged: (value) {
+                widget.addSalesBloc
+                    .vehicleAndEngineNumberStreamController(true);
+              },
             ),
-            onChanged: (value) {
-              widget.addSalesBloc.vehicleAndEngineNumberStreamController(true);
-            },
           );
         },
       ),
@@ -421,30 +472,4 @@ class _VehicleAccessoriesListState extends State<VehicleAccessoriesList> {
     return AppWidgetUtils.buildSizedBox(
         custHeight: height ?? MediaQuery.sizeOf(context).height * 0.02);
   }
-
-  // void updateFilteredVehicleList(String query) {
-
-  //     if (query.isEmpty) {
-  //       widget.addSalesBloc.filteredVehicleData = widget
-  //           .addSalesBloc.filteredVehicleData
-  //           .where((element) =>
-  //               element !=
-  //               widget.addSalesBloc.selectedVehicleList.contains(element))
-  //           .toList();
-  //     } else {
-  //       var lowerCaseQuery = query.toLowerCase();
-  //       widget.addSalesBloc.filteredVehicleData =
-  //           widget.addSalesBloc.vehicleData!.where((vehicle) {
-  //         return vehicle.mainSpecValue?.engineNo
-  //                 ?.toLowerCase()
-  //                 .contains(lowerCaseQuery) ??
-  //             false;
-  //         // /*vehicle.mainSpecValue?.frameNo
-  //         //                   ?.toLowerCase()
-  //         //                   .contains(vehicleAndEngineNumber.toLowerCase())
-  //         //           ??*/
-  //       }).toList();
-  //     }
-
-  // }
 }

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -8,7 +9,8 @@ import 'package:tlbilling/utils/app_utils.dart';
 class SalesPdfPrinter {
   static Future<Uint8List> generatePdf(Content sale) async {
     final pdf = pw.Document();
-    final header = await imageFromAssetBundle('assets/images/img_pdf_header.png');
+    final header =
+        await imageFromAssetBundle('assets/images/img_pdf_header.png');
 
     final pw.Font regularFont =
         pw.Font.ttf(await rootBundle.load("assets/fonts/Roboto-Regular.ttf"));
@@ -121,8 +123,7 @@ class SalesPdfPrinter {
                                         sale, 'CGST', regularFont),
                                     regularFont),
                                 _buildNormalText(
-                                    "Net Amount : ${AppUtils.formatCurrency(
-                                        item.finalInvoiceValue ?? 0)}",
+                                    "Net Amount : ${AppUtils.formatCurrency(item.finalInvoiceValue ?? 0)}",
                                     regularFont),
                               ],
                             );
@@ -132,65 +133,68 @@ class SalesPdfPrinter {
                     ],
                   ),
                   pw.SizedBox(height: 18),
-                  pw.Table(
-                    border:
-                        pw.TableBorder.all(color: PdfColors.black, width: 0.5),
-                    children: [
-                      pw.TableRow(
-                        children: [
-                          _buildText('Part No', regularFont),
-                          _buildText('Frame Number', regularFont),
-                          _buildText('Engine Number', regularFont),
-                          // _buildText('CWI BookltNo'),
-                          // _buildText('Key No'),
-                        ],
-                      ),
-                      ...sale.itemDetails!.map((item) {
-                        return pw.TableRow(
+                  if (sale.invoiceType != 'Accessories')
+                    pw.Table(
+                      border: pw.TableBorder.all(
+                          color: PdfColors.black, width: 0.5),
+                      children: [
+                        pw.TableRow(
                           children: [
-                            _buildText(item.partNo ?? '', regularFont),
-                            _buildText(item.mainSpecValue?.engineNumber ?? '',
-                                regularFont),
-                            _buildText(item.mainSpecValue?.frameNumber ?? '',
-                                regularFont),
+                            _buildText('Part No', regularFont),
+                            _buildText('Frame Number', regularFont),
+                            _buildText('Engine Number', regularFont),
+                            // _buildText('CWI BookltNo'),
+                            // _buildText('Key No'),
                           ],
-                        );
-                      }),
-                    ],
-                  ),
+                        ),
+                        ...sale.itemDetails!.map((item) {
+                          return pw.TableRow(
+                            children: [
+                              _buildText(item.partNo ?? '', regularFont),
+                              _buildText(item.mainSpecValue?.engineNumber ?? '',
+                                  regularFont),
+                              _buildText(item.mainSpecValue?.frameNumber ?? '',
+                                  regularFont),
+                            ],
+                          );
+                        }),
+                      ],
+                    ),
                   pw.SizedBox(height: 18),
-                  pw.Row(
-                    mainAxisAlignment: pw.MainAxisAlignment.start,
-                    children: [
-                      pw.Column(
-                        mainAxisAlignment: pw.MainAxisAlignment.start,
-                        crossAxisAlignment: pw.CrossAxisAlignment.start,
-                        children: [
-                          _buildNormalText('Mandatory Addons:', regularFont),
-                          pw.SizedBox(height: 18),
-                          ...sale.itemDetails!.map((item) {
-                            return pw.Column(
-                              mainAxisAlignment: pw.MainAxisAlignment.start,
-                              crossAxisAlignment: pw.CrossAxisAlignment.start,
-                              children: [
-                                if (sale.mandatoryAddons != null &&
-                                    sale.mandatoryAddons!.addonsMap.isNotEmpty)
-                                  ...sale.mandatoryAddons!.addonsMap.entries
-                                      .map((entry) => pw.Text(
-                                            '${entry.key} : ${entry.value}',
-                                            style: pw.TextStyle(
-                                              fontSize: 10,
-                                              color: PdfColors.black,
-                                              font: regularFont,
-                                            ),
-                                          )),
-                              ],
-                            );
-                          })
-                        ],
-                      ),
-                    ],
-                  ),
+                  if (sale.invoiceType != 'Accessories')
+                    pw.Row(
+                      mainAxisAlignment: pw.MainAxisAlignment.start,
+                      children: [
+                        pw.Column(
+                          mainAxisAlignment: pw.MainAxisAlignment.start,
+                          crossAxisAlignment: pw.CrossAxisAlignment.start,
+                          children: [
+                            _buildNormalText('Mandatory Addons:', regularFont),
+                            pw.SizedBox(height: 18),
+                            ...sale.itemDetails!.map((item) {
+                              return pw.Column(
+                                mainAxisAlignment: pw.MainAxisAlignment.start,
+                                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                                children: [
+                                  if (sale.mandatoryAddons != null &&
+                                      sale.mandatoryAddons!.addonsMap
+                                          .isNotEmpty)
+                                    ...sale.mandatoryAddons!.addonsMap.entries
+                                        .map((entry) => pw.Text(
+                                              '${entry.key} : ${entry.value}',
+                                              style: pw.TextStyle(
+                                                fontSize: 10,
+                                                color: PdfColors.black,
+                                                font: regularFont,
+                                              ),
+                                            )),
+                                ],
+                              );
+                            })
+                          ],
+                        ),
+                      ],
+                    ),
                   pw.SizedBox(height: 18),
                 ],
               ),

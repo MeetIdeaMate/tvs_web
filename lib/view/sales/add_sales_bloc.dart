@@ -7,8 +7,6 @@ import 'package:tlbilling/models/get_model/get_all_customers_model.dart';
 import 'package:tlbilling/models/get_model/get_all_stocks_model.dart';
 import 'package:tlbilling/models/get_model/get_configuration_model.dart';
 import 'package:tlbilling/models/get_model/get_customer_booking_details.dart';
-import 'package:tlbilling/models/parent_response_model.dart';
-import 'package:tlbilling/models/post_model/add_sales_model.dart' as sales;
 import 'package:tlbilling/models/post_model/add_sales_model.dart';
 import 'package:tlbilling/utils/app_constants.dart';
 
@@ -222,7 +220,7 @@ class AddSalesBlocImpl extends AddSalesBloc {
   final _gstDetailsStreamController = StreamController<bool>.broadcast();
 
   final _paymentFormKey = GlobalKey<FormState>();
-  String? _selectedPaymentOption;
+  String? _selectedPaymentOption = 'Pay';
   String? _selectedCustomerId;
   double? _taxableValue;
   double? _totalValue;
@@ -774,11 +772,10 @@ class AddSalesBlocImpl extends AddSalesBloc {
   advanceAmountRefreshStreamController(bool newValue) {
     _advanceAmountRefreshStreamController.add(newValue);
   }
-  
+
   @override
   Stream<bool> get gstDetailsStream => _gstDetailsStreamController.stream;
 
-  
   gstDetailsStreamController(bool newValue) {
     _gstDetailsStreamController.add(newValue);
   }
