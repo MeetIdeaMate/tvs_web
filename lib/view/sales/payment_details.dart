@@ -9,6 +9,7 @@ import 'package:tlbilling/utils/app_util_widgets.dart';
 import 'package:tlbilling/utils/app_utils.dart';
 import 'package:tlbilling/utils/input_formates.dart';
 import 'package:tlbilling/view/sales/add_sales_bloc.dart';
+import 'package:tlbilling/view/sales/customer_details.dart';
 import 'package:tlbilling/view/sales/sales_view_bloc.dart';
 import 'package:tlds_flutter/components/tlds_dropdown_button_form_field.dart';
 import 'package:tlds_flutter/components/tlds_input_form_field.dart';
@@ -61,7 +62,12 @@ class _PaymentDetailsState extends State<PaymentDetails> {
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildGstDetails(),
+            CustomerDetails(
+              addSalesBloc: widget.addSalesBloc,
+            ),
+            if (widget.addSalesBloc.selectedVehicleAndAccessories !=
+                AppConstants.accessories)
+              _buildGstDetails(),
             AppWidgetUtils.buildSizedBox(custHeight: 30),
             _buildHeadingText(AppConstants.paymentDetails),
             _buildPaymentDetails(),
@@ -301,15 +307,34 @@ class _PaymentDetailsState extends State<PaymentDetails> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _buildTotalValue(),
-                _buildDiscountfield(context),
+                if (widget.addSalesBloc.selectedVehicleAndAccessories !=
+                    AppConstants.accessories)
+                  _buildDiscountfield(context),
+                if (widget.addSalesBloc.selectedVehicleAndAccessories ==
+                    AppConstants.accessories)
+                  _buildPaymentDetailTile(
+                      AppConstants.discount,
+                      subTitle: AppConstants.discountB,
+                      Text(
+                        AppUtils.formatCurrency(
+                            widget.addSalesBloc.totalDiscount ?? 0.0),
+                        style: const TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.bold),
+                      )),
                 _buildTaxableValueText(),
                 _buildgstSubText(),
                 AppWidgetUtils.buildSizedBox(custHeight: 10),
                 _buildgstAmountText(),
                 AppWidgetUtils.buildSizedBox(custHeight: 10),
-                _buildInvoiceText(),
-                _buildEmpsInsentive(context),
-                _buildStateInsentive(),
+                if (widget.addSalesBloc.selectedVehicleAndAccessories !=
+                    AppConstants.accessories)
+                  _buildInvoiceText(),
+                if (widget.addSalesBloc.selectedVehicleAndAccessories !=
+                    AppConstants.accessories)
+                  _buildEmpsInsentive(context),
+                if (widget.addSalesBloc.selectedVehicleAndAccessories !=
+                    AppConstants.accessories)
+                  _buildStateInsentive(),
                 AppWidgetUtils.buildSizedBox(custHeight: 10),
                 _buildTotalInvAmtText(),
                 AppWidgetUtils.buildSizedBox(custHeight: 10),
@@ -943,10 +968,26 @@ class _PaymentDetailsState extends State<PaymentDetails> {
     List<SalesItemDetail> itemdetails = [];
     List<GstDetail> gstDetails = [];
     Map<String, String> mandatoryAddonsMap = {};
+    EvBatteryObj? eVehicleComponents;
+
+    int? totalQty = 0;
+
     List<PaidDetail> paidDetails = [];
     for (var addon in widget.addSalesBloc.selectedMandatoryAddOns.keys) {
       mandatoryAddonsMap[addon] =
           widget.addSalesBloc.selectedMandatoryAddOns[addon]!;
+    }
+
+    if (widget.addSalesBloc.selectedVehicleAndAccessories == 'E-Vehicle') {
+      EvBatteryObj(
+          evBatteryCapacity: 50,
+          evBatteryName: widget.addSalesBloc.batteryDetailsMap['Battery Name']);
+    }
+
+    if (widget.addSalesBloc.selectedVehicleAndAccessories == 'Accessories') {
+      totalQty = int.tryParse(widget.addSalesBloc.totalQty.toString());
+    } else {
+      totalQty = widget.addSalesBloc.selectedVehiclesList?.length;
     }
 
     if (widget.addSalesBloc.selectedGstType == 'GST %') {
@@ -1041,39 +1082,37 @@ class _PaymentDetailsState extends State<PaymentDetails> {
               'frameNo': itemData.mainSpecValue?.frameNo ?? ''
             },
             partNo: itemData.partNo ?? '',
-            quantity: itemData.quantity ?? 0,
+            quantity: widget.addSalesBloc.selectedVehiclesList?.length,
             specificationsValue: {},
             stockId: itemData.stockId ?? '',
-            taxableValue: itemData.purchaseItem?.taxableValue ?? 0,
+            taxableValue: widget.addSalesBloc.taxableValue ?? 0,
             taxes: tax,
-            unitRate: itemData.purchaseItem?.unitRate ?? 1,
-            value: itemData.purchaseItem?.value ?? 0);
+            unitRate: double.tryParse(widget.addSalesBloc.unitRates[1] ?? ''),
+            value: widget.addSalesBloc.totalValue ?? 0);
         itemdetails.add(itemDetail);
       }
     }
 
-    if (widget.addSalesBloc.slectedAccessoriesList!.isNotEmpty) {
-      for (var itemData in widget.addSalesBloc.slectedAccessoriesList!) {
+    if (widget.addSalesBloc.accessoriesItemList?.isNotEmpty ?? false) {
+      for (var itemData in widget.addSalesBloc.accessoriesItemList!) {
         final itemDetail = SalesItemDetail(
             categoryId: itemData.categoryId ?? '',
-            discount: double.tryParse(
-                    widget.addSalesBloc.discountTextController.text) ??
-                0,
-            finalInvoiceValue: widget.addSalesBloc.totalInvAmount ?? 0,
-            gstDetails: gstDetails,
-            hsnSacCode: widget.addSalesBloc.hsnCodeTextController.text,
-            incentives: insentive,
-            invoiceValue: widget.addSalesBloc.invAmount ?? 0,
+            discount: itemData.discount ?? 0,
+            finalInvoiceValue: itemData.finalInvoiceValue,
+            gstDetails: itemData.gstDetails,
+            hsnSacCode: itemData.hsnSacCode,
+            incentives: itemData.incentives,
+            invoiceValue: itemData.invoiceValue ?? 0,
             itemName: itemData.itemName ?? '',
-            mainSpecValue: {},
+            mainSpecValue: itemData.mainSpecValue,
             partNo: itemData.partNo ?? '',
             quantity: itemData.quantity ?? 0,
-            specificationsValue: {},
+            specificationsValue: itemData.specificationsValue,
             stockId: itemData.stockId ?? '',
-            taxableValue: itemData.purchaseItem?.taxableValue ?? 0,
-            taxes: tax,
-            unitRate: itemData.purchaseItem?.unitRate ?? 1,
-            value: itemData.purchaseItem?.value ?? 0);
+            taxableValue: itemData.taxableValue,
+            taxes: itemData.taxes,
+            unitRate: itemData.unitRate ?? 0,
+            value: itemData.value ?? 0);
         itemdetails.add(itemDetail);
       }
     }
@@ -1082,10 +1121,7 @@ class _PaymentDetailsState extends State<PaymentDetails> {
         billType: widget.addSalesBloc.selectedPaymentOption,
         branchId: widget.addSalesBloc.branchId ?? '',
         customerId: widget.addSalesBloc.selectedCustomerId ?? '',
-        evBattery: EvBatteryObj(
-            evBatteryCapacity: 50,
-            evBatteryName:
-                widget.addSalesBloc.batteryDetailsMap['Battery Name']),
+        evBattery: eVehicleComponents,
         invoiceDate: DateFormat('yyyy-MM-dd').format(DateTime.now()),
         invoiceType: widget.addSalesBloc.selectedVehicleAndAccessories,
         itemDetails: itemdetails,
@@ -1097,8 +1133,6 @@ class _PaymentDetailsState extends State<PaymentDetails> {
             double.parse(widget.addSalesBloc.toBePayedAmt?.toString() ?? '') -
                 double.parse(
                     widget.addSalesBloc.toBePayedAmt?.round().toString() ?? ''),
-        totalQty: widget.addSalesBloc.selectedVehiclesList?.length ??
-            widget.addSalesBloc.slectedAccessoriesList?.length ??
-            0);
+        totalQty: totalQty);
   }
 }

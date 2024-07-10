@@ -407,6 +407,18 @@ class _AddBookingDialogState extends State<AddBookingDialog> {
             return null;
           },
           onChanged: onChanged,
+          onSubmit: (value) {
+            var suggestions = list
+                ?.where((customer) =>
+                    customer.toLowerCase().contains(value.toLowerCase()))
+                .toList();
+            if (suggestions != null && suggestions.isNotEmpty) {
+              controller.text = suggestions.first;
+              if (onSelected != null) {
+                onSelected(suggestions.first);
+              }
+            }
+          },
         );
       },
     );

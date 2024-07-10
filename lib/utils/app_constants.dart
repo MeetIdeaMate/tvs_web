@@ -10,6 +10,7 @@ class AppConstants {
   static const cancel = 'Cancel';
   static const save = 'Save';
   static const preview = 'Preview';
+  static const next = 'Next';
   static const delete = 'Delete';
   static const female = 'Female';
   static const male = 'male';
@@ -26,6 +27,7 @@ class AppConstants {
   static const netAmount = 'Net Amount';
   static const enterCancelReason = 'Enter Cancel Reason';
   static const selected = 'Selected Accessories';
+  static const enterQuantity = 'Enter Quantity';
 
   //SharedPreference
   static const designation = 'designation';
@@ -200,6 +202,7 @@ class AppConstants {
   static const ifscNo = ' IFSC Code';
   static const enterIfscCode = 'Enter IFSC Code';
   static const purchasenodateMsg = 'Add Purchase Value to the table to view';
+  static const salessnodateMsg = 'Add Sales Value to the table';
   static const categoryName = 'Category Name';
   static const stockStatus = 'Stock Status';
 
@@ -567,6 +570,7 @@ class AppConstants {
       'The Purchase bill Not Approved something went wrong';
   static const String purchaseTableVerifyMsg =
       'Add Purchase Value to the table to view';
+  static const String salesTableverifyMsg = 'Verify Sales';
 
   static const String bookingCreated = 'Vehicle booked successfully';
   static const String salesCancelDialogMessage =

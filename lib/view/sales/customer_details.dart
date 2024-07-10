@@ -30,7 +30,6 @@ class _CustomerDetailsState extends State<CustomerDetails> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        AppWidgetUtils.buildSizedBox(custHeight: 10),
         Text(
           AppConstants.customerDetails,
           style: TextStyle(
@@ -48,7 +47,7 @@ class _CustomerDetailsState extends State<CustomerDetails> {
 
   Widget _buildSelectedCustomerDetails() {
     return Container(
-      padding: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.only(bottom: 8, top: 8),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
         color: _appColors.whiteColor,
@@ -173,69 +172,70 @@ class _CustomerDetailsState extends State<CustomerDetails> {
 
                       _updateTotalInvoiceAmount();
                       widget.addSalesBloc.paymentDetailsStreamController(true);
+                      if (widget.addSalesBloc.selectedVehicleAndAccessories !=
+                          'Accessories') {
+                        widget.addSalesBloc
+                            .getCustomerBookingDetails(
+                                selectedVendor.customerId)
+                            .then((value) {
+                          if (value?.isNotEmpty ?? false) {
+                            for (GetCustomerBookingDetails element
+                                in value ?? []) {
+                              widget.addSalesBloc.advanceAmt =
+                                  element.paidDetail?.paidAmount ?? 0;
 
-                      widget.addSalesBloc
-                          .getCustomerBookingDetails(selectedVendor.customerId)
-                          .then((value) {
-                        if (value?.isNotEmpty ?? false) {
-                          for (GetCustomerBookingDetails element
-                              in value ?? []) {
-                            widget.addSalesBloc.advanceAmt =
-                                element.paidDetail?.paidAmount ?? 0;
+                              widget.addSalesBloc
+                                  .advanceAmountRefreshStreamController(true);
+                              widget
+                                  .addSalesBloc
+                                  .vehicleNoAndEngineNoSearchController
+                                  .text = element.partNo ?? '';
+                              widget.addSalesBloc
+                                  .vehicleAndEngineNumberStreamController(true);
+                              widget.addSalesBloc
+                                      .selectedVehicleAndAccessories =
+                                  element.categoryName;
+                              //    var selectedValue = newValue.first;
 
-                            widget.addSalesBloc
-                                .advanceAmountRefreshStreamController(true);
-                            widget
-                                .addSalesBloc
-                                .vehicleNoAndEngineNoSearchController
-                                .text = element.partNo ?? '';
-                            widget.addSalesBloc
-                                .vehicleAndEngineNumberStreamController(true);
-                            widget.addSalesBloc.selectedVehicleAndAccessories =
-                                element.categoryName;
-                            //    var selectedValue = newValue.first;
-                            widget.addSalesBloc
-                                .batteryDetailsRefreshStreamController(true);
+                              widget.addSalesBloc.selectedVehiclesList?.clear();
+                              widget.addSalesBloc.slectedAccessoriesList
+                                  ?.clear();
 
-                            widget.addSalesBloc
-                                .batteryDetailsRefreshStreamController(true);
-                            widget.addSalesBloc.selectedVehiclesList?.clear();
-                            widget.addSalesBloc.slectedAccessoriesList?.clear();
-                            widget.addSalesBloc
-                                .batteryDetailsRefreshStreamController(true);
-                            widget.addSalesBloc.selectedMandatoryAddOns.clear();
-                            widget.addSalesBloc
-                                .batteryDetailsRefreshStreamController(true);
-                            widget.addSalesBloc
-                                .selectedVehicleAndAccessoriesListStreamController(
-                                    true);
-                            _updateTotalInvoiceAmount();
-                            widget.addSalesBloc
-                                .paymentDetailsStreamController(true);
+                              widget.addSalesBloc.selectedMandatoryAddOns
+                                  .clear();
+                              widget.addSalesBloc
+                                  .batteryDetailsRefreshStreamController(true);
+                              widget.addSalesBloc
+                                  .selectedVehicleAndAccessoriesListStreamController(
+                                      true);
+                              _updateTotalInvoiceAmount();
+                              widget.addSalesBloc
+                                  .paymentDetailsStreamController(true);
 
-                            // widget.addSalesBloc.selectedVehiclesList = [];
-                            widget.addSalesBloc
-                                .batteryDetailsRefreshStreamController(true);
-                            widget.addSalesBloc.selectedItemStream(true);
-                            widget.addSalesBloc
-                                .selectedVehiclesListStreamController(true);
+                              // widget.addSalesBloc.selectedVehiclesList = [];
+                              widget.addSalesBloc
+                                  .batteryDetailsRefreshStreamController(true);
+                              widget.addSalesBloc.selectedItemStream(true);
+                              widget.addSalesBloc
+                                  .selectedVehiclesListStreamController(true);
 
-                            widget.addSalesBloc
-                                .selectedVehicleAndAccessoriesStreamController(
-                                    true);
-                            widget.addSalesBloc
-                                .changeVehicleAndAccessoriesListStreamController(
-                                    true);
-                            widget.addSalesBloc
-                                .selectedVehicleAndAccessoriesListStreamController(
-                                    true);
+                              widget.addSalesBloc
+                                  .selectedVehicleAndAccessoriesStreamController(
+                                      true);
+                              widget.addSalesBloc
+                                  .changeVehicleAndAccessoriesListStreamController(
+                                      true);
+                              widget.addSalesBloc
+                                  .selectedVehicleAndAccessoriesListStreamController(
+                                      true);
 
-                            widget.addSalesBloc
-                                .selectedVehicleAndAccessoriesListStreamController(
-                                    true);
+                              widget.addSalesBloc
+                                  .selectedVehicleAndAccessoriesListStreamController(
+                                      true);
+                            }
                           }
-                        }
-                      });
+                        });
+                      }
                     },
                   );
                 },

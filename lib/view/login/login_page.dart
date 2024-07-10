@@ -26,8 +26,8 @@ class _LoginPageState extends State<LoginPage> {
   @override
   void initState() {
     super.initState();
-    // _loginPageBlocImpl.mobileNumberTextController.text = '9876543210';
-    // _loginPageBlocImpl.passwordTextController.text = '1234';
+    _loginPageBlocImpl.mobileNumberTextController.text = '9876543210';
+    _loginPageBlocImpl.passwordTextController.text = '1234';
   }
 
   @override
