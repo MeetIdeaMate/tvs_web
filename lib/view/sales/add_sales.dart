@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:tlbilling/utils/app_colors.dart';
 import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/utils/app_util_widgets.dart';
+import 'package:tlbilling/view/sales/accessories_sales_table.dart';
 import 'package:tlbilling/view/sales/add_sales_bloc.dart';
-import 'package:tlbilling/view/sales/customer_details.dart';
 import 'package:tlbilling/view/sales/payment_details.dart';
 import 'package:tlbilling/view/sales/sales_view_bloc.dart';
 import 'package:tlbilling/view/sales/selected_sales_data.dart';
@@ -50,23 +50,59 @@ class _AddSalesState extends State<AddSales> {
   Widget _buildAddSalesEntryBody() {
     return Form(
       key: _addSalesBloc.paymentFormKey,
-      child: Row(
-        children: [
-          Expanded(
-            flex: 1,
-            child: _buildVehicleAndAccessoriesList(),
-          ),
-          Expanded(
-            flex: 1,
-            child: _buildInvoiceEntry(),
-          ),
-          AppWidgetUtils.buildSizedBox(custWidth: 50),
-          Expanded(
-            flex: 1,
-            child: _buildCustomerAndPaymentDetails(),
-          ),
-        ],
-      ),
+      child: StreamBuilder<bool>(
+          stream: _addSalesBloc.screenChangeStream,
+          builder: (context, snapshot) {
+            return Row(
+              children: [
+                if (_addSalesBloc.isAccessoriestable == false)
+                  Expanded(
+                    flex: 1,
+                    child: _buildVehicleAndAccessoriesList(),
+                  ),
+                if (_addSalesBloc.selectedVehicleAndAccessories !=
+                    'Accessories')
+                  Expanded(
+                    flex: 1,
+                    child: _buildInvoiceEntry(),
+                  ),
+                if (_addSalesBloc.selectedVehicleAndAccessories !=
+                    'Accessories')
+                  AppWidgetUtils.buildSizedBox(custWidth: 50),
+                if (_addSalesBloc.selectedVehicleAndAccessories !=
+                    'Accessories')
+                  Expanded(
+                    flex: 1,
+                    child: _buildCustomerAndPaymentDetails(),
+                  ),
+                if (_addSalesBloc.selectedVehicleAndAccessories ==
+                    'Accessories') ...[
+                  AppWidgetUtils.buildSizedBox(
+                      custWidth:
+                          _addSalesBloc.isAccessoriestable == false ? 20 : 0),
+                  Expanded(
+                    flex: 2,
+                    child: Container(
+                      decoration: _addSalesBloc.isAccessoriestable == false
+                          ? BoxDecoration(
+                              border: Border.symmetric(
+                                  vertical: BorderSide(color: _appColors.grey)),
+                            )
+                          : const BoxDecoration(),
+                      child: AccessoiresSalesTable(
+                        addSalesBloc: _addSalesBloc,
+                      ),
+                    ),
+                  ),
+                  if (_addSalesBloc.isAccessoriestable)
+                    Expanded(
+                      flex: 1,
+                      child: _buildCustomerAndPaymentDetails(),
+                    ),
+                ]
+              ],
+            );
+          }),
     );
   }
 
@@ -107,15 +143,15 @@ class _AddSalesState extends State<AddSales> {
   Widget _buildVehicleAndAccessoriesList() {
     return Column(
       children: [
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10),
-          decoration: BoxDecoration(
-            color: _appColors.whiteColor,
-          ),
-          child: CustomerDetails(
-            addSalesBloc: _addSalesBloc,
-          ),
-        ),
+        // Container(
+        //   padding: const EdgeInsets.symmetric(horizontal: 10),
+        //   decoration: BoxDecoration(
+        //     color: _appColors.whiteColor,
+        //   ),
+        //   child: CustomerDetails(
+        //     addSalesBloc: _addSalesBloc,
+        //   ),
+        // ),
         Expanded(
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 10),

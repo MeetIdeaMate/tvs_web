@@ -7,6 +7,7 @@ import 'package:tlbilling/models/get_model/get_all_stocks_model.dart';
 import 'package:tlbilling/utils/app_colors.dart';
 import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/utils/app_util_widgets.dart';
+import 'package:tlbilling/view/sales/accessories_sales_entry_dialog.dart';
 import 'package:tlbilling/view/sales/add_sales_bloc.dart';
 import 'package:tlds_flutter/components/tlds_input_form_field.dart';
 
@@ -218,7 +219,7 @@ class _VehicleAccessoriesListState extends State<VehicleAccessoriesList> {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: Text(AppConstants.loading));
         } else if (snapshot.hasError) {
-          return const Center(child: Text(AppConstants.errorLoading));
+          return const Center(child: Text(AppConstants.loading));
         } else if (!snapshot.hasData) {
           return Center(child: SvgPicture.asset(AppConstants.imgNoData));
         }
@@ -245,6 +246,8 @@ class _VehicleAccessoriesListState extends State<VehicleAccessoriesList> {
                 itemBuilder: (context, index) {
                   var accessoriesData =
                       widget.addSalesBloc.accessoriesData?[index];
+
+                  //   print(widget.addSalesBloc.accessoriesQty[index]);
                   return Card(
                     color: _appColors.whiteColor,
                     elevation: 0,
@@ -276,20 +279,36 @@ class _VehicleAccessoriesListState extends State<VehicleAccessoriesList> {
                                 ],
                               ),
                               _buildCustomTextWidget(
-                                  'Qty - ${accessoriesData?.quantity}',
+                                  'Qty - ${widget.addSalesBloc.accessoriesQty[index] == 0 || widget.addSalesBloc.accessoriesQty[index] == null ? accessoriesData?.quantity : widget.addSalesBloc.accessoriesQty[index]}',
                                   fontSize: 14,
                                   fontWeight: FontWeight.w500),
                               IconButton(
                                   onPressed: () {
-                                    GetAllStockDetails? selectedAccessories =
-                                        widget.addSalesBloc.accessoriesData
-                                            ?.removeAt(index);
+                                    print(accessoriesData?.quantity);
+                                    if (widget.addSalesBloc
+                                            .accessoriesQty[index] !=
+                                        0) {
+                                      showDialog(
+                                        context: context,
+                                        barrierDismissible: false,
+                                        builder: (context) {
+                                          return AccessoriesSalesEntryDialog(
+                                            accessoriesDetails: accessoriesData,
+                                            addSalesBloc: widget.addSalesBloc,
+                                            selectedItemTndex: index,
+                                          );
+                                        },
+                                      );
+                                    }
+                                    // GetAllStockDetails? selectedAccessories =
+                                    //     widget.addSalesBloc.accessoriesData
+                                    //         ?.removeAt(index);
 
                                     widget.addSalesBloc
                                         .availableAccListStream(true);
 
-                                    widget.addSalesBloc.slectedAccessoriesList
-                                        ?.add(selectedAccessories!);
+                                    // widget.addSalesBloc.slectedAccessoriesList
+                                    //     ?.add(selectedAccessories!);
                                     widget.addSalesBloc
                                         .selectedAccessoriesListStreamController(
                                             true);
@@ -379,6 +398,7 @@ class _VehicleAccessoriesListState extends State<VehicleAccessoriesList> {
                         widget.addSalesBloc
                             .selectedVehiclesListStreamController(true);
 
+                        widget.addSalesBloc.screenChangeStreamController(true);
                         widget.addSalesBloc
                             .selectedVehicleAndAccessoriesStreamController(
                                 true);

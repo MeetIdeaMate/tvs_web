@@ -225,42 +225,19 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
         builder: (context, snapshot) {
           List<GetAllStockDetails>? selectedVehiclesList =
               widget.addSalesBloc.selectedVehiclesList;
-          List<GetAllStockDetails>? selectedAccessoriesList =
-              widget.addSalesBloc.slectedAccessoriesList;
 
           bool hasVehicles =
               selectedVehiclesList != null && selectedVehiclesList.isNotEmpty;
-          bool hasAccessories = selectedAccessoriesList != null &&
-              selectedAccessoriesList.isNotEmpty;
 
           return ListView.builder(
-            itemCount: widget.addSalesBloc.selectedVehicleAndAccessories ==
-                    AppConstants.yesC
-                ? (hasVehicles ? selectedVehiclesList.length : 0)
-                : (widget.addSalesBloc.selectedVehicleAndAccessories ==
-                        AppConstants.eVehicle
-                    ? (hasVehicles ? selectedVehiclesList.length : 0)
-                    : (hasAccessories ? selectedAccessoriesList.length : 0)),
+            itemCount: hasVehicles ? selectedVehiclesList.length : 0,
             itemBuilder: (BuildContext context, int index) {
-              if (widget.addSalesBloc.selectedVehicleAndAccessories ==
-                      AppConstants.mVehicle ||
-                  widget.addSalesBloc.selectedVehicleAndAccessories ==
-                      AppConstants.eVehicle) {
-                if (hasVehicles) {
-                  GetAllStockDetails? vehicle = selectedVehiclesList[index];
+              if (hasVehicles) {
+                GetAllStockDetails? vehicle = selectedVehiclesList[index];
 
-                  return _buildSelectedVehicleCard(vehicle, index);
-                } else {
-                  return Container();
-                }
+                return _buildSelectedVehicleCard(vehicle, index);
               } else {
-                if (hasAccessories) {
-                  var accessories = selectedAccessoriesList[index];
-                  return _buildSelectedAccessoriesCardDetails(
-                      accessories, index);
-                } else {
-                  return Container();
-                }
+                return Container();
               }
             },
           );
@@ -457,155 +434,155 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
     );
   }
 
-  Widget _buildSelectedAccessoriesCardDetails(
-    GetAllStockDetails accessories,
-    int index,
-  ) {
-    TextEditingController qtyController = TextEditingController();
+  // Widget _buildSelectedAccessoriesCardDetails(
+  //   GetAllStockDetails accessories,
+  //   int index,
+  // ) {
+  //   TextEditingController qtyController = TextEditingController();
 
-    return Card(
-      elevation: 0,
-      shape: OutlineInputBorder(
-        borderSide: BorderSide(color: _appColors.cardBorderColor),
-        borderRadius: BorderRadius.circular(5),
-      ),
-      color: _appColors.whiteColor,
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: ValueListenableBuilder<int>(
-          valueListenable: widget.addSalesBloc.initialValueNotifier,
-          builder: (context, initialValue, child) {
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildCustomTextWidget(
-                  accessories.itemName ?? '',
-                  fontWeight: FontWeight.w500,
-                  fontSize: 12,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    _buildCustomTextWidget(
-                      accessories.partNo ?? '',
-                      fontWeight: FontWeight.w500,
-                      fontSize: 12,
-                      color: _appColors.liteGrayColor,
-                    ),
-                    AppWidgetUtils.buildSizedBox(custWidth: 5),
-                    Expanded(
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: TldsInputFormField(
-                              height: 40,
-                              controller: qtyController,
-                              textAlign: TextAlign.center,
-                              hintText: AppConstants.quantity,
-                              inputFormatters:
-                                  TlInputFormatters.onlyAllowNumbers,
-                              onChanged: (value) {
-                                if (value.isEmpty) return;
-                                int? intValue = int.tryParse(value);
-                                if (intValue != null) {
-                                  if (intValue > (accessories.quantity ?? 0)) {
-                                    intValue = accessories.quantity ?? 0;
-                                    qtyController.text =
-                                        accessories.quantity.toString();
-                                  }
+  //   return Card(
+  //     elevation: 0,
+  //     shape: OutlineInputBorder(
+  //       borderSide: BorderSide(color: _appColors.cardBorderColor),
+  //       borderRadius: BorderRadius.circular(5),
+  //     ),
+  //     color: _appColors.whiteColor,
+  //     child: Padding(
+  //       padding: const EdgeInsets.all(8.0),
+  //       child: ValueListenableBuilder<int>(
+  //         valueListenable: widget.addSalesBloc.initialValueNotifier,
+  //         builder: (context, initialValue, child) {
+  //           return Column(
+  //             crossAxisAlignment: CrossAxisAlignment.start,
+  //             children: [
+  //               _buildCustomTextWidget(
+  //                 accessories.itemName ?? '',
+  //                 fontWeight: FontWeight.w500,
+  //                 fontSize: 12,
+  //               ),
+  //               Row(
+  //                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //                 children: [
+  //                   _buildCustomTextWidget(
+  //                     accessories.partNo ?? '',
+  //                     fontWeight: FontWeight.w500,
+  //                     fontSize: 12,
+  //                     color: _appColors.liteGrayColor,
+  //                   ),
+  //                   AppWidgetUtils.buildSizedBox(custWidth: 5),
+  //                   Expanded(
+  //                     child: Row(
+  //                       children: [
+  //                         Expanded(
+  //                           child: TldsInputFormField(
+  //                             height: 40,
+  //                             controller: qtyController,
+  //                             textAlign: TextAlign.center,
+  //                             hintText: AppConstants.quantity,
+  //                             inputFormatters:
+  //                                 TlInputFormatters.onlyAllowNumbers,
+  //                             onChanged: (value) {
+  //                               if (value.isEmpty) return;
+  //                               int? intValue = int.tryParse(value);
+  //                               if (intValue != null) {
+  //                                 if (intValue > (accessories.quantity ?? 0)) {
+  //                                   intValue = accessories.quantity ?? 0;
+  //                                   qtyController.text =
+  //                                       accessories.quantity.toString();
+  //                                 }
 
-                                  widget.addSalesBloc.accessoriesQty[index] =
-                                      intValue.toString();
-                                  widget.addSalesBloc.initialValueNotifier
-                                      .value = intValue;
-                                  _updateTotalValue();
-                                }
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 5),
-                    Expanded(
-                      child: TldsInputFormField(
-                        height: 40,
-                        controller: TextEditingController(),
-                        inputFormatters:
-                            TldsInputFormatters.onlyAllowDecimalNumbers,
-                        hintText: AppConstants.rupeeHint,
-                        onChanged: (value) {
-                          widget.addSalesBloc.unitRates[index] = value;
-                          _updateTotalValue();
-                        },
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: () {
-                        widget.addSalesBloc.slectedAccessoriesList
-                            ?.removeAt(index);
-                        widget.addSalesBloc.selectedItemStream(true);
-                        widget.addSalesBloc
-                            .selectedAccessoriesListStreamController(true);
-                        widget.addSalesBloc
-                            .vehicleAndEngineNumberStreamController(true);
-                        widget.addSalesBloc
-                            .vehicleAndEngineNumberStreamController(true);
-                        widget.addSalesBloc.accessoriesData?.add(accessories);
-                        widget.addSalesBloc.availableAccListStream(true);
-                        widget.addSalesBloc.cgstPresentageTextController
-                            .clear();
+  //                                 widget.addSalesBloc.accessoriesQty[index] =
+  //                                     intValue.toString();
+  //                                 widget.addSalesBloc.initialValueNotifier
+  //                                     .value = intValue;
+  //                                 _updateTotalValue();
+  //                               }
+  //                             },
+  //                           ),
+  //                         ),
+  //                       ],
+  //                     ),
+  //                   ),
+  //                   const SizedBox(width: 5),
+  //                   Expanded(
+  //                     child: TldsInputFormField(
+  //                       height: 40,
+  //                       controller: TextEditingController(),
+  //                       inputFormatters:
+  //                           TldsInputFormatters.onlyAllowDecimalNumbers,
+  //                       hintText: AppConstants.rupeeHint,
+  //                       onChanged: (value) {
+  //                         widget.addSalesBloc.unitRates[index] = value;
+  //                         _updateTotalValue();
+  //                       },
+  //                     ),
+  //                   ),
+  //                   IconButton(
+  //                     onPressed: () {
+  //                       widget.addSalesBloc.slectedAccessoriesList
+  //                           ?.removeAt(index);
+  //                       widget.addSalesBloc.selectedItemStream(true);
+  //                       widget.addSalesBloc
+  //                           .selectedAccessoriesListStreamController(true);
+  //                       widget.addSalesBloc
+  //                           .vehicleAndEngineNumberStreamController(true);
+  //                       widget.addSalesBloc
+  //                           .vehicleAndEngineNumberStreamController(true);
+  //                       widget.addSalesBloc.accessoriesData?.add(accessories);
+  //                       widget.addSalesBloc.availableAccListStream(true);
+  //                       widget.addSalesBloc.cgstPresentageTextController
+  //                           .clear();
 
-                        widget.addSalesBloc.igstPresentageTextController
-                            .clear();
-                        widget.addSalesBloc.discountTextController.clear();
-                        widget.addSalesBloc.stateIncentiveTextController
-                            .clear();
-                        widget.addSalesBloc.empsIncentiveTextController.clear();
-                        widget.addSalesBloc.hsnCodeTextController.clear();
-                        _updateTotalValue();
-                        widget.addSalesBloc
-                            .batteryDetailsRefreshStreamController(true);
-                      },
-                      icon: SvgPicture.asset(AppConstants.icFilledClose),
-                    ),
-                  ],
-                ),
-              ],
-            );
-          },
-        ),
-      ),
-    );
-  }
+  //                       widget.addSalesBloc.igstPresentageTextController
+  //                           .clear();
+  //                       widget.addSalesBloc.discountTextController.clear();
+  //                       widget.addSalesBloc.stateIncentiveTextController
+  //                           .clear();
+  //                       widget.addSalesBloc.empsIncentiveTextController.clear();
+  //                       widget.addSalesBloc.hsnCodeTextController.clear();
+  //                       _updateTotalValue();
+  //                       widget.addSalesBloc
+  //                           .batteryDetailsRefreshStreamController(true);
+  //                     },
+  //                     icon: SvgPicture.asset(AppConstants.icFilledClose),
+  //                   ),
+  //                 ],
+  //               ),
+  //             ],
+  //           );
+  //         },
+  //       ),
+  //     ),
+  //   );
+  // }
 
-  void _updateTotalValue() {
-    double totalUnitValue = 0.0;
-    int accessoriesQty =
-        widget.addSalesBloc.slectedAccessoriesList?.length ?? 0;
-    for (int i = 0; i < accessoriesQty; i++) {
-      int qty = int.tryParse(widget.addSalesBloc.accessoriesQty[i] ?? '0') ?? 1;
-      double unitRate =
-          double.tryParse(widget.addSalesBloc.unitRates[i] ?? '0.0') ?? 0.0;
-      totalUnitValue += unitRate * qty;
-    }
-    widget.addSalesBloc.paymentDetailsStreamController(true);
-    double cgstPercent = double.tryParse(
-            widget.addSalesBloc.cgstPresentageTextController.text) ??
-        0;
-    double sgstPercent = double.tryParse(
-            widget.addSalesBloc.cgstPresentageTextController.text) ??
-        0;
-    widget.addSalesBloc.totalValue = totalUnitValue * accessoriesQty;
-    widget.addSalesBloc.paymentDetailsStreamController(true);
-    widget.addSalesBloc.taxableValue = widget.addSalesBloc.totalValue;
-    widget.addSalesBloc.cgstAmount = (totalUnitValue / 100) * cgstPercent;
-    widget.addSalesBloc.sgstAmount = (totalUnitValue / 100) * sgstPercent;
-    double taxableValue = widget.addSalesBloc.taxableValue ?? 0;
-    widget.addSalesBloc.invAmount =
-        taxableValue + (widget.addSalesBloc.sgstAmount ?? 0) * 2;
-    _updateTotalInvoiceAmount();
-    widget.addSalesBloc.paymentDetailsStreamController(true);
-    widget.addSalesBloc.gstRadioBtnRefreashStreamController(true);
-  }
+  // void _updateTotalValue() {
+  //   double totalUnitValue = 0.0;
+  //   int accessoriesQty =
+  //       widget.addSalesBloc.slectedAccessoriesList?.length ?? 0;
+  //   for (int i = 0; i < accessoriesQty; i++) {
+  //     int qty = int.tryParse(widget.addSalesBloc.accessoriesQty[i] ?? '0') ?? 1;
+  //     double unitRate =
+  //         double.tryParse(widget.addSalesBloc.unitRates[i] ?? '0.0') ?? 0.0;
+  //     totalUnitValue += unitRate * qty;
+  //   }
+  //   widget.addSalesBloc.paymentDetailsStreamController(true);
+  //   double cgstPercent = double.tryParse(
+  //           widget.addSalesBloc.cgstPresentageTextController.text) ??
+  //       0;
+  //   double sgstPercent = double.tryParse(
+  //           widget.addSalesBloc.cgstPresentageTextController.text) ??
+  //       0;
+  //   widget.addSalesBloc.totalValue = totalUnitValue * accessoriesQty;
+  //   widget.addSalesBloc.paymentDetailsStreamController(true);
+  //   widget.addSalesBloc.taxableValue = widget.addSalesBloc.totalValue;
+  //   widget.addSalesBloc.cgstAmount = (totalUnitValue / 100) * cgstPercent;
+  //   widget.addSalesBloc.sgstAmount = (totalUnitValue / 100) * sgstPercent;
+  //   double taxableValue = widget.addSalesBloc.taxableValue ?? 0;
+  //   widget.addSalesBloc.invAmount =
+  //       taxableValue + (widget.addSalesBloc.sgstAmount ?? 0) * 2;
+  //   _updateTotalInvoiceAmount();
+  //   widget.addSalesBloc.paymentDetailsStreamController(true);
+  //   widget.addSalesBloc.gstRadioBtnRefreashStreamController(true);
+  // }
 }

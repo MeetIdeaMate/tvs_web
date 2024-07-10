@@ -183,12 +183,10 @@ class _CreateUserDialogState extends State<CreateUserDialog> {
                       builder: (context, controller, focusNode) {
                         return TldsInputFormField(
                           controller: controller,
-
                           focusNode: focusNode,
                           requiredLabelText:
                               AppWidgetUtils.labelTextWithRequired(
                                   AppConstants.username),
-                          //prefixIcon: AppConstants.icSelectPaitent,
                           hintText: (snapshot.connectionState ==
                                   ConnectionState.waiting)
                               ? AppConstants.loading
@@ -200,6 +198,26 @@ class _CreateUserDialogState extends State<CreateUserDialog> {
                               return AppConstants.aadharDigitErrorText;
                             }
                             return null;
+                          },
+                          onSubmit: (value) {
+                            var suggestions = employeeNamesList
+                                .where((name) => name
+                                    .toLowerCase()
+                                    .contains(value.toLowerCase()))
+                                .toList();
+                            if (suggestions.isNotEmpty) {
+                              var selectedemployee = employeesList.firstWhere(
+                                (employee) =>
+                                    employee.employeeName == suggestions.first,
+                              );
+                              controller.text =
+                                  selectedemployee.employeeName.toString();
+                              _createUserDialogBlocImpl.selectedEmpId =
+                                  selectedemployee.employeeId;
+                              _buildEmployeeNameOnchange(
+                                  employeeName: selectedemployee.employeeName,
+                                  titles: employeesList);
+                            }
                           },
                         );
                       },
