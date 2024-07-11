@@ -251,7 +251,6 @@ class _VehicleAccessoriesListState extends State<VehicleAccessoriesList> {
                   widget.addSalesBloc
                           .totalAccessoriesQty[accessoriesData?.stockId ?? ''] =
                       accessoriesData?.quantity ?? 0;
-                  //   print(widget.addSalesBloc.accessoriesQty[index]);
                   return Card(
                     color: _appColors.whiteColor,
                     elevation: 0,
