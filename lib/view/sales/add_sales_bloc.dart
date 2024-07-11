@@ -35,7 +35,7 @@ abstract class AddSalesBloc {
   Stream<bool> get screenChangeStream;
   Stream<bool> get refreshsalesDataTable;
 
-  int? get availableAccessoriesQty;
+  Map<String, int> get totalAccessoriesQty;
 
   TextEditingController get discountTextController;
   TextEditingController get transporterVehicleNumberController;
@@ -75,7 +75,7 @@ abstract class AddSalesBloc {
 
   Map<int, String> get paymentName;
 
-  Map<int, int> get accessoriesQty;
+  Map<String, int> get accessoriesQty;
 
   int get salesIndex;
 
@@ -161,7 +161,7 @@ class AddSalesBlocImpl extends AddSalesBloc {
   final _quantityTextController = TextEditingController();
   final _unitRateTextController = TextEditingController();
   final Map<int, String> _unitRate = {};
-  final Map<int, int> _accessoriesQty = {};
+  final Map<String, int> _accessoriesQty = {};
   final Map<String, String> _batteryDetailsMap = {};
   final Map<int, String> _paymentName = {};
 
@@ -248,6 +248,7 @@ class AddSalesBlocImpl extends AddSalesBloc {
   final _gstDetailsStreamController = StreamController<bool>.broadcast();
   final _unitRateChangeStream = StreamController<bool>.broadcast();
 
+  final Map<String, int> _totalAccessoriesQty = {};
   final _paymentFormKey = GlobalKey<FormState>();
   String? _selectedPaymentOption = AppConstants.pay;
   String? _selectedCustomerId;
@@ -733,7 +734,7 @@ class AddSalesBlocImpl extends AddSalesBloc {
   Map<int, String> get unitRates => _unitRate;
 
   @override
-  Map<int, int> get accessoriesQty => _accessoriesQty;
+  Map<String, int> get accessoriesQty => _accessoriesQty;
 
   @override
   Future<void> addNewSalesDeatils(
@@ -878,4 +879,7 @@ class AddSalesBlocImpl extends AddSalesBloc {
   unitRateChangeStreamController(bool newValue) {
     _unitRateChangeStream.add(newValue);
   }
+
+  @override
+  Map<String, int> get totalAccessoriesQty => _totalAccessoriesQty;
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:tlbilling/components/custom_action_button.dart';
 import 'package:tlbilling/utils/app_colors.dart';
@@ -199,20 +200,15 @@ class _AccessoiresSalesTableState extends State<AccessoiresSalesTable> {
                                 .toString())),
                             DataCell(IconButton(
                                 onPressed: () {
-                                  widget.addSalesBloc
-                                      .accessoriesQty[entry.key] = 0;
-
-                                  widget.addSalesBloc
-                                      .availableAccListStream(true);
-                                  widget.addSalesBloc
-                                      .unitRateChangeStreamController(true);
                                   showDialog(
                                     context: context,
+                                    barrierDismissible: false,
                                     builder: (context) {
                                       return AccessoriesSalesEntryDialog(
                                         addSalesBloc: widget.addSalesBloc,
                                         editValues: entry.value,
                                         editIndex: entry.key,
+                                        totalQty: totalQuantity,
                                       );
                                     },
                                   );
@@ -274,7 +270,9 @@ class _AccessoiresSalesTableState extends State<AccessoiresSalesTable> {
                   ),
                 ),
               ),
-              _buildSalestableVerifyCheckBox()
+              Visibility(
+                  visible: widget.addSalesBloc.isAccessoriestable == false,
+                  child: _buildSalestableVerifyCheckBox())
             ],
           ),
         );
@@ -314,13 +312,35 @@ class _AccessoiresSalesTableState extends State<AccessoiresSalesTable> {
 
   _buildNextButton() {
     return Visibility(
-      visible: widget.addSalesBloc.isTableDataVerifited ?? false,
-      child: CustomActionButtons(
-          onPressed: () {
-            widget.addSalesBloc.isAccessoriestable = true;
-            widget.addSalesBloc.screenChangeStreamController(true);
-          },
-          buttonText: AppConstants.next),
+      visible: widget.addSalesBloc.isAccessoriestable == false,
+      child: Visibility(
+          visible: widget.addSalesBloc.isTableDataVerifited ?? false,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              ElevatedButton(
+                  style: ButtonStyle(
+                    shape: MaterialStateProperty.all(RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(5),
+                    )),
+                    side: MaterialStateProperty.all(
+                      BorderSide(
+                        color: _appColors.primaryColor,
+                      ),
+                    ),
+                    backgroundColor:
+                        MaterialStateProperty.all(_appColors.primaryColor),
+                  ),
+                  onPressed: () {
+                    widget.addSalesBloc.isAccessoriestable = true;
+                    widget.addSalesBloc.screenChangeStreamController(true);
+                  },
+                  child: Text(
+                    AppConstants.next,
+                    style: TextStyle(color: _appColors.whiteColor),
+                  )),
+            ],
+          )),
     );
   }
 }
