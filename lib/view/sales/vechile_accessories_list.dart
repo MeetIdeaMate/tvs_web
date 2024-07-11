@@ -76,6 +76,7 @@ class _VehicleAccessoriesListState extends State<VehicleAccessoriesList> {
           return Center(child: SvgPicture.asset(AppConstants.imgNoData));
         }
         widget.addSalesBloc.vehicleData = snapshot.data;
+
         widget.addSalesBloc.vehicleAndEngineNumberStreamController(true);
 
         return StreamBuilder(
@@ -117,6 +118,7 @@ class _VehicleAccessoriesListState extends State<VehicleAccessoriesList> {
                 itemCount: filteredVehicleData?.length ?? 0,
                 itemBuilder: (context, index) {
                   var vehicle = filteredVehicleData?[index];
+
                   return Card(
                     color: _appColors.whiteColor,
                     elevation: 0,
@@ -246,7 +248,9 @@ class _VehicleAccessoriesListState extends State<VehicleAccessoriesList> {
                 itemBuilder: (context, index) {
                   var accessoriesData =
                       widget.addSalesBloc.accessoriesData?[index];
-
+                  widget.addSalesBloc
+                          .totalAccessoriesQty[accessoriesData?.stockId ?? ''] =
+                      accessoriesData?.quantity ?? 0;
                   //   print(widget.addSalesBloc.accessoriesQty[index]);
                   return Card(
                     color: _appColors.whiteColor,
@@ -279,15 +283,15 @@ class _VehicleAccessoriesListState extends State<VehicleAccessoriesList> {
                                 ],
                               ),
                               _buildCustomTextWidget(
-                                  'Qty - ${widget.addSalesBloc.accessoriesQty[index] == 0 || widget.addSalesBloc.accessoriesQty[index] == null ? accessoriesData?.quantity : widget.addSalesBloc.accessoriesQty[index]}',
+                                  'Qty - ${widget.addSalesBloc.accessoriesQty[accessoriesData?.stockId] ?? accessoriesData?.quantity}',
                                   fontSize: 14,
                                   fontWeight: FontWeight.w500),
                               IconButton(
                                   onPressed: () {
-                                    print(accessoriesData?.quantity);
-                                    if (widget.addSalesBloc
-                                            .accessoriesQty[index] !=
-                                        0) {
+                                    if ((widget.addSalesBloc.accessoriesQty[
+                                                accessoriesData?.stockId] ??
+                                            accessoriesData?.quantity) ==
+                                        accessoriesData?.quantity) {
                                       showDialog(
                                         context: context,
                                         barrierDismissible: false,

@@ -652,18 +652,20 @@ class _SalesViewScreenState extends State<SalesViewScreen>
                         trailing: Badge(
                           label: Text(item.quantity.toString()),
                         )),
-                    ListTile(
-                      title: const Text(AppConstants.engineNumber),
-                      subtitle: Text(entry.value.itemDetails?[index]
-                              .mainSpecValue?.engineNumber ??
-                          ''),
-                    ),
-                    ListTile(
-                      title: const Text(AppConstants.frameNumber),
-                      subtitle: Text(entry.value.itemDetails?[index]
-                              .mainSpecValue?.frameNumber ??
-                          ''),
-                    ),
+                    if (entry.value.invoiceType != 'Accessories')
+                      ListTile(
+                        title: const Text(AppConstants.engineNumber),
+                        subtitle: Text(entry.value.itemDetails?[index]
+                                .mainSpecValue?.engineNumber ??
+                            ''),
+                      ),
+                    if (entry.value.invoiceType != 'Accessories')
+                      ListTile(
+                        title: const Text(AppConstants.frameNumber),
+                        subtitle: Text(entry.value.itemDetails?[index]
+                                .mainSpecValue?.frameNumber ??
+                            ''),
+                      ),
                     if (item.gstDetails != null && item.gstDetails!.isNotEmpty)
                       ListTile(
                         title: const Text('GST Details'),
@@ -687,6 +689,8 @@ class _SalesViewScreenState extends State<SalesViewScreen>
                       subtitle:
                           Text(AppUtils.formatCurrency(item.discount ?? 0)),
                     ),
+                    if (entry.value.invoiceType != 'Accessories')
+                      const Divider()
                   ],
                 );
               },

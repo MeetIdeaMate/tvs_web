@@ -15,6 +15,7 @@ class AccessoriesSalesEntryDialog extends StatefulWidget {
   final sales.SalesItemDetail? editValues;
   final int? editIndex;
   final int? selectedItemTndex;
+  final double? totalQty;
 
   const AccessoriesSalesEntryDialog(
       {super.key,
@@ -22,7 +23,8 @@ class AccessoriesSalesEntryDialog extends StatefulWidget {
       required this.addSalesBloc,
       this.editValues,
       this.editIndex,
-      this.selectedItemTndex});
+      this.selectedItemTndex,
+      this.totalQty});
 
   @override
   State<AccessoriesSalesEntryDialog> createState() =>
@@ -44,7 +46,7 @@ class _AccessoriesSalesEntryDialogState
       widget.addSalesBloc.quantityTextController.text =
           widget.editValues?.quantity.toString() ?? '';
       widget.addSalesBloc.discountTextController.text =
-          widget.editValues?.discount.toString() ?? '';
+          widget.editValues?.discount.toString() ?? '0';
       widget.addSalesBloc.unitRateTextController.text =
           widget.editValues?.unitRate.toString() ?? '';
       widget.addSalesBloc.hsnCodeTextController.text =
@@ -101,7 +103,7 @@ class _AccessoriesSalesEntryDialogState
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                    widget.accessoriesDetails != null
+                    widget.editValues != null
                         ? widget.editValues?.itemName ?? ''
                         : widget.accessoriesDetails?.itemName ?? '',
                     style:
@@ -301,20 +303,30 @@ class _AccessoriesSalesEntryDialogState
                             widget.addSalesBloc.quantityTextController.text) ??
                         0;
                     int currentQty = widget.addSalesBloc.accessoriesQty[
-                                    widget.selectedItemTndex ?? 0] ==
+                                    widget.accessoriesDetails?.stockId ?? ''] ==
                                 null ||
                             widget.addSalesBloc.accessoriesQty[
-                                    widget.selectedItemTndex ?? 0] ==
+                                    widget.accessoriesDetails?.stockId ?? ''] ==
                                 0
                         ? widget.accessoriesDetails?.quantity ?? 0
                         : widget.addSalesBloc.accessoriesQty[
-                                widget.selectedItemTndex ?? 0] ??
+                                widget.accessoriesDetails?.stockId ?? ''] ??
                             0;
-                    print(currentQty);
+
+                    int currentQtyEdit =
+                        widget.addSalesBloc.totalAccessoriesQty[
+                                widget.editValues?.stockId ?? ''] ??
+                            0;
                     widget.addSalesBloc.availableAccListStream(true);
-                    // if (quantityValue >= currentQty) {
-                    //   widget.addSalesBloc.quantityTextController.clear();
-                    // }
+                    if (widget.editValues != null) {
+                      if (quantityValue > currentQtyEdit) {
+                        widget.addSalesBloc.quantityTextController.clear();
+                      }
+                    } else {
+                      if (quantityValue > currentQty) {
+                        widget.addSalesBloc.quantityTextController.clear();
+                      }
+                    }
 
                     _buildPaymentCalculation();
                   },
@@ -392,22 +404,35 @@ class _AccessoriesSalesEntryDialogState
         onPressed: () {
           if (widget.addSalesBloc.accessoriesEntryFormkey.currentState!
               .validate()) {
-            int quantityValue =
-                int.tryParse(widget.addSalesBloc.quantityTextController.text) ??
-                    0;
-            int currentQty = widget.addSalesBloc
-                    .accessoriesQty[widget.selectedItemTndex ?? 0] ??
-                widget.accessoriesDetails?.quantity ??
-                0;
-            widget.addSalesBloc.accessoriesQty[widget.selectedItemTndex ?? 0] =
-                currentQty - quantityValue;
-
-            widget.addSalesBloc.availableAccListStream(true);
             if (widget.editValues != null) {
+              int quantityValue = int.tryParse(
+                      widget.addSalesBloc.quantityTextController.text) ??
+                  0;
+              int currentQty = widget.addSalesBloc
+                      .totalAccessoriesQty[widget.editValues?.stockId ?? ''] ??
+                  widget.accessoriesDetails?.quantity ??
+                  0;
+              widget.addSalesBloc
+                      .accessoriesQty[widget.editValues?.stockId ?? '?'] =
+                  currentQty - quantityValue;
+
+              widget.addSalesBloc.availableAccListStream(true);
               _updateData(widget.editIndex ?? 1);
 
               widget.addSalesBloc.paymentDetailsStreamController(true);
             } else {
+              int quantityValue = int.tryParse(
+                      widget.addSalesBloc.quantityTextController.text) ??
+                  0;
+              int currentQty = widget.addSalesBloc.accessoriesQty[
+                      widget.accessoriesDetails?.stockId ?? ''] ??
+                  widget.accessoriesDetails?.quantity ??
+                  0;
+              widget.addSalesBloc.accessoriesQty[
+                      widget.accessoriesDetails?.stockId ?? ''] =
+                  currentQty - quantityValue;
+
+              widget.addSalesBloc.availableAccListStream(true);
               _saveData();
             }
 
@@ -517,17 +542,18 @@ class _AccessoriesSalesEntryDialogState
     }
 
     var updatedItem = sales.SalesItemDetail(
-        categoryId: widget.accessoriesDetails?.categoryId ?? '',
+        categoryId: widget.editValues?.categoryId ?? '',
         unitRate:
             double.tryParse(widget.addSalesBloc.unitRateTextController.text),
         quantity: int.tryParse(widget.addSalesBloc.quantityTextController.text),
-        stockId: widget.accessoriesDetails?.stockId ?? '',
-        hsnSacCode: widget.accessoriesDetails?.hsnSacCode ?? '',
+        stockId: widget.editValues?.stockId ?? '',
+        hsnSacCode: widget.editValues?.hsnSacCode ?? '',
         itemName: widget.editValues?.itemName ?? '',
         partNo: widget.editValues?.partNo ?? '',
         value: widget.addSalesBloc.totalValue ?? 0,
         discount:
-            double.tryParse(widget.addSalesBloc.discountTextController.text),
+            double.tryParse(widget.addSalesBloc.discountTextController.text) ??
+                0,
         taxableValue: widget.addSalesBloc.taxableValue,
         gstDetails: gstDetails,
         taxes: [],
