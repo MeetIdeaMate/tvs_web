@@ -162,9 +162,23 @@ class _VendorViewState extends State<VendorView> {
                 } else if (snapshot.hasError) {
                   return const Center(
                       child: Text(AppConstants.somethingWentWrong));
-                } else if (!snapshot.hasData) {
-                  return Center(
-                      child: SvgPicture.asset(AppConstants.imgNoData));
+                }
+                if (!snapshot.hasData ||
+                    snapshot.data?.content?.isEmpty == true) {
+                  return Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Center(child: SvgPicture.asset(AppConstants.imgNoData)),
+                      AppWidgetUtils.buildSizedBox(custHeight: 8),
+                      Center(
+                        child: Text(
+                          AppConstants.noVendorDataAvailable,
+                          style: TextStyle(color: _appColors.grey),
+                        ),
+                      ),
+                    ],
+                  );
                 }
                 GetAllVendorByPagination vendorListModel = snapshot.data!;
                 List<Content> vendorData = snapshot.data?.content ?? [];

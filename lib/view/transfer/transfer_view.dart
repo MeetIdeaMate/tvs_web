@@ -291,75 +291,74 @@ class _TransferViewState extends State<TransferView>
   }
 
   _buildTransferTableView(BuildContext context) {
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: StreamBuilder(
-              stream: _transferViewBloc.tableRefreshStreamController,
-              builder: (context, snapshot) {
-                return FutureBuilder(
-                    future: _transferViewBloc.getTransferList(() {
-                  switch (_transferViewBloc.transferScreenTabController.index) {
-                    case 0:
-                      return AppConstants.transferred;
-                    case 1:
-                      return AppConstants.received;
-                    default:
-                      return '';
-                  }
-                }()), builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(
-                      child: AppWidgetUtils.buildLoading(),
-                    );
-                  }
-                  if (!snapshot.hasData || snapshot.data?.isEmpty == true) {
-                    return Expanded(
-                      child: Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            SvgPicture.asset(AppConstants.imgNoData),
-                            AppWidgetUtils.buildSizedBox(custHeight: 8),
-                            Text(
-                              AppConstants.noTransferDataAvailable,
-                              style: TextStyle(color: _appColors.grey),
-                            )
-                          ],
+    return StreamBuilder(
+      stream: _transferViewBloc.tableRefreshStreamController,
+      builder: (context, snapshot) {
+        return FutureBuilder(
+          future: _transferViewBloc.getTransferList(() {
+            switch (_transferViewBloc.transferScreenTabController.index) {
+              case 0:
+                return AppConstants.transferred;
+              case 1:
+                return AppConstants.received;
+              default:
+                return '';
+            }
+          }()),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return AppWidgetUtils.buildLoading();
+            }
+            if (!snapshot.hasData || snapshot.data?.isEmpty == true) {
+              return Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Center(child: SvgPicture.asset(AppConstants.imgNoData)),
+                  AppWidgetUtils.buildSizedBox(custHeight: 8),
+                  Center(
+                    child: Text(
+                      AppConstants.noTransferDataAvailable,
+                      style: TextStyle(color: _appColors.grey),
+                    ),
+                  ),
+                ],
+              );
+            } else {
+              var transferList = snapshot.data;
+              _transferViewBloc.transferedBadgeCount =
+                  transferList?.where((transfer) {
+                return transfer.transferStatus == AppConstants.initiated;
+              }).length;
+              _transferViewBloc.receivedBadgeCount =
+                  transferList?.where((transfer) {
+                return transfer.transferStatus == AppConstants.noTApproved;
+              }).length;
+              return Column(
+                children: [
+                  Expanded(
+                    child: SizedBox(
+                      width: MediaQuery.of(context).size.width,
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.vertical,
+                          child: DataTable(
+                            key: UniqueKey(),
+                            dividerThickness: 0.01,
+                            columns: _tableHeaders(),
+                            rows: _tableRows(snapshot),
+                          ),
                         ),
                       ),
-                    );
-                  } else {
-                    var transferList = snapshot.data;
-                    _transferViewBloc.transferedBadgeCount =
-                        transferList?.where((transfer) {
-                      return transfer.transferStatus == AppConstants.initiated;
-                    }).length;
-                    _transferViewBloc.receivedBadgeCount =
-                        transferList?.where((transfer) {
-                      return transfer.transferStatus ==
-                          AppConstants.noTApproved;
-                    }).length;
-                    return SingleChildScrollView(
-                      scrollDirection: Axis.vertical,
-                      child: DataTable(
-                        key: UniqueKey(),
-                        dividerThickness: 0.01,
-                        columns: _tableHeaders(),
-                        rows: _tableRows(snapshot),
-                      ),
-                    );
-                  }
-                });
-              },
-            ),
-          ),
-        ],
-      ),
+                    ),
+                  ),
+                ],
+              );
+            }
+          },
+        );
+      },
     );
   }
 

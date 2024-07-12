@@ -266,20 +266,18 @@ class _StocksViewState extends State<StocksView>
               return const Center(child: Text(AppConstants.somethingWentWrong));
             } else if (!snapshot.hasData ||
                 snapshot.data?.stockDetailsList?.isEmpty == true) {
-              return Expanded(
-                child: Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      SvgPicture.asset(AppConstants.imgNoData),
-                      AppWidgetUtils.buildSizedBox(custHeight: 8),
-                      Text(
-                        AppConstants.noStockDataAvailable,
-                        style: TextStyle(color: _appColors.grey),
-                      )
-                    ],
-                  ),
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    SvgPicture.asset(AppConstants.imgNoData),
+                    AppWidgetUtils.buildSizedBox(custHeight: 8),
+                    Text(
+                      AppConstants.noStockDataAvailable,
+                      style: TextStyle(color: _appColors.grey),
+                    )
+                  ],
                 ),
               );
             }
