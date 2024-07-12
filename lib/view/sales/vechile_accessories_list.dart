@@ -168,11 +168,26 @@ class _VehicleAccessoriesListState extends State<VehicleAccessoriesList> {
                                         filteredVehicleData?.removeAt(index);
                                         widget.addSalesBloc.vehicleData
                                             ?.remove(selectedVehicle!);
+                                        if (widget.addSalesBloc
+                                                    .selectedVehiclesList !=
+                                                null &&
+                                            widget
+                                                .addSalesBloc
+                                                .selectedVehiclesList!
+                                                .isNotEmpty) {
+                                          // Replace the selected vehicle
+                                          widget.addSalesBloc.vehicleData?.add(
+                                              widget.addSalesBloc
+                                                  .selectedVehiclesList!.first);
+                                          widget
+                                              .addSalesBloc.selectedVehiclesList
+                                              ?.clear();
+                                        }
+                                        widget.addSalesBloc.selectedVehiclesList
+                                            ?.add(selectedVehicle!);
                                         widget.addSalesBloc
                                             .vehicleAndEngineNumberStreamController(
                                                 true);
-                                        widget.addSalesBloc.selectedVehiclesList
-                                            ?.add(selectedVehicle!);
                                         widget.addSalesBloc
                                             .selectedItemStream(true);
                                         widget
@@ -181,9 +196,9 @@ class _VehicleAccessoriesListState extends State<VehicleAccessoriesList> {
                                             .text = vehicle?.hsnSacCode ?? '';
                                         widget.addSalesBloc
                                             .gstDetailsStreamController(true);
-                                        widget.addSalesBloc
-                                            .batteryDetailsRefreshStreamController(
-                                                true);
+                                        // widget.addSalesBloc
+                                        //     .batteryDetailsRefreshStreamController(
+                                        //         true);
                                         if (filteredVehicleData?.isEmpty ??
                                             false) {
                                           Center(
