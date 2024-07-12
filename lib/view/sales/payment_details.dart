@@ -1124,7 +1124,7 @@ class _PaymentDetailsState extends State<PaymentDetails> {
             stockId: itemData.stockId ?? '',
             taxableValue: widget.addSalesBloc.taxableValue ?? 0,
             taxes: tax,
-            unitRate: double.tryParse(widget.addSalesBloc.unitRates[1] ?? ''),
+            unitRate: double.tryParse(widget.addSalesBloc.unitRates[0] ?? ''),
             value: widget.addSalesBloc.totalValue ?? 0);
         itemdetails.add(itemDetail);
       }
