@@ -619,6 +619,7 @@ class AppConstants {
   static const String noTransportDataAvailable = 'No Transport Data Available';
   static const String noTransferDataAvailable =
       'No Transfer/Received Data Available';
+  static const String noVendorDataAvailable = 'No Vendor Data Available';
   static const String selectTargetInvoicedDate = 'Select Target Invoice Date';
   static const String selectExcutive = 'Select Executive';
   static const String enterAmount = 'Enter Amount';
