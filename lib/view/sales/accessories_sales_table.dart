@@ -187,7 +187,8 @@ class _AccessoiresSalesTableState extends State<AccessoiresSalesTable> {
                               DataCell(Text(sgstPercent.toString())),
                             if (widget.addSalesBloc.selectedGstType !=
                                 AppConstants.igstAmount)
-                              DataCell(Text(sgstValue.toString())),
+                              DataCell(Text(AppUtils.formatCurrency(cgstValue)
+                                  .toString())),
                             if (widget.addSalesBloc.selectedGstType !=
                                 AppConstants.gstPercent)
                               DataCell(Text(igstPercent.toString())),

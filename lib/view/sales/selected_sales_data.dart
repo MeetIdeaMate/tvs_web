@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:tlbilling/models/get_model/get_all_stocks_model.dart';
@@ -9,7 +8,6 @@ import 'package:tlbilling/utils/app_util_widgets.dart';
 import 'package:tlbilling/utils/input_formates.dart';
 import 'package:tlbilling/view/sales/add_sales_bloc.dart';
 import 'package:tlds_flutter/components/tlds_input_form_field.dart';
-import 'package:tlds_flutter/components/tlds_input_formaters.dart';
 
 class SelectedSalesData extends StatefulWidget {
   final AddSalesBlocImpl addSalesBloc;
@@ -337,7 +335,7 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
                   onPressed: () {
                     widget.addSalesBloc.selectedVehiclesList?.removeAt(index);
                     widget.addSalesBloc.unitRates.remove(index);
-
+                    clear();
                     widget.addSalesBloc
                         .vehicleAndEngineNumberStreamController(true);
                     widget.addSalesBloc
@@ -345,6 +343,12 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
                     widget.addSalesBloc.selectedItemStream(true);
                     widget.addSalesBloc.vehicleData?.add(vehicle);
                     widget.addSalesBloc.availableVehicleListStream(true);
+
+                    widget.addSalesBloc.selectedCustomer = null;
+                    widget.addSalesBloc.selectedCustomerId = null;
+                    widget.addSalesBloc
+                        .selectedCustomerDetailsStreamController(true);
+
                     widget.addSalesBloc.cgstPresentageTextController.clear();
                     //  widget.addSalesBloc.sgstPresentageTextController.clear();
                     widget.addSalesBloc.igstPresentageTextController.clear();
@@ -434,155 +438,49 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
     );
   }
 
-  // Widget _buildSelectedAccessoriesCardDetails(
-  //   GetAllStockDetails accessories,
-  //   int index,
-  // ) {
-  //   TextEditingController qtyController = TextEditingController();
+  void clear() {
+    widget.addSalesBloc.totalValue = 0.0;
+    widget.addSalesBloc.taxableValue = 0.0;
+    widget.addSalesBloc.totalInvAmount = 0.0;
+    widget.addSalesBloc.invAmount = 0.0;
+    widget.addSalesBloc.igstAmount = 0.0;
+    widget.addSalesBloc.cgstAmount = 0.0;
+    widget.addSalesBloc.sgstAmount = 0.0;
+    widget.addSalesBloc.totalUnitRate = 0.0;
+    widget.addSalesBloc.advanceAmt = 0.0;
+    widget.addSalesBloc.toBePayedAmt = 0.0;
+    widget.addSalesBloc.totalQty = 0.0;
 
-  //   return Card(
-  //     elevation: 0,
-  //     shape: OutlineInputBorder(
-  //       borderSide: BorderSide(color: _appColors.cardBorderColor),
-  //       borderRadius: BorderRadius.circular(5),
-  //     ),
-  //     color: _appColors.whiteColor,
-  //     child: Padding(
-  //       padding: const EdgeInsets.all(8.0),
-  //       child: ValueListenableBuilder<int>(
-  //         valueListenable: widget.addSalesBloc.initialValueNotifier,
-  //         builder: (context, initialValue, child) {
-  //           return Column(
-  //             crossAxisAlignment: CrossAxisAlignment.start,
-  //             children: [
-  //               _buildCustomTextWidget(
-  //                 accessories.itemName ?? '',
-  //                 fontWeight: FontWeight.w500,
-  //                 fontSize: 12,
-  //               ),
-  //               Row(
-  //                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //                 children: [
-  //                   _buildCustomTextWidget(
-  //                     accessories.partNo ?? '',
-  //                     fontWeight: FontWeight.w500,
-  //                     fontSize: 12,
-  //                     color: _appColors.liteGrayColor,
-  //                   ),
-  //                   AppWidgetUtils.buildSizedBox(custWidth: 5),
-  //                   Expanded(
-  //                     child: Row(
-  //                       children: [
-  //                         Expanded(
-  //                           child: TldsInputFormField(
-  //                             height: 40,
-  //                             controller: qtyController,
-  //                             textAlign: TextAlign.center,
-  //                             hintText: AppConstants.quantity,
-  //                             inputFormatters:
-  //                                 TlInputFormatters.onlyAllowNumbers,
-  //                             onChanged: (value) {
-  //                               if (value.isEmpty) return;
-  //                               int? intValue = int.tryParse(value);
-  //                               if (intValue != null) {
-  //                                 if (intValue > (accessories.quantity ?? 0)) {
-  //                                   intValue = accessories.quantity ?? 0;
-  //                                   qtyController.text =
-  //                                       accessories.quantity.toString();
-  //                                 }
+    widget.addSalesBloc.selectedCustomer = null;
+    widget.addSalesBloc.selectedCustomerId = null;
 
-  //                                 widget.addSalesBloc.accessoriesQty[index] =
-  //                                     intValue.toString();
-  //                                 widget.addSalesBloc.initialValueNotifier
-  //                                     .value = intValue;
-  //                                 _updateTotalValue();
-  //                               }
-  //                             },
-  //                           ),
-  //                         ),
-  //                       ],
-  //                     ),
-  //                   ),
-  //                   const SizedBox(width: 5),
-  //                   Expanded(
-  //                     child: TldsInputFormField(
-  //                       height: 40,
-  //                       controller: TextEditingController(),
-  //                       inputFormatters:
-  //                           TldsInputFormatters.onlyAllowDecimalNumbers,
-  //                       hintText: AppConstants.rupeeHint,
-  //                       onChanged: (value) {
-  //                         widget.addSalesBloc.unitRates[index] = value;
-  //                         _updateTotalValue();
-  //                       },
-  //                     ),
-  //                   ),
-  //                   IconButton(
-  //                     onPressed: () {
-  //                       widget.addSalesBloc.slectedAccessoriesList
-  //                           ?.removeAt(index);
-  //                       widget.addSalesBloc.selectedItemStream(true);
-  //                       widget.addSalesBloc
-  //                           .selectedAccessoriesListStreamController(true);
-  //                       widget.addSalesBloc
-  //                           .vehicleAndEngineNumberStreamController(true);
-  //                       widget.addSalesBloc
-  //                           .vehicleAndEngineNumberStreamController(true);
-  //                       widget.addSalesBloc.accessoriesData?.add(accessories);
-  //                       widget.addSalesBloc.availableAccListStream(true);
-  //                       widget.addSalesBloc.cgstPresentageTextController
-  //                           .clear();
+    widget.addSalesBloc.selectedMandatoryAddOns.clear();
 
-  //                       widget.addSalesBloc.igstPresentageTextController
-  //                           .clear();
-  //                       widget.addSalesBloc.discountTextController.clear();
-  //                       widget.addSalesBloc.stateIncentiveTextController
-  //                           .clear();
-  //                       widget.addSalesBloc.empsIncentiveTextController.clear();
-  //                       widget.addSalesBloc.hsnCodeTextController.clear();
-  //                       _updateTotalValue();
-  //                       widget.addSalesBloc
-  //                           .batteryDetailsRefreshStreamController(true);
-  //                     },
-  //                     icon: SvgPicture.asset(AppConstants.icFilledClose),
-  //                   ),
-  //                 ],
-  //               ),
-  //             ],
-  //           );
-  //         },
-  //       ),
-  //     ),
-  //   );
-  // }
+    widget.addSalesBloc.splitPaymentAmt.clear();
+    widget.addSalesBloc.splitPaymentId.clear();
+    widget.addSalesBloc.paymentName.clear();
+    widget.addSalesBloc.accessoriesQty.clear();
 
-  // void _updateTotalValue() {
-  //   double totalUnitValue = 0.0;
-  //   int accessoriesQty =
-  //       widget.addSalesBloc.slectedAccessoriesList?.length ?? 0;
-  //   for (int i = 0; i < accessoriesQty; i++) {
-  //     int qty = int.tryParse(widget.addSalesBloc.accessoriesQty[i] ?? '0') ?? 1;
-  //     double unitRate =
-  //         double.tryParse(widget.addSalesBloc.unitRates[i] ?? '0.0') ?? 0.0;
-  //     totalUnitValue += unitRate * qty;
-  //   }
-  //   widget.addSalesBloc.paymentDetailsStreamController(true);
-  //   double cgstPercent = double.tryParse(
-  //           widget.addSalesBloc.cgstPresentageTextController.text) ??
-  //       0;
-  //   double sgstPercent = double.tryParse(
-  //           widget.addSalesBloc.cgstPresentageTextController.text) ??
-  //       0;
-  //   widget.addSalesBloc.totalValue = totalUnitValue * accessoriesQty;
-  //   widget.addSalesBloc.paymentDetailsStreamController(true);
-  //   widget.addSalesBloc.taxableValue = widget.addSalesBloc.totalValue;
-  //   widget.addSalesBloc.cgstAmount = (totalUnitValue / 100) * cgstPercent;
-  //   widget.addSalesBloc.sgstAmount = (totalUnitValue / 100) * sgstPercent;
-  //   double taxableValue = widget.addSalesBloc.taxableValue ?? 0;
-  //   widget.addSalesBloc.invAmount =
-  //       taxableValue + (widget.addSalesBloc.sgstAmount ?? 0) * 2;
-  //   _updateTotalInvoiceAmount();
-  //   widget.addSalesBloc.paymentDetailsStreamController(true);
-  //   widget.addSalesBloc.gstRadioBtnRefreashStreamController(true);
-  // }
+    widget.addSalesBloc.discountTextController.clear();
+    widget.addSalesBloc.transporterVehicleNumberController.clear();
+    widget.addSalesBloc.vehicleNoAndEngineNoSearchController.clear();
+    widget.addSalesBloc.unitRateControllers.clear();
+    widget.addSalesBloc.hsnCodeTextController.clear();
+    widget.addSalesBloc.betteryNameTextController.clear();
+    widget.addSalesBloc.batteryCapacityTextController.clear();
+    widget.addSalesBloc.empsIncentiveTextController.clear();
+    widget.addSalesBloc.stateIncentiveTextController.clear();
+    widget.addSalesBloc.paidAmountController.clear();
+    widget.addSalesBloc.paymentTypeIdTextController.clear();
+    widget.addSalesBloc.quantityTextController.clear();
+    widget.addSalesBloc.unitRateTextController.clear();
+
+    widget.addSalesBloc.vehicleAndEngineNumberStreamController(true);
+
+    widget.addSalesBloc.gstDetailsStreamController(true);
+    widget.addSalesBloc.batteryDetailsRefreshStreamController(true);
+    widget.addSalesBloc.selectedVehicleAndAccessoriesListStreamController(true);
+    widget.addSalesBloc.paymentDetailsStreamController(true);
+    widget.addSalesBloc.screenChangeStreamController(true);
+  }
 }

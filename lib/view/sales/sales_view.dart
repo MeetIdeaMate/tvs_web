@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
-
 import 'package:flutter_svg/svg.dart';
 import 'package:pdf/pdf.dart';
 import 'package:printing/printing.dart';
@@ -335,7 +334,8 @@ class _SalesViewScreenState extends State<SalesViewScreen>
                             if (!iscancelled)
                               _buildVehicleTableHeader(
                                   AppConstants.pendingInvAmt),
-                            if (!iscancelled)
+                            if (paymentStatus ==
+                                DateFormat('yyyy-MM-dd').format(DateTime.now()))
                               _buildVehicleTableHeader(AppConstants.status),
                             _buildVehicleTableHeader(AppConstants.createdBy),
                             if (!iscancelled)
@@ -373,7 +373,9 @@ class _SalesViewScreenState extends State<SalesViewScreen>
                                   DataCell(Text(AppUtils.formatCurrency(
                                       entry.value.pendingAmt?.toDouble() ??
                                           0))),
-                                if (!iscancelled)
+                                if (paymentStatus ==
+                                    DateFormat('yyyy-MM-dd')
+                                        .format(DateTime.now()))
                                   DataCell(Chip(
                                       side: BorderSide(
                                           color: entry.value.paymentStatus ==

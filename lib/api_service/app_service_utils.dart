@@ -1393,22 +1393,31 @@ class AppServiceUtilImpl extends AppServiceUtil {
       bool isMainBranch = prefs.getBool('mainBranch') ?? false;
       String branchIds = prefs.getString('branchId') ?? '';
 
-      String url = '${AppUrl.stock}/cumulative/page?page=$currentIndex&size=10';
+      String url = '${AppUrl.stock}/cumulative/page';
+      Map<String, dynamic> queryParameters = {
+        'page': currentIndex,
+        'size': 10,
+      };
+
       if (status != null && status.isNotEmpty) {
-        url += '&categoryName=$status';
-        if (partNumber != null && partNumber.isNotEmpty) {
-          url += '&partNo=$partNumber';
-        }
-        if (vehicleName != null && vehicleName.isNotEmpty) {
-          url += '&itemName=$vehicleName';
-        }
-        if (branchId != null && branchId.isNotEmpty) {
-          url += '&branchId=$branchId';
-        } else if (!isMainBranch) {
-          url += '&branchId=$branchIds';
-        }
+        queryParameters['categoryName'] = status;
       }
-      var response = await dio.get(url);
+      if (partNumber != null && partNumber.isNotEmpty) {
+        queryParameters['partNo'] = partNumber;
+      }
+      if (vehicleName != null && vehicleName.isNotEmpty) {
+        queryParameters['itemName'] = vehicleName;
+      }
+      if (branchId != null && branchId.isNotEmpty) {
+        queryParameters['branchId'] = branchId;
+      } else if (!isMainBranch) {
+        queryParameters['branchId'] = branchIds;
+      }
+
+      var response = await dio.get(
+        url,
+        queryParameters: queryParameters,
+      );
       final responseList =
           parentResponseModelFromJson(jsonEncode(response.data));
       return responseList.result?.getAllStocksByPagenation;

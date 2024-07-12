@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:tlbilling/components/custom_elevated_button.dart';
 import 'package:tlbilling/models/get_model/get_all_customer_name_list.dart';
@@ -119,7 +120,7 @@ class _CustomerDetailsState extends State<CustomerDetails> {
               ColorFilter.mode(_appColors.primaryColor, BlendMode.srcIn),
         ),
         AppWidgetUtils.buildSizedBox(custWidth: 10),
-        Text(textValue ?? ''),
+        Flexible(child: Text(textValue ?? '')),
         AppWidgetUtils.buildSizedBox(custWidth: 5),
       ],
     );
@@ -163,6 +164,7 @@ class _CustomerDetailsState extends State<CustomerDetails> {
                     dropDownValue: widget.addSalesBloc.selectedCustomer,
                     dropDownItems: customerNamesList ?? [],
                     onChange: (String? newValue) {
+                      widget.addSalesBloc.selectedCustomer = newValue;
                       var selectedVendor = customerList!.firstWhere(
                           (customer) => customer.customerName == newValue);
                       widget.addSalesBloc.selectedCustomerId =
