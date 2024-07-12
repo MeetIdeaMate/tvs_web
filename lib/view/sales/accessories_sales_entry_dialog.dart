@@ -319,11 +319,12 @@ class _AccessoriesSalesEntryDialogState
                             0;
                     widget.addSalesBloc.availableAccListStream(true);
                     if (widget.editValues != null) {
-                      if (quantityValue > currentQtyEdit) {
+                      if (quantityValue > currentQtyEdit ||
+                          quantityValue == 0) {
                         widget.addSalesBloc.quantityTextController.clear();
                       }
                     } else {
-                      if (quantityValue > currentQty) {
+                      if (quantityValue > currentQty || quantityValue == 0) {
                         widget.addSalesBloc.quantityTextController.clear();
                       }
                     }
