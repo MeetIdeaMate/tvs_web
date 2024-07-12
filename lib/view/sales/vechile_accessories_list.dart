@@ -196,9 +196,9 @@ class _VehicleAccessoriesListState extends State<VehicleAccessoriesList> {
                                             .text = vehicle?.hsnSacCode ?? '';
                                         widget.addSalesBloc
                                             .gstDetailsStreamController(true);
-                                        // widget.addSalesBloc
-                                        //     .batteryDetailsRefreshStreamController(
-                                        //         true);
+                                        widget.addSalesBloc
+                                            .batteryDetailsRefreshStreamController(
+                                                true);
                                         if (filteredVehicleData?.isEmpty ??
                                             false) {
                                           Center(
