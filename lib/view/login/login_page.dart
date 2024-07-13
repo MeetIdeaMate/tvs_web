@@ -2,6 +2,7 @@ import 'package:blurry_modal_progress_hud/blurry_modal_progress_hud.dart';
 import 'package:flutter/material.dart';
 import 'package:tlbilling/components/custom_elevated_button.dart';
 import 'package:tlbilling/components/side_menu_navigation.dart';
+import 'package:tlbilling/services/status_handling.dart';
 import 'package:tlbilling/utils/app_colors.dart';
 import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/utils/app_util_widgets.dart';
@@ -22,12 +23,13 @@ class _LoginPageState extends State<LoginPage> {
   final _appColors = AppColors();
   final _loginPageBlocImpl = LoginPageBlocImpl();
   bool _loading = false;
+  final _statusHandler = StatusMessageHandling();
 
   @override
   void initState() {
     super.initState();
-    // _loginPageBlocImpl.mobileNumberTextController.text = '9876543210';
-    // _loginPageBlocImpl.passwordTextController.text = '1234';
+    _loginPageBlocImpl.mobileNumberTextController.text = '9876543210';
+    _loginPageBlocImpl.passwordTextController.text = '1234';
   }
 
   @override
@@ -191,20 +193,9 @@ class _LoginPageState extends State<LoginPage> {
       _loginPageBlocImpl.login((statusCode) {
         if (statusCode == 200 || statusCode == 201) {
           _isLoadingState(state: true);
-          const Center(
-            child: CircularProgressIndicator(
-                //  color: .appColor,
-                ),
-          );
           Future.delayed(const Duration(seconds: 3), () {
-            AppWidgetUtils.buildToast(
-                context,
-                ToastificationType.success,
-                AppConstants.loginSuccess,
-                Icon(Icons.check_circle_outline_rounded,
-                    color: _appColors.successColor),
-                AppConstants.loginToApplication,
-                _appColors.successLightColor);
+            _statusHandler.handleSuccess(context, AppConstants.loginSuccess,
+                AppConstants.loginToApplication);
             _isLoadingState(state: false);
             Navigator.pushReplacement(context, MaterialPageRoute(
               builder: (context) {
@@ -214,13 +205,8 @@ class _LoginPageState extends State<LoginPage> {
           });
         } else {
           _isLoadingState(state: false);
-          AppWidgetUtils.buildToast(
-              context,
-              ToastificationType.error,
-              AppConstants.somethingWentWrong,
-              Icon(Icons.error_outline, color: _appColors.errorColor),
-              AppConstants.loginFailed,
-              _appColors.errorLightColor);
+          _statusHandler.handleSuccess(context, AppConstants.loginFailed,
+              AppConstants.somethingWentWrong);
         }
       });
     }
