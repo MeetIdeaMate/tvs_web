@@ -172,10 +172,11 @@ class _CustomerDetailsState extends State<CustomerDetails> {
                       widget.addSalesBloc
                           .selectedCustomerDetailsStreamController(true);
 
-                      _updateTotalInvoiceAmount();
-                      widget.addSalesBloc.paymentDetailsStreamController(true);
                       if (widget.addSalesBloc.selectedVehicleAndAccessories !=
                           'Accessories') {
+                        _updateTotalInvoiceAmount();
+                        widget.addSalesBloc
+                            .paymentDetailsStreamController(true);
                         widget.addSalesBloc
                             .getCustomerBookingDetails(
                                 selectedVendor.customerId)
@@ -185,7 +186,7 @@ class _CustomerDetailsState extends State<CustomerDetails> {
                                 in value ?? []) {
                               widget.addSalesBloc.advanceAmt =
                                   element.paidDetail?.paidAmount ?? 0;
-
+                              widget.addSalesBloc.bookingId = element.bookingNo;
                               widget.addSalesBloc
                                   .advanceAmountRefreshStreamController(true);
                               widget
@@ -222,15 +223,8 @@ class _CustomerDetailsState extends State<CustomerDetails> {
                                   .selectedVehiclesListStreamController(true);
 
                               widget.addSalesBloc
-                                  .selectedVehicleAndAccessoriesStreamController(
-                                      true);
-                              widget.addSalesBloc
                                   .changeVehicleAndAccessoriesListStreamController(
                                       true);
-                              widget.addSalesBloc
-                                  .selectedVehicleAndAccessoriesListStreamController(
-                                      true);
-
                               widget.addSalesBloc
                                   .selectedVehicleAndAccessoriesListStreamController(
                                       true);

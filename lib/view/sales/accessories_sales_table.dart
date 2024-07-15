@@ -154,7 +154,7 @@ class _AccessoiresSalesTableState extends State<AccessoiresSalesTable> {
                         widget.addSalesBloc.toBePayedAmt = totalInvoiceValue;
 
                         return DataRow(
-                          color: MaterialStateColor.resolveWith((states) {
+                          color: WidgetStateColor.resolveWith((states) {
                             return Colors.white;
                           }),
                           cells: [
@@ -219,7 +219,7 @@ class _AccessoiresSalesTableState extends State<AccessoiresSalesTable> {
                         );
                       }),
                       DataRow(
-                        color: MaterialStateColor.resolveWith((states) {
+                        color: WidgetStateColor.resolveWith((states) {
                           return _appColors.tableTotalAmtRowColor;
                         }),
                         cells: [
@@ -321,16 +321,16 @@ class _AccessoiresSalesTableState extends State<AccessoiresSalesTable> {
             children: [
               ElevatedButton(
                   style: ButtonStyle(
-                    shape: MaterialStateProperty.all(RoundedRectangleBorder(
+                    shape: WidgetStateProperty.all(RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(5),
                     )),
-                    side: MaterialStateProperty.all(
+                    side: WidgetStateProperty.all(
                       BorderSide(
                         color: _appColors.primaryColor,
                       ),
                     ),
                     backgroundColor:
-                        MaterialStateProperty.all(_appColors.primaryColor),
+                        WidgetStateProperty.all(_appColors.primaryColor),
                   ),
                   onPressed: () {
                     widget.addSalesBloc.isAccessoriestable = true;
