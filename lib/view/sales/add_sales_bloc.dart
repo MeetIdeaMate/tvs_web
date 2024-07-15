@@ -140,6 +140,7 @@ abstract class AddSalesBloc {
   bool? get isTableDataVerifited;
   double? get totalDiscount;
   Stream<bool> get unitRateChangeStream;
+  String? get bookingId;
 }
 
 class AddSalesBlocImpl extends AddSalesBloc {
@@ -160,6 +161,7 @@ class AddSalesBlocImpl extends AddSalesBloc {
   final _paymentTypeIdTextController = TextEditingController();
   final _quantityTextController = TextEditingController();
   final _unitRateTextController = TextEditingController();
+  String? _bookingId;
   final Map<int, String> _unitRate = {};
   final Map<String, int> _accessoriesQty = {};
   final Map<String, String> _batteryDetailsMap = {};
@@ -328,8 +330,8 @@ class AddSalesBlocImpl extends AddSalesBloc {
   }
 
   changeSegmentedColor(Color color) {
-    return MaterialStateProperty.resolveWith((states) {
-      if (states.contains(MaterialState.selected)) {
+    return WidgetStateProperty.resolveWith((states) {
+      if (states.contains(WidgetState.selected)) {
         return color;
       }
       return null;
@@ -882,4 +884,11 @@ class AddSalesBlocImpl extends AddSalesBloc {
 
   @override
   Map<String, int> get totalAccessoriesQty => _totalAccessoriesQty;
+
+  @override
+  String? get bookingId => _bookingId;
+
+  set bookingId(String? value) {
+    _bookingId = value;
+  }
 }

@@ -13,6 +13,7 @@ import 'package:tlbilling/view/sales/sales_view_bloc.dart';
 import 'package:tlds_flutter/components/tlds_date_picker.dart';
 import 'package:tlds_flutter/components/tlds_dropdown_button_form_field.dart';
 import 'package:tlds_flutter/components/tlds_input_form_field.dart';
+import 'package:tlds_flutter/components/tlds_input_formaters.dart';
 import 'package:toastification/toastification.dart';
 
 class PaymentDailog extends StatefulWidget {
@@ -215,6 +216,7 @@ class _PaymentDailogState extends State<PaymentDailog> {
             labelText: AppConstants.pendingInvAmt,
             controller: widget.salesViewBloc.totalInvAmtPaymentController,
             enabled: true,
+            inputFormatters: TldsInputFormatters.onlyAllowDecimalAfterTwoDigits,
             validator: (value) {
               var values = double.tryParse(value.toString()) ?? 0;
               if ((values <= 0)) {

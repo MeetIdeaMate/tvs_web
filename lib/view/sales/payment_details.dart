@@ -788,7 +788,6 @@ class _PaymentDetailsState extends State<PaymentDetails> {
                       widget.addSalesBloc.isSplitPayment = value;
                       widget.addSalesBloc.isSplitPaymentStreamController(true);
                       widget.addSalesBloc.paidAmountController.clear();
-                      print('*********${widget.addSalesBloc.isSplitPayment}');
 
                       if (!value) {
                         clearSplitPaymentData();
@@ -1156,6 +1155,7 @@ class _PaymentDetailsState extends State<PaymentDetails> {
 
     return AddSalesModel(
         billType: widget.addSalesBloc.selectedPaymentOption,
+        bookingNo: widget.addSalesBloc.bookingId,
         branchId: widget.addSalesBloc.branchId ?? '',
         customerId: widget.addSalesBloc.selectedCustomerId ?? '',
         evBattery: eVehicleComponents,
@@ -1164,12 +1164,12 @@ class _PaymentDetailsState extends State<PaymentDetails> {
         itemDetails: itemdetails,
         mandatoryAddons: mandatoryAddonsMap,
         netAmt: double.parse(
-            widget.addSalesBloc.toBePayedAmt?.round().toString() ?? ''),
+            widget.addSalesBloc.totalInvAmount?.round().toString() ?? ''),
         paidDetails: paidDetails,
-        roundOffAmt:
-            double.parse(widget.addSalesBloc.toBePayedAmt?.toString() ?? '') -
-                double.parse(
-                    widget.addSalesBloc.toBePayedAmt?.round().toString() ?? ''),
+        roundOffAmt: double.parse(
+                widget.addSalesBloc.totalInvAmount?.toString() ?? '') -
+            double.parse(
+                widget.addSalesBloc.totalInvAmount?.round().toString() ?? ''),
         totalQty: totalQty);
   }
 }

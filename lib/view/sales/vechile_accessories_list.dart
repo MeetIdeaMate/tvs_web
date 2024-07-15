@@ -434,8 +434,6 @@ class _VehicleAccessoriesListState extends State<VehicleAccessoriesList> {
                               .screenChangeStreamController(true);
                         }
 
-                        print(widget.addSalesBloc.selectedCustomer);
-
                         widget.addSalesBloc.selectedVehiclesList?.clear();
                         widget.addSalesBloc.slectedAccessoriesList?.clear();
 
