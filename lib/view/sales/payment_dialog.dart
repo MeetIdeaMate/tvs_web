@@ -52,7 +52,7 @@ class _PaymentDailogState extends State<PaymentDailog> {
       });
     });
     widget.salesViewBloc.totalInvAmtPaymentController.text =
-        widget.salesdata?.pendingAmt?.toString() ?? '';
+        widget.salesdata?.pendingAmt?.toStringAsFixed(2) ?? '';
     widget.salesViewBloc.paymentDateTextController.text =
         DateFormat('dd-MM-yyyy').format(DateTime.now());
   }
@@ -216,7 +216,7 @@ class _PaymentDailogState extends State<PaymentDailog> {
             labelText: AppConstants.pendingInvAmt,
             controller: widget.salesViewBloc.totalInvAmtPaymentController,
             enabled: true,
-            inputFormatters: TldsInputFormatters.onlyAllowDecimalAfterTwoDigits,
+            inputFormatters: TldsInputFormatters.onlyAllowDecimalNumbers,
             validator: (value) {
               var values = double.tryParse(value.toString()) ?? 0;
               if ((values <= 0)) {
@@ -289,6 +289,7 @@ class _PaymentDailogState extends State<PaymentDailog> {
                   hintText: AppConstants.amount,
                   inputFormatters: TlInputFormatters.onlyAllowDecimalNumbers,
                   validator: (value) {
+                    //    int values = int.tryParse(value ?? '') ?? 0;
                     if (value?.isEmpty == true) {
                       return AppConstants.enterAmt;
                     }
@@ -298,9 +299,17 @@ class _PaymentDailogState extends State<PaymentDailog> {
                     double totalInv = double.tryParse(widget
                             .salesViewBloc.totalInvAmtPaymentController.text) ??
                         0;
+
                     double paidAmt = double.tryParse(widget
                             .salesViewBloc.paidAmountTextController.text) ??
                         0;
+
+                    print(
+                        'totalInv${widget.salesViewBloc.totalInvAmtPaymentController.text}');
+                    print(paidAmt);
+                    if (totalInv < paidAmt) {
+                      widget.salesViewBloc.paidAmountTextController.clear();
+                    }
                     double balanceAmt = totalInv - paidAmt;
                     widget.salesViewBloc.balanceAmtController.text =
                         balanceAmt.toString();

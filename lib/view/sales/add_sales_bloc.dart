@@ -34,6 +34,8 @@ abstract class AddSalesBloc {
   Stream<bool> get gstDetailsStream;
   Stream<bool> get screenChangeStream;
   Stream<bool> get refreshsalesDataTable;
+  Stream<bool> get selectedPaymentListStream;
+  Stream<bool> get selectedPaidAmtStream;
 
   Map<String, int> get totalAccessoriesQty;
 
@@ -161,6 +163,8 @@ class AddSalesBlocImpl extends AddSalesBloc {
   final _paymentTypeIdTextController = TextEditingController();
   final _quantityTextController = TextEditingController();
   final _unitRateTextController = TextEditingController();
+  final _selectedPaymentListStream = StreamController<bool>.broadcast();
+
   String? _bookingId;
   final Map<int, String> _unitRate = {};
   final Map<String, int> _accessoriesQty = {};
@@ -195,6 +199,7 @@ class AddSalesBlocImpl extends AddSalesBloc {
   final _isSplitPaymentStream = StreamController<bool>.broadcast();
   final _batteryDetailsRefreshStream = StreamController<bool>.broadcast();
   final _mandatoryAddOnsRefreshStream = StreamController<bool>.broadcast();
+  final _selectedPaidAmtStream = StreamController<bool>.broadcast();
   final _advanceAmountRefreshStreamController =
       StreamController<bool>.broadcast();
   String? _branchId;
@@ -779,6 +784,22 @@ class AddSalesBlocImpl extends AddSalesBloc {
     _splitPaymentCheckBoxStream.add(newValue);
   }
 
+  void updateSplitPaymentAmount(int index, String value) {
+    splitPaymentAmt[index] = value;
+
+    double totalSplitPaymentAmt = 0;
+    splitPaymentAmt.forEach((key, amt) {
+      totalSplitPaymentAmt += double.tryParse(amt) ?? 0;
+    });
+
+    if (totalSplitPaymentAmt > (toBePayedAmt ?? 0)) {
+      splitPaymentAmt[index] = '';
+    }
+
+    // Emit the updated state
+    _splitPaymentCheckBoxStream.add(true);
+  }
+
   @override
   String? get selectedPaymentList => _selectedPaymentList;
   set selectedPaymentList(String? value) {
@@ -890,5 +911,20 @@ class AddSalesBlocImpl extends AddSalesBloc {
 
   set bookingId(String? value) {
     _bookingId = value;
+  }
+
+  @override
+  Stream<bool> get selectedPaymentListStream =>
+      _selectedPaymentListStream.stream;
+
+  selectedPaymentListStreamController(bool newValue) {
+    _selectedPaymentListStream.add(newValue);
+  }
+
+  @override
+  Stream<bool> get selectedPaidAmtStream => _selectedPaidAmtStream.stream;
+
+  selectedPaidAmtStreamController(bool newValue) {
+    _selectedPaidAmtStream.add(newValue);
   }
 }
