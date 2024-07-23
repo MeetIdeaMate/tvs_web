@@ -425,6 +425,8 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
 
     double totalInvAmt = widget.addSalesBloc.totalInvAmount ?? 0;
     widget.addSalesBloc.toBePayedAmt = totalInvAmt - advanceAmt;
+    widget.addSalesBloc.toBePayedAmt = double.tryParse(
+        widget.addSalesBloc.toBePayedAmt?.round().toString() ?? '');
     widget.addSalesBloc.paymentDetailsStreamController(true);
   }
 
