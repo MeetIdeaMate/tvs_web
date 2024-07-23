@@ -323,7 +323,6 @@ class _CustomerDetailsState extends State<CustomerDetails> {
 
     widget.addSalesBloc.discountTextController.clear();
     widget.addSalesBloc.transporterVehicleNumberController.clear();
-    widget.addSalesBloc.vehicleNoAndEngineNoSearchController.clear();
     widget.addSalesBloc.unitRateControllers.clear();
     widget.addSalesBloc.hsnCodeTextController.clear();
     widget.addSalesBloc.betteryNameTextController.clear();
