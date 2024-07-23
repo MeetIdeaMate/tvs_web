@@ -411,6 +411,20 @@ class _VehicleAccessoriesListState extends State<VehicleAccessoriesList> {
                           .toList(),
                       onSelectionChanged: (Set<String> newValue) {
                         var selectedValue = newValue.first;
+
+                        print(selectedValue);
+
+                        widget.addSalesBloc.screenChangeStreamController(true);
+
+                        widget.addSalesBloc
+                            .changeVehicleAndAccessoriesListStreamController(
+                                true);
+
+                        widget.addSalesBloc
+                            .vehicleAndEngineNumberStreamController(true);
+                        widget.addSalesBloc.availableAccListStream(true);
+                        widget.addSalesBloc
+                            .vehicleAndEngineNumberStreamController(true);
                         widget.addSalesBloc
                             .selectedVehicleAndAccessoriesListStreamController(
                                 true);
@@ -424,15 +438,14 @@ class _VehicleAccessoriesListState extends State<VehicleAccessoriesList> {
                                 true);
                         //widget.addSalesBloc.screenChangeStreamController(true);
 
-                        setState(() {});
                         clear();
 
-                        if (widget.addSalesBloc.selectedCustomerId != null) {
-                          widget.addSalesBloc.selectedCustomer = null;
-                          widget.addSalesBloc.selectedCustomerId = null;
-                          widget.addSalesBloc
-                              .screenChangeStreamController(true);
-                        }
+                        // if (widget.addSalesBloc.selectedCustomerId != null) {
+                        //   widget.addSalesBloc.selectedCustomer = null;
+                        //   widget.addSalesBloc.selectedCustomerId = null;
+                        //   widget.addSalesBloc
+                        //       .screenChangeStreamController(true);
+                        // }
 
                         widget.addSalesBloc.selectedVehiclesList?.clear();
                         widget.addSalesBloc.slectedAccessoriesList?.clear();
@@ -560,7 +573,7 @@ class _VehicleAccessoriesListState extends State<VehicleAccessoriesList> {
     widget.addSalesBloc.cgstAmount = 0.0;
     widget.addSalesBloc.sgstAmount = 0.0;
     widget.addSalesBloc.totalUnitRate = 0.0;
-    widget.addSalesBloc.advanceAmt = 0.0;
+    // widget.addSalesBloc.advanceAmt = 0.0;
     widget.addSalesBloc.toBePayedAmt = 0.0;
     widget.addSalesBloc.totalQty = 0.0;
 
@@ -597,6 +610,6 @@ class _VehicleAccessoriesListState extends State<VehicleAccessoriesList> {
     widget.addSalesBloc.batteryDetailsRefreshStreamController(true);
     widget.addSalesBloc.selectedVehicleAndAccessoriesListStreamController(true);
     widget.addSalesBloc.paymentDetailsStreamController(true);
-    widget.addSalesBloc.screenChangeStreamController(true);
+    // widget.addSalesBloc.screenChangeStreamController(true);
   }
 }
