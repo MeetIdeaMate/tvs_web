@@ -206,8 +206,13 @@ class _CustomerDetailsState extends State<CustomerDetails> {
 
                               widget.addSalesBloc.selectedMandatoryAddOns
                                   .clear();
+                              clear();
+
                               widget.addSalesBloc
                                   .batteryDetailsRefreshStreamController(true);
+                              widget.addSalesBloc.unitRateTextController
+                                  .clear();
+
                               widget.addSalesBloc
                                   .selectedVehicleAndAccessoriesListStreamController(
                                       true);
@@ -287,5 +292,55 @@ class _CustomerDetailsState extends State<CustomerDetails> {
     widget.addSalesBloc.toBePayedAmt = double.parse(
         widget.addSalesBloc.toBePayedAmt?.round().toString() ?? '');
     widget.addSalesBloc.paymentDetailsStreamController(true);
+  }
+
+  void clear() {
+    // Reset properties
+    widget.addSalesBloc.totalValue = 0.0;
+    widget.addSalesBloc.taxableValue = 0.0;
+    widget.addSalesBloc.totalInvAmount = 0.0;
+    widget.addSalesBloc.invAmount = 0.0;
+    widget.addSalesBloc.igstAmount = 0.0;
+    widget.addSalesBloc.cgstAmount = 0.0;
+    widget.addSalesBloc.sgstAmount = 0.0;
+    widget.addSalesBloc.totalUnitRate = 0.0;
+    // widget.addSalesBloc.advanceAmt = 0.0;
+    widget.addSalesBloc.toBePayedAmt = 0.0;
+    widget.addSalesBloc.totalQty = 0.0;
+
+    // widget.addSalesBloc.selectedCustomer = null;
+    // widget.addSalesBloc.selectedCustomerId = null;
+    // widget.addSalesBloc.selectedCustomerDetailsStreamController(true);
+
+    widget.addSalesBloc.isSplitPayment = false;
+
+    widget.addSalesBloc.selectedMandatoryAddOns.clear();
+
+    widget.addSalesBloc.splitPaymentAmt.clear();
+    widget.addSalesBloc.splitPaymentId.clear();
+    widget.addSalesBloc.paymentName.clear();
+    widget.addSalesBloc.accessoriesQty.clear();
+
+    widget.addSalesBloc.discountTextController.clear();
+    widget.addSalesBloc.transporterVehicleNumberController.clear();
+    widget.addSalesBloc.vehicleNoAndEngineNoSearchController.clear();
+    widget.addSalesBloc.unitRateControllers.clear();
+    widget.addSalesBloc.hsnCodeTextController.clear();
+    widget.addSalesBloc.betteryNameTextController.clear();
+    widget.addSalesBloc.batteryCapacityTextController.clear();
+    widget.addSalesBloc.empsIncentiveTextController.clear();
+    widget.addSalesBloc.stateIncentiveTextController.clear();
+    widget.addSalesBloc.paidAmountController.clear();
+    widget.addSalesBloc.paymentTypeIdTextController.clear();
+    widget.addSalesBloc.quantityTextController.clear();
+    widget.addSalesBloc.unitRateTextController.clear();
+
+    widget.addSalesBloc.vehicleAndEngineNumberStreamController(true);
+
+    widget.addSalesBloc.gstDetailsStreamController(true);
+    widget.addSalesBloc.batteryDetailsRefreshStreamController(true);
+    widget.addSalesBloc.selectedVehicleAndAccessoriesListStreamController(true);
+    widget.addSalesBloc.paymentDetailsStreamController(true);
+    // widget.addSalesBloc.screenChangeStreamController(true);
   }
 }
