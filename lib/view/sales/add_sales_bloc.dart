@@ -7,6 +7,7 @@ import 'package:tlbilling/models/get_model/get_all_customers_model.dart';
 import 'package:tlbilling/models/get_model/get_all_stocks_model.dart';
 import 'package:tlbilling/models/get_model/get_configuration_model.dart';
 import 'package:tlbilling/models/get_model/get_customer_booking_details.dart';
+import 'package:tlbilling/models/parent_response_model.dart';
 import 'package:tlbilling/models/post_model/add_sales_model.dart';
 import 'package:tlbilling/utils/app_constants.dart';
 
@@ -115,8 +116,8 @@ abstract class AddSalesBloc {
       String? customerId);
 
   Future<List<String>> getPaymentmethods();
-  Future<List<String>> getBatteryDetails();
-  Future<List<String>> getMandantoryAddOns();
+  Future<ParentResponseModel> getBatteryDetails();
+  Future<ParentResponseModel> getMandantoryAddOns();
   Future<GetConfigurationModel?> getPaymentsList();
   Stream<List<GetAllStockDetails>> get vehicleListStream;
 // List<Map<String, String>> get vehicleData;
@@ -707,8 +708,8 @@ class AddSalesBlocImpl extends AddSalesBloc {
   GlobalKey<FormState> get paymentFormKey => _paymentFormKey;
 
   @override
-  Future<List<String>> getMandantoryAddOns() async {
-    return await _apiServices.getConfigByIdModel(configId: 'mAddons');
+  Future<ParentResponseModel> getMandantoryAddOns() async {
+    return await _apiServices.getConfigurationById(configId: 'mAddons');
   }
 
   @override
@@ -726,8 +727,8 @@ class AddSalesBlocImpl extends AddSalesBloc {
   }
 
   @override
-  Future<List<String>> getBatteryDetails() async {
-    return await _apiServices.getConfigByIdModel(
+  Future<ParentResponseModel> getBatteryDetails() async {
+    return await _apiServices.getConfigurationById(
         configId: 'eVehicleComponents');
   }
 

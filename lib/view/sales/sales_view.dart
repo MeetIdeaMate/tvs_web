@@ -331,7 +331,7 @@ class _SalesViewScreenState extends State<SalesViewScreen>
                             _buildVehicleTableHeader(AppConstants.netAmt),
                             if (!iscancelled)
                               _buildVehicleTableHeader(AppConstants.paidAmt),
-                            if (!iscancelled)
+                            if (!iscancelled && paymentStatus != 'COMPLETED')
                               _buildVehicleTableHeader(
                                   AppConstants.pendingInvAmt),
                             if (paymentStatus ==
@@ -346,7 +346,7 @@ class _SalesViewScreenState extends State<SalesViewScreen>
                           ],
                           rows: salesList.asMap().entries.map((entry) {
                             return DataRow(
-                              color: MaterialStateColor.resolveWith((states) {
+                              color: WidgetStateColor.resolveWith((states) {
                                 return entry.key % 2 == 0
                                     ? Colors.white
                                     : _appColors.transparentBlueColor;
@@ -369,7 +369,8 @@ class _SalesViewScreenState extends State<SalesViewScreen>
                                   DataCell(Text(AppUtils.formatCurrency(
                                       entry.value.totalPaidAmt?.toDouble() ??
                                           0))),
-                                if (!iscancelled)
+                                if (!iscancelled &&
+                                    paymentStatus != 'COMPLETED')
                                   DataCell(Text(AppUtils.formatCurrency(
                                       entry.value.pendingAmt?.toDouble() ??
                                           0))),

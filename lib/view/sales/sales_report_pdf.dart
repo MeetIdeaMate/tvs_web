@@ -10,7 +10,6 @@ class SalesPdfPrinter {
     final pdf = pw.Document();
     final header =
         await imageFromAssetBundle('assets/images/img_pdf_header.png');
-
     final pw.Font regularFont =
         pw.Font.ttf(await rootBundle.load("assets/fonts/Roboto-Regular.ttf"));
 
@@ -21,10 +20,7 @@ class SalesPdfPrinter {
         header: (context) {
           return pw.Container(
             decoration: pw.BoxDecoration(
-              border: pw.Border.all(
-                color: PdfColors.black,
-                width: 0.5,
-              ),
+              border: pw.Border.all(color: PdfColors.black, width: 0.5),
             ),
             height: 100,
             child: pw.Image(header, fit: pw.BoxFit.fitWidth),
@@ -74,7 +70,6 @@ class SalesPdfPrinter {
                           _buildText('Rate', regularFont),
                           _buildText('HSN code', regularFont),
                           _buildText('Disc', regularFont),
-                          _buildText('Taxable value', regularFont),
                         ],
                       ),
                       ...sale.itemDetails!.map((item) {
@@ -90,10 +85,6 @@ class SalesPdfPrinter {
                                 AppUtils.formatCurrency(
                                     item.discount?.toDouble() ?? 0),
                                 regularFont),
-                            _buildText(
-                                AppUtils.formatCurrency(
-                                    item.taxableValue?.toDouble() ?? 0),
-                                regularFont),
                           ],
                         );
                       }),
@@ -106,27 +97,15 @@ class SalesPdfPrinter {
                       pw.Column(
                         crossAxisAlignment: pw.CrossAxisAlignment.start,
                         children: [
-                          ...sale.itemDetails!.map((item) {
-                            return pw.Column(
-                              crossAxisAlignment: pw.CrossAxisAlignment.start,
-                              children: [
-                                _buildNormalText(
-                                    "Sub Total :${AppUtils.formatCurrency(item.taxableValue ?? 0)}",
-                                    regularFont),
-                                _buildNormalText(
-                                    _formatGstDetails(
-                                        sale, 'SGST', regularFont),
-                                    regularFont),
-                                _buildNormalText(
-                                    _formatGstDetails(
-                                        sale, 'CGST', regularFont),
-                                    regularFont),
-                                _buildNormalText(
-                                    "Net Amount : ${AppUtils.formatCurrency(item.finalInvoiceValue ?? 0)}",
-                                    regularFont),
-                              ],
-                            );
-                          })
+                          _buildNormalText(
+                              _formatGstDetails(sale, 'SGST', regularFont),
+                              regularFont),
+                          _buildNormalText(
+                              _formatGstDetails(sale, 'CGST', regularFont),
+                              regularFont),
+                          _buildNormalText(
+                              "Net Amount : ${AppUtils.formatCurrency(sale.netAmt ?? 0)}",
+                              regularFont),
                         ],
                       ),
                     ],
@@ -142,8 +121,6 @@ class SalesPdfPrinter {
                             _buildText('Part No', regularFont),
                             _buildText('Frame Number', regularFont),
                             _buildText('Engine Number', regularFont),
-                            // _buildText('CWI BookltNo'),
-                            // _buildText('Key No'),
                           ],
                         ),
                         ...sale.itemDetails!.map((item) {
@@ -165,7 +142,6 @@ class SalesPdfPrinter {
                       mainAxisAlignment: pw.MainAxisAlignment.start,
                       children: [
                         pw.Column(
-                          mainAxisAlignment: pw.MainAxisAlignment.start,
                           crossAxisAlignment: pw.CrossAxisAlignment.start,
                           children: [
                             if (sale.mandatoryAddons != null &&
@@ -173,26 +149,16 @@ class SalesPdfPrinter {
                               _buildNormalText(
                                   'Mandatory Addons:', regularFont),
                             pw.SizedBox(height: 10),
-                            ...sale.itemDetails!.map((item) {
-                              return pw.Column(
-                                mainAxisAlignment: pw.MainAxisAlignment.start,
-                                crossAxisAlignment: pw.CrossAxisAlignment.start,
-                                children: [
-                                  if (sale.mandatoryAddons != null &&
-                                      sale.mandatoryAddons!.addonsMap
-                                          .isNotEmpty)
-                                    ...sale.mandatoryAddons!.addonsMap.entries
-                                        .map((entry) => pw.Text(
-                                              '${entry.key} : ${entry.value}',
-                                              style: pw.TextStyle(
-                                                fontSize: 10,
-                                                color: PdfColors.black,
-                                                font: regularFont,
-                                              ),
-                                            )),
-                                ],
+                            ...sale.mandatoryAddons!.addonsMap.entries
+                                .map((entry) {
+                              return pw.Text(
+                                '${entry.key} : ${entry.value}',
+                                style: pw.TextStyle(
+                                    fontSize: 10,
+                                    color: PdfColors.black,
+                                    font: regularFont),
                               );
-                            })
+                            }),
                           ],
                         ),
                       ],
@@ -203,42 +169,22 @@ class SalesPdfPrinter {
                       mainAxisAlignment: pw.MainAxisAlignment.start,
                       children: [
                         pw.Column(
-                          mainAxisAlignment: pw.MainAxisAlignment.start,
                           crossAxisAlignment: pw.CrossAxisAlignment.start,
                           children: [
-                            if (sale.evBattery?.evBatteryName != '' ||
-                                sale.evBattery?.evBatteryCapacity != null)
+                            if (sale.evBattery != null &&
+                                sale.evBattery!.batteryMap.isNotEmpty)
                               _buildNormalText(
                                   'E-Vehicle Components:', regularFont),
                             pw.SizedBox(height: 10),
-                            ...sale.itemDetails!.map((item) {
-                              return pw.Column(
-                                mainAxisAlignment: pw.MainAxisAlignment.start,
-                                crossAxisAlignment: pw.CrossAxisAlignment.start,
-                                children: [
-                                  if (sale.evBattery?.evBatteryCapacity != null)
-                                    pw.Row(
-                                      children: [
-                                        pw.Text('BatteryCapacity:'),
-                                        pw.SizedBox(width: 10),
-                                        pw.Text(sale
-                                                .evBattery?.evBatteryCapacity
-                                                .toString() ??
-                                            '')
-                                      ],
-                                    ),
-                                  if (sale.evBattery?.evBatteryName != '')
-                                    pw.Row(
-                                      children: [
-                                        pw.Text('Battery Name:'),
-                                        pw.Text(sale.evBattery?.evBatteryName
-                                                .toString() ??
-                                            '')
-                                      ],
-                                    )
-                                ],
+                            ...sale.evBattery!.batteryMap.entries.map((entry) {
+                              return pw.Text(
+                                '${entry.key} : ${entry.value}',
+                                style: pw.TextStyle(
+                                    fontSize: 10,
+                                    color: PdfColors.black,
+                                    font: regularFont),
                               );
-                            })
+                            }),
                           ],
                         ),
                       ],
@@ -270,10 +216,7 @@ class SalesPdfPrinter {
     return pw.Text(
       text,
       style: pw.TextStyle(
-        fontSize: 18,
-        fontWeight: pw.FontWeight.bold,
-        font: regularFont,
-      ),
+          fontSize: 18, fontWeight: pw.FontWeight.bold, font: regularFont),
     );
   }
 
@@ -281,11 +224,10 @@ class SalesPdfPrinter {
     return pw.Text(
       text,
       style: pw.TextStyle(
-        fontSize: 10,
-        color: PdfColors.black,
-        fontWeight: pw.FontWeight.bold,
-        font: regularFont,
-      ),
+          fontSize: 10,
+          color: PdfColors.black,
+          fontWeight: pw.FontWeight.bold,
+          font: regularFont),
     );
   }
 
