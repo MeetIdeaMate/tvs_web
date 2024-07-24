@@ -223,23 +223,21 @@ class Content {
 }
 
 class EvBattery {
-  double? evBatteryCapacity;
-  String? evBatteryName;
+  Map<String, dynamic> batteryMap;
 
-  EvBattery({
-    this.evBatteryCapacity,
-    this.evBatteryName,
-  });
+  EvBattery({required this.batteryMap});
 
-  factory EvBattery.fromJson(Map<String, dynamic> json) => EvBattery(
-        evBatteryCapacity: json["evBatteryCapacity"],
-        evBatteryName: json["evBatteryName"],
-      );
+  factory EvBattery.fromJson(Map<String, dynamic> json) {
+    return EvBattery(
+      batteryMap: json,
+    );
+  }
 
-  Map<String, dynamic> toJson() => {
-        "evBatteryCapacity": evBatteryCapacity,
-        "evBatteryName": evBatteryName,
-      };
+  Map<String, dynamic> toJson() => batteryMap;
+  @override
+  String toString() {
+    return 'EvBattery(batteryMap: $batteryMap)';
+  }
 }
 
 class VehicleDetails {

@@ -15,19 +15,20 @@ class GetConfigurationModel {
   String? defaultValue;
   String? id;
   String? updatedBy;
+  String? inputType;
   DateTime? updatedDateTime;
 
-  GetConfigurationModel({
-    this.configId,
-    this.configType,
-    this.configuration,
-    this.createdBy,
-    this.createdDateTime,
-    this.defaultValue,
-    this.id,
-    this.updatedBy,
-    this.updatedDateTime,
-  });
+  GetConfigurationModel(
+      {this.configId,
+      this.configType,
+      this.configuration,
+      this.createdBy,
+      this.createdDateTime,
+      this.defaultValue,
+      this.id,
+      this.updatedBy,
+      this.updatedDateTime,
+      this.inputType});
 
   factory GetConfigurationModel.fromJson(Map<String, dynamic> json) =>
       GetConfigurationModel(
@@ -41,6 +42,7 @@ class GetConfigurationModel {
             ? null
             : DateTime.parse(json["createdDateTime"]),
         defaultValue: json["defaultValue"],
+        inputType: json["inputType"],
         id: json["id"],
         updatedBy: json["updatedBy"],
         updatedDateTime: json["updatedDateTime"] == null
@@ -57,6 +59,7 @@ class GetConfigurationModel {
         "createdBy": createdBy,
         "createdDateTime": createdDateTime?.toIso8601String(),
         "defaultValue": defaultValue,
+        "inputType": inputType,
         "id": id,
         "updatedBy": updatedBy,
         "updatedDateTime": updatedDateTime?.toIso8601String(),
