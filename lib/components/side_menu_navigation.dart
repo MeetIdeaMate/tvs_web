@@ -12,7 +12,6 @@ import 'package:tlbilling/view/configuration/configuration_view.dart';
 import 'package:tlbilling/view/customer/customer_view.dart';
 import 'package:tlbilling/view/employee/employee_view_screen.dart';
 import 'package:tlbilling/view/insuranse/insuranse_view.dart';
-import 'package:tlbilling/view/login/login_page.dart';
 import 'package:tlbilling/view/login/logout_dialog.dart';
 import 'package:tlbilling/view/purchase/purchase_view.dart';
 import 'package:tlbilling/view/report/report_screen.dart';
@@ -21,6 +20,7 @@ import 'package:tlbilling/view/stocks/stocks_view.dart';
 import 'package:tlbilling/view/transfer/transfer_view.dart';
 import 'package:tlbilling/view/transport/transport_view.dart';
 import 'package:tlbilling/view/user/user_view.dart';
+import 'package:tlbilling/view/useraccess/user_access_view.dart';
 import 'package:tlbilling/view/vendor/vendor_view.dart';
 import 'package:tlbilling/view/voucher_receipt/voucher_receipt_list.dart';
 
@@ -271,6 +271,13 @@ class _SideMenuNavigationState extends State<SideMenuNavigation> {
                   _onMenuItemSelected(AppConstants.insurance);
                 },
               ),
+              _buildDrawerMenuItem(
+                AppConstants.icAccessControl,
+                AppConstants.accessControl,
+                () {
+                  _onMenuItemSelected(AppConstants.accessControl);
+                },
+              ),
               AppWidgetUtils.buildSizedBox(custHeight: 30),
               _buildLogoutMenuItem(),
               AppWidgetUtils.buildSizedBox(custHeight: 20),
@@ -364,6 +371,8 @@ class _SideMenuNavigationState extends State<SideMenuNavigation> {
         return const InsuranseView();
       case AppConstants.booking:
         return const BookingList();
+      case AppConstants.accessControl:
+        return const AccessControlViewScreen();
       case AppConstants.logOut:
         return Container();
       default:

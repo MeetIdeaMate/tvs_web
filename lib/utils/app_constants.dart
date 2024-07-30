@@ -628,4 +628,6 @@ class AppConstants {
   static const String initiated = 'INITIATED';
   static const String noTApproved = 'NOT_APPROVED';
   static const String allDesignation = 'All Designation';
+  static const String accessControl = 'Access Control';
+  static const String icAccessControl = 'assets/icons/ic_user_access.svg';
 }
