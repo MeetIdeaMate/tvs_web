@@ -38,6 +38,10 @@ abstract class AccessControlViewBloc {
   Stream<bool> get checkBoxStream;
   Future<void> accessControlPostData(
       Function(int? statusCode) onSuccessCallBack, UserAccess requestObj);
+  Future<void> accessControlUpdateData(
+      Function(int? statusCode) onSuccessCallBack,
+      UserAccess requestObj,
+      String accessId);
 
   Future<List<AccessControlList>?> getAllUserAccessControlData(
       {required Function(int? statusCode,
@@ -340,9 +344,12 @@ class AccessControlViewBlocImpl implements AccessControlViewBloc {
               AccessControlList? getAllUserAccessControlDetails)?
           onSuccessCallback,
       String? userId,
-      String? role}) async {
-    return await _apiCalls.getAllUserAccessControlData(
-        onSuccessCallback: onSuccessCallback, role: role, userId: userId);
+      String? role}) {
+    return _apiCalls.getAllUserAccessControlData(
+      onSuccessCallback: onSuccessCallback,
+      role: role,
+      userId: userId,
+    );
   }
 
   @override
@@ -363,5 +370,14 @@ class AccessControlViewBlocImpl implements AccessControlViewBloc {
 
   checkBoxStreamController(bool value) {
     _checkBoxStreamController.add(value);
+  }
+
+  @override
+  Future<void> accessControlUpdateData(
+      Function(int? statusCode) onSuccessCallBack,
+      UserAccess requestObj,
+      String accessId) {
+    return _apiCalls.accessControlUpdateData(
+        onSuccessCallBack, requestObj, accessId);
   }
 }

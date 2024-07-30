@@ -77,6 +77,11 @@ abstract class AppServiceUtil {
   Future<void> updateVendor(String vendorId, AddVendorModel vendorObj,
       Function(int? statusCode) statusCode);
 
+  Future<void> accessControlUpdateData(
+      Function(int? statusCode) onSuccessCallBack,
+      UserAccess requestObj,
+      String accessId);
+
   Future<GetAllSales?> getSalesList(
       String invoiceNo,
       String paymentType,
@@ -284,7 +289,7 @@ abstract class AppServiceUtil {
       Function(int? statusCode) onSuccessCallBack, UserAccess requestObj);
 
   Future<List<AccessControlList>?> getAllUserAccessControlData(
-     { Function(int? statusCode,
+      {Function(int? statusCode,
               AccessControlList? getAllUserAccessControlDetails)?
           onSuccessCallback,
       String? userId,
@@ -1692,22 +1697,45 @@ class AppServiceUtilImpl extends AppServiceUtil {
   }
 
   @override
+  Future<void> accessControlUpdateData(
+      Function(int? statusCode) onSuccessCallBack,
+      UserAccess requestObj,
+      String accessId) async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      var token = prefs.getString('token');
+      dio.options.headers['Authorization'] = 'Bearer $token';
+      final url = '${AppUrl.accessContol}/$accessId';
+      var response = await dio.put(url, data: jsonEncode(requestObj));
+      print('*******RD*******${response.data}');
+      onSuccessCallBack(response.statusCode);
+    } on DioException catch (e) {
+      onSuccessCallBack(e.response?.statusCode);
+    }
+  }
+
+  @override
   Future<List<AccessControlList>?> getAllUserAccessControlData(
-   { Function(int? statusCode,
+      {Function(int? statusCode,
               AccessControlList? getAllUserAccessControlDetails)?
           onSuccessCallback,
       String? userId,
-      String? role}
-  ) async {
+      String? role}) async {
     try {
       final dio = Dio();
       SharedPreferences prefs = await SharedPreferences.getInstance();
       var token = prefs.getString('token');
       dio.options.headers['Authorization'] = 'Bearer $token';
       var url = AppUrl.accessContol;
-      var response = await dio.get('$url?userId=$userId');
+      if (userId != null) {
+        url += '?userId=$userId';
+      }
+      var response = await dio.get(url);
+
+      print(url);
+
       print('********user id from sevice => $userId');
-      print('********url => $url?userId=$userId');
+      // print('********url => $url?userId=$userId');
       var accessLevelList =
           parentResponseModelFromJson(jsonEncode(response.data))
               .result

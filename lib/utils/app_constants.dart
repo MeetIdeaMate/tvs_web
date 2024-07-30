@@ -10,7 +10,7 @@ class AppConstants {
   static const yes = 'Yes';
   static const yesC = 'YES';
   static const noC = 'NO';
-  static const cancel = 'Cancel'; 
+  static const cancel = 'Cancel';
   static const save = 'Save';
   static const preview = 'Preview';
   static const next = 'Next';
@@ -635,10 +635,13 @@ class AppConstants {
   static const String accessControl = 'Access Control';
   static const String icAccessControl = 'assets/icons/ic_user_access.svg';
 
-
   static const String userAccessCreated = 'Access Created';
   static const String userAccessCreatedDes = 'User Access Created successfuly';
 
-    static const String userAccessNotCreated = 'Access Not Created';
+  static const String userAccessNotCreated = 'Access Not Created';
   static const String userAccessNotCreatedDes = 'User Access Failed to create';
+  static const String userAccessUpdated = 'Access Updated';
+  static const String userAccessUpdatedDes = 'User Access Updated successfuly';
+  static const String userAccessNotUpdated = 'Access Not Updated';
+  static const String userAccessNotUpdatedDes = 'User Access Failed to update';
 }
