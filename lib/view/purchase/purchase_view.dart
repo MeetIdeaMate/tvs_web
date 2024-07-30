@@ -13,6 +13,7 @@ import 'package:tlbilling/view/purchase/add_purchase/add_purchase.dart';
 import 'package:tlbilling/view/purchase/add_purchase/purchase_invoice_pdf.dart';
 import 'package:tlbilling/view/purchase/purchase_view_bloc.dart';
 import 'package:tlbilling/view/purchase/vehicle_details_dialog.dart';
+import 'package:tlbilling/view/useraccess/access_level_shared_pref.dart';
 import 'package:tlds_flutter/components/tlds_input_form_field.dart';
 import 'package:tlds_flutter/util/app_colors.dart';
 import 'package:toastification/toastification.dart';
@@ -32,12 +33,21 @@ class _PurchaseViewState extends State<PurchaseView>
   @override
   void initState() {
     super.initState();
+    // sharedPref();
     _purchaseViewBloc.vehicleAndAccessoriesTabController =
         TabController(length: 2, vsync: this);
   }
 
+  // sharedPref() async {
+  //   await AccessLevel.accessingData();
+  //   print('**************1 =>${AccessLevel.canAdd('Purchase')}');
+  //   print('**************2 =>${!AccessLevel.canAdd('Purchase')}');
+  // }
+
   @override
   Widget build(BuildContext context) {
+    // print('**************builder =>${AccessLevel.canAdd('Purchase')}');
+
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.symmetric(
@@ -118,27 +128,27 @@ class _PurchaseViewState extends State<PurchaseView>
             ),
           ],
         ),
-        Row(
-          children: [
-            CustomElevatedButton(
-              height: 40,
-              width: 189,
-              text: AppConstants.addPurchase,
-              fontSize: 16,
-              buttonBackgroundColor: _appColors.primaryColor,
-              fontColor: _appColors.whiteColor,
-              suffixIcon: SvgPicture.asset(AppConstants.icAdd),
-              onPressed: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          AddPurchase(purchaseViewBloc: _purchaseViewBloc),
-                    ));
-              },
-            )
-          ],
-        )
+        if (AccessLevel.canAdd('Purchase'))
+          Row(
+            children: [
+              CustomElevatedButton(
+                height: 40,
+                text: AppConstants.addPurchase,
+                fontSize: 16,
+                buttonBackgroundColor: _appColors.primaryColor,
+                fontColor: _appColors.whiteColor,
+                suffixIcon: SvgPicture.asset(AppConstants.icAdd),
+                onPressed: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            AddPurchase(purchaseViewBloc: _purchaseViewBloc),
+                      ));
+                },
+              )
+            ],
+          )
       ],
     );
   }
