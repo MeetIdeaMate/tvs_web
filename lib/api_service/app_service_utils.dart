@@ -1731,9 +1731,7 @@ class AppServiceUtilImpl extends AppServiceUtil {
         url += '?userId=$userId';
       }
       var response = await dio.get(url);
-
-      print(url);
-
+      print('Access controll url => $url');
       print('********user id from sevice => $userId');
       // print('********url => $url?userId=$userId');
       var accessLevelList =

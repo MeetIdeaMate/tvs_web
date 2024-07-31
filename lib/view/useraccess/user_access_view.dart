@@ -46,32 +46,14 @@ class _AccessControlViewScreenState extends State<AccessControlViewScreen>
   void initState() {
     super.initState();
     getUserDetails().then((_) {
+      _fetcthCheckboxValues();
       _fetchUiComponentsNamesConfig();
-      _fetchUiComponentsNamesValues();
       _fetchMenuConfigs();
-      _fetchMenuCheckboxValues();
     });
     _initializeTabController();
   }
 
-  void _initializeTabController() {
-    _accessViewControlBloc.accessControlTabController =
-        TabController(length: 2, vsync: this);
-
-    _accessViewControlBloc.accessControlTabController.addListener(() {
-      if (_accessViewControlBloc.accessControlTabController.indexIsChanging) {
-        Future.microtask(() {
-          if (_accessViewControlBloc.accessControlTabController.index == 0) {
-            _fetchMenuConfigs();
-          } else {
-            _fetchUiComponentsNamesConfig();
-          }
-        });
-      }
-    });
-  }
-
-  Future<void> _fetchUiComponentsNamesValues() async {
+  Future<void> _fetcthCheckboxValues() async {
     final checkboxValue = await _accessViewControlBloc
         .getAllUserAccessControlData(userId: _userId);
     if (checkboxValue == null) {
@@ -94,7 +76,6 @@ class _AccessControlViewScreenState extends State<AccessControlViewScreen>
       if (element.userId == _userId) {
         accessId = element.id;
         print('accessId$accessId');
-
         for (UiComponent components in element.uiComponents ?? []) {
           final accessLevelsMap = <String, bool>{
             'HIDE': false,
@@ -134,27 +115,6 @@ class _AccessControlViewScreenState extends State<AccessControlViewScreen>
         }
       }
     }
-  }
-
-  Future<void> _fetchMenuCheckboxValues() async {
-    final checkboxValue = await _accessViewControlBloc
-        .getAllUserAccessControlData(userId: _userId);
-
-    if (checkboxValue == null) {
-      return;
-    }
-
-    isUpdateAccess = checkboxValue.isEmpty;
-    print('isUpdateAccess: $isUpdateAccess');
-
-    //  _accessViewControlBloc.screenNameList.clear();
-    _selectedMenus.clear();
-    _hideChecks.clear();
-    _viewChecks.clear();
-    _addChecks.clear();
-    _pUpdateChecks.clear();
-    _fUpdateChecks.clear();
-    _deleteChecks.clear();
 
     final addedMenuNames = <String>{};
 
@@ -197,6 +157,44 @@ class _AccessControlViewScreenState extends State<AccessControlViewScreen>
         }
       }
     }
+    _accessViewControlBloc.refreshTavViewStreamController(true);
+  }
+
+  void _initializeTabController() {
+    _accessViewControlBloc.accessControlTabController =
+        TabController(length: 2, vsync: this);
+    _accessViewControlBloc.accessControlTabController.addListener(() {
+      Future.microtask(() {
+        if (_accessViewControlBloc.accessControlTabController.index == 0) {
+          _fetchMenuConfigs();
+        } else {
+          _fetchUiComponentsNamesConfig();
+        }
+      });
+    });
+  }
+
+  Future<void> _fetchMenuCheckboxValues() async {
+    final checkboxValue = await _accessViewControlBloc
+        .getAllUserAccessControlData(userId: _userId);
+
+    if (checkboxValue == null) {
+      return;
+    }
+
+    isUpdateAccess = checkboxValue.isEmpty;
+    print('isUpdateAccess: $isUpdateAccess');
+
+    //  _accessViewControlBloc.screenNameList.clear();
+    _selectedMenus.clear();
+    _hideChecks.clear();
+    _viewChecks.clear();
+    _addChecks.clear();
+    _pUpdateChecks.clear();
+    _fUpdateChecks.clear();
+    _deleteChecks.clear();
+
+    _accessViewControlBloc.refreshTavViewStreamController(true);
   }
 
   Future<void> _fetchMenuConfigs() async {
@@ -487,81 +485,82 @@ class _AccessControlViewScreenState extends State<AccessControlViewScreen>
   }
 
   Widget _buildTabBarView() {
-    return Expanded(
-      child: TabBarView(
-        physics: const NeverScrollableScrollPhysics(),
-        controller: _accessViewControlBloc.accessControlTabController,
-        children: [_buildMenuListTabView(), _buildUiComponentsTabView()],
-      ),
-    );
+    return StreamBuilder(
+        stream: _accessViewControlBloc.refreshTabViewStream,
+        builder: (context, snapshot) {
+          return Expanded(
+            child: TabBarView(
+              physics: const NeverScrollableScrollPhysics(),
+              controller: _accessViewControlBloc.accessControlTabController,
+              children: [_buildMenuListTabView(), _buildUiComponentsTabView()],
+            ),
+          );
+        });
   }
 
   Widget _buildMenuListTabView() {
     return StreamBuilder<List<String>>(
       stream: _accessViewControlBloc.screenNamesStream,
       builder: (context, snapshot) {
-        if (!snapshot.hasData) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(
+            child: AppWidgetUtils.buildLoading(),
+          );
+        } else if (!snapshot.hasData) {
           return const Center(
             child: Text('NO DATA'),
           );
-        }
-        final screenNameList = snapshot.data ?? [];
+        } else {
+          final screenNameList = snapshot.data ?? [];
+          return SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: SizedBox(
+              width: MediaQuery.of(context).size.width,
+              child: SingleChildScrollView(
+                scrollDirection: Axis.vertical,
+                child: DataTable(
+                  dividerThickness: 0,
+                  headingRowHeight: 30,
+                  horizontalMargin: 20,
+                  columns: [
+                    _buildDataColumn('Screen name'),
+                    _buildDataColumn('Hide'),
+                    _buildDataColumn('View'),
+                    _buildDataColumn('Add'),
+                    _buildDataColumn('PUpdate'),
+                    _buildDataColumn('FUpdate'),
+                    _buildDataColumn('Delete'),
+                  ],
+                  rows: List.generate(screenNameList.length, (index) {
+                    final screenName = screenNameList[index];
+                    final hideChecked = _hideChecks[screenName] ?? false;
 
-//print('screenNameList   $screenNameList');
-        // _fetchMenuCheckboxValues();
-        return SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: SizedBox(
-            width: MediaQuery.of(context).size.width,
-            child: SingleChildScrollView(
-              scrollDirection: Axis.vertical,
-              child: StreamBuilder<bool>(
-                  stream: _accessViewControlBloc.refreshTabViewStream,
-                  builder: (context, snapshot) {
-                    return DataTable(
-                      dividerThickness: 0,
-                      headingRowHeight: 30,
-                      horizontalMargin: 20,
-                      columns: [
-                        _buildDataColumn('Screen name'),
-                        _buildDataColumn('Hide'),
-                        _buildDataColumn('View'),
-                        _buildDataColumn('Add'),
-                        _buildDataColumn('PUpdate'),
-                        _buildDataColumn('FUpdate'),
-                        _buildDataColumn('Delete'),
-                      ],
-                      rows: List.generate(screenNameList.length, (index) {
-                        final screenName = screenNameList[index];
-                        final hideChecked = _hideChecks[screenName] ?? false;
-
-                        final deleteChecked =
-                            _deleteChecks[screenName] ?? false;
-                        return DataRow(cells: [
-                          DataCell(Text(screenName)),
-                          DataCell(_buildCheckboxCell(
-                              index, screenName, 'HIDE', _hideChecks)),
-                          DataCell(_buildCheckboxCell(
-                              index, screenName, 'VIEW', _viewChecks,
-                              isEnabled: !hideChecked)),
-                          DataCell(_buildCheckboxCell(
-                              index, screenName, 'ADD', _addChecks,
-                              isEnabled: !hideChecked)),
-                          DataCell(_buildCheckboxCell(
-                              index, screenName, 'P_UPDATE', _pUpdateChecks,
-                              isEnabled: !hideChecked)),
-                          DataCell(_buildCheckboxCell(
-                              index, screenName, 'F_UPDATE', _fUpdateChecks,
-                              isEnabled: !hideChecked)),
-                          DataCell(_buildCheckboxCell(
-                              index, screenName, 'DELETE', _deleteChecks)),
-                        ]);
-                      }),
-                    );
+                    final deleteChecked = _deleteChecks[screenName] ?? false;
+                    return DataRow(cells: [
+                      DataCell(Text(screenName)),
+                      DataCell(_buildCheckboxCell(
+                          index, screenName, 'HIDE', _hideChecks)),
+                      DataCell(_buildCheckboxCell(
+                          index, screenName, 'VIEW', _viewChecks,
+                          isEnabled: !hideChecked)),
+                      DataCell(_buildCheckboxCell(
+                          index, screenName, 'ADD', _addChecks,
+                          isEnabled: !hideChecked)),
+                      DataCell(_buildCheckboxCell(
+                          index, screenName, 'P_UPDATE', _pUpdateChecks,
+                          isEnabled: !hideChecked)),
+                      DataCell(_buildCheckboxCell(
+                          index, screenName, 'F_UPDATE', _fUpdateChecks,
+                          isEnabled: !hideChecked)),
+                      DataCell(_buildCheckboxCell(
+                          index, screenName, 'DELETE', _deleteChecks)),
+                    ]);
                   }),
+                ),
+              ),
             ),
-          ),
-        );
+          );
+        }
       },
     );
   }
@@ -570,65 +569,65 @@ class _AccessControlViewScreenState extends State<AccessControlViewScreen>
     return StreamBuilder<List<String>>(
       stream: _accessViewControlBloc.uiComponentsNameStream,
       builder: (context, snapshot) {
-        if (!snapshot.hasData) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(
+            child: AppWidgetUtils.buildLoading(),
+          );
+        } else if (!snapshot.hasData) {
           return const Center(
             child: Text('NO DATA'),
           );
-        }
-        final uiComponentNameList = snapshot.data!;
-        return SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: SizedBox(
-            width: MediaQuery.of(context).size.width,
-            child: SingleChildScrollView(
-              scrollDirection: Axis.vertical,
-              child: StreamBuilder<bool>(
-                  stream: _accessViewControlBloc.refreshTabViewStream,
-                  builder: (context, snapshot) {
-                    return DataTable(
-                      dividerThickness: 0,
-                      headingRowHeight: 30,
-                      horizontalMargin: 20,
-                      columns: [
-                        _buildDataColumn('UI component name'),
-                        _buildDataColumn('Hide'),
-                        _buildDataColumn('View'),
-                        _buildDataColumn('Add'),
-                        _buildDataColumn('PUpdate'),
-                        _buildDataColumn('FUpdate'),
-                        _buildDataColumn('Delete'),
-                      ],
-                      rows: List.generate(uiComponentNameList.length, (index) {
-                        final uiComponentName = uiComponentNameList[index];
-                        final hideChecked =
-                            _hideChecks[uiComponentName] ?? false;
-                        final deleteChecked =
-                            _deleteChecks[uiComponentName] ?? false;
-                        return DataRow(cells: [
-                          DataCell(Text(uiComponentName)),
-                          DataCell(_buildCheckboxCell(
-                              index, uiComponentName, 'HIDE', _hideChecks)),
-                          DataCell(_buildCheckboxCell(
-                              index, uiComponentName, 'VIEW', _viewChecks,
-                              isEnabled: !hideChecked)),
-                          DataCell(_buildCheckboxCell(
-                              index, uiComponentName, 'ADD', _addChecks,
-                              isEnabled: !hideChecked)),
-                          DataCell(_buildCheckboxCell(index, uiComponentName,
-                              'P_UPDATE', _pUpdateChecks,
-                              isEnabled: !hideChecked)),
-                          DataCell(_buildCheckboxCell(index, uiComponentName,
-                              'F_UPDATE', _fUpdateChecks,
-                              isEnabled: !hideChecked)),
-                          DataCell(_buildCheckboxCell(
-                              index, uiComponentName, 'DELETE', _deleteChecks)),
-                        ]);
-                      }),
-                    );
+        } else {
+          final uiComponentNameList = snapshot.data!;
+          return SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: SizedBox(
+              width: MediaQuery.of(context).size.width,
+              child: SingleChildScrollView(
+                scrollDirection: Axis.vertical,
+                child: DataTable(
+                  dividerThickness: 0,
+                  headingRowHeight: 30,
+                  horizontalMargin: 20,
+                  columns: [
+                    _buildDataColumn('UI component name'),
+                    _buildDataColumn('Hide'),
+                    _buildDataColumn('View'),
+                    _buildDataColumn('Add'),
+                    _buildDataColumn('PUpdate'),
+                    _buildDataColumn('FUpdate'),
+                    _buildDataColumn('Delete'),
+                  ],
+                  rows: List.generate(uiComponentNameList.length, (index) {
+                    final uiComponentName = uiComponentNameList[index];
+                    final hideChecked = _hideChecks[uiComponentName] ?? false;
+                    final deleteChecked =
+                        _deleteChecks[uiComponentName] ?? false;
+                    return DataRow(cells: [
+                      DataCell(Text(uiComponentName)),
+                      DataCell(_buildCheckboxCell(
+                          index, uiComponentName, 'HIDE', _hideChecks)),
+                      DataCell(_buildCheckboxCell(
+                          index, uiComponentName, 'VIEW', _viewChecks,
+                          isEnabled: !hideChecked)),
+                      DataCell(_buildCheckboxCell(
+                          index, uiComponentName, 'ADD', _addChecks,
+                          isEnabled: !hideChecked)),
+                      DataCell(_buildCheckboxCell(
+                          index, uiComponentName, 'P_UPDATE', _pUpdateChecks,
+                          isEnabled: !hideChecked)),
+                      DataCell(_buildCheckboxCell(
+                          index, uiComponentName, 'F_UPDATE', _fUpdateChecks,
+                          isEnabled: !hideChecked)),
+                      DataCell(_buildCheckboxCell(
+                          index, uiComponentName, 'DELETE', _deleteChecks)),
+                    ]);
                   }),
+                ),
+              ),
             ),
-          ),
-        );
+          );
+        }
       },
     );
   }
@@ -717,13 +716,9 @@ class _AccessControlViewScreenState extends State<AccessControlViewScreen>
             onChange: (String? newValue) {
               _accessViewControlBloc.selectedUserName = newValue ?? '';
               _userId = users.firstWhere((e) => e.userName == newValue).userId;
-              setState(() {
-                _fetchMenuConfigs();
-                _fetchMenuCheckboxValues();
-                _fetchUiComponentsNamesConfig();
-                _fetchUiComponentsNamesValues();
-                _accessViewControlBloc.refreshTavViewStreamController(true);
-              });
+              _fetcthCheckboxValues();
+              setState(() {});
+              _accessViewControlBloc.refreshTavViewStreamController(true);
             },
           );
         } else {
