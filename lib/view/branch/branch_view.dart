@@ -11,6 +11,7 @@ import 'package:tlbilling/view/action_dialog/delete_dialog.dart';
 import 'package:tlbilling/view/branch/branch_details.dart';
 import 'package:tlbilling/view/branch/branch_view_bloc.dart';
 import 'package:tlbilling/view/branch/create_branch_dialog.dart';
+import 'package:tlbilling/view/useraccess/access_level_shared_pref.dart';
 import 'package:tlds_flutter/components/tlds_dropdown_button_form_field.dart';
 import 'package:tlds_flutter/components/tlds_input_form_field.dart';
 import 'package:tlds_flutter/components/tlds_input_formaters.dart';
@@ -48,7 +49,8 @@ class _MyWidgetState extends State<BranchView> {
               AppWidgetUtils.buildSizedBox(custHeight: 26),
               _buildsearchFiltersAndAddButton(context),
               AppWidgetUtils.buildSizedBox(custHeight: 28),
-              _buildBranchTableView(context)
+              if (AccessLevel.canView(AppConstants.branch))
+                _buildBranchTableView(context)
             ],
           ),
         ),
@@ -60,13 +62,16 @@ class _MyWidgetState extends State<BranchView> {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        _buildBranchNameFilter(),
-        AppWidgetUtils.buildSizedBox(custWidth: 5),
-        _buildPinCodeFilter(),
-        AppWidgetUtils.buildSizedBox(custWidth: 5),
-        // _buildCityFilter(),
-        const Spacer(),
-        _buildAddBranchButton(context)
+        if (AccessLevel.canView(AppConstants.branch)) ...[
+          _buildBranchNameFilter(),
+          AppWidgetUtils.buildSizedBox(custWidth: 5),
+          _buildPinCodeFilter(),
+          AppWidgetUtils.buildSizedBox(custWidth: 5),
+          // _buildCityFilter(),
+          const Spacer(),
+        ],
+        if (AccessLevel.canAdd(AppConstants.branch))
+          _buildAddBranchButton(context)
       ],
     );
   }
@@ -216,11 +221,12 @@ class _MyWidgetState extends State<BranchView> {
                             _buildBranchTableHeader(AppConstants.city),
                             _buildBranchTableHeader(AppConstants.pinCode),
                             _buildBranchTableHeader(AppConstants.branch),
-                            _buildBranchTableHeader(AppConstants.action),
+                            if (AccessLevel.canPUpdate(AppConstants.branch))
+                              _buildBranchTableHeader(AppConstants.action),
                           ],
                           rows: userData.asMap().entries.map((entry) {
                             return DataRow(
-                              color: MaterialStateColor.resolveWith((states) {
+                              color: WidgetStateColor.resolveWith((states) {
                                 return entry.key.isEven
                                     ? Colors.white
                                     : _appColors.transparentBlueColor;
@@ -231,30 +237,31 @@ class _MyWidgetState extends State<BranchView> {
                                 _buildTableRow(entry.value.mobileNo ?? ''),
                                 _buildTableRow(entry.value.city ?? ''),
                                 _buildTableRow(entry.value.pinCode ?? ''),
-                                entry.value.mainBranch ?? false
-                                    ? DataCell(
-                                        IconButton(
-                                          icon: SvgPicture.asset(
-                                            AppConstants.icBranch,
-                                            colorFilter: ColorFilter.mode(
-                                                _appColors.green,
-                                                BlendMode.srcIn),
+                                if (AccessLevel.canPUpdate(AppConstants.branch))
+                                  entry.value.mainBranch ?? false
+                                      ? DataCell(
+                                          IconButton(
+                                            icon: SvgPicture.asset(
+                                              AppConstants.icBranch,
+                                              colorFilter: ColorFilter.mode(
+                                                  _appColors.green,
+                                                  BlendMode.srcIn),
+                                            ),
+                                            onPressed: () {
+                                              showDialog(
+                                                context: context,
+                                                builder: (context) {
+                                                  return BranchDetails(
+                                                      subBranches: entry
+                                                          .value.subBranches,
+                                                      mainBranchName: entry
+                                                          .value.branchName);
+                                                },
+                                              );
+                                            },
                                           ),
-                                          onPressed: () {
-                                            showDialog(
-                                              context: context,
-                                              builder: (context) {
-                                                return BranchDetails(
-                                                    subBranches:
-                                                        entry.value.subBranches,
-                                                    mainBranchName:
-                                                        entry.value.branchName);
-                                              },
-                                            );
-                                          },
-                                        ),
-                                      )
-                                    : const DataCell(Text('Sub Branch')),
+                                        )
+                                      : const DataCell(Text('Sub Branch')),
                                 DataCell(
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.start,

@@ -36,12 +36,13 @@ class SideMenuNavigation extends StatefulWidget {
 class _SideMenuNavigationState extends State<SideMenuNavigation> {
   final _appcolors = AppColors();
   final _sideMenuBloc = SideMenuNavigationBlocImpl();
-  String selectedMenuItem = AppConstants.booking;
+  String selectedMenuItem =
+      !AccessLevel.canHide(AppConstants.sales) ? AppConstants.sales : '';
   String? userName;
   String? designation;
   String? branchname;
   bool? isMainBranch;
-
+  bool? isAccessChangedCheckBox;
   @override
   void initState() {
     super.initState();
@@ -55,6 +56,7 @@ class _SideMenuNavigationState extends State<SideMenuNavigation> {
     userName = prefs.getString('userName') ?? '';
     _sideMenuBloc.branchId = prefs.getString('branchId') ?? '';
     isMainBranch = prefs.getBool('mainBranch') ?? false;
+
     _sideMenuBloc.sideMenuStreamController(true);
   }
 
@@ -124,6 +126,8 @@ class _SideMenuNavigationState extends State<SideMenuNavigation> {
   }
 
   Widget _buildDrawer() {
+    print(AccessLevel.canHide(AppConstants.dashboard));
+
     return StreamBuilder(
       stream: _sideMenuBloc.sideMenuStream,
       builder: (context, snapshot) {
@@ -157,128 +161,178 @@ class _SideMenuNavigationState extends State<SideMenuNavigation> {
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 18),
                 child: Divider(color: _appcolors.hintColor),
               ),
-              _buildDrawerMenuItem(
-                AppConstants.icdashBoard,
-                AppConstants.dashboard,
-                () {
-                  _onMenuItemSelected(AppConstants.dashboard);
-                },
-              ),
-              if (isMainBranch ?? false)
+              if (!AccessLevel.canHide(AppConstants.dashboard))
                 _buildDrawerMenuItem(
-                  AppConstants.icPurchase,
-                  AppConstants.purchase,
+                  AppConstants.icdashBoard,
+                  AppConstants.dashboard,
                   () {
-                    _onMenuItemSelected(AppConstants.purchase);
+                    _onMenuItemSelected(AppConstants.dashboard);
                   },
                 ),
-              _buildDrawerMenuItem(
-                AppConstants.icReport,
-                AppConstants.booking,
-                () {
-                  _onMenuItemSelected(AppConstants.booking);
-                },
-              ),
-              _buildDrawerMenuItem(
-                AppConstants.icSales,
-                AppConstants.sales,
-                () {
-                  _onMenuItemSelected(AppConstants.sales);
-                },
-              ),
-              _buildDrawerMenuItem(
-                AppConstants.icStocks,
-                AppConstants.stocks,
-                () {
-                  _onMenuItemSelected(AppConstants.stocks);
-                },
-              ),
-              _buildDrawerMenuItem(
-                AppConstants.icTransfer,
-                AppConstants.transfer,
-                () {
-                  _onMenuItemSelected(AppConstants.transfer);
-                },
-              ),
-              _buildDrawerMenuItem(
-                AppConstants.icCustomers,
-                AppConstants.customer,
-                () {
-                  _onMenuItemSelected(AppConstants.customer);
-                },
-              ),
               if (isMainBranch ?? false)
+                if (!AccessLevel.canHide(
+                  AppConstants.purchase,
+                ))
+                  _buildDrawerMenuItem(
+                    AppConstants.icPurchase,
+                    AppConstants.purchase,
+                    () {
+                      _onMenuItemSelected(AppConstants.purchase);
+                    },
+                  ),
+              if (!AccessLevel.canHide(
+                AppConstants.booking,
+              ))
+                _buildDrawerMenuItem(
+                  AppConstants.icReport,
+                  AppConstants.booking,
+                  () {
+                    _onMenuItemSelected(AppConstants.booking);
+                  },
+                ),
+              if (!AccessLevel.canHide(
+                AppConstants.sales,
+              ))
+                _buildDrawerMenuItem(
+                  AppConstants.icSales,
+                  AppConstants.sales,
+                  () {
+                    _onMenuItemSelected(AppConstants.sales);
+                  },
+                ),
+              if (!AccessLevel.canHide(
+                AppConstants.stocks,
+              ))
+                _buildDrawerMenuItem(
+                  AppConstants.icStocks,
+                  AppConstants.stocks,
+                  () {
+                    _onMenuItemSelected(AppConstants.stocks);
+                  },
+                ),
+              if (!AccessLevel.canHide(
+                AppConstants.transfer,
+              ))
+                _buildDrawerMenuItem(
+                  AppConstants.icTransfer,
+                  AppConstants.transfer,
+                  () {
+                    _onMenuItemSelected(AppConstants.transfer);
+                  },
+                ),
+              if (!AccessLevel.canHide(
+                AppConstants.customer,
+              ))
+                _buildDrawerMenuItem(
+                  AppConstants.icCustomers,
+                  AppConstants.customer,
+                  () {
+                    _onMenuItemSelected(AppConstants.customer);
+                  },
+                ),
+              if (isMainBranch ?? false)
+                if (!AccessLevel.canHide(
+                  AppConstants.vendor,
+                ))
+                  _buildDrawerMenuItem(
+                    AppConstants.icVendor,
+                    AppConstants.vendor,
+                    () {
+                      _onMenuItemSelected(AppConstants.vendor);
+                    },
+                  ),
+              if (!AccessLevel.canHide(
+                AppConstants.transport,
+              ))
+                _buildDrawerMenuItem(
+                  AppConstants.icTransport,
+                  AppConstants.transport,
+                  () {
+                    _onMenuItemSelected(AppConstants.transport);
+                  },
+                ),
+              if (!AccessLevel.canHide(
+                AppConstants.employee,
+              ))
                 _buildDrawerMenuItem(
                   AppConstants.icVendor,
-                  AppConstants.vendor,
+                  AppConstants.employee,
                   () {
-                    _onMenuItemSelected(AppConstants.vendor);
+                    _onMenuItemSelected(AppConstants.employee);
                   },
                 ),
-              _buildDrawerMenuItem(
-                AppConstants.icTransport,
-                AppConstants.transport,
-                () {
-                  _onMenuItemSelected(AppConstants.transport);
-                },
-              ),
-              _buildDrawerMenuItem(
-                AppConstants.icVendor,
-                AppConstants.employee,
-                () {
-                  _onMenuItemSelected(AppConstants.employee);
-                },
-              ),
-              _buildDrawerMenuItem(
-                AppConstants.icUser,
+              if (!AccessLevel.canHide(
                 AppConstants.user,
-                () {
-                  _onMenuItemSelected(AppConstants.user);
-                },
-              ),
-              if (isMainBranch ?? false)
+              ))
                 _buildDrawerMenuItem(
-                  AppConstants.icBranch,
-                  AppConstants.branch,
+                  AppConstants.icUser,
+                  AppConstants.user,
                   () {
-                    _onMenuItemSelected(AppConstants.branch);
+                    _onMenuItemSelected(AppConstants.user);
                   },
                 ),
-              _buildDrawerMenuItem(
-                AppConstants.icVoucher,
+              if (isMainBranch ?? false)
+                if (!AccessLevel.canHide(
+                  AppConstants.branch,
+                ))
+                  _buildDrawerMenuItem(
+                    AppConstants.icBranch,
+                    AppConstants.branch,
+                    () {
+                      _onMenuItemSelected(AppConstants.branch);
+                    },
+                  ),
+              if (!AccessLevel.canHide(
                 AppConstants.voucher,
-                () {
-                  _onMenuItemSelected(AppConstants.voucher);
-                },
-              ),
-              _buildDrawerMenuItem(
-                AppConstants.icReport,
+              ))
+                _buildDrawerMenuItem(
+                  AppConstants.icVoucher,
+                  AppConstants.voucher,
+                  () {
+                    _onMenuItemSelected(AppConstants.voucher);
+                  },
+                ),
+              if (!AccessLevel.canHide(
                 AppConstants.reports,
-                () {
-                  _onMenuItemSelected(AppConstants.reports);
-                },
-              ),
-              _buildDrawerMenuItem(
-                AppConstants.icReport,
-                AppConstants.config,
-                () {
-                  _onMenuItemSelected(AppConstants.config);
-                },
-              ),
-              _buildDrawerMenuItem(
-                AppConstants.icReport,
+              ))
+                _buildDrawerMenuItem(
+                  AppConstants.icReport,
+                  AppConstants.reports,
+                  () {
+                    _onMenuItemSelected(AppConstants.reports);
+                  },
+                ),
+              if (!AccessLevel.canHide(
+                AppConstants.configC,
+              ))
+                _buildDrawerMenuItem(
+                  AppConstants.icReport,
+                  AppConstants.configC,
+                  () {
+                    _onMenuItemSelected(AppConstants.configC);
+                  },
+                ),
+              if (!AccessLevel.canHide(
                 AppConstants.insurance,
-                () {
-                  _onMenuItemSelected(AppConstants.insurance);
-                },
-              ),
-              _buildDrawerMenuItem(
-                AppConstants.icAccessControl,
-                AppConstants.accessControl,
-                () {
-                  _onMenuItemSelected(AppConstants.accessControl);
-                },
-              ),
+              ))
+                _buildDrawerMenuItem(
+                  AppConstants.icReport,
+                  AppConstants.insurance,
+                  () {
+                    _onMenuItemSelected(AppConstants.insurance);
+                  },
+                ),
+              if (isMainBranch ?? false)
+                if (!AccessLevel.canHide(
+                  AppConstants.accessControl,
+                ))
+                  _buildDrawerMenuItem(
+                    AppConstants.icAccessControl,
+                    AppConstants.accessControl,
+                    () {
+                      _onMenuItemSelected(AppConstants.accessControl);
+                    },
+                  ),
               AppWidgetUtils.buildSizedBox(custHeight: 30),
               _buildLogoutMenuItem(),
               AppWidgetUtils.buildSizedBox(custHeight: 20),
@@ -335,9 +389,53 @@ class _SideMenuNavigationState extends State<SideMenuNavigation> {
     );
   }
 
-  void _onMenuItemSelected(String menuItem) {
-    _sideMenuBloc.sideMenuStreamController(true);
-    selectedMenuItem = menuItem;
+  void _onMenuItemSelected(String menuItem) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    isAccessChangedCheckBox = prefs.getBool('isAccessCheckBoxChanged') ?? false;
+    if (isAccessChangedCheckBox ?? false) {
+      checkBoxChangeddialog(
+        prefs,
+        () {
+          prefs.remove('isAccessCheckBoxChanged');
+          isAccessChangedCheckBox = false;
+
+          Navigator.pop(context);
+
+          selectedMenuItem = menuItem;
+          _sideMenuBloc.sideMenuStreamController(true);
+        },
+      );
+    } else {
+      selectedMenuItem = menuItem;
+      _sideMenuBloc.sideMenuStreamController(true);
+    }
+  }
+
+  void checkBoxChangeddialog(
+      SharedPreferences prefs, void Function()? onPressed) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Unsaved Changes'),
+          content: const Text(
+              'You have unsaved changes. \n Are you sure you want to leave this screen without saving?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text(AppConstants.cancel),
+            ),
+            TextButton(
+              onPressed: onPressed,
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   Widget _buildPage(String menuItem) {
@@ -366,7 +464,7 @@ class _SideMenuNavigationState extends State<SideMenuNavigation> {
         return const ReportScreen();
       case AppConstants.voucher:
         return const VoucherReceiptList();
-      case AppConstants.config:
+      case AppConstants.configC:
         return const ConfigurationView();
       case AppConstants.insurance:
         return const InsuranseView();
@@ -430,13 +528,31 @@ class _SideMenuNavigationState extends State<SideMenuNavigation> {
           ],
         ),
         InkWell(
-          onTap: () {
-            showDialog(
-              context: context,
-              builder: (context) {
-                return const LogoutDialog();
-              },
-            );
+          onTap: () async {
+            SharedPreferences prefs = await SharedPreferences.getInstance();
+
+            isAccessChangedCheckBox =
+                prefs.getBool('isAccessCheckBoxChanged') ?? false;
+            if (isAccessChangedCheckBox ?? false) {
+              checkBoxChangeddialog(prefs, () {
+                prefs.remove('isAccessCheckBoxChanged');
+                isAccessChangedCheckBox = false;
+                Navigator.pop(context);
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return const LogoutDialog();
+                  },
+                );
+              });
+            } else {
+              showDialog(
+                context: context,
+                builder: (context) {
+                  return const LogoutDialog();
+                },
+              );
+            }
           },
           child: SvgPicture.asset(AppConstants.icLogout),
         ),

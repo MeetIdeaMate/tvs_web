@@ -11,6 +11,7 @@ import 'package:tlbilling/utils/app_util_widgets.dart';
 import 'package:tlbilling/utils/input_formates.dart';
 import 'package:tlbilling/view/customer/create_customer_dialog.dart';
 import 'package:tlbilling/view/customer/customer_view_bloc.dart';
+import 'package:tlbilling/view/useraccess/access_level_shared_pref.dart';
 import 'package:tlds_flutter/components/tlds_dropdown_button_form_field.dart';
 import 'package:tlds_flutter/components/tlds_input_form_field.dart';
 import 'package:tlds_flutter/components/tlds_input_formaters.dart';
@@ -52,7 +53,8 @@ class _CustomerViewState extends State<CustomerView> {
             AppWidgetUtils.buildSizedBox(custHeight: 26),
             _buildsearchAndAddButton(context),
             AppWidgetUtils.buildSizedBox(custHeight: 28),
-            _buildDataTable(context)
+            if (AccessLevel.canView(AppConstants.customer))
+              _buildDataTable(context)
           ],
         ),
       ),
@@ -62,39 +64,43 @@ class _CustomerViewState extends State<CustomerView> {
   _buildsearchAndAddButton(BuildContext context) {
     return Row(
       children: [
-        StreamBuilder(
-          stream: _customerScreenBlocImpl.customerNameStreamController,
-          builder: (context, snapshot) {
-            return _buildFormField(
-                inputFormatters: TldsInputFormatters.allowAlphabetsAndSpaces,
-                _customerScreenBlocImpl.customerNameFilterController,
-                AppConstants.customerName);
-          },
-        ),
-        AppWidgetUtils.buildSizedBox(custWidth: 5),
-        StreamBuilder(
-          stream: _customerScreenBlocImpl.customerMobileNumberStreamController,
-          builder: (context, snapshot) {
-            return _buildFormField(
-              _customerScreenBlocImpl.customerMobileNoController,
-              AppConstants.mobileNumber,
-              inputFormatters: TlInputFormatters.onlyAllowNumbers,
-            );
-          },
-        ),
-        AppWidgetUtils.buildSizedBox(custWidth: 5),
-        StreamBuilder(
-          stream: _customerScreenBlocImpl.customerCityStreamController,
-          builder: (context, snapshot) {
-            return _buildFormField(
-                inputFormatters: TldsInputFormatters.allowAlphabetsAndSpaces,
-                _customerScreenBlocImpl.customerCityTextController,
-                AppConstants.city);
-          },
-        ),
-        AppWidgetUtils.buildSizedBox(custWidth: 20),
-        if (_customerScreenBlocImpl.isMainBranch == false) const Spacer(),
-        _buildAddCustomerButton(context)
+        if (AccessLevel.canView(AppConstants.customer)) ...[
+          StreamBuilder(
+            stream: _customerScreenBlocImpl.customerNameStreamController,
+            builder: (context, snapshot) {
+              return _buildFormField(
+                  inputFormatters: TldsInputFormatters.allowAlphabetsAndSpaces,
+                  _customerScreenBlocImpl.customerNameFilterController,
+                  AppConstants.customerName);
+            },
+          ),
+          AppWidgetUtils.buildSizedBox(custWidth: 5),
+          StreamBuilder(
+            stream:
+                _customerScreenBlocImpl.customerMobileNumberStreamController,
+            builder: (context, snapshot) {
+              return _buildFormField(
+                _customerScreenBlocImpl.customerMobileNoController,
+                AppConstants.mobileNumber,
+                inputFormatters: TlInputFormatters.onlyAllowNumbers,
+              );
+            },
+          ),
+          AppWidgetUtils.buildSizedBox(custWidth: 5),
+          StreamBuilder(
+            stream: _customerScreenBlocImpl.customerCityStreamController,
+            builder: (context, snapshot) {
+              return _buildFormField(
+                  inputFormatters: TldsInputFormatters.allowAlphabetsAndSpaces,
+                  _customerScreenBlocImpl.customerCityTextController,
+                  AppConstants.city);
+            },
+          ),
+          AppWidgetUtils.buildSizedBox(custWidth: 20),
+          if (_customerScreenBlocImpl.isMainBranch == false) const Spacer(),
+        ],
+        if (AccessLevel.canAdd(AppConstants.customer))
+          _buildAddCustomerButton(context)
       ],
     );
   }
@@ -264,15 +270,17 @@ class _CustomerViewState extends State<CustomerView> {
                                   _buildTableHeader(
                                     AppConstants.city,
                                   ),
-                                  _buildTableHeader(
-                                    AppConstants.action,
-                                  ),
+                                  if (AccessLevel.canPUpdate(
+                                      AppConstants.customer))
+                                    _buildTableHeader(
+                                      AppConstants.action,
+                                    ),
                                 ],
                                 rows: customerDetails
                                         ?.asMap()
                                         .entries
                                         .map((entry) => DataRow(
-                                                color: MaterialStateProperty
+                                                color: WidgetStateProperty
                                                     .resolveWith((states) {
                                                   if (entry.key % 2 == 0) {
                                                     return _appColors
@@ -293,27 +301,30 @@ class _CustomerViewState extends State<CustomerView> {
                                                           '')),
                                                   DataCell(Text(
                                                       entry.value.city ?? '')),
-                                                  DataCell(
-                                                    IconButton(
-                                                      icon: SvgPicture.asset(
-                                                          AppConstants.icEdit),
-                                                      onPressed: () {
-                                                        showDialog(
-                                                          barrierDismissible:
-                                                              false,
-                                                          context: context,
-                                                          builder: (context) {
-                                                            return CreateCustomerDialog(
-                                                                customerScreenBlocImpl:
-                                                                    _customerScreenBlocImpl,
-                                                                customerId: entry
-                                                                    .value
-                                                                    .customerId);
-                                                          },
-                                                        );
-                                                      },
+                                                  if (AccessLevel.canPUpdate(
+                                                      AppConstants.customer))
+                                                    DataCell(
+                                                      IconButton(
+                                                        icon: SvgPicture.asset(
+                                                            AppConstants
+                                                                .icEdit),
+                                                        onPressed: () {
+                                                          showDialog(
+                                                            barrierDismissible:
+                                                                false,
+                                                            context: context,
+                                                            builder: (context) {
+                                                              return CreateCustomerDialog(
+                                                                  customerScreenBlocImpl:
+                                                                      _customerScreenBlocImpl,
+                                                                  customerId: entry
+                                                                      .value
+                                                                      .customerId);
+                                                            },
+                                                          );
+                                                        },
+                                                      ),
                                                     ),
-                                                  ),
                                                 ]))
                                         .toList() ??
                                     [],

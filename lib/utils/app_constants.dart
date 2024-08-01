@@ -163,6 +163,7 @@ class AppConstants {
   static const pinCode = 'Pin Code';
   static const insurance = 'Insurance';
   static const booking = 'Booking';
+  static const configC = 'Config';
 
   //Customer
   static const addCustomer = 'Add Customer';

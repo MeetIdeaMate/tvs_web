@@ -9,6 +9,7 @@ import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/utils/app_util_widgets.dart';
 import 'package:tlbilling/utils/input_formates.dart';
 import 'package:tlbilling/view/stocks/stocks_view_bloc.dart';
+import 'package:tlbilling/view/useraccess/access_level_shared_pref.dart';
 import 'package:tlds_flutter/components/tlds_dropdown_button_form_field.dart';
 import 'package:tlds_flutter/components/tlds_input_form_field.dart';
 import 'package:tlds_flutter/util/app_colors.dart';
@@ -58,10 +59,12 @@ class _StocksViewState extends State<StocksView>
           children: [
             AppWidgetUtils.buildHeaderText(AppConstants.stocks),
             AppWidgetUtils.buildSizedBox(custHeight: 26),
-            _buildStocksFilters(),
-            _buildDefaultHeight(),
-            _buildTabBar(),
-            _buildTabBarView(),
+            if (AccessLevel.canView(AppConstants.stocks)) ...[
+              _buildStocksFilters(),
+              _buildDefaultHeight(),
+              _buildTabBar(),
+              _buildTabBarView(),
+            ]
           ],
         ),
       ),
@@ -305,7 +308,7 @@ class _StocksViewState extends State<StocksView>
                         ],
                         rows: purchasedata.asMap().entries.map((entry) {
                           return DataRow(
-                            color: MaterialStateColor.resolveWith((states) {
+                            color: WidgetStateColor.resolveWith((states) {
                               return entry.key % 2 == 0
                                   ? Colors.white
                                   : _appColors.transparentBlueColor;
@@ -446,7 +449,7 @@ class _StocksViewState extends State<StocksView>
                             final index = entry.key;
                             final value = entry.value;
                             return DataRow(
-                              color: MaterialStateColor.resolveWith((states) {
+                              color: WidgetStateColor.resolveWith((states) {
                                 return index % 2 == 0
                                     ? Colors.white
                                     : AppColor().transparentBlueColor;

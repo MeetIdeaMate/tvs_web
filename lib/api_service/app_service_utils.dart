@@ -323,7 +323,6 @@ class AppServiceUtilImpl extends AppServiceUtil {
         var isMainBranch =
             response.data['result']['login']['mainBranch'] ?? false;
         SharedPreferences prefs = await SharedPreferences.getInstance();
-        print('************get token => $token');
         prefs.setString(AppConstants.token, token);
         prefs.setString(AppConstants.designation, designation);
         prefs.setString(AppConstants.userName, userName);
@@ -985,8 +984,6 @@ class AppServiceUtilImpl extends AppServiceUtil {
       var token = prefs.getString('token');
       dio.options.headers['Authorization'] = 'Bearer $token';
       var response = await dio.get(AppUrl.branch);
-      print('*****status code => ${response.statusCode}');
-      print('*****RB => ${response.data}');
       return parentResponseModelFromJson(jsonEncode(response.data))
           .result
           ?.branchDetails;
@@ -1485,8 +1482,6 @@ class AppServiceUtilImpl extends AppServiceUtil {
       String url =
           '${AppUrl.booking}/page?page=$currentPage&size=10&bookingStatus=$bookingStatus';
 
-      print('********st => $bookingStatus');
-      print('********URL => $url');
       if (bookingId != null && bookingId.isNotEmpty) {
         url += '&bookingNo=$bookingId';
       }
@@ -1689,7 +1684,6 @@ class AppServiceUtilImpl extends AppServiceUtil {
       dio.options.headers['Authorization'] = 'Bearer $token';
       var response =
           await dio.post(AppUrl.accessContol, data: jsonEncode(requestObj));
-      print('*******RD*******${response.data}');
       onSuccessCallBack(response.statusCode);
     } on DioException catch (e) {
       onSuccessCallBack(e.response?.statusCode);
@@ -1707,7 +1701,6 @@ class AppServiceUtilImpl extends AppServiceUtil {
       dio.options.headers['Authorization'] = 'Bearer $token';
       final url = '${AppUrl.accessContol}/$accessId';
       var response = await dio.put(url, data: jsonEncode(requestObj));
-      print('*******RD*******${response.data}');
       onSuccessCallBack(response.statusCode);
     } on DioException catch (e) {
       onSuccessCallBack(e.response?.statusCode);
@@ -1730,10 +1723,9 @@ class AppServiceUtilImpl extends AppServiceUtil {
       if (userId != null) {
         url += '?userId=$userId';
       }
+
       var response = await dio.get(url);
-      print('Access controll url => $url');
-      print('********user id from sevice => $userId');
-      // print('********url => $url?userId=$userId');
+
       var accessLevelList =
           parentResponseModelFromJson(jsonEncode(response.data))
               .result

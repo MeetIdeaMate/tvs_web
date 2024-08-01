@@ -24,7 +24,7 @@ class LogoutDialog extends StatelessWidget {
         TextButton(
           style: ButtonStyle(
               backgroundColor:
-                  MaterialStatePropertyAll(AppColors().primaryColor)),
+                  WidgetStatePropertyAll(AppColors().primaryColor)),
           child: Text(
             'Log Out',
             style: TextStyle(color: AppColor().whiteColor),
@@ -32,6 +32,7 @@ class LogoutDialog extends StatelessWidget {
           onPressed: () async {
             SharedPreferences prefs = await SharedPreferences.getInstance();
             prefs.remove('token');
+            prefs.remove('isAccessCheckBoxChanged');
             Navigator.pushReplacement(
                 // ignore: use_build_context_synchronously
                 context,

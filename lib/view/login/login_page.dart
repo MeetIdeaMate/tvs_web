@@ -1,17 +1,16 @@
 import 'package:blurry_modal_progress_hud/blurry_modal_progress_hud.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tlbilling/components/custom_elevated_button.dart';
 import 'package:tlbilling/components/side_menu_navigation.dart';
 import 'package:tlbilling/models/get_model/get_all_access_controll_model.dart';
-import 'package:tlbilling/models/get_model/get_login_response.dart';
 import 'package:tlbilling/utils/app_colors.dart';
 import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/utils/app_util_widgets.dart';
 import 'package:tlbilling/utils/input_validation.dart';
 import 'package:tlbilling/view/login/login_page_bloc.dart';
 import 'package:tlbilling/view/useraccess/access_control_view_bloc.dart';
+import 'package:tlbilling/view/useraccess/access_level_shared_pref.dart';
 import 'package:tlbilling/view/useraccess/user_access_levels.dart';
 import 'package:tlds_flutter/components/tlds_input_form_field.dart';
 import 'package:tlds_flutter/components/tlds_input_formaters.dart';
@@ -37,6 +36,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   void initState() {
     super.initState();
+    AccessLevel.accessingData();
     // _loginPageBlocImpl.mobileNumberTextController.text = '9876543210';
     // _loginPageBlocImpl.passwordTextController.text = '1234';
     checkUserStatus();
@@ -47,9 +47,10 @@ class _LoginPageState extends State<LoginPage> {
     token = prefs.getString('token') ?? '';
     prefs.setBool('rememberMe', _rememberMe ?? false);
     _rememberMe = prefs.getBool('rememberMe') ?? false;
+
     if (_rememberMe == true) {
       if (token?.isNotEmpty ?? false) {
-        Navigator.push(
+        Navigator.pushReplacement(
           context,
           MaterialPageRoute(
             builder: (context) => const SideMenuNavigation(),
@@ -257,15 +258,11 @@ class _LoginPageState extends State<LoginPage> {
         },
       ).then((values) async {
         userId = values.userId;
-        print('*************213');
         List<AccessControlList>? accessControl =
             await _accessControlBloc.getAllUserAccessControlData(
-                onSuccessCallback: (statusCode, accessControlList) {
-                  print('***********Satuc oe 21 => $statusCode');
-                },
+                onSuccessCallback: (statusCode, accessControlList) {},
                 userId: values.userId,
                 role: values.designation);
-        print('*************then => $accessControl 11');
 
         UserAccessLevels.storeUserAccessData(accessControl);
       });

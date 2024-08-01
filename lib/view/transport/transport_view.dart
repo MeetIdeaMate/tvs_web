@@ -10,6 +10,7 @@ import 'package:tlbilling/utils/app_util_widgets.dart';
 import 'package:tlbilling/view/transport/create_transport_dialog.dart';
 
 import 'package:tlbilling/view/transport/transport_view_bloc.dart';
+import 'package:tlbilling/view/useraccess/access_level_shared_pref.dart';
 import 'package:tlds_flutter/components/tlds_input_form_field.dart';
 import 'package:tlds_flutter/components/tlds_input_formaters.dart';
 
@@ -36,7 +37,8 @@ class _TransportViewState extends State<TransportView> {
             AppWidgetUtils.buildSizedBox(custHeight: 26),
             _buildsearchFiltersAndAddButton(context),
             AppWidgetUtils.buildSizedBox(custHeight: 28),
-            _buildTransportTableView(context)
+            if (AccessLevel.canView(AppConstants.transport))
+              _buildTransportTableView(context)
           ],
         ),
       ),
@@ -47,36 +49,39 @@ class _TransportViewState extends State<TransportView> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        StreamBuilder(
-          stream: _transportBlocImpl.transportNameStreamController,
-          builder: (context, snapshot) {
-            return _buildFormField(
-                inputFormatters: TldsInputFormatters.onlyAllowAlphabets,
-                _transportBlocImpl.transportNameSearchController,
-                AppConstants.transportName);
-          },
-        ),
-        AppWidgetUtils.buildSizedBox(custWidth: 10),
-        StreamBuilder(
-          stream: _transportBlocImpl.transportMobileNumberStreamController,
-          builder: (context, snapshot) {
-            return _buildFormField(
-                inputFormatters: TldsInputFormatters.phoneNumberInputFormatter,
-                _transportBlocImpl.transportMobNoSearchController,
-                AppConstants.mobileNumber);
-          },
-        ),
-        AppWidgetUtils.buildSizedBox(custWidth: 10),
-        StreamBuilder(
-          stream: _transportBlocImpl.transportCityStreamController,
-          builder: (context, snapshot) {
-            return _buildFormField(
-                inputFormatters: TldsInputFormatters.allowAlphabetsAndSpaces,
-                _transportBlocImpl.transportCitySearchController,
-                AppConstants.city);
-          },
-        ),
-        const Spacer(),
+        if (AccessLevel.canView(AppConstants.transport)) ...[
+          StreamBuilder(
+            stream: _transportBlocImpl.transportNameStreamController,
+            builder: (context, snapshot) {
+              return _buildFormField(
+                  inputFormatters: TldsInputFormatters.onlyAllowAlphabets,
+                  _transportBlocImpl.transportNameSearchController,
+                  AppConstants.transportName);
+            },
+          ),
+          AppWidgetUtils.buildSizedBox(custWidth: 10),
+          StreamBuilder(
+            stream: _transportBlocImpl.transportMobileNumberStreamController,
+            builder: (context, snapshot) {
+              return _buildFormField(
+                  inputFormatters:
+                      TldsInputFormatters.phoneNumberInputFormatter,
+                  _transportBlocImpl.transportMobNoSearchController,
+                  AppConstants.mobileNumber);
+            },
+          ),
+          AppWidgetUtils.buildSizedBox(custWidth: 10),
+          StreamBuilder(
+            stream: _transportBlocImpl.transportCityStreamController,
+            builder: (context, snapshot) {
+              return _buildFormField(
+                  inputFormatters: TldsInputFormatters.allowAlphabetsAndSpaces,
+                  _transportBlocImpl.transportCitySearchController,
+                  AppConstants.city);
+            },
+          ),
+        ],
+        if (AccessLevel.canAdd(AppConstants.transport)) const Spacer(),
         AppWidgetUtils.buildAddbutton(
           context,
           text: AppConstants.addTransport,
@@ -199,11 +204,12 @@ class _TransportViewState extends State<TransportView> {
                             _buildTransportTableHeader(
                                 AppConstants.mobileNumber),
                             _buildTransportTableHeader(AppConstants.city),
-                            _buildTransportTableHeader(AppConstants.action),
+                            if (AccessLevel.canFUpdate(AppConstants.transport))
+                              _buildTransportTableHeader(AppConstants.action),
                           ],
                           rows: userData.asMap().entries.map((entry) {
                             return DataRow(
-                              color: MaterialStateColor.resolveWith((states) {
+                              color: WidgetStateColor.resolveWith((states) {
                                 return entry.key % 2 == 0
                                     ? Colors.white
                                     : _appColors.transparentBlueColor;
@@ -213,26 +219,28 @@ class _TransportViewState extends State<TransportView> {
                                 _buildTableRow(entry.value.transportName),
                                 _buildTableRow(entry.value.mobileNo),
                                 _buildTableRow(entry.value.city),
-                                DataCell(
-                                  Row(
-                                    children: [
-                                      IconButton(
-                                          icon: SvgPicture.asset(
-                                              AppConstants.icEdit),
-                                          onPressed: () {
-                                            showDialog(
-                                              barrierDismissible: false,
-                                              context: context,
-                                              builder: (context) {
-                                                return CreateTransportDialog(
-                                                    transportId: entry
-                                                        .value.transportId);
-                                              },
-                                            );
-                                          }),
-                                    ],
+                                if (AccessLevel.canFUpdate(
+                                    AppConstants.transport))
+                                  DataCell(
+                                    Row(
+                                      children: [
+                                        IconButton(
+                                            icon: SvgPicture.asset(
+                                                AppConstants.icEdit),
+                                            onPressed: () {
+                                              showDialog(
+                                                barrierDismissible: false,
+                                                context: context,
+                                                builder: (context) {
+                                                  return CreateTransportDialog(
+                                                      transportId: entry
+                                                          .value.transportId);
+                                                },
+                                              );
+                                            }),
+                                      ],
+                                    ),
                                   ),
-                                ),
                               ],
                             );
                           }).toList(),

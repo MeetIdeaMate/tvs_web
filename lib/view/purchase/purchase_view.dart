@@ -59,11 +59,13 @@ class _PurchaseViewState extends State<PurchaseView>
           children: [
             AppWidgetUtils.buildHeaderText(AppConstants.purchase),
             AppWidgetUtils.buildSizedBox(custHeight: 26),
-            _buildSearchFilters(),
-            AppWidgetUtils.buildSizedBox(
-                custHeight: MediaQuery.sizeOf(context).height * 0.02),
-            _buildTabBar(),
-            _buildTabBarView(),
+            if (AccessLevel.canView(AppConstants.purchase)) ...[
+              _buildSearchFilters(),
+              AppWidgetUtils.buildSizedBox(
+                  custHeight: MediaQuery.sizeOf(context).height * 0.02),
+              _buildTabBar(),
+              _buildTabBarView(),
+            ]
           ],
         ),
       ),
@@ -282,7 +284,7 @@ class _PurchaseViewState extends State<PurchaseView>
                           ],
                           rows: purchasedata.asMap().entries.map((entry) {
                             return DataRow(
-                              color: MaterialStateColor.resolveWith((states) {
+                              color: WidgetStateColor.resolveWith((states) {
                                 return entry.key % 2 == 0
                                     ? Colors.white
                                     : _appColors.transparentBlueColor;
@@ -373,14 +375,16 @@ class _PurchaseViewState extends State<PurchaseView>
                 value: 'option1',
                 child: Text('View'),
               ),
-              const PopupMenuItem(
-                value: 'option3',
-                child: Text('Cancel'),
-              ),
-              const PopupMenuItem(
-                value: 'option4',
-                child: Text('Approve'),
-              ),
+              if (AccessLevel.canPUpdate(AppConstants.purchase))
+                const PopupMenuItem(
+                  value: 'option3',
+                  child: Text('Cancel'),
+                ),
+              if (AccessLevel.canPUpdate(AppConstants.purchase))
+                const PopupMenuItem(
+                  value: 'option4',
+                  child: Text('Approve'),
+                ),
             ];
           },
           onSelected: (value) {

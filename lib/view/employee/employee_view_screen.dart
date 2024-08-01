@@ -8,6 +8,7 @@ import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/utils/app_util_widgets.dart';
 import 'package:tlbilling/view/employee/create_employee_dialog.dart';
 import 'package:tlbilling/view/employee/employee_view_bloc.dart';
+import 'package:tlbilling/view/useraccess/access_level_shared_pref.dart';
 import 'package:tlds_flutter/components/tlds_dropdown_button_form_field.dart';
 
 class EmployeeView extends StatefulWidget {
@@ -51,7 +52,8 @@ class _EmployeeViewState extends State<EmployeeView> {
             AppWidgetUtils.buildSizedBox(custHeight: 26),
             _buildFiltersAndAddEmpButton(context),
             AppWidgetUtils.buildSizedBox(custHeight: 28),
-            _buildEmployeeTableView(context)
+            if (AccessLevel.canView(AppConstants.employee))
+              _buildEmployeeTableView(context)
           ],
         ),
       ),
@@ -63,12 +65,15 @@ class _EmployeeViewState extends State<EmployeeView> {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
-        _buildEmpNameSearchFilter(),
-        // _buildEmpCityDropdown(),
-        _buildEmpWorkTypeDropdown(),
-        if (_employeeViewBloc.isMainBranch ?? false) _buildEmpBranchDropdown(),
-        const Spacer(),
-        _buildAddEmployeebutton(context)
+        if (AccessLevel.canView(AppConstants.employee)) ...[
+          _buildEmpNameSearchFilter(),
+          // _buildEmpCityDropdown(),
+          _buildEmpWorkTypeDropdown(),
+          if (_employeeViewBloc.isMainBranch ?? false)
+            _buildEmpBranchDropdown(),
+          const Spacer(),
+        ],
+        if (AccessLevel.canAdd('Employee')) _buildAddEmployeebutton(context)
       ],
     );
   }
@@ -272,11 +277,12 @@ class _EmployeeViewState extends State<EmployeeView> {
                             _buildEmployeeTableHeader(AppConstants.city),
                             _buildEmployeeTableHeader(AppConstants.workType),
                             _buildEmployeeTableHeader(AppConstants.branchName),
-                            _buildEmployeeTableHeader(AppConstants.action),
+                            if (AccessLevel.canPUpdate(AppConstants.employee))
+                              _buildEmployeeTableHeader(AppConstants.action),
                           ],
                           rows: userData.asMap().entries.map((entry) {
                             return DataRow(
-                              color: MaterialStateColor.resolveWith((states) {
+                              color: WidgetStateColor.resolveWith((states) {
                                 return entry.key % 2 == 0
                                     ? Colors.white
                                     : _appColors.transparentBlueColor;
@@ -288,30 +294,32 @@ class _EmployeeViewState extends State<EmployeeView> {
                                 _buildTableRow(entry.value.city),
                                 _buildTableRow(entry.value.designation),
                                 _buildTableRow(entry.value.branchName),
-                                DataCell(
-                                  Row(
-                                    children: [
-                                      IconButton(
-                                        icon: SvgPicture.asset(
-                                            AppConstants.icEdit),
-                                        onPressed: () {
-                                          showDialog(
-                                            barrierDismissible: false,
-                                            context: context,
-                                            builder: (context) {
-                                              return CreateEmployeeDialog(
-                                                  employeeViewBloc:
-                                                      _employeeViewBloc,
-                                                  employeeId:
-                                                      entry.value.employeeId ??
-                                                          '');
-                                            },
-                                          );
-                                        },
-                                      ),
-                                    ],
+                                if (AccessLevel.canPUpdate(
+                                    AppConstants.employee))
+                                  DataCell(
+                                    Row(
+                                      children: [
+                                        IconButton(
+                                          icon: SvgPicture.asset(
+                                              AppConstants.icEdit),
+                                          onPressed: () {
+                                            showDialog(
+                                              barrierDismissible: false,
+                                              context: context,
+                                              builder: (context) {
+                                                return CreateEmployeeDialog(
+                                                    employeeViewBloc:
+                                                        _employeeViewBloc,
+                                                    employeeId: entry
+                                                            .value.employeeId ??
+                                                        '');
+                                              },
+                                            );
+                                          },
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                ),
                               ],
                             );
                           }).toList(),

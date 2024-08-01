@@ -11,6 +11,7 @@ import 'package:tlbilling/utils/app_util_widgets.dart';
 import 'package:tlbilling/utils/app_utils.dart';
 import 'package:tlbilling/view/transfer/new_transfer/new_transfer.dart';
 import 'package:tlbilling/view/transfer/transfer_view_bloc.dart';
+import 'package:tlbilling/view/useraccess/access_level_shared_pref.dart';
 import 'package:tlds_flutter/components/tlds_dropdown_button_form_field.dart';
 import 'package:toastification/toastification.dart';
 
@@ -85,32 +86,34 @@ class _TransferViewState extends State<TransferView>
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Row(
-          children: [
-            FutureBuilder(
-              future: _transferViewBloc.getTransferStatus(),
-              builder: (context, snapshot) {
-                var transferStatusList = snapshot.data?.configuration;
-                transferStatusList?.insert(0, AppConstants.allStatus);
-                _transferViewBloc.transferStatus = transferStatusList?.first;
-                return TldsDropDownButtonFormField(
-                  height: 40,
-                  width: 150,
-                  hintText: AppConstants.select,
-                  dropDownItems: transferStatusList ?? [],
-                  dropDownValue: _transferViewBloc.transferStatus,
-                  onChange: (String? newValue) {
-                    _transferViewBloc.transferStatus = newValue ?? '';
-                    _transferViewBloc.tableRefreshStream(true);
-                  },
-                );
-              },
-            ),
-            _buildDefaultWidth(),
-            _buildFromAndToBranchDropdown(),
-          ],
-        ),
-        _buildNewTransfer()
+        if (AccessLevel.canView(AppConstants.stocks)) ...[
+          Row(
+            children: [
+              FutureBuilder(
+                future: _transferViewBloc.getTransferStatus(),
+                builder: (context, snapshot) {
+                  var transferStatusList = snapshot.data?.configuration;
+                  transferStatusList?.insert(0, AppConstants.allStatus);
+                  _transferViewBloc.transferStatus = transferStatusList?.first;
+                  return TldsDropDownButtonFormField(
+                    height: 40,
+                    width: 150,
+                    hintText: AppConstants.select,
+                    dropDownItems: transferStatusList ?? [],
+                    dropDownValue: _transferViewBloc.transferStatus,
+                    onChange: (String? newValue) {
+                      _transferViewBloc.transferStatus = newValue ?? '';
+                      _transferViewBloc.tableRefreshStream(true);
+                    },
+                  );
+                },
+              ),
+              _buildDefaultWidth(),
+              _buildFromAndToBranchDropdown(),
+            ],
+          ),
+        ],
+        if (AccessLevel.canAdd(AppConstants.stocks)) _buildNewTransfer()
       ],
     );
   }
@@ -383,7 +386,7 @@ class _TransferViewState extends State<TransferView>
             .entries
             .map(
               (entry) => DataRow(
-                color: MaterialStateColor.resolveWith((states) {
+                color: WidgetStateColor.resolveWith((states) {
                   _transferViewBloc.transferListCount =
                       snapshot.data?.length.toString();
                   _transferViewBloc.receivedListCount =
@@ -431,9 +434,10 @@ class _TransferViewState extends State<TransferView>
                               if (_transferViewBloc
                                       .transferScreenTabController.index !=
                                   0)
-                                const PopupMenuItem(
-                                    value: 'option1',
-                                    child: Text(AppConstants.approveItem)),
+                                if (AccessLevel.canPUpdate(AppConstants.stocks))
+                                  const PopupMenuItem(
+                                      value: 'option1',
+                                      child: Text(AppConstants.approveItem)),
                             ];
                           },
                           onSelected: (value) {
@@ -579,7 +583,7 @@ class _TransferViewState extends State<TransferView>
             .entries
             .map(
               (entry) => DataRow(
-                color: MaterialStateColor.resolveWith((states) {
+                color: WidgetStateColor.resolveWith((states) {
                   if (entry.key % 2 == 0) {
                     return Colors.white;
                   } else {

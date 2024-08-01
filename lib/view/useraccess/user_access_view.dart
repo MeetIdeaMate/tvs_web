@@ -1,3 +1,4 @@
+import 'package:blurry_modal_progress_hud/blurry_modal_progress_hud.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tlbilling/models/get_model/get_all_access_controll_model.dart';
@@ -23,10 +24,10 @@ class _AccessControlViewScreenState extends State<AccessControlViewScreen>
   final _appColors = AppColors();
   final _accessViewControlBloc = AccessControlViewBlocImpl();
   String? _userId;
-  String? _branchId;
   String? _userName;
   bool? isUpdateAccess;
   String? accessId;
+  bool _loading = false;
   final List<UIComponent> _uiComponents = [];
   final List<Menu> _selectedMenus = [];
   final Map<String, bool> _hideChecks = {};
@@ -35,6 +36,8 @@ class _AccessControlViewScreenState extends State<AccessControlViewScreen>
   final Map<String, bool> _pUpdateChecks = {};
   final Map<String, bool> _fUpdateChecks = {};
   final Map<String, bool> _deleteChecks = {};
+  final Set<String> _changedCheckboxes = {};
+  bool? isCheckBoxChanges;
 
   @override
   void dispose() {
@@ -60,7 +63,6 @@ class _AccessControlViewScreenState extends State<AccessControlViewScreen>
       return;
     }
     isUpdateAccess = checkboxValue.isEmpty;
-    print('isUpdateAccess$isUpdateAccess');
 
     _selectedMenus.clear();
     _hideChecks.clear();
@@ -73,45 +75,42 @@ class _AccessControlViewScreenState extends State<AccessControlViewScreen>
     final addedComponentNames = <String>{};
 
     for (AccessControlList element in checkboxValue) {
-      if (element.userId == _userId) {
-        accessId = element.id;
-        print('accessId$accessId');
-        for (UiComponent components in element.uiComponents ?? []) {
-          final accessLevelsMap = <String, bool>{
-            'HIDE': false,
-            'VIEW': false,
-            'ADD': false,
-            'P_UPDATE': false,
-            'F_UPDATE': false,
-            'DELETE': false,
-          };
+      accessId = element.id;
+      for (UiComponent components in element.uiComponents ?? []) {
+        final accessLevelsMap = <String, bool>{
+          'HIDE': false,
+          'VIEW': false,
+          'ADD': false,
+          'P_UPDATE': false,
+          'F_UPDATE': false,
+          'DELETE': false,
+        };
 
-          for (var accessLevel in components.accessLevels ?? []) {
-            if (accessLevelsMap.containsKey(accessLevel)) {
-              accessLevelsMap[accessLevel] = true;
-            }
+        for (var accessLevel in components.accessLevels ?? []) {
+          if (accessLevelsMap.containsKey(accessLevel)) {
+            accessLevelsMap[accessLevel] = true;
           }
+        }
 
-          _hideChecks[components.componentName ?? ''] =
-              accessLevelsMap['HIDE'] ?? false;
-          _viewChecks[components.componentName ?? ''] =
-              accessLevelsMap['VIEW'] ?? false;
-          _addChecks[components.componentName ?? ''] =
-              accessLevelsMap['ADD'] ?? false;
-          _pUpdateChecks[components.componentName ?? ''] =
-              accessLevelsMap['P_UPDATE'] ?? false;
-          _fUpdateChecks[components.componentName ?? ''] =
-              accessLevelsMap['F_UPDATE'] ?? false;
-          _deleteChecks[components.componentName ?? ''] =
-              accessLevelsMap['DELETE'] ?? false;
+        _hideChecks[components.componentName ?? ''] =
+            accessLevelsMap['HIDE'] ?? false;
+        _viewChecks[components.componentName ?? ''] =
+            accessLevelsMap['VIEW'] ?? false;
+        _addChecks[components.componentName ?? ''] =
+            accessLevelsMap['ADD'] ?? false;
+        _pUpdateChecks[components.componentName ?? ''] =
+            accessLevelsMap['P_UPDATE'] ?? false;
+        _fUpdateChecks[components.componentName ?? ''] =
+            accessLevelsMap['F_UPDATE'] ?? false;
+        _deleteChecks[components.componentName ?? ''] =
+            accessLevelsMap['DELETE'] ?? false;
 
-          if (!addedComponentNames.contains(components.componentName)) {
-            _uiComponents.add(UIComponent(
-              accessLevels: components.accessLevels,
-              componentName: components.componentName,
-            ));
-            addedComponentNames.add(components.componentName ?? '');
-          }
+        if (!addedComponentNames.contains(components.componentName)) {
+          _uiComponents.add(UIComponent(
+            accessLevels: components.accessLevels,
+            componentName: components.componentName,
+          ));
+          addedComponentNames.add(components.componentName ?? '');
         }
       }
     }
@@ -119,41 +118,38 @@ class _AccessControlViewScreenState extends State<AccessControlViewScreen>
     final addedMenuNames = <String>{};
 
     for (AccessControlList element in checkboxValue) {
-      if (element.userId == _userId) {
-        for (MenuList menu in element.menus ?? []) {
-          accessId = element.id;
-          final accessLevelsMap = <String, bool>{
-            'HIDE': false,
-            'VIEW': false,
-            'ADD': false,
-            'P_UPDATE': false,
-            'F_UPDATE': false,
-            'DELETE': false,
-          };
+      for (MenuList menu in element.menus ?? []) {
+        accessId = element.id;
+        final accessLevelsMap = <String, bool>{
+          'HIDE': false,
+          'VIEW': false,
+          'ADD': false,
+          'P_UPDATE': false,
+          'F_UPDATE': false,
+          'DELETE': false,
+        };
 
-          for (var accessLevel in menu.accessLevels ?? []) {
-            if (accessLevelsMap.containsKey(accessLevel)) {
-              accessLevelsMap[accessLevel] = true;
-            }
+        for (var accessLevel in menu.accessLevels ?? []) {
+          if (accessLevelsMap.containsKey(accessLevel)) {
+            accessLevelsMap[accessLevel] = true;
           }
+        }
 
-          _hideChecks[menu.menuName ?? ''] = accessLevelsMap['HIDE'] ?? false;
-          _viewChecks[menu.menuName ?? ''] = accessLevelsMap['VIEW'] ?? false;
-          _addChecks[menu.menuName ?? ''] = accessLevelsMap['ADD'] ?? false;
-          _pUpdateChecks[menu.menuName ?? ''] =
-              accessLevelsMap['P_UPDATE'] ?? false;
-          _fUpdateChecks[menu.menuName ?? ''] =
-              accessLevelsMap['F_UPDATE'] ?? false;
-          _deleteChecks[menu.menuName ?? ''] =
-              accessLevelsMap['DELETE'] ?? false;
+        _hideChecks[menu.menuName ?? ''] = accessLevelsMap['HIDE'] ?? false;
+        _viewChecks[menu.menuName ?? ''] = accessLevelsMap['VIEW'] ?? false;
+        _addChecks[menu.menuName ?? ''] = accessLevelsMap['ADD'] ?? false;
+        _pUpdateChecks[menu.menuName ?? ''] =
+            accessLevelsMap['P_UPDATE'] ?? false;
+        _fUpdateChecks[menu.menuName ?? ''] =
+            accessLevelsMap['F_UPDATE'] ?? false;
+        _deleteChecks[menu.menuName ?? ''] = accessLevelsMap['DELETE'] ?? false;
 
-          if (!addedMenuNames.contains(menu.menuName)) {
-            _selectedMenus.add(Menu(
-              accessLevels: menu.accessLevels,
-              menuName: menu.menuName,
-            ));
-            addedMenuNames.add(menu.menuName ?? '');
-          }
+        if (!addedMenuNames.contains(menu.menuName)) {
+          _selectedMenus.add(Menu(
+            accessLevels: menu.accessLevels,
+            menuName: menu.menuName,
+          ));
+          addedMenuNames.add(menu.menuName ?? '');
         }
       }
     }
@@ -174,27 +170,10 @@ class _AccessControlViewScreenState extends State<AccessControlViewScreen>
     });
   }
 
-  Future<void> _fetchMenuCheckboxValues() async {
-    final checkboxValue = await _accessViewControlBloc
-        .getAllUserAccessControlData(userId: _userId);
-
-    if (checkboxValue == null) {
-      return;
-    }
-
-    isUpdateAccess = checkboxValue.isEmpty;
-    print('isUpdateAccess: $isUpdateAccess');
-
-    //  _accessViewControlBloc.screenNameList.clear();
-    _selectedMenus.clear();
-    _hideChecks.clear();
-    _viewChecks.clear();
-    _addChecks.clear();
-    _pUpdateChecks.clear();
-    _fUpdateChecks.clear();
-    _deleteChecks.clear();
-
-    _accessViewControlBloc.refreshTavViewStreamController(true);
+  void _isLoadingState({required bool state}) {
+    setState(() {
+      _loading = state;
+    });
   }
 
   Future<void> _fetchMenuConfigs() async {
@@ -218,7 +197,6 @@ class _AccessControlViewScreenState extends State<AccessControlViewScreen>
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
     _userId = prefs.getString('userId');
-    _branchId = prefs.getString('branchId');
     _userName = prefs.getString('userName');
     _accessViewControlBloc.selectedUserName = _userName;
   }
@@ -295,8 +273,9 @@ class _AccessControlViewScreenState extends State<AccessControlViewScreen>
   }
 
   void _updateCheckboxState(
-      String screenName, String accessLevel, bool? value) {
+      String screenName, String accessLevel, bool? value) async {
     final isChecked = value ?? false;
+    final key = '$screenName-$accessLevel';
     _accessViewControlBloc.checkBoxStreamController(true);
     switch (accessLevel) {
       case 'HIDE':
@@ -314,15 +293,28 @@ class _AccessControlViewScreenState extends State<AccessControlViewScreen>
         break;
       case 'VIEW':
         _viewChecks[screenName] = isChecked;
+
         break;
       case 'ADD':
         _addChecks[screenName] = isChecked;
+        if (isChecked) {
+          _viewChecks[screenName] = true;
+        }
+        _accessViewControlBloc.refreshTavViewStreamController(true);
         break;
       case 'P_UPDATE':
         _pUpdateChecks[screenName] = isChecked;
+        if (isChecked) {
+          _viewChecks[screenName] = true;
+        }
+        _accessViewControlBloc.refreshTavViewStreamController(true);
         break;
       case 'F_UPDATE':
         _fUpdateChecks[screenName] = isChecked;
+        if (isChecked) {
+          _viewChecks[screenName] = true;
+        }
+        _accessViewControlBloc.refreshTavViewStreamController(true);
         break;
       case 'DELETE':
         _deleteChecks[screenName] = isChecked;
@@ -336,6 +328,18 @@ class _AccessControlViewScreenState extends State<AccessControlViewScreen>
         _accessViewControlBloc.refreshTavViewStreamController(true);
         break;
     }
+
+    bool hasChanges = _changedCheckboxes.contains('$screenName-$accessLevel');
+
+    if (!hasChanges) {
+      _changedCheckboxes.add(key);
+    } else {
+      _changedCheckboxes.remove(key);
+    }
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    isCheckBoxChanges = _changedCheckboxes.isNotEmpty;
+    prefs.setBool('isAccessCheckBoxChanged', isCheckBoxChanges ?? false);
   }
 
   Widget _buildCheckboxCell(int index, String screenName, String accessLevel,
@@ -369,103 +373,134 @@ class _AccessControlViewScreenState extends State<AccessControlViewScreen>
         });
   }
 
+  buttonOnPressed() async {
+    _updateSelectedMenus();
+    _updateSelectedUIComponents();
+    if (_changedCheckboxes.isEmpty) {
+      AppWidgetUtils.buildToast(
+          context,
+          ToastificationType.warning,
+          'Warning',
+          Icon(
+            Icons.warning_rounded,
+            color: _appColors.errorColor,
+          ),
+          isUpdateAccess ?? false
+              ? 'No access control data selected.'
+              : 'No access control data changed.',
+          _appColors.errorLightColor);
+    } else {
+      final accessData = UserAccess(
+          menus: _selectedMenus, uiComponents: _uiComponents, userId: _userId);
+      _isLoadingState(state: true);
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      if (isUpdateAccess ?? false) {
+        _accessViewControlBloc.accessControlPostData((statusCode) {
+          _changedCheckboxes.clear();
+          prefs.remove('isAccessCheckBoxChanged');
+
+          if (statusCode == 200 || statusCode == 201) {
+            _isLoadingState(state: false);
+            AppWidgetUtils.buildToast(
+                context,
+                ToastificationType.success,
+                AppConstants.userAccessCreated,
+                Icon(
+                  Icons.check_circle_outline_rounded,
+                  color: _appColors.successColor,
+                ),
+                AppConstants.userAccessCreatedDes,
+                _appColors.successLightColor);
+          } else {
+            _isLoadingState(state: false);
+            AppWidgetUtils.buildToast(
+                context,
+                ToastificationType.error,
+                AppConstants.userAccessNotCreated,
+                Icon(
+                  Icons.error_outline_outlined,
+                  color: _appColors.errorColor,
+                ),
+                AppConstants.userAccessNotCreatedDes,
+                _appColors.errorLightColor);
+          }
+        }, accessData);
+      } else {
+        _accessViewControlBloc.accessControlUpdateData((statusCode) {
+          if (statusCode == 200 || statusCode == 201) {
+            _isLoadingState(state: false);
+            prefs.remove('isAccessCheckBoxChanged');
+
+            _changedCheckboxes.clear();
+            AppWidgetUtils.buildToast(
+                context,
+                ToastificationType.success,
+                AppConstants.userAccessUpdated,
+                Icon(
+                  Icons.check_circle_outline_rounded,
+                  color: _appColors.successColor,
+                ),
+                AppConstants.userAccessUpdatedDes,
+                _appColors.successLightColor);
+          } else {
+            _isLoadingState(state: false);
+            AppWidgetUtils.buildToast(
+                context,
+                ToastificationType.error,
+                AppConstants.userAccessNotUpdated,
+                Icon(
+                  Icons.error_outline_outlined,
+                  color: _appColors.errorColor,
+                ),
+                AppConstants.userAccessNotUpdatedDes,
+                _appColors.errorLightColor);
+          }
+        }, accessData, accessId ?? '');
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      floatingActionButton: Tooltip(
-        message: 'Update access data',
-        child: FloatingActionButton(
+    var tooltip = Tooltip(
+      message: 'update access data',
+      child: FloatingActionButton(
           backgroundColor: _appColors.primaryColor,
           shape: const CircleBorder(),
+          onPressed: buttonOnPressed,
           child: Icon(
             Icons.cloud_upload,
             color: _appColors.whiteColor,
+          )),
+    );
+    return BlurryModalProgressHUD(
+      inAsyncCall: _loading,
+      progressIndicator: AppWidgetUtils.buildLoading(),
+      color: _appColors.whiteColor,
+      child: Scaffold(
+        floatingActionButton: tooltip,
+        body: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 21, vertical: 28),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              AppWidgetUtils.buildHeaderText(AppConstants.accessControl),
+              AppWidgetUtils.buildSizedBox(custHeight: 10),
+              Row(
+                children: [
+                  _buildRoleDropdown(),
+                  AppWidgetUtils.buildSizedBox(custWidth: 10),
+                  _buildDesignationDropdown(),
+                  AppWidgetUtils.buildSizedBox(custWidth: 10),
+                  _buildUserNameList()
+                ],
+              ),
+              AppWidgetUtils.buildSizedBox(custHeight: 10),
+              _buildTabBar(),
+              AppWidgetUtils.buildSizedBox(custHeight: 26),
+              _buildTabBarView(),
+            ],
           ),
-          onPressed: () {
-            _updateSelectedMenus();
-            _updateSelectedUIComponents();
-            final accessData = UserAccess(
-                menus: _selectedMenus,
-                uiComponents: _uiComponents,
-                userId: _userId);
-            print('*&********${accessData.toJson()}');
-            if (isUpdateAccess ?? false) {
-              _accessViewControlBloc.accessControlPostData((statusCode) {
-                if (statusCode == 200 || statusCode == 201) {
-                  AppWidgetUtils.buildToast(
-                      context,
-                      ToastificationType.success,
-                      AppConstants.userAccessCreated,
-                      Icon(
-                        Icons.check_circle_outline_rounded,
-                        color: _appColors.successColor,
-                      ),
-                      AppConstants.userAccessCreatedDes,
-                      _appColors.successLightColor);
-                } else {
-                  AppWidgetUtils.buildToast(
-                      context,
-                      ToastificationType.error,
-                      AppConstants.userAccessNotCreated,
-                      Icon(
-                        Icons.error_outline_outlined,
-                        color: _appColors.errorColor,
-                      ),
-                      AppConstants.userAccessNotCreatedDes,
-                      _appColors.errorLightColor);
-                }
-              }, accessData);
-            } else {
-              _accessViewControlBloc.accessControlUpdateData((statusCode) {
-                if (statusCode == 200 || statusCode == 201) {
-                  AppWidgetUtils.buildToast(
-                      context,
-                      ToastificationType.success,
-                      AppConstants.userAccessUpdated,
-                      Icon(
-                        Icons.check_circle_outline_rounded,
-                        color: _appColors.successColor,
-                      ),
-                      AppConstants.userAccessNotUpdatedDes,
-                      _appColors.successLightColor);
-                } else {
-                  AppWidgetUtils.buildToast(
-                      context,
-                      ToastificationType.error,
-                      AppConstants.userAccessNotUpdated,
-                      Icon(
-                        Icons.error_outline_outlined,
-                        color: _appColors.errorColor,
-                      ),
-                      AppConstants.userAccessNotUpdatedDes,
-                      _appColors.errorLightColor);
-                }
-              }, accessData, accessId ?? '');
-            }
-          },
-        ),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 21, vertical: 28),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            AppWidgetUtils.buildHeaderText(AppConstants.accessControl),
-            AppWidgetUtils.buildSizedBox(custHeight: 10),
-            Row(
-              children: [
-                _buildRoleDropdown(),
-                AppWidgetUtils.buildSizedBox(custWidth: 10),
-                _buildDesignationDropdown(),
-                AppWidgetUtils.buildSizedBox(custWidth: 10),
-                _buildUserNameList()
-              ],
-            ),
-            AppWidgetUtils.buildSizedBox(custHeight: 10),
-            _buildTabBar(),
-            AppWidgetUtils.buildSizedBox(custHeight: 26),
-            _buildTabBarView(),
-          ],
         ),
       ),
     );
@@ -705,7 +740,6 @@ class _AccessControlViewScreenState extends State<AccessControlViewScreen>
           List<UserDetailsList> users = futureSnapshot.data ?? [];
           List<String> userNameList =
               users.map((e) => e.userName ?? '').toList();
-          userNameList.insert(0, 'AllUser');
 
           return TldsDropDownButtonFormField(
             height: 40,
@@ -715,9 +749,14 @@ class _AccessControlViewScreenState extends State<AccessControlViewScreen>
             dropDownValue: _accessViewControlBloc.selectedUserName,
             onChange: (String? newValue) {
               _accessViewControlBloc.selectedUserName = newValue ?? '';
+
               _userId = users.firstWhere((e) => e.userName == newValue).userId;
+
+              _changedCheckboxes.clear();
+
+              //    prefs.remove('isAccessCheckBoxChanged');
+
               _fetcthCheckboxValues();
-              setState(() {});
               _accessViewControlBloc.refreshTavViewStreamController(true);
             },
           );

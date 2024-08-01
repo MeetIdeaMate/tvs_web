@@ -14,6 +14,7 @@ import 'package:tlbilling/utils/app_utils.dart';
 import 'package:tlbilling/view/booking/add_booking/add_booking_dialog.dart';
 import 'package:tlbilling/view/booking/booking_list_bloc.dart';
 import 'package:tlbilling/view/login/login_page.dart';
+import 'package:tlbilling/view/useraccess/access_level_shared_pref.dart';
 import 'package:tlds_flutter/components/tlds_dropdown_button_form_field.dart';
 import 'package:tlds_flutter/components/tlds_input_form_field.dart';
 import 'package:tlds_flutter/components/tlds_input_formaters.dart';
@@ -60,8 +61,12 @@ class _BookingListState extends State<BookingList>
               AppWidgetUtils.buildSizedBox(custHeight: 26),
               _buildSearchFieldsAndAddBookButton(),
               _buildDefaultHeight(),
-              _buildTabBar(),
-              _buildTabBarView(),
+              if (AccessLevel.canView(
+                AppConstants.booking,
+              )) ...[
+                _buildTabBar(),
+                _buildTabBarView(),
+              ]
             ],
           ),
         ),
@@ -76,16 +81,27 @@ class _BookingListState extends State<BookingList>
       children: [
         Row(
           children: [
-            _bookingIdField(),
-            _buildDefaultWidth(),
-            _buildCustomerNameField(),
-            _buildDefaultWidth(),
-            _buildPaymentTypeDropdown(),
-            _buildDefaultWidth(),
-            if (_bookingListBloc.isMainBranch ?? false) _buildBranchDropdown()
+            if (AccessLevel.canView(
+              AppConstants.booking,
+            )) ...[
+              _bookingIdField(),
+              _buildDefaultWidth(),
+              _buildCustomerNameField(),
+              _buildDefaultWidth(),
+              _buildPaymentTypeDropdown(),
+              _buildDefaultWidth(),
+            ],
+            if (_bookingListBloc.isMainBranch ?? false)
+              if (AccessLevel.canView(
+                AppConstants.booking,
+              ))
+                _buildBranchDropdown()
           ],
         ),
-        _buildAddBookButton(),
+        if (AccessLevel.canAdd(
+          AppConstants.booking,
+        ))
+          _buildAddBookButton(),
       ],
     );
   }
@@ -370,7 +386,10 @@ class _BookingListState extends State<BookingList>
       _buildTableHeader(AppConstants.executiveName, flex: 2),
       _buildTableHeader(AppConstants.targetInvDate, flex: 2),
       if (_bookingListBloc.bookingTabController.index == 0)
-        _buildTableHeader(AppConstants.action, flex: 2),
+        if (AccessLevel.canPUpdate(
+          AppConstants.booking,
+        ))
+          _buildTableHeader(AppConstants.action, flex: 2),
     ];
   }
 
@@ -378,7 +397,7 @@ class _BookingListState extends State<BookingList>
       List<BookingDetails> bookingDetails) {
     return bookingDetails.asMap().entries.map((entry) {
       return DataRow(
-        color: MaterialStateColor.resolveWith((states) {
+        color: WidgetStateColor.resolveWith((states) {
           if (entry.key % 2 == 0) {
             return Colors.white;
           } else {
@@ -428,7 +447,10 @@ class _BookingListState extends State<BookingList>
           DataCell(Text(AppUtils.apiToAppDateFormat(
               entry.value.targetInvoiceDate.toString()))),
           if (_bookingListBloc.bookingTabController.index == 0)
-            DataCell(_buildCancelButton(entry)),
+            if (AccessLevel.canPUpdate(
+              AppConstants.booking,
+            ))
+              DataCell(_buildCancelButton(entry)),
         ],
       );
     }).toList();
