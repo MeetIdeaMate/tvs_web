@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:tlbilling/models/get_model/get_all_account_head_by_pagination_model.dart';
 import 'package:tlbilling/models/get_model/get_all_access_controll_model.dart';
 import 'package:tlbilling/models/get_model/get_all_booking_list_with_pagination.dart';
 import 'package:tlbilling/models/get_model/get_all_branch_by_id_model.dart';
@@ -72,6 +73,7 @@ class ParentResponseModel {
 }
 
 class ResultObj {
+  GetAllAccountHeadPagination? getAllAccountHeadPagination;
   GetAllVendorByPagination? getAllVendorByPagination;
   GetAllCustomersByPaginationModel? getAllCustomersByPaginationModel;
   GetAllCustomersModel? getAllCustomersModel;
@@ -96,6 +98,7 @@ class ResultObj {
   GetAllInsuranceByPaginationModel? getAllInsuranceModel;
   GetAllSales? getAllSalesList;
   GetBranchById? getBranchId;
+  GetAllAccount? getAllAccount;
   GetAllpurchaseReport? getPurchaseReport;
   PurchaseByPartNoModel? purchaseByPartNo;
   GetAllCategoryListModel? getAllcategoryList;
@@ -109,8 +112,8 @@ class ResultObj {
   GetBookingDetailsByIdModel? getBookingDetailsById;
   GetAllVoucherWithPagenationModel? getAllVoucherWithPaganation;
   List<GetCustomerBookingDetails>? getCustomerBookingDetails;
-   List<AccessControlList>? getAllUserAccessControlDetails;
-   List<UserDetailsList>? getAllUserWithoutPagenation;
+  List<AccessControlList>? getAllUserAccessControlDetails;
+  List<UserDetailsList>? getAllUserWithoutPagenation;
 
   ResultObj(
       {this.getAllVendorByPagination,
@@ -150,7 +153,10 @@ class ResultObj {
       this.getBookingDetailsById,
       this.getAllVoucherWithPaganation,
       this.getCustomerBookingDetails,
-      this.getAllUserAccessControlDetails, this.getAllUserWithoutPagenation});
+      this.getAllAccountHeadPagination,
+      this.getAllAccount,
+      this.getAllUserAccessControlDetails,
+      this.getAllUserWithoutPagenation});
 
   factory ResultObj.fromJson(Map<String, dynamic> json) => ResultObj(
         getAllCustomersByPaginationModel: json['customersWithPage'] != null
@@ -175,6 +181,9 @@ class ResultObj {
         getAllEmployeesByPaginationModel: json['employeesWithPage'] != null
             ? GetAllEmployeesByPaginationModel.fromJson(
                 json['employeesWithPage'])
+            : null,
+        getAllAccountHeadPagination: json['accountHead'] != null
+            ? GetAllAccountHeadPagination.fromJson(json['accountHead'])
             : null,
         getAllBranchList: json['branchResponseList'] != null
             ? List<GetAllBranchList>.from(json['branchResponseList']
@@ -234,6 +243,9 @@ class ResultObj {
         getBranchId: json["branchResponse"] != null
             ? GetBranchById.fromJson(json["branchResponse"])
             : null,
+        getAllAccount: json["accountHead"] != null
+            ? GetAllAccount.fromJson(json["accountHead"])
+            : null,
         getPurchaseReport: json['purchasesReportWithPage'] != null
             ? GetAllpurchaseReport.fromJson(json['purchasesReportWithPage'])
             : null,
@@ -280,12 +292,12 @@ class ResultObj {
                 .map((x) => GetCustomerBookingDetails.fromJson(x)))
             : null,
         getAllUserAccessControlDetails: json['accessControlList'] != null
-            ?  List<AccessControlList>.from(json['accessControlList']
+            ? List<AccessControlList>.from(json['accessControlList']
                 .map((x) => AccessControlList.fromJson(x)))
             : null,
-              getAllUserWithoutPagenation: json['userList'] != null
-            ?    List<UserDetailsList>.from(json['userList']
-                .map((x) => UserDetailsList.fromJson(x)))
+        getAllUserWithoutPagenation: json['userList'] != null
+            ? List<UserDetailsList>.from(
+                json['userList'].map((x) => UserDetailsList.fromJson(x)))
             : null,
       );
 

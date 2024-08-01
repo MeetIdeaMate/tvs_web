@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:tlbilling/models/get_model/get_all_stocks_model.dart';
+import 'package:tlbilling/models/parent_response_model.dart';
 import 'package:tlbilling/utils/app_colors.dart';
 import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/utils/app_util_widgets.dart';
@@ -68,7 +69,7 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
                   _buildHeadingText(AppConstants.mandatoryAddons),
                 if (widget.addSalesBloc.selectedVehicleAndAccessories !=
                     AppConstants.accessories)
-                  FutureBuilder(
+                  FutureBuilder<ParentResponseModel>(
                     future: widget.addSalesBloc.getMandantoryAddOns(),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
@@ -76,11 +77,16 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
                       } else if (snapshot.hasError) {
                         return const Text(AppConstants.errorLoading);
                       } else if (!snapshot.hasData ||
-                          (snapshot.data as List<String>).isEmpty) {
+                          (snapshot.data?.result?.getConfigurationModel
+                                  ?.configuration as List<String>)
+                              .isEmpty) {
                         return const Text(AppConstants.noData);
                       } else {
-                        List<String> mandatoryAddOns =
-                            snapshot.data as List<String>;
+                        List<String> mandatoryAddOns = snapshot
+                            .data
+                            ?.result
+                            ?.getConfigurationModel
+                            ?.configuration as List<String>;
 
                         if (widget
                             .addSalesBloc.selectedMandatoryAddOns.isEmpty) {
@@ -89,35 +95,76 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
                                 AppConstants.yesC;
                           }
                         }
+                        if (snapshot.data?.result?.getConfigurationModel
+                                ?.inputType ==
+                            'YES/NO') {
+                          return StreamBuilder<bool>(
+                            stream: widget.addSalesBloc.mandatoryRefereshStream,
+                            builder: (context, snapshot) {
+                              return ListView.builder(
+                                shrinkWrap: true,
+                                itemCount: mandatoryAddOns.length,
+                                itemBuilder: (context, index) {
+                                  String addOn = mandatoryAddOns[index];
 
-                        return StreamBuilder<bool>(
-                          stream: widget.addSalesBloc.mandatoryRefereshStream,
-                          builder: (context, snapshot) {
-                            return ListView.builder(
-                              shrinkWrap: true,
-                              itemCount: mandatoryAddOns.length,
-                              itemBuilder: (context, index) {
-                                String addOn = mandatoryAddOns[index];
-
-                                return _buildMandatoryAdd(
-                                  addOn,
-                                  widget.addSalesBloc
-                                          .selectedMandatoryAddOns[addOn] ??
-                                      AppConstants.yesC,
-                                  (value) {
+                                  return _buildMandatoryAdd(
+                                    addOn,
                                     widget.addSalesBloc
-                                        .mandatoryRefereshStreamController(
-                                            true);
+                                            .selectedMandatoryAddOns[addOn] ??
+                                        AppConstants.yesC,
+                                    (value) {
+                                      widget.addSalesBloc
+                                          .mandatoryRefereshStreamController(
+                                              true);
 
-                                    widget.addSalesBloc
-                                            .selectedMandatoryAddOns[addOn] =
-                                        value ?? '';
-                                  },
-                                );
-                              },
-                            );
-                          },
-                        );
+                                      widget.addSalesBloc
+                                              .selectedMandatoryAddOns[addOn] =
+                                          value ?? '';
+                                    },
+                                  );
+                                },
+                              );
+                            },
+                          );
+                        } else if (snapshot.data?.result?.getConfigurationModel
+                                ?.inputType ==
+                            'INPUT') {
+                          return ListView.builder(
+                            shrinkWrap: true,
+                            itemCount: mandatoryAddOns.length,
+                            itemBuilder: (context, index) {
+                              String componentName = mandatoryAddOns[index];
+                              return Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(componentName),
+                                  const Spacer(),
+                                  Expanded(
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(bottom: 5),
+                                      child: TldsInputFormField(
+                                        height: 40,
+                                        controller: TextEditingController(),
+                                        hintText: componentName,
+                                        onChanged: (value) {
+                                          widget.addSalesBloc
+                                                  .selectedMandatoryAddOns[
+                                              componentName] = value;
+
+                                          printBatteryDetails();
+                                        },
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        }
+
+                        return const Text(
+                            'Give Correct input Type YES/NO or INPUT');
                       }
                     },
                   ),
@@ -143,7 +190,7 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
         StreamBuilder(
             stream: widget.addSalesBloc.batteryDetailsRefreshStream,
             builder: (context, snapshot) {
-              return FutureBuilder(
+              return FutureBuilder<ParentResponseModel>(
                 future: widget.addSalesBloc.getBatteryDetails(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
@@ -151,11 +198,13 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
                   } else if (snapshot.hasError) {
                     return const Text(AppConstants.errorLoading);
                   } else if (!snapshot.hasData ||
-                      (snapshot.data as List<String>).isEmpty) {
+                      (snapshot.data?.result?.getConfigurationModel
+                              ?.configuration as List<String>)
+                          .isEmpty) {
                     return const Text(AppConstants.noData);
                   } else {
-                    List<String> eVehicleComponents =
-                        snapshot.data as List<String>;
+                    List<String> eVehicleComponents = snapshot.data?.result
+                        ?.getConfigurationModel?.configuration as List<String>;
 
                     widget.addSalesBloc.batteryDetailsMap.clear();
 
@@ -163,37 +212,70 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
                       widget.addSalesBloc.batteryDetailsMap[componentName] = '';
                     }
 
-                    return ListView.builder(
-                      shrinkWrap: true,
-                      itemCount: eVehicleComponents.length,
-                      itemBuilder: (context, index) {
-                        String componentName = eVehicleComponents[index];
-                        return Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(componentName),
-                            const Spacer(),
-                            Expanded(
-                              child: Padding(
-                                padding: const EdgeInsets.only(bottom: 5),
-                                child: TldsInputFormField(
-                                  height: 40,
-                                  controller: TextEditingController(),
-                                  hintText: componentName,
-                                  onChanged: (value) {
-                                    widget.addSalesBloc
-                                            .batteryDetailsMap[componentName] =
-                                        value;
+                    if (snapshot
+                            .data?.result?.getConfigurationModel?.inputType ==
+                        'YES/NO') {
+                      return StreamBuilder<bool>(
+                        stream: widget.addSalesBloc.mandatoryRefereshStream,
+                        builder: (context, snapshot) {
+                          return ListView.builder(
+                            shrinkWrap: true,
+                            itemCount: eVehicleComponents.length,
+                            itemBuilder: (context, index) {
+                              String bettery = eVehicleComponents[index];
 
-                                    printBatteryDetails();
-                                  },
+                              return _buildMandatoryAdd(
+                                bettery,
+                                widget.addSalesBloc
+                                        .batteryDetailsMap[bettery] ??
+                                    AppConstants.yesC,
+                                (value) {
+                                  widget.addSalesBloc
+                                      .mandatoryRefereshStreamController(true);
+
+                                  widget.addSalesBloc
+                                      .batteryDetailsMap[bettery] = value ?? '';
+                                },
+                              );
+                            },
+                          );
+                        },
+                      );
+                    } else if (snapshot
+                            .data?.result?.getConfigurationModel?.inputType ==
+                        'INPUT') {
+                      return ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: eVehicleComponents.length,
+                        itemBuilder: (context, index) {
+                          String componentName = eVehicleComponents[index];
+                          return Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(componentName),
+                              const Spacer(),
+                              Expanded(
+                                child: Padding(
+                                  padding: const EdgeInsets.only(bottom: 5),
+                                  child: TldsInputFormField(
+                                    height: 40,
+                                    controller: TextEditingController(),
+                                    hintText: componentName,
+                                    onChanged: (value) {
+                                      widget.addSalesBloc.batteryDetailsMap[
+                                          componentName] = value;
+
+                                      printBatteryDetails();
+                                    },
+                                  ),
                                 ),
                               ),
-                            ),
-                          ],
-                        );
-                      },
-                    );
+                            ],
+                          );
+                        },
+                      );
+                    }
+                    return const Text('no');
                   }
                 },
               );

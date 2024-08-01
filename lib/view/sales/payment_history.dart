@@ -153,8 +153,8 @@ class _PaymentHistoryDialogState extends State<PaymentHistoryDialog> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _buildTextWidget('Total Fees'),
-                _buildTextWidget(AppUtils.formatCurrency(
-                    widget.salesdata?.totalInvoiceAmt ?? 0))
+                _buildTextWidget(
+                    AppUtils.formatCurrency(widget.salesdata?.netAmt ?? 0))
               ],
             ),
             Column(

@@ -203,7 +203,7 @@ class AddSalesModel {
   String? bookingNo;
   String? branchId;
   String? customerId;
-  EvBatteryObj? evBattery;
+  Map<String, String>? evBattery;
   InsuranceObj? insurance;
   String? invoiceDate;
   String? invoiceType;
@@ -240,7 +240,7 @@ class AddSalesModel {
         'bookingNo': bookingNo,
         'branchId': branchId,
         'customerId': customerId,
-        'evBattery': evBattery?.toJson(),
+        'evBattery': evBattery,
         'insurance': insurance?.toJson(),
         'invoiceDate': invoiceDate,
         'invoiceType': invoiceType,

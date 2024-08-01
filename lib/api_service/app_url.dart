@@ -36,5 +36,6 @@ class AppUrl {
   static const voucher = '${baseUrl}voucher/page';
   static const bookingCancel = '${baseUrl}booking/cancel/';
   static const salesBilCancel = '${baseUrl}sales/salesCancel/';
+  static const accountHead = '${baseUrl}acchead';
   static const accessContol = '${baseUrl}access-controls';
 }

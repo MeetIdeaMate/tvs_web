@@ -6,6 +6,8 @@ import 'package:tlbilling/components/side_menu_navigation_bloc.dart';
 import 'package:tlbilling/utils/app_colors.dart';
 import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/utils/app_util_widgets.dart';
+
+import 'package:tlbilling/view/account_head/account_head_view.dart';
 import 'package:tlbilling/view/booking/booking_list.dart';
 import 'package:tlbilling/view/branch/branch_view.dart';
 import 'package:tlbilling/view/configuration/configuration_view.dart';
@@ -126,7 +128,8 @@ class _SideMenuNavigationState extends State<SideMenuNavigation> {
   }
 
   Widget _buildDrawer() {
-    print(AccessLevel.canHide(AppConstants.dashboard));
+    print(
+        '11111111111111111111dashboard${AccessLevel.canHide(AppConstants.dashboard)}');
 
     return StreamBuilder(
       stream: _sideMenuBloc.sideMenuStream,
@@ -327,12 +330,19 @@ class _SideMenuNavigationState extends State<SideMenuNavigation> {
                   AppConstants.accessControl,
                 ))
                   _buildDrawerMenuItem(
-                    AppConstants.icAccessControl,
+                    AppConstants.icUser,
                     AppConstants.accessControl,
                     () {
                       _onMenuItemSelected(AppConstants.accessControl);
                     },
                   ),
+              _buildDrawerMenuItem(
+                AppConstants.icAccounthead,
+                AppConstants.accountHead,
+                () {
+                  _onMenuItemSelected(AppConstants.accountHead);
+                },
+              ),
               AppWidgetUtils.buildSizedBox(custHeight: 30),
               _buildLogoutMenuItem(),
               AppWidgetUtils.buildSizedBox(custHeight: 20),
@@ -470,6 +480,8 @@ class _SideMenuNavigationState extends State<SideMenuNavigation> {
         return const InsuranseView();
       case AppConstants.booking:
         return const BookingList();
+      case AppConstants.accountHead:
+        return const AccountHeadView();
       case AppConstants.accessControl:
         return const AccessControlViewScreen();
       case AppConstants.logOut:

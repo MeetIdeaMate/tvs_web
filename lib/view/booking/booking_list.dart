@@ -309,35 +309,33 @@ class _BookingListState extends State<BookingList>
             List<BookingDetails> bookingDetails =
                 snapshot.data?.bookingDetails ?? [];
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return Expanded(
-                  child: Center(child: AppWidgetUtils.buildLoading()));
+              return Center(child: AppWidgetUtils.buildLoading());
             } else if (snapshot.hasData) {
               GetBookingListWithPagination? bookingList = snapshot.data;
               if (!snapshot.hasData || bookingDetails.isEmpty == true) {
-                return Expanded(
-                  child: Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        SvgPicture.asset(AppConstants.imgNoData),
-                        AppWidgetUtils.buildSizedBox(custHeight: 8),
-                        Text(
-                          AppConstants.noBookingDataAvailable,
-                          style: TextStyle(color: _appColors.grey),
-                        )
-                      ],
-                    ),
+                return Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      SvgPicture.asset(AppConstants.imgNoData),
+                      AppWidgetUtils.buildSizedBox(custHeight: 8),
+                      Text(
+                        AppConstants.noBookingDataAvailable,
+                        style: TextStyle(color: _appColors.grey),
+                      )
+                    ],
                   ),
                 );
               } else {
-                return Expanded(
-                  child: SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        SingleChildScrollView(
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: SizedBox(
+                        width: MediaQuery.of(context).size.width,
+                        child: SingleChildScrollView(
                           scrollDirection: Axis.vertical,
                           child: SingleChildScrollView(
                             scrollDirection: Axis.horizontal,
@@ -347,24 +345,22 @@ class _BookingListState extends State<BookingList>
                                     _buildBookingListTableRows(bookingDetails)),
                           ),
                         ),
-                        CustomPagination(
-                          itemsOnLastPage: bookingList?.totalElements ?? 0,
-                          currentPage: currentPage,
-                          totalPages: bookingList?.totalPages ?? 0,
-                          onPageChanged: (pageValue) {
-                            _bookingListBloc
-                                .pageNumberUpdateStreamController(pageValue);
-                          },
-                        ),
-                      ],
+                      ),
                     ),
-                  ),
+                    CustomPagination(
+                      itemsOnLastPage: bookingList?.totalElements ?? 0,
+                      currentPage: currentPage,
+                      totalPages: bookingList?.totalPages ?? 0,
+                      onPageChanged: (pageValue) {
+                        _bookingListBloc
+                            .pageNumberUpdateStreamController(pageValue);
+                      },
+                    ),
+                  ],
                 );
               }
             } else {
-              return Expanded(
-                  child:
-                      Center(child: SvgPicture.asset(AppConstants.imgNoData)));
+              return Center(child: SvgPicture.asset(AppConstants.imgNoData));
             }
           },
         );

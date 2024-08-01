@@ -81,20 +81,22 @@ class _TransportViewState extends State<TransportView> {
             },
           ),
         ],
-        if (AccessLevel.canAdd(AppConstants.transport)) const Spacer(),
-        AppWidgetUtils.buildAddbutton(
-          context,
-          text: AppConstants.addTransport,
-          onPressed: () {
-            showDialog(
-              barrierDismissible: false,
-              context: context,
-              builder: (context) {
-                return const CreateTransportDialog();
-              },
-            );
-          },
-        )
+        if (AccessLevel.canAdd(AppConstants.transport)) ...[
+          const Spacer(),
+          AppWidgetUtils.buildAddbutton(
+            context,
+            text: AppConstants.addTransport,
+            onPressed: () {
+              showDialog(
+                barrierDismissible: false,
+                context: context,
+                builder: (context) {
+                  return const CreateTransportDialog();
+                },
+              );
+            },
+          )
+        ]
       ],
     );
   }

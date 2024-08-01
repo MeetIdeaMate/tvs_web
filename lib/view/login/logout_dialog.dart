@@ -33,6 +33,7 @@ class LogoutDialog extends StatelessWidget {
             SharedPreferences prefs = await SharedPreferences.getInstance();
             prefs.remove('token');
             prefs.remove('isAccessCheckBoxChanged');
+            prefs.remove('rememberMe');
             Navigator.pushReplacement(
                 // ignore: use_build_context_synchronously
                 context,

@@ -337,7 +337,7 @@ class _SalesViewScreenState extends State<SalesViewScreen>
                             _buildVehicleTableHeader(AppConstants.netAmt),
                             if (!iscancelled)
                               _buildVehicleTableHeader(AppConstants.paidAmt),
-                            if (!iscancelled)
+                            if (!iscancelled && paymentStatus != 'COMPLETED')
                               _buildVehicleTableHeader(
                                   AppConstants.pendingInvAmt),
                             if (paymentStatus ==
@@ -376,7 +376,8 @@ class _SalesViewScreenState extends State<SalesViewScreen>
                                   DataCell(Text(AppUtils.formatCurrency(
                                       entry.value.totalPaidAmt?.toDouble() ??
                                           0))),
-                                if (!iscancelled)
+                                if (!iscancelled &&
+                                    paymentStatus != 'COMPLETED')
                                   DataCell(Text(AppUtils.formatCurrency(
                                       entry.value.pendingAmt?.toDouble() ??
                                           0))),

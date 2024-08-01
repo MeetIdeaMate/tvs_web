@@ -40,6 +40,41 @@ class AppWidgetUtils {
             fontWeight: FontWeight.w700));
   }
 
+  static buildTableHeader(
+    String headerValue,
+  ) =>
+      DataColumn(
+        label: Text(
+          headerValue,
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
+      );
+
+  static buildDialogFormTitle(context, String text) {
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            AppWidgetUtils.buildText(
+              text: text,
+              fontSize: 22,
+              color: AppColors().primaryColor,
+              fontWeight: FontWeight.bold,
+            ),
+            IconButton(
+              icon: const Icon(Icons.close),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        ),
+        const Divider(),
+      ],
+    );
+  }
+
   static buildSearchField(
       String? name, TextEditingController controller, BuildContext context,
       {List<TextInputFormatter>? inputFormatters,

@@ -10,7 +10,6 @@ import 'package:tlbilling/utils/app_util_widgets.dart';
 import 'package:tlbilling/utils/input_validation.dart';
 import 'package:tlbilling/view/login/login_page_bloc.dart';
 import 'package:tlbilling/view/useraccess/access_control_view_bloc.dart';
-import 'package:tlbilling/view/useraccess/access_level_shared_pref.dart';
 import 'package:tlbilling/view/useraccess/user_access_levels.dart';
 import 'package:tlds_flutter/components/tlds_input_form_field.dart';
 import 'package:tlds_flutter/components/tlds_input_formaters.dart';
@@ -36,7 +35,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   void initState() {
     super.initState();
-    AccessLevel.accessingData();
+
     // _loginPageBlocImpl.mobileNumberTextController.text = '9876543210';
     // _loginPageBlocImpl.passwordTextController.text = '1234';
     checkUserStatus();
@@ -218,6 +217,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   _buiuldOnPressed() async {
+    print(_rememberMe);
     if (_loginPageBlocImpl.loginFormKey.currentState!.validate()) {
       _isLoadingState(state: true);
       _loginPageBlocImpl.login(

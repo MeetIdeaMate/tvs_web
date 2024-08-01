@@ -1,9 +1,11 @@
 import 'dart:convert';
+import 'dart:core';
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tlbilling/api_service/app_url.dart';
 import 'package:intl/intl.dart';
 import 'package:tlbilling/models/get_employee_by_id.dart';
+import 'package:tlbilling/models/get_model/get_all_account_head_by_pagination_model.dart';
 import 'package:tlbilling/models/get_model/get_all_access_controll_model.dart';
 import 'package:tlbilling/models/get_model/get_all_booking_list_with_pagination.dart';
 import 'package:tlbilling/models/get_model/get_all_branch_by_id_model.dart';
@@ -31,6 +33,7 @@ import 'package:tlbilling/models/get_model/get_login_response.dart';
 import 'package:tlbilling/models/get_model/get_transport_by_pagination.dart';
 import 'package:tlbilling/models/get_model/get_vendor_by_id_model.dart';
 import 'package:tlbilling/models/parent_response_model.dart';
+import 'package:tlbilling/models/post_model/add_account_head.dart';
 import 'package:tlbilling/models/post_model/add_branch_model.dart';
 import 'package:tlbilling/models/post_model/add_customer_model.dart';
 import 'package:tlbilling/models/post_model/add_employee_model.dart';
@@ -74,6 +77,9 @@ abstract class AppServiceUtil {
 
   Future<GetAllCustomersModel?> getCustomerDetails(String customerId);
 
+  Future<void> updateAccountHead(Function(int? statusCode) onSuccessCallBack,
+      AccountHeadModel addAccountHeadModel, String accountId);
+
   Future<void> updateVendor(String vendorId, AddVendorModel vendorObj,
       Function(int? statusCode) statusCode);
 
@@ -91,6 +97,12 @@ abstract class AppServiceUtil {
       bool iscancelled,
       String branchName);
 
+  Future<GetAllAccountHeadPagination?> getAccountHeadPagination(
+      {String accountType,
+      String accountHeadCode,
+      String accountHeadName,
+      int currentPage});
+
   Future<List<GetAllStockDetails>?> getStockList(String? categoryName);
 
   Future<GetAllVendorByPagination?> getPurchaseReport(
@@ -100,6 +112,9 @@ abstract class AppServiceUtil {
       String customerId,
       AddCustomerModel addCustomerModel,
       Function(int statusCode) onSuccessCallBack);
+
+  Future<void> addAccountHead(Function(int? statusCode) onSuccessCallBack,
+      AccountHeadModel addAccountHeadModel);
 
   //Future<UserList>? getAllUserList();
   Future<UsersListModel?> getUserList(String userName,
@@ -125,6 +140,7 @@ abstract class AppServiceUtil {
       int currentPage, String vendorName, String city, String mobileNumber);
 
   Future<GetEmployeeById?> getEmployeeById(String employeeId);
+  Future<GetAllAccount?> getAccountHeadById(String accountId);
   Future<void> addNewSalesDetails(
     AddSalesModel salesdata,
     Function(int value) onSuccessCallBack,
@@ -1028,6 +1044,7 @@ class AppServiceUtilImpl extends AppServiceUtil {
       vendorListUrl += '&city=$city';
     }
     var response = await dio.get(vendorListUrl);
+
     final responseList = parentResponseModelFromJson(jsonEncode(response.data));
     return responseList.result!.getAllVendorByPagination!;
   }
@@ -1672,6 +1689,84 @@ class AppServiceUtilImpl extends AppServiceUtil {
     if (onSuccessCallBack != null) {
       onSuccessCallBack(response.statusCode ?? 0);
     }
+  }
+
+  @override
+  Future<void> addAccountHead(Function(int? statusCode) onSuccessCallBack,
+      AccountHeadModel addAccountHeadModel) async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      var token = prefs.getString('token');
+      dio.options.headers['Authorization'] = 'Bearer $token';
+      var response = await dio.post(AppUrl.accountHead,
+          data: jsonEncode(addAccountHeadModel));
+
+      print(AppUrl.accountHead);
+      print(response.statusCode);
+
+      onSuccessCallBack(response.statusCode ?? 0);
+    } on DioException catch (e) {
+      onSuccessCallBack(e.response?.statusCode);
+    }
+  }
+
+  @override
+  Future<void> updateAccountHead(Function(int? statusCode) onSuccessCallBack,
+      AccountHeadModel addAccountHeadModel, String accountId) async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      var token = prefs.getString('token');
+      dio.options.headers['Authorization'] = 'Bearer $token';
+      var response = await dio.put('${AppUrl.accountHead}/$accountId',
+          data: jsonEncode(addAccountHeadModel));
+      print('${AppUrl.accountHead}/$accountId');
+      print(response.statusCode);
+
+      onSuccessCallBack(response.statusCode ?? 0);
+    } on DioException catch (e) {
+      print(e);
+      onSuccessCallBack(e.response?.statusCode);
+    }
+  }
+
+  @override
+  Future<GetAllAccountHeadPagination?> getAccountHeadPagination(
+      {String? accountType,
+      String? accountHeadCode,
+      String? accountHeadName,
+      int? currentPage}) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var token = prefs.getString('token');
+    dio.options.headers['Authorization'] = 'Bearer $token';
+    String accountListUrl = '${AppUrl.accountHead}?page=$currentPage&size=10';
+    if (accountType != null && accountType != 'All Types') {
+      accountListUrl += '&accountType=$accountType';
+    }
+    if (accountHeadCode?.isNotEmpty ?? false) {
+      accountListUrl += '&accountHeadCode=$accountHeadCode';
+    }
+    if (accountHeadName?.isNotEmpty ?? false) {
+      accountListUrl += '&accountHeadName=$accountHeadName';
+    }
+
+    print(accountListUrl);
+    var response = await dio.get(accountListUrl);
+
+    final responseList = parentResponseModelFromJson(jsonEncode(response.data));
+    return responseList.result?.getAllAccountHeadPagination;
+  }
+
+  @override
+  Future<GetAllAccount?> getAccountHeadById(String accountId) async {
+    String accountUrl = '${AppUrl.accountHead}/$accountId';
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var token = prefs.getString('token');
+    dio.options.headers['Authorization'] = 'Bearer $token';
+    var response = await dio.get(accountUrl);
+    var accountDeatils = parentResponseModelFromJson(jsonEncode(response.data))
+        .result
+        ?.getAllAccount;
+    return accountDeatils;
   }
 
   @override

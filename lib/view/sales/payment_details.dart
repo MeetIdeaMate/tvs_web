@@ -1041,7 +1041,7 @@ class _PaymentDetailsState extends State<PaymentDetails> {
     List<SalesItemDetail> itemdetails = [];
     List<GstDetail> gstDetails = [];
     Map<String, String> mandatoryAddonsMap = {};
-    EvBatteryObj? eVehicleComponents;
+    Map<String, String> eVehicleComponents = {};
 
     int? totalQty = 0;
 
@@ -1052,9 +1052,10 @@ class _PaymentDetailsState extends State<PaymentDetails> {
     }
 
     if (widget.addSalesBloc.selectedVehicleAndAccessories == 'E-Vehicle') {
-      EvBatteryObj(
-          evBatteryCapacity: 50,
-          evBatteryName: widget.addSalesBloc.batteryDetailsMap['Battery Name']);
+      for (var battery in widget.addSalesBloc.batteryDetailsMap.keys) {
+        eVehicleComponents[battery] =
+            widget.addSalesBloc.batteryDetailsMap[battery]!;
+      }
     }
 
     if (widget.addSalesBloc.selectedVehicleAndAccessories == 'Accessories') {

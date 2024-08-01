@@ -31,6 +31,7 @@ class AppConstants {
   static const enterCancelReason = 'Enter Cancel Reason';
   static const selected = 'Selected Accessories';
   static const enterQuantity = 'Enter Quantity';
+  static const requiredField = 'Plese enter required field';
   static const inProgress = 'In Progress';
 
   //SharedPreference
@@ -88,6 +89,7 @@ class AppConstants {
   static const enterAmt = 'Enter Amount';
 
   //icons
+  static const icAccounthead = 'assets/icons/ic_accoount_head.svg';
   static const icEnquiry = 'assets/icons/ic_forenquiry_login.svg';
   static const icDownArrow = 'assets/icons/ic_down_arrow.svg';
   static const icCompanyLogo = 'assets/icons/ic_techlambdas_logo.svg';
@@ -428,6 +430,13 @@ class AppConstants {
   static const paymentUpdate = 'Payment Update';
   static const paymentUpdateSuccessfully = 'Payment Update successfully';
 
+  static const accountHeadUpdate = 'Account Head Update';
+  static const accountHeadUpdateSuccessfully =
+      'Account Head Update successfully';
+  static const accountHeadCreated = 'Account Head Created';
+  static const accountHeadCreatedSuccessfully =
+      'Account Head Created successfully';
+
   //API
 
   static const loading = 'Loading...';
@@ -490,6 +499,11 @@ class AppConstants {
   static const credit = 'credit';
   static const loan = 'loan';
   static const partPayment = 'part payment';
+
+  static const String creditC = 'CREDIT';
+  static const String debitC = 'DEBIT';
+  static const String flatC = 'FLAT';
+  static const String variableC = 'VARIABLE';
 
   static const String approved = 'Approved';
   static const String approve = 'Approved';
@@ -633,6 +647,28 @@ class AppConstants {
   static const String initiated = 'INITIATED';
   static const String noTApproved = 'NOT_APPROVED';
   static const String allDesignation = 'All Designation';
+
+  //Account head
+
+  static const String accountHead = 'Account Head';
+  static const String code = 'Code';
+  static const String pricingFormat = 'Pricing Format';
+  static const String form = 'Form';
+  static const String type = 'Type';
+  static const String alltype = 'All Types';
+  static const String accCode = 'Acc Code';
+  static const String newAccountHead = 'New Account head';
+  static const String updateAccountHead = 'Update Account Head';
+  static const String accountCode = 'Account Code';
+  static const String accountName = 'Account Name';
+  static const String accountHeadtype = 'Account Head Type';
+  static const String enterFlatAmt = 'Enter Flat Amount';
+  static const debit = 'Debit';
+  static const String transferForm = 'Transfer From';
+  static const cashierRequired = 'Cashier Required';
+  static const flat = 'Flat';
+  static const variable = 'Variable';
+  static const String accountType = 'accountType';
   static const String accessControl = 'Access Control';
   static const String icAccessControl = 'assets/icons/ic_user_access.svg';
 
