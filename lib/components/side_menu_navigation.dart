@@ -77,7 +77,11 @@ class _SideMenuNavigationState extends State<SideMenuNavigation> {
         title: Text(selectedMenuItem),
       ),
       drawer: _buildDrawer(),
-      body: _buildPage(selectedMenuItem),
+      body: StreamBuilder(
+          stream: _sideMenuBloc.sideMenuStream,
+          builder: (context, snapshot) {
+            return _buildPage(selectedMenuItem);
+          }),
     );
   }
 

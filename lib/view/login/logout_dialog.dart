@@ -29,20 +29,23 @@ class LogoutDialog extends StatelessWidget {
             'Log Out',
             style: TextStyle(color: AppColor().whiteColor),
           ),
-          onPressed: () async {
-            SharedPreferences prefs = await SharedPreferences.getInstance();
-            prefs.remove('token');
-            prefs.remove('isAccessCheckBoxChanged');
-            prefs.remove('rememberMe');
-            Navigator.pushReplacement(
-                // ignore: use_build_context_synchronously
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const LoginPage(),
-                ));
-          },
+          onPressed: () => logout(context),
         ),
       ],
     );
+  }
+
+  Future<void> logout(context) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.remove('token');
+    prefs.remove('isAccessCheckBoxChanged');
+    prefs.remove('rememberMe');
+    prefs.clear();
+    Navigator.pushReplacement(
+        // ignore: use_build_context_synchronously
+        context,
+        MaterialPageRoute(
+          builder: (context) => const LoginPage(),
+        ));
   }
 }

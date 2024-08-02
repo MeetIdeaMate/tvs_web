@@ -1,6 +1,7 @@
 import 'package:blurry_modal_progress_hud/blurry_modal_progress_hud.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tlbilling/components/side_menu_navigation_bloc.dart';
 import 'package:tlbilling/models/get_model/get_all_access_controll_model.dart';
 import 'package:tlbilling/models/post_model/user_access_model.dart';
 import 'package:tlbilling/models/user_model.dart';
@@ -8,6 +9,8 @@ import 'package:tlbilling/utils/app_colors.dart';
 import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/utils/app_util_widgets.dart';
 import 'package:tlbilling/view/useraccess/access_control_view_bloc.dart';
+import 'package:tlbilling/view/useraccess/access_level_shared_pref.dart';
+import 'package:tlbilling/view/useraccess/user_access_levels.dart';
 import 'package:tlds_flutter/components/tlds_dropdown_button_form_field.dart';
 import 'package:toastification/toastification.dart';
 
@@ -28,6 +31,7 @@ class _AccessControlViewScreenState extends State<AccessControlViewScreen>
   bool? isUpdateAccess;
   String? accessId;
   bool _loading = false;
+  String? loginUserId;
   final List<UIComponent> _uiComponents = [];
   final List<Menu> _selectedMenus = [];
   final Map<String, bool> _hideChecks = {};
@@ -198,6 +202,7 @@ class _AccessControlViewScreenState extends State<AccessControlViewScreen>
 
     _userId = prefs.getString('userId');
     _userName = prefs.getString('userName');
+    loginUserId = prefs.getString('userId');
     _accessViewControlBloc.selectedUserName = _userName;
   }
 
@@ -391,42 +396,48 @@ class _AccessControlViewScreenState extends State<AccessControlViewScreen>
           _appColors.errorLightColor);
     } else {
       final accessData = UserAccess(
-          menus: _selectedMenus, uiComponents: _uiComponents, userId: _userId);
+          role: _accessViewControlBloc.selectedRole,
+          menus: _selectedMenus,
+          uiComponents: _uiComponents,
+          userId: _userId);
       _isLoadingState(state: true);
       SharedPreferences prefs = await SharedPreferences.getInstance();
       if (isUpdateAccess ?? false) {
-        _accessViewControlBloc.accessControlPostData((statusCode) {
-          _changedCheckboxes.clear();
-          prefs.remove('isAccessCheckBoxChanged');
+        _accessViewControlBloc.accessControlPostData(
+          (statusCode) {
+            _changedCheckboxes.clear();
+            prefs.remove('isAccessCheckBoxChanged');
 
-          if (statusCode == 200 || statusCode == 201) {
-            _isLoadingState(state: false);
-            AppWidgetUtils.buildToast(
-                context,
-                ToastificationType.success,
-                AppConstants.userAccessCreated,
-                Icon(
-                  Icons.check_circle_outline_rounded,
-                  color: _appColors.successColor,
-                ),
-                AppConstants.userAccessCreatedDes,
-                _appColors.successLightColor);
-          } else {
-            _isLoadingState(state: false);
-            AppWidgetUtils.buildToast(
-                context,
-                ToastificationType.error,
-                AppConstants.userAccessNotCreated,
-                Icon(
-                  Icons.error_outline_outlined,
-                  color: _appColors.errorColor,
-                ),
-                AppConstants.userAccessNotCreatedDes,
-                _appColors.errorLightColor);
-          }
-        }, accessData);
+            if (statusCode == 200 || statusCode == 201) {
+              _isLoadingState(state: false);
+              AppWidgetUtils.buildToast(
+                  context,
+                  ToastificationType.success,
+                  AppConstants.userAccessCreated,
+                  Icon(
+                    Icons.check_circle_outline_rounded,
+                    color: _appColors.successColor,
+                  ),
+                  AppConstants.userAccessCreatedDes,
+                  _appColors.successLightColor);
+            } else {
+              _isLoadingState(state: false);
+              AppWidgetUtils.buildToast(
+                  context,
+                  ToastificationType.error,
+                  AppConstants.userAccessNotCreated,
+                  Icon(
+                    Icons.error_outline_outlined,
+                    color: _appColors.errorColor,
+                  ),
+                  AppConstants.userAccessNotCreatedDes,
+                  _appColors.errorLightColor);
+            }
+          },
+          accessData,
+        );
       } else {
-        _accessViewControlBloc.accessControlUpdateData((statusCode) {
+        _accessViewControlBloc.accessControlUpdateData((statusCode) async {
           if (statusCode == 200 || statusCode == 201) {
             _isLoadingState(state: false);
             prefs.remove('isAccessCheckBoxChanged');
@@ -442,6 +453,19 @@ class _AccessControlViewScreenState extends State<AccessControlViewScreen>
                 ),
                 AppConstants.userAccessUpdatedDes,
                 _appColors.successLightColor);
+
+            if (loginUserId == _userId) {
+              List<AccessControlList>? accessControl =
+                  await _accessViewControlBloc.getAllUserAccessControlData(
+                onSuccessCallback: (statusCode, accessControlList) {},
+                userId: loginUserId,
+              );
+
+              UserAccessLevels.storeUserAccessData(accessControl);
+              SideMenuNavigationBlocImpl().sideMenuStreamController(true);
+              AccessLevel.accessingData();
+              SideMenuNavigationBlocImpl().sideMenuStreamController(true);
+            }
           } else {
             _isLoadingState(state: false);
             AppWidgetUtils.buildToast(
@@ -488,17 +512,15 @@ class _AccessControlViewScreenState extends State<AccessControlViewScreen>
               AppWidgetUtils.buildSizedBox(custHeight: 10),
               Row(
                 children: [
-                  _buildRoleDropdown(),
+                  buildRoleDropdown(),
                   AppWidgetUtils.buildSizedBox(custWidth: 10),
-                  _buildDesignationDropdown(),
-                  AppWidgetUtils.buildSizedBox(custWidth: 10),
-                  _buildUserNameList()
+                  buildUserNameList()
                 ],
               ),
               AppWidgetUtils.buildSizedBox(custHeight: 10),
-              _buildTabBar(),
+              buildTabBar(),
               AppWidgetUtils.buildSizedBox(custHeight: 26),
-              _buildTabBarView(),
+              buildTabBarView(),
             ],
           ),
         ),
@@ -506,7 +528,7 @@ class _AccessControlViewScreenState extends State<AccessControlViewScreen>
     );
   }
 
-  Widget _buildTabBar() {
+  Widget buildTabBar() {
     return SizedBox(
       width: 400,
       child: TabBar(
@@ -519,7 +541,7 @@ class _AccessControlViewScreenState extends State<AccessControlViewScreen>
     );
   }
 
-  Widget _buildTabBarView() {
+  Widget buildTabBarView() {
     return StreamBuilder(
         stream: _accessViewControlBloc.refreshTabViewStream,
         builder: (context, snapshot) {
@@ -527,13 +549,13 @@ class _AccessControlViewScreenState extends State<AccessControlViewScreen>
             child: TabBarView(
               physics: const NeverScrollableScrollPhysics(),
               controller: _accessViewControlBloc.accessControlTabController,
-              children: [_buildMenuListTabView(), _buildUiComponentsTabView()],
+              children: [buildMenuListTabView(), buildUiComponentsTabView()],
             ),
           );
         });
   }
 
-  Widget _buildMenuListTabView() {
+  Widget buildMenuListTabView() {
     return StreamBuilder<List<String>>(
       stream: _accessViewControlBloc.screenNamesStream,
       builder: (context, snapshot) {
@@ -558,13 +580,13 @@ class _AccessControlViewScreenState extends State<AccessControlViewScreen>
                   headingRowHeight: 30,
                   horizontalMargin: 20,
                   columns: [
-                    _buildDataColumn('Screen name'),
-                    _buildDataColumn('Hide'),
-                    _buildDataColumn('View'),
-                    _buildDataColumn('Add'),
-                    _buildDataColumn('PUpdate'),
-                    _buildDataColumn('FUpdate'),
-                    _buildDataColumn('Delete'),
+                    buildDataColumn('Screen name'),
+                    buildDataColumn('Hide'),
+                    buildDataColumn('View'),
+                    buildDataColumn('Add'),
+                    buildDataColumn('PUpdate'),
+                    buildDataColumn('FUpdate'),
+                    buildDataColumn('Delete'),
                   ],
                   rows: List.generate(screenNameList.length, (index) {
                     final screenName = screenNameList[index];
@@ -600,7 +622,7 @@ class _AccessControlViewScreenState extends State<AccessControlViewScreen>
     );
   }
 
-  Widget _buildUiComponentsTabView() {
+  Widget buildUiComponentsTabView() {
     return StreamBuilder<List<String>>(
       stream: _accessViewControlBloc.uiComponentsNameStream,
       builder: (context, snapshot) {
@@ -625,13 +647,13 @@ class _AccessControlViewScreenState extends State<AccessControlViewScreen>
                   headingRowHeight: 30,
                   horizontalMargin: 20,
                   columns: [
-                    _buildDataColumn('UI component name'),
-                    _buildDataColumn('Hide'),
-                    _buildDataColumn('View'),
-                    _buildDataColumn('Add'),
-                    _buildDataColumn('PUpdate'),
-                    _buildDataColumn('FUpdate'),
-                    _buildDataColumn('Delete'),
+                    buildDataColumn('UI component name'),
+                    buildDataColumn('Hide'),
+                    buildDataColumn('View'),
+                    buildDataColumn('Add'),
+                    buildDataColumn('PUpdate'),
+                    buildDataColumn('FUpdate'),
+                    buildDataColumn('Delete'),
                   ],
                   rows: List.generate(uiComponentNameList.length, (index) {
                     final uiComponentName = uiComponentNameList[index];
@@ -667,7 +689,7 @@ class _AccessControlViewScreenState extends State<AccessControlViewScreen>
     );
   }
 
-  DataColumn _buildDataColumn(String label) {
+  DataColumn buildDataColumn(String label) {
     return DataColumn(
       label: Text(
         label,
@@ -678,7 +700,7 @@ class _AccessControlViewScreenState extends State<AccessControlViewScreen>
     );
   }
 
-  Widget _buildRoleDropdown() {
+  Widget buildRoleDropdown() {
     return FutureBuilder(
       future: _accessViewControlBloc.getRoleConfigList(),
       builder: (context, snapshot) {
@@ -692,7 +714,7 @@ class _AccessControlViewScreenState extends State<AccessControlViewScreen>
         return TldsDropDownButtonFormField(
           height: 40,
           width: 203,
-          hintText: AppConstants.payments,
+          hintText: 'Role',
           dropDownItems: roleList,
           dropDownValue: _accessViewControlBloc.selectedRole,
           onChange: (String? newValue) {
@@ -703,7 +725,7 @@ class _AccessControlViewScreenState extends State<AccessControlViewScreen>
     );
   }
 
-  Widget _buildDesignationDropdown() {
+  Widget buildDesignationDropdown() {
     return FutureBuilder(
       future: _accessViewControlBloc.getDesignationConfigList(),
       builder: (context, snapshot) {
@@ -728,7 +750,7 @@ class _AccessControlViewScreenState extends State<AccessControlViewScreen>
     );
   }
 
-  Widget _buildUserNameList() {
+  Widget buildUserNameList() {
     return FutureBuilder(
       future: _accessViewControlBloc.getAllUserNameList(),
       builder: (context, futureSnapshot) {

@@ -279,19 +279,31 @@ class AccessLevel {
 
   static Future<void> accessingData() async {
     for (String menuName in _accessLevels.keys) {
-      _accessLevels[menuName]!['VIEW'] = await UserAccessLevels.hasAccess(menuName, 'VIEW');
-      _accessLevels[menuName]!['ADD'] = await UserAccessLevels.hasAccess(menuName, 'ADD');
-      _accessLevels[menuName]!['P_UPDATE'] = await UserAccessLevels.hasAccess(menuName, 'P_UPDATE');
-      _accessLevels[menuName]!['F_UPDATE'] = await UserAccessLevels.hasAccess(menuName, 'F_UPDATE');
-      _accessLevels[menuName]!['DELETE'] = await UserAccessLevels.hasAccess(menuName, 'DELETE');
-      _accessLevels[menuName]!['HIDE'] = await UserAccessLevels.hasAccess(menuName, 'HIDE');
+      _accessLevels[menuName]!['VIEW'] =
+          await UserAccessLevels.hasAccess(menuName, 'VIEW');
+      _accessLevels[menuName]!['ADD'] =
+          await UserAccessLevels.hasAccess(menuName, 'ADD');
+      _accessLevels[menuName]!['P_UPDATE'] =
+          await UserAccessLevels.hasAccess(menuName, 'P_UPDATE');
+      _accessLevels[menuName]!['F_UPDATE'] =
+          await UserAccessLevels.hasAccess(menuName, 'F_UPDATE');
+      _accessLevels[menuName]!['DELETE'] =
+          await UserAccessLevels.hasAccess(menuName, 'DELETE');
+      _accessLevels[menuName]!['HIDE'] =
+          await UserAccessLevels.hasAccess(menuName, 'HIDE');
     }
   }
 
-  static bool canView(String menuName) => _accessLevels[menuName]?['VIEW'] ?? false;
-  static bool canAdd(String menuName) => _accessLevels[menuName]?['ADD'] ?? false;
-  static bool canPUpdate(String menuName) => _accessLevels[menuName]?['P_UPDATE'] ?? false;
-  static bool canFUpdate(String menuName) => _accessLevels[menuName]?['F_UPDATE'] ?? false;
-  static bool canDelete(String menuName) => _accessLevels[menuName]?['DELETE'] ?? false;
-  static bool canHide(String menuName) => _accessLevels[menuName]?['HIDE'] ?? false;
+  static bool canView(String menuName) =>
+      _accessLevels[menuName]?['VIEW'] ?? false;
+  static bool canAdd(String menuName) =>
+      _accessLevels[menuName]?['ADD'] ?? false;
+  static bool canPUpdate(String menuName) =>
+      _accessLevels[menuName]?['P_UPDATE'] ?? false;
+  static bool canFUpdate(String menuName) =>
+      _accessLevels[menuName]?['F_UPDATE'] ?? false;
+  static bool canDelete(String menuName) =>
+      _accessLevels[menuName]?['DELETE'] ?? false;
+  static bool canHide(String menuName) =>
+      _accessLevels[menuName]?['HIDE'] ?? false;
 }
