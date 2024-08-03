@@ -58,6 +58,7 @@ class _SideMenuNavigationState extends State<SideMenuNavigation> {
     userName = prefs.getString('userName') ?? '';
     _sideMenuBloc.branchId = prefs.getString('branchId') ?? '';
     isMainBranch = prefs.getBool('mainBranch') ?? false;
+    AccessLevel.accessingData();
 
     _sideMenuBloc.sideMenuStreamController(true);
   }
@@ -132,8 +133,8 @@ class _SideMenuNavigationState extends State<SideMenuNavigation> {
   }
 
   Widget _buildDrawer() {
-    print(
-        '11111111111111111111dashboard${AccessLevel.canHide(AppConstants.dashboard)}');
+    // print(
+    //     '11111111111111111111dashboard${AccessLevel.canHide(AppConstants.dashboard)}');
 
     return StreamBuilder(
       stream: _sideMenuBloc.sideMenuStream,
@@ -487,7 +488,9 @@ class _SideMenuNavigationState extends State<SideMenuNavigation> {
       case AppConstants.accountHead:
         return const AccountHeadView();
       case AppConstants.accessControl:
-        return const AccessControlViewScreen();
+        return AccessControlViewScreen(
+          sideMenuNavigationBlocImpl: _sideMenuBloc,
+        );
       case AppConstants.logOut:
         return Container();
       default:

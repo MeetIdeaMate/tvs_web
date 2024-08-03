@@ -15,7 +15,8 @@ import 'package:tlds_flutter/components/tlds_dropdown_button_form_field.dart';
 import 'package:toastification/toastification.dart';
 
 class AccessControlViewScreen extends StatefulWidget {
-  const AccessControlViewScreen({super.key});
+  final SideMenuNavigationBlocImpl? sideMenuNavigationBlocImpl;
+  const AccessControlViewScreen({super.key, this.sideMenuNavigationBlocImpl});
 
   @override
   State<AccessControlViewScreen> createState() =>
@@ -400,7 +401,7 @@ class _AccessControlViewScreenState extends State<AccessControlViewScreen>
           menus: _selectedMenus,
           uiComponents: _uiComponents,
           userId: _userId);
-      _isLoadingState(state: true);
+      _accessViewControlBloc.setLoadingState(true);
       SharedPreferences prefs = await SharedPreferences.getInstance();
       if (isUpdateAccess ?? false) {
         _accessViewControlBloc.accessControlPostData(
@@ -421,7 +422,7 @@ class _AccessControlViewScreenState extends State<AccessControlViewScreen>
                   AppConstants.userAccessCreatedDes,
                   _appColors.successLightColor);
             } else {
-              _isLoadingState(state: false);
+              _accessViewControlBloc.setLoadingState(false);
               AppWidgetUtils.buildToast(
                   context,
                   ToastificationType.error,
@@ -439,7 +440,8 @@ class _AccessControlViewScreenState extends State<AccessControlViewScreen>
       } else {
         _accessViewControlBloc.accessControlUpdateData((statusCode) async {
           if (statusCode == 200 || statusCode == 201) {
-            _isLoadingState(state: false);
+            _accessViewControlBloc.setLoadingState(false);
+
             prefs.remove('isAccessCheckBoxChanged');
 
             _changedCheckboxes.clear();
@@ -462,9 +464,9 @@ class _AccessControlViewScreenState extends State<AccessControlViewScreen>
               );
 
               UserAccessLevels.storeUserAccessData(accessControl);
-              SideMenuNavigationBlocImpl().sideMenuStreamController(true);
+
               AccessLevel.accessingData();
-              SideMenuNavigationBlocImpl().sideMenuStreamController(true);
+              widget.sideMenuNavigationBlocImpl?.sideMenuStreamController(true);
             }
           } else {
             _isLoadingState(state: false);
@@ -497,35 +499,41 @@ class _AccessControlViewScreenState extends State<AccessControlViewScreen>
             color: _appColors.whiteColor,
           )),
     );
-    return BlurryModalProgressHUD(
-      inAsyncCall: _loading,
-      progressIndicator: AppWidgetUtils.buildLoading(),
-      color: _appColors.whiteColor,
-      child: Scaffold(
-        floatingActionButton: tooltip,
-        body: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 21, vertical: 28),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              AppWidgetUtils.buildHeaderText(AppConstants.accessControl),
-              AppWidgetUtils.buildSizedBox(custHeight: 10),
-              Row(
-                children: [
-                  buildRoleDropdown(),
-                  AppWidgetUtils.buildSizedBox(custWidth: 10),
-                  buildUserNameList()
-                ],
+    return StreamBuilder<bool>(
+        stream: _accessViewControlBloc.loadingStream,
+        initialData: false,
+        builder: (context, snapshot) {
+          return BlurryModalProgressHUD(
+            inAsyncCall: _loading,
+            progressIndicator: AppWidgetUtils.buildLoading(),
+            color: _appColors.whiteColor,
+            child: Scaffold(
+              floatingActionButton: tooltip,
+              body: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 21, vertical: 28),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    AppWidgetUtils.buildHeaderText(AppConstants.accessControl),
+                    AppWidgetUtils.buildSizedBox(custHeight: 10),
+                    Row(
+                      children: [
+                        buildRoleDropdown(),
+                        AppWidgetUtils.buildSizedBox(custWidth: 10),
+                        buildUserNameList()
+                      ],
+                    ),
+                    AppWidgetUtils.buildSizedBox(custHeight: 10),
+                    buildTabBar(),
+                    AppWidgetUtils.buildSizedBox(custHeight: 26),
+                    buildTabBarView(),
+                  ],
+                ),
               ),
-              AppWidgetUtils.buildSizedBox(custHeight: 10),
-              buildTabBar(),
-              AppWidgetUtils.buildSizedBox(custHeight: 26),
-              buildTabBarView(),
-            ],
-          ),
-        ),
-      ),
-    );
+            ),
+          );
+        });
   }
 
   Widget buildTabBar() {

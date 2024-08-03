@@ -80,6 +80,13 @@ class AccessControlViewBlocImpl implements AccessControlViewBloc {
   List<bool> _pUpdateChecks = [];
   List<bool> _fUpdateChecks = [];
   List<bool> _deleteChecks = [];
+  final _loadingController = StreamController<bool>.broadcast();
+
+  Stream<bool> get loadingStream => _loadingController.stream;
+
+  void setLoadingState(bool isLoading) {
+    _loadingController.add(isLoading);
+  }
 
   // Stream controllers
   final _screenNamesController = StreamController<List<String>>.broadcast();

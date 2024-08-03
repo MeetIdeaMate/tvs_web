@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tlbilling/components/side_menu_navigation_bloc.dart';
 import 'package:tlbilling/utils/app_colors.dart';
 import 'package:tlbilling/view/login/login_page.dart';
+import 'package:tlbilling/view/useraccess/access_level_shared_pref.dart';
 import 'package:tlds_flutter/util/app_colors.dart';
 
 class LogoutDialog extends StatelessWidget {
-  const LogoutDialog({super.key});
+  final SideMenuNavigationBlocImpl? sideMenuNavigationBlocImpl;
+  const LogoutDialog({super.key, this.sideMenuNavigationBlocImpl});
 
   @override
   Widget build(BuildContext context) {
@@ -40,9 +43,12 @@ class LogoutDialog extends StatelessWidget {
     prefs.remove('token');
     prefs.remove('isAccessCheckBoxChanged');
     prefs.remove('rememberMe');
+    print(prefs.getString('user_access'));
+    prefs.remove('user_access');
+    print(prefs.getString('user_access'));
     prefs.clear();
+    sideMenuNavigationBlocImpl?.sideMenuStreamController(true);
     Navigator.pushReplacement(
-        // ignore: use_build_context_synchronously
         context,
         MaterialPageRoute(
           builder: (context) => const LoginPage(),
