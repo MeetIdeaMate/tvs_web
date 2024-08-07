@@ -1,7 +1,10 @@
 class AppConstants {
   static const companyHeaderName = 'TechLambdas';
+  static const menus = 'menus';
+  static const uiComponents = 'uiComponents';
   static const forEnquiry = 'For Enquiry';
   static const companyNumber = '+91 4632212477';
+  static const rememberMe = 'Remember Me';
   static const filter = 'Filters';
   static const no = 'No';
   static const yes = 'Yes';
@@ -29,6 +32,7 @@ class AppConstants {
   static const selected = 'Selected Accessories';
   static const enterQuantity = 'Enter Quantity';
   static const requiredField = 'Plese enter required field';
+  static const inProgress = 'In Progress';
 
   //SharedPreference
   static const designation = 'designation';
@@ -161,6 +165,7 @@ class AppConstants {
   static const pinCode = 'Pin Code';
   static const insurance = 'Insurance';
   static const booking = 'Booking';
+  static const configC = 'Config';
 
   //Customer
   static const addCustomer = 'Add Customer';
@@ -664,4 +669,16 @@ class AppConstants {
   static const flat = 'Flat';
   static const variable = 'Variable';
   static const String accountType = 'accountType';
+  static const String accessControl = 'Access Control';
+  static const String icAccessControl = 'assets/icons/ic_user_access.svg';
+
+  static const String userAccessCreated = 'Access Created';
+  static const String userAccessCreatedDes = 'User Access Created successfuly';
+
+  static const String userAccessNotCreated = 'Access Not Created';
+  static const String userAccessNotCreatedDes = 'User Access Failed to create';
+  static const String userAccessUpdated = 'Access Updated';
+  static const String userAccessUpdatedDes = 'User Access Updated successfuly';
+  static const String userAccessNotUpdated = 'Access Not Updated';
+  static const String userAccessNotUpdatedDes = 'User Access Failed to update';
 }

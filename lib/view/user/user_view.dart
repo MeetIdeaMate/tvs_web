@@ -10,6 +10,7 @@ import 'package:tlbilling/utils/app_util_widgets.dart';
 import 'package:tlbilling/view/user/create_user_dialog.dart';
 import 'package:tlbilling/view/user/user_active_inactive_dialog.dart';
 import 'package:tlbilling/view/user/user_view_bloc.dart';
+import 'package:tlbilling/view/useraccess/access_level_shared_pref.dart';
 import 'package:tlds_flutter/components/tlds_dropdown_button_form_field.dart';
 import 'package:tlds_flutter/components/tlds_input_form_field.dart';
 import 'package:tlds_flutter/export.dart' as tlds;
@@ -53,7 +54,8 @@ class _UserViewState extends State<UserView> {
             AppWidgetUtils.buildSizedBox(custHeight: 26),
             _buildsearchFiltersAndAddButton(context),
             AppWidgetUtils.buildSizedBox(custHeight: 28),
-            _buildUserTableView(context)
+            if (AccessLevel.canView(AppConstants.user))
+              _buildUserTableView(context)
           ],
         ),
       ),
@@ -63,27 +65,30 @@ class _UserViewState extends State<UserView> {
   _buildsearchFiltersAndAddButton(BuildContext context) {
     return Row(
       children: [
-        _buildUserNameAndMobNoFilter(),
-        AppWidgetUtils.buildSizedBox(custWidth: 5),
-        _buildDesignationFilter(),
-        AppWidgetUtils.buildSizedBox(custWidth: 5),
-        if (_userViewBlocImpl.isMainBranch ?? false) _buildBranchDropdown(),
-        if (_userViewBlocImpl.isMainBranch == false) const Spacer(),
-        const Spacer(),
-        AppWidgetUtils.buildAddbutton(
-          flex: 1,
-          context,
-          onPressed: () {
-            showDialog(
-              barrierDismissible: false,
-              context: context,
-              builder: (context) {
-                return CreateUserDialog(userViewBloc: _userViewBlocImpl);
-              },
-            );
-          },
-          text: AppConstants.addUser,
-        )
+        if (AccessLevel.canView(AppConstants.user)) ...[
+          _buildUserNameAndMobNoFilter(),
+          AppWidgetUtils.buildSizedBox(custWidth: 5),
+          _buildDesignationFilter(),
+          AppWidgetUtils.buildSizedBox(custWidth: 5),
+          if (_userViewBlocImpl.isMainBranch ?? false) _buildBranchDropdown(),
+          if (_userViewBlocImpl.isMainBranch == false) const Spacer(),
+          const Spacer(),
+        ],
+        if (AccessLevel.canAdd(AppConstants.user))
+          AppWidgetUtils.buildAddbutton(
+            flex: 1,
+            context,
+            onPressed: () {
+              showDialog(
+                barrierDismissible: false,
+                context: context,
+                builder: (context) {
+                  return CreateUserDialog(userViewBloc: _userViewBlocImpl);
+                },
+              );
+            },
+            text: AppConstants.addUser,
+          )
       ],
     );
   }
@@ -267,15 +272,16 @@ class _UserViewState extends State<UserView> {
                                     _builduserTableHeader(
                                       AppConstants.branchName,
                                     ),
-                                  _builduserTableHeader(
-                                    AppConstants.action,
-                                  ),
+                                  if (AccessLevel.canPUpdate(AppConstants.user))
+                                    _builduserTableHeader(
+                                      AppConstants.action,
+                                    ),
                                 ],
                                 rows: userData
                                     .asMap()
                                     .entries
                                     .map((entry) => DataRow(
-                                          color: MaterialStateColor.resolveWith(
+                                          color: WidgetStateColor.resolveWith(
                                               (states) {
                                             if (entry.key % 2 == 0) {
                                               return Colors.white;
@@ -297,10 +303,12 @@ class _UserViewState extends State<UserView> {
                                                 false)
                                               _buildTableRow(
                                                   entry.value.branchName),
-                                            DataCell(
-                                              _buildUserActiveInActiveSwitch(
-                                                  entry),
-                                            ),
+                                            if (AccessLevel.canPUpdate(
+                                                AppConstants.user))
+                                              DataCell(
+                                                _buildUserActiveInActiveSwitch(
+                                                    entry),
+                                              ),
                                           ],
                                         ))
                                     .toList(),

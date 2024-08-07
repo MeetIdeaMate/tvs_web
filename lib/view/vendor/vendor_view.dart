@@ -7,6 +7,7 @@ import 'package:tlbilling/utils/app_colors.dart';
 import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/utils/app_util_widgets.dart';
 import 'package:tlbilling/utils/input_formates.dart';
+import 'package:tlbilling/view/useraccess/access_level_shared_pref.dart';
 import 'package:tlbilling/view/vendor/create_vendor_dialog.dart';
 import 'package:tlbilling/view/vendor/vendor_view_bloc.dart';
 import 'package:tlds_flutter/components/tlds_input_formaters.dart';
@@ -34,7 +35,8 @@ class _VendorViewState extends State<VendorView> {
             AppWidgetUtils.buildSizedBox(custHeight: 26),
             _buildSearchFilterAddButton(context),
             AppWidgetUtils.buildSizedBox(custHeight: 28),
-            _buildVendorTableView(context)
+            if (AccessLevel.canView(AppConstants.vendor))
+              _buildVendorTableView(context)
           ],
         ),
       ),
@@ -44,24 +46,27 @@ class _VendorViewState extends State<VendorView> {
   _buildSearchFilterAddButton(BuildContext context) {
     return Row(
       children: [
-        _buildVendorNameSearch(),
-        _buildMobileNoSearch(),
-        _buildCitySearch(),
-        const Spacer(),
-        AppWidgetUtils.buildAddbutton(
-          context,
-          text: AppConstants.addVendor,
-          onPressed: () {
-            showDialog(
-              barrierDismissible: false,
-              context: context,
-              builder: (context) {
-                return CreateVendorDialog(
-                    vendorViewBlocImpl: _vendorViewBlocImpl);
-              },
-            );
-          },
-        )
+        if (AccessLevel.canView(AppConstants.vendor)) ...[
+          _buildVendorNameSearch(),
+          _buildMobileNoSearch(),
+          _buildCitySearch(),
+          const Spacer(),
+        ],
+        if (AccessLevel.canAdd(AppConstants.vendor))
+          AppWidgetUtils.buildAddbutton(
+            context,
+            text: AppConstants.addVendor,
+            onPressed: () {
+              showDialog(
+                barrierDismissible: false,
+                context: context,
+                builder: (context) {
+                  return CreateVendorDialog(
+                      vendorViewBlocImpl: _vendorViewBlocImpl);
+                },
+              );
+            },
+          )
       ],
     );
   }
@@ -205,13 +210,14 @@ class _VendorViewState extends State<VendorView> {
                               _buildVendorTableHeader(
                                 AppConstants.city,
                               ),
-                              _buildVendorTableHeader(
-                                AppConstants.action,
-                              ),
+                              if (AccessLevel.canPUpdate(AppConstants.vendor))
+                                _buildVendorTableHeader(
+                                  AppConstants.action,
+                                ),
                             ],
                             rows: vendorData.asMap().entries.map((entry) {
                               return DataRow(
-                                color: MaterialStateColor.resolveWith((states) {
+                                color: WidgetStateColor.resolveWith((states) {
                                   return entry.key % 2 == 0
                                       ? Colors.white
                                       : _appColors.transparentBlueColor;
@@ -222,30 +228,32 @@ class _VendorViewState extends State<VendorView> {
                                   DataCell(Text(entry.value.mobileNo ?? '')),
                                   DataCell(Text(entry.value.gstNumber ?? '')),
                                   DataCell(Text(entry.value.city ?? '')),
-                                  DataCell(
-                                    Row(
-                                      children: [
-                                        IconButton(
-                                          icon: SvgPicture.asset(
-                                              AppConstants.icEdit),
-                                          onPressed: () {
-                                            showDialog(
-                                              barrierDismissible: false,
-                                              context: context,
-                                              builder: (context) {
-                                                return CreateVendorDialog(
-                                                  vendorViewBlocImpl:
-                                                      _vendorViewBlocImpl,
-                                                  vendorId:
-                                                      entry.value.vendorId,
-                                                );
-                                              },
-                                            );
-                                          },
-                                        ),
-                                      ],
+                                  if (AccessLevel.canPUpdate(
+                                      AppConstants.vendor))
+                                    DataCell(
+                                      Row(
+                                        children: [
+                                          IconButton(
+                                            icon: SvgPicture.asset(
+                                                AppConstants.icEdit),
+                                            onPressed: () {
+                                              showDialog(
+                                                barrierDismissible: false,
+                                                context: context,
+                                                builder: (context) {
+                                                  return CreateVendorDialog(
+                                                    vendorViewBlocImpl:
+                                                        _vendorViewBlocImpl,
+                                                    vendorId:
+                                                        entry.value.vendorId,
+                                                  );
+                                                },
+                                              );
+                                            },
+                                          ),
+                                        ],
+                                      ),
                                     ),
-                                  ),
                                 ],
                               );
                             }).toList()),

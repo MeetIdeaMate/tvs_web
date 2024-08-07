@@ -13,6 +13,8 @@ import 'package:tlbilling/utils/app_util_widgets.dart';
 import 'package:tlbilling/utils/app_utils.dart';
 import 'package:tlbilling/view/booking/add_booking/add_booking_dialog.dart';
 import 'package:tlbilling/view/booking/booking_list_bloc.dart';
+import 'package:tlbilling/view/login/login_page.dart';
+import 'package:tlbilling/view/useraccess/access_level_shared_pref.dart';
 import 'package:tlds_flutter/components/tlds_dropdown_button_form_field.dart';
 import 'package:tlds_flutter/components/tlds_input_form_field.dart';
 import 'package:tlds_flutter/components/tlds_input_formaters.dart';
@@ -25,7 +27,8 @@ class BookingList extends StatefulWidget {
   State<BookingList> createState() => _BookingListState();
 }
 
-class _BookingListState extends State<BookingList> {
+class _BookingListState extends State<BookingList>
+    with SingleTickerProviderStateMixin {
   final _appColors = AppColors();
   final _bookingListBloc = BookingListBlocImpl();
   Future<void> getBranchName() async {
@@ -40,7 +43,8 @@ class _BookingListState extends State<BookingList> {
     _bookingListBloc.selectedPaymentType = AppConstants.allPayments;
     _bookingListBloc.selectedBranchName = AppConstants.allBranchs;
     getBranchName();
-
+    _bookingListBloc.bookingTabController =
+        TabController(length: 3, vsync: this);
     super.initState();
   }
 
@@ -57,7 +61,12 @@ class _BookingListState extends State<BookingList> {
               AppWidgetUtils.buildSizedBox(custHeight: 26),
               _buildSearchFieldsAndAddBookButton(),
               _buildDefaultHeight(),
-              _buildBookingListTable(),
+              if (AccessLevel.canView(
+                AppConstants.booking,
+              )) ...[
+                _buildTabBar(),
+                _buildTabBarView(),
+              ]
             ],
           ),
         ),
@@ -72,16 +81,27 @@ class _BookingListState extends State<BookingList> {
       children: [
         Row(
           children: [
-            _bookingIdField(),
-            _buildDefaultWidth(),
-            _buildCustomerNameField(),
-            _buildDefaultWidth(),
-            _buildPaymentTypeDropdown(),
-            _buildDefaultWidth(),
-            if (_bookingListBloc.isMainBranch ?? false) _buildBranchDropdown()
+            if (AccessLevel.canView(
+              AppConstants.booking,
+            )) ...[
+              _bookingIdField(),
+              _buildDefaultWidth(),
+              _buildCustomerNameField(),
+              _buildDefaultWidth(),
+              _buildPaymentTypeDropdown(),
+              _buildDefaultWidth(),
+            ],
+            if (_bookingListBloc.isMainBranch ?? false)
+              if (AccessLevel.canView(
+                AppConstants.booking,
+              ))
+                _buildBranchDropdown()
           ],
         ),
-        _buildAddBookButton(),
+        if (AccessLevel.canAdd(
+          AppConstants.booking,
+        ))
+          _buildAddBookButton(),
       ],
     );
   }
@@ -265,40 +285,57 @@ class _BookingListState extends State<BookingList> {
         if (currentPage < 0) currentPage = 0;
         _bookingListBloc.currentPage = currentPage;
         return FutureBuilder(
-          future: _bookingListBloc.getBookingListWithPagination(),
+          future: _bookingListBloc.getBookingListWithPagination((statusCode) {
+            if (statusCode == 401) {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const LoginPage(),
+                  ));
+            }
+          }, bookingStatus: () {
+            switch (_bookingListBloc.bookingTabController.index) {
+              case 0:
+                return 'INPROGRESS';
+              case 1:
+                return AppConstants.completed;
+              case 2:
+                return AppConstants.cancelled;
+              default:
+                return '';
+            }
+          }()),
           builder: (context, snapshot) {
             List<BookingDetails> bookingDetails =
                 snapshot.data?.bookingDetails ?? [];
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return Expanded(
-                  child: Center(child: AppWidgetUtils.buildLoading()));
+              return Center(child: AppWidgetUtils.buildLoading());
             } else if (snapshot.hasData) {
               GetBookingListWithPagination? bookingList = snapshot.data;
               if (!snapshot.hasData || bookingDetails.isEmpty == true) {
-                return Expanded(
-                  child: Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        SvgPicture.asset(AppConstants.imgNoData),
-                        AppWidgetUtils.buildSizedBox(custHeight: 8),
-                        Text(
-                          AppConstants.noBookingDataAvailable,
-                          style: TextStyle(color: _appColors.grey),
-                        )
-                      ],
-                    ),
+                return Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      SvgPicture.asset(AppConstants.imgNoData),
+                      AppWidgetUtils.buildSizedBox(custHeight: 8),
+                      Text(
+                        AppConstants.noBookingDataAvailable,
+                        style: TextStyle(color: _appColors.grey),
+                      )
+                    ],
                   ),
                 );
               } else {
-                return Expanded(
-                  child: SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        SingleChildScrollView(
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: SizedBox(
+                        width: MediaQuery.of(context).size.width,
+                        child: SingleChildScrollView(
                           scrollDirection: Axis.vertical,
                           child: SingleChildScrollView(
                             scrollDirection: Axis.horizontal,
@@ -308,24 +345,22 @@ class _BookingListState extends State<BookingList> {
                                     _buildBookingListTableRows(bookingDetails)),
                           ),
                         ),
-                        CustomPagination(
-                          itemsOnLastPage: bookingList?.totalElements ?? 0,
-                          currentPage: currentPage,
-                          totalPages: bookingList?.totalPages ?? 0,
-                          onPageChanged: (pageValue) {
-                            _bookingListBloc
-                                .pageNumberUpdateStreamController(pageValue);
-                          },
-                        ),
-                      ],
+                      ),
                     ),
-                  ),
+                    CustomPagination(
+                      itemsOnLastPage: bookingList?.totalElements ?? 0,
+                      currentPage: currentPage,
+                      totalPages: bookingList?.totalPages ?? 0,
+                      onPageChanged: (pageValue) {
+                        _bookingListBloc
+                            .pageNumberUpdateStreamController(pageValue);
+                      },
+                    ),
+                  ],
                 );
               }
             } else {
-              return Expanded(
-                  child:
-                      Center(child: SvgPicture.asset(AppConstants.imgNoData)));
+              return Center(child: SvgPicture.asset(AppConstants.imgNoData));
             }
           },
         );
@@ -346,7 +381,11 @@ class _BookingListState extends State<BookingList> {
       _buildTableHeader(AppConstants.amount, flex: 2),
       _buildTableHeader(AppConstants.executiveName, flex: 2),
       _buildTableHeader(AppConstants.targetInvDate, flex: 2),
-      _buildTableHeader(AppConstants.action, flex: 2),
+      if (_bookingListBloc.bookingTabController.index == 0)
+        if (AccessLevel.canPUpdate(
+          AppConstants.booking,
+        ))
+          _buildTableHeader(AppConstants.action, flex: 2),
     ];
   }
 
@@ -354,7 +393,7 @@ class _BookingListState extends State<BookingList> {
       List<BookingDetails> bookingDetails) {
     return bookingDetails.asMap().entries.map((entry) {
       return DataRow(
-        color: MaterialStateColor.resolveWith((states) {
+        color: WidgetStateColor.resolveWith((states) {
           if (entry.key % 2 == 0) {
             return Colors.white;
           } else {
@@ -403,16 +442,11 @@ class _BookingListState extends State<BookingList> {
           DataCell(Text(entry.value.executiveName ?? '')),
           DataCell(Text(AppUtils.apiToAppDateFormat(
               entry.value.targetInvoiceDate.toString()))),
-          DataCell(entry.value.cancelled == false
-              ? _buildCancelButton(entry)
-              : Chip(
-                  side: BorderSide(color: _appColors.errorColor),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10)),
-                  label: Text(
-                    AppConstants.cancelled,
-                    style: TextStyle(color: _appColors.errorColor),
-                  ))),
+          if (_bookingListBloc.bookingTabController.index == 0)
+            if (AccessLevel.canPUpdate(
+              AppConstants.booking,
+            ))
+              DataCell(_buildCancelButton(entry)),
         ],
       );
     }).toList();
@@ -518,5 +552,33 @@ class _BookingListState extends State<BookingList> {
     setState(() {
       _bookingListBloc.isLoading = isLoadingState;
     });
+  }
+
+  Widget _buildTabBar() {
+    return SizedBox(
+      width: 400,
+      child: TabBar(
+        controller: _bookingListBloc.bookingTabController,
+        tabs: const [
+          Tab(text: AppConstants.inProgress),
+          Tab(text: AppConstants.completed),
+          Tab(text: AppConstants.cancelled),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTabBarView() {
+    return Expanded(
+      child: TabBarView(
+        physics: const NeverScrollableScrollPhysics(),
+        controller: _bookingListBloc.bookingTabController,
+        children: [
+          _buildBookingListTable(),
+          _buildBookingListTable(),
+          _buildBookingListTable(),
+        ],
+      ),
+    );
   }
 }

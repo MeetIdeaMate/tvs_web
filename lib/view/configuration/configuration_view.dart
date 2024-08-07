@@ -9,6 +9,7 @@ import 'package:tlbilling/utils/app_util_widgets.dart';
 import 'package:tlbilling/view/configuration/configuration_dialog/configuration_dialog.dart';
 import 'package:tlbilling/view/configuration/configuration_dialog/configuration_dialog_bloc.dart';
 import 'package:tlbilling/view/configuration/configuration_view_bloc.dart';
+import 'package:tlbilling/view/useraccess/access_level_shared_pref.dart';
 import 'package:tlds_flutter/components/tlds_input_form_field.dart';
 
 class ConfigurationView extends StatefulWidget {
@@ -38,9 +39,11 @@ class _ConfigurationViewState extends State<ConfigurationView> {
         children: [
           _buildHeaderOfTheScreen(),
           AppWidgetUtils.buildSizedBox(custHeight: 26),
-          _buildSearchAndAddConfigButton(),
-          AppWidgetUtils.buildSizedBox(custHeight: 28),
-          _buildConfigDataTable(),
+          if (AccessLevel.canView(AppConstants.configC)) ...[
+            _buildSearchAndAddConfigButton(),
+            AppWidgetUtils.buildSizedBox(custHeight: 28),
+            _buildConfigDataTable(),
+          ]
         ],
       ),
     );
@@ -154,7 +157,8 @@ class _ConfigurationViewState extends State<ConfigurationView> {
                               _buildTableHeader('Default Value', flex: 2),
                               _buildTableHeader('Configuration Values',
                                   flex: 2),
-                              _buildTableHeader('Action', flex: 2),
+                              if (AccessLevel.canPUpdate(AppConstants.configC))
+                                _buildTableHeader('Action', flex: 2),
                             ],
                             rows: _buildDataTableRow(configListModel) ?? [],
                           ),
@@ -185,7 +189,7 @@ class _ConfigurationViewState extends State<ConfigurationView> {
         .entries
         .map(
           (entry) => DataRow(
-            color: MaterialStateColor.resolveWith((states) {
+            color: WidgetStateColor.resolveWith((states) {
               if (entry.key % 2 == 0) {
                 return Colors.white;
               } else {
@@ -199,24 +203,25 @@ class _ConfigurationViewState extends State<ConfigurationView> {
               DataCell(Text(entry.value.configuration!.length > 2
                   ? '${entry.value.configuration?.getRange(0, 2).join(', ')}, ...'
                   : entry.value.configuration?.join(', ') ?? '')),
-              DataCell(
-                Row(
-                  children: [
-                    IconButton(
-                      onPressed: () {
-                        showDialog(
-                          context: context,
-                          builder: (context) => ConfigurationDialog(
-                              configId: entry.value.configId ?? ''),
-                        ).then((value) => _configurationViewBloc
-                            .reLoadStreamController(true));
-                      },
-                      icon: SvgPicture.asset(AppConstants.icEdit),
-                    ),
-                    AppWidgetUtils.buildSizedBox(custWidth: 10),
-                  ],
+              if (AccessLevel.canPUpdate(AppConstants.configC))
+                DataCell(
+                  Row(
+                    children: [
+                      IconButton(
+                        onPressed: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) => ConfigurationDialog(
+                                configId: entry.value.configId ?? ''),
+                          ).then((value) => _configurationViewBloc
+                              .reLoadStreamController(true));
+                        },
+                        icon: SvgPicture.asset(AppConstants.icEdit),
+                      ),
+                      AppWidgetUtils.buildSizedBox(custWidth: 10),
+                    ],
+                  ),
                 ),
-              ),
             ],
           ),
         )

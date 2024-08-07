@@ -18,6 +18,7 @@ import 'package:tlbilling/view/sales/add_sales.dart';
 import 'package:tlbilling/view/sales/payment_dialog.dart';
 import 'package:tlbilling/view/sales/sales_report_pdf.dart';
 import 'package:tlbilling/view/sales/sales_view_bloc.dart';
+import 'package:tlbilling/view/useraccess/access_level_shared_pref.dart';
 import 'package:tlds_flutter/components/tlds_dropdown_button_form_field.dart';
 import 'package:tlds_flutter/util/app_colors.dart';
 import 'package:toastification/toastification.dart';
@@ -73,8 +74,10 @@ class _SalesViewScreenState extends State<SalesViewScreen>
             _buildSearchFilters(),
             AppWidgetUtils.buildSizedBox(
                 custHeight: MediaQuery.sizeOf(context).height * 0.02),
-            _buildTabBar(),
-            _buildTabBarView()
+            if (AccessLevel.canView(AppConstants.sales)) ...[
+              _buildTabBar(),
+              _buildTabBarView()
+            ]
           ],
         ),
       ),
@@ -88,60 +91,63 @@ class _SalesViewScreenState extends State<SalesViewScreen>
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            buildSearchField(
-                searchStream: _salesViewBloc.invoiceNoStream,
-                searchController: _salesViewBloc.invoiceNoTextController,
-                hintText: AppConstants.invoiceNo,
-                searchStreamController:
-                    _salesViewBloc.invoiceNoStreamController),
-            AppWidgetUtils.buildSizedBox(custWidth: 5),
-            buildSearchField(
-              searchStream: _salesViewBloc.paymentTypeStream,
-              searchController: _salesViewBloc.paymentTypeTextController,
-              hintText: AppConstants.paymentType,
-              searchStreamController:
-                  _salesViewBloc.paymentTypeStreamController,
-              inputFormatters: TlInputFormatters.onlyAllowAlphabets,
-            ),
-            AppWidgetUtils.buildSizedBox(custWidth: 5),
-            StreamBuilder<bool>(
-              stream: _salesViewBloc.customerNameStream,
-              builder: (context, snapshot) {
-                return buildSearchField(
-                  searchController: _salesViewBloc.customerNameTextController,
-                  hintText: AppConstants.customerName,
-                  searchStream: _salesViewBloc.customerNameStream,
+            if (AccessLevel.canView(AppConstants.sales)) ...[
+              buildSearchField(
+                  searchStream: _salesViewBloc.invoiceNoStream,
+                  searchController: _salesViewBloc.invoiceNoTextController,
+                  hintText: AppConstants.invoiceNo,
                   searchStreamController:
-                      _salesViewBloc.customerNameStreamController,
-                  inputFormatters: TlInputFormatters.onlyAllowAlphabets,
-                );
-              },
-            ),
-            AppWidgetUtils.buildSizedBox(custWidth: 5),
-            if (_salesViewBloc.isMainBranch ?? false) _buildBranchDropdown()
+                      _salesViewBloc.invoiceNoStreamController),
+              AppWidgetUtils.buildSizedBox(custWidth: 5),
+              buildSearchField(
+                searchStream: _salesViewBloc.paymentTypeStream,
+                searchController: _salesViewBloc.paymentTypeTextController,
+                hintText: AppConstants.paymentType,
+                searchStreamController:
+                    _salesViewBloc.paymentTypeStreamController,
+                inputFormatters: TlInputFormatters.onlyAllowAlphabets,
+              ),
+              AppWidgetUtils.buildSizedBox(custWidth: 5),
+              StreamBuilder<bool>(
+                stream: _salesViewBloc.customerNameStream,
+                builder: (context, snapshot) {
+                  return buildSearchField(
+                    searchController: _salesViewBloc.customerNameTextController,
+                    hintText: AppConstants.customerName,
+                    searchStream: _salesViewBloc.customerNameStream,
+                    searchStreamController:
+                        _salesViewBloc.customerNameStreamController,
+                    inputFormatters: TlInputFormatters.onlyAllowAlphabets,
+                  );
+                },
+              ),
+              AppWidgetUtils.buildSizedBox(custWidth: 5),
+              if (_salesViewBloc.isMainBranch ?? false) _buildBranchDropdown()
+            ]
           ],
         ),
-        Row(
-          children: [
-            CustomElevatedButton(
-              height: 40,
-              width: 189,
-              text: AppConstants.addSales,
-              fontSize: 16,
-              buttonBackgroundColor: _appColors.primaryColor,
-              fontColor: _appColors.whiteColor,
-              suffixIcon: SvgPicture.asset(AppConstants.icAdd),
-              onPressed: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          AddSales(salesViewBloc: _salesViewBloc),
-                    ));
-              },
-            )
-          ],
-        )
+        if (AccessLevel.canAdd(AppConstants.sales))
+          Row(
+            children: [
+              CustomElevatedButton(
+                height: 40,
+                width: 189,
+                text: AppConstants.addSales,
+                fontSize: 16,
+                buttonBackgroundColor: _appColors.primaryColor,
+                fontColor: _appColors.whiteColor,
+                suffixIcon: SvgPicture.asset(AppConstants.icAdd),
+                onPressed: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            AddSales(salesViewBloc: _salesViewBloc),
+                      ));
+                },
+              )
+            ],
+          )
       ],
     );
   }
@@ -339,7 +345,8 @@ class _SalesViewScreenState extends State<SalesViewScreen>
                               _buildVehicleTableHeader(AppConstants.status),
                             _buildVehicleTableHeader(AppConstants.createdBy),
                             if (!iscancelled)
-                              _buildVehicleTableHeader(AppConstants.pay),
+                              if (AccessLevel.canPUpdate(AppConstants.sales))
+                                _buildVehicleTableHeader(AppConstants.pay),
                             if (!iscancelled)
                               _buildVehicleTableHeader(AppConstants.print),
                             _buildVehicleTableHeader(AppConstants.action),
@@ -400,30 +407,33 @@ class _SalesViewScreenState extends State<SalesViewScreen>
                                 DataCell(
                                     Text(entry.value.createdByName.toString())),
                                 if (!iscancelled)
-                                  DataCell(
-                                    Row(
-                                      children: [
-                                        IconButton(
-                                          icon: SvgPicture.asset(
-                                              AppConstants.icpayment),
-                                          onPressed: () {
-                                            showDialog(
-                                              context: context,
-                                              barrierDismissible: false,
-                                              builder: (context) {
-                                                return PaymentDailog(
-                                                  salesdata: entry.value,
-                                                  salesViewBloc: _salesViewBloc,
-                                                  totalInvAmt: entry
-                                                      .value.totalInvoiceAmt,
-                                                );
-                                              },
-                                            );
-                                          },
-                                        ),
-                                      ],
+                                  if (AccessLevel.canPUpdate(
+                                      AppConstants.sales))
+                                    DataCell(
+                                      Row(
+                                        children: [
+                                          IconButton(
+                                            icon: SvgPicture.asset(
+                                                AppConstants.icpayment),
+                                            onPressed: () {
+                                              showDialog(
+                                                context: context,
+                                                barrierDismissible: false,
+                                                builder: (context) {
+                                                  return PaymentDailog(
+                                                    salesdata: entry.value,
+                                                    salesViewBloc:
+                                                        _salesViewBloc,
+                                                    totalInvAmt: entry
+                                                        .value.totalInvoiceAmt,
+                                                  );
+                                                },
+                                              );
+                                            },
+                                          ),
+                                        ],
+                                      ),
                                     ),
-                                  ),
                                 if (!iscancelled)
                                   DataCell(IconButton(
                                     onPressed: () async {
@@ -448,10 +458,12 @@ class _SalesViewScreenState extends State<SalesViewScreen>
                                       return [
                                         if (paymentStatus != 'COMPLETED' &&
                                             paymentStatus != '')
-                                          const PopupMenuItem(
-                                            value: 'cancel',
-                                            child: Text('Cancel'),
-                                          ),
+                                          if (AccessLevel.canPUpdate(
+                                              AppConstants.sales))
+                                            const PopupMenuItem(
+                                              value: 'cancel',
+                                              child: Text('Cancel'),
+                                            ),
                                         const PopupMenuItem(
                                           value: 'view',
                                           child: Text('View'),
@@ -735,7 +747,8 @@ class _SalesViewScreenState extends State<SalesViewScreen>
                         AppConstants.cancelled,
                         style: TextStyle(color: Colors.red),
                       )
-                    : entry.value.paymentStatus == 'PENDING'
+                    : (entry.value.paymentStatus == 'PENDING' &&
+                            AccessLevel.canPUpdate(AppConstants.sales))
                         ? IconButton(
                             onPressed: () {
                               showDialog(

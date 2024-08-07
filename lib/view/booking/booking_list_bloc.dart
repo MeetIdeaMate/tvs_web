@@ -22,7 +22,9 @@ abstract class BookingListBloc {
 
   Future<GetConfigurationModel?> getPaymentsList();
 
-  Future<GetBookingListWithPagination?> getBookingListWithPagination();
+  Future<GetBookingListWithPagination?> getBookingListWithPagination(
+      Function(int? statusCode) onSuccessCallback,
+      {String? bookingStatus});
 
   Stream<bool> get bookingTableStream;
 
@@ -39,6 +41,8 @@ abstract class BookingListBloc {
 
   Future<void> bookingCancel(
       String? bookingNo, Function(int p1)? onSuccessCallback);
+
+  TabController get bookingTabController;
 }
 
 class BookingListBlocImpl extends BookingListBloc {
@@ -56,6 +60,8 @@ class BookingListBlocImpl extends BookingListBloc {
   String? _selectedBranchName;
   bool? _isMainBranch;
   bool? _isLoading = false;
+  late TabController _bookingTabController;
+
   @override
   Stream get bookingIdFieldStreamController =>
       _bookingIdFieldStreamController.stream;
@@ -104,13 +110,17 @@ class BookingListBlocImpl extends BookingListBloc {
   }
 
   @override
-  Future<GetBookingListWithPagination?> getBookingListWithPagination() async {
+  Future<GetBookingListWithPagination?> getBookingListWithPagination(
+      Function(int? statusCode) onSuccessCallback,
+      {String? bookingStatus}) async {
     return await _appServices.getBookingListWithPagination(
         _currentPage,
         bookingIdTextController.text,
         customerTextController.text,
         selectedPaymentType,
-        branchId);
+        branchId,
+        onSuccessCallback,
+        bookingStatus: bookingStatus?.toUpperCase());
   }
 
   @override
@@ -164,5 +174,12 @@ class BookingListBlocImpl extends BookingListBloc {
 
   set isLoading(bool? newValue) {
     _isLoading = newValue;
+  }
+
+  @override
+  TabController get bookingTabController => _bookingTabController;
+
+  set bookingTabController(TabController tabValue) {
+    _bookingTabController = tabValue;
   }
 }

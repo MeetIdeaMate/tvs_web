@@ -304,9 +304,6 @@ class _PaymentDailogState extends State<PaymentDailog> {
                             .salesViewBloc.paidAmountTextController.text) ??
                         0;
 
-                    print(
-                        'totalInv${widget.salesViewBloc.totalInvAmtPaymentController.text}');
-                    print(paidAmt);
                     if (totalInv < paidAmt) {
                       widget.salesViewBloc.paidAmountTextController.clear();
                     }

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/widgets.dart';
 import 'package:tlbilling/api_service/app_service_utils.dart';
+import 'package:tlbilling/models/get_model/get_login_response.dart';
 
 abstract class LoginPageBloc {
   GlobalKey<FormState> get loginFormKey;
@@ -9,7 +10,7 @@ abstract class LoginPageBloc {
   TextEditingController get passwordTextController;
   Stream<bool> get passwordVisibleStream;
   bool get ispasswordVisible;
-  Future<void> login(Function(int) onSuccessCallBack);
+  Future<GetAllLoginResponse> login(Function(int statusCode) onSuccessCallBack);
 }
 
 class LoginPageBlocImpl extends LoginPageBloc {
@@ -45,7 +46,7 @@ class LoginPageBlocImpl extends LoginPageBloc {
   }
 
   @override
-  Future<void> login(Function(int p1) onSuccessCallBack) {
+  Future<GetAllLoginResponse> login(Function(int p1) onSuccessCallBack) {
     return _appserviceUtilImpl.login(mobileNumberTextController.text,
         passwordTextController.text, onSuccessCallBack);
   }

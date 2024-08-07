@@ -6,6 +6,7 @@ import 'package:tlbilling/api_service/app_url.dart';
 import 'package:intl/intl.dart';
 import 'package:tlbilling/models/get_employee_by_id.dart';
 import 'package:tlbilling/models/get_model/get_all_account_head_by_pagination_model.dart';
+import 'package:tlbilling/models/get_model/get_all_access_controll_model.dart';
 import 'package:tlbilling/models/get_model/get_all_booking_list_with_pagination.dart';
 import 'package:tlbilling/models/get_model/get_all_branch_by_id_model.dart';
 import 'package:tlbilling/models/get_model/get_all_branch_model.dart';
@@ -28,6 +29,7 @@ import 'package:tlbilling/models/get_model/get_all_voucher_with_pagenation.dart'
 import 'package:tlbilling/models/get_model/get_configuration_list_model.dart';
 import 'package:tlbilling/models/get_model/get_configuration_model.dart';
 import 'package:tlbilling/models/get_model/get_customer_booking_details.dart';
+import 'package:tlbilling/models/get_model/get_login_response.dart';
 import 'package:tlbilling/models/get_model/get_transport_by_pagination.dart';
 import 'package:tlbilling/models/get_model/get_vendor_by_id_model.dart';
 import 'package:tlbilling/models/parent_response_model.dart';
@@ -41,6 +43,7 @@ import 'package:tlbilling/models/post_model/add_purchase_model.dart';
 import 'package:tlbilling/models/post_model/add_sales_model.dart';
 import 'package:tlbilling/models/post_model/add_transport_model.dart';
 import 'package:tlbilling/models/post_model/add_vouchar_model.dart';
+import 'package:tlbilling/models/post_model/user_access_model.dart';
 import 'package:tlbilling/models/update/update_branch_model.dart';
 import 'package:tlbilling/models/user_model.dart';
 import 'package:tlbilling/utils/app_constants.dart';
@@ -48,8 +51,8 @@ import 'package:tlbilling/utils/app_constants.dart';
 import '../models/post_model/add_vendor_model.dart';
 
 abstract class AppServiceUtil {
-  Future<void> login(
-      String userName, String password, Function(int) onSuccessCallBack);
+  Future<GetAllLoginResponse> login(String userName, String password,
+      Function(int statusCode) onSuccessCallBack);
 
   Future<void> addBranch(AddBranchModel addBranchModel,
       Function(int? statusCode) onSuccessCallBack);
@@ -79,6 +82,11 @@ abstract class AppServiceUtil {
 
   Future<void> updateVendor(String vendorId, AddVendorModel vendorObj,
       Function(int? statusCode) statusCode);
+
+  Future<void> accessControlUpdateData(
+      Function(int? statusCode) onSuccessCallBack,
+      UserAccess requestObj,
+      String accessId);
 
   Future<GetAllSales?> getSalesList(
       String invoiceNo,
@@ -260,7 +268,9 @@ abstract class AppServiceUtil {
       String? bookingId,
       String? customerName,
       String? paymentType,
-      String? branchName);
+      String? branchName,
+      Function(int? statusCode) onSuccessCallback,
+      {String? bookingStatus});
 
   Future<void> addNewBookingDetails(
       BookingModel bookingPostObj, Function(int statusCode) onSuccessCallBack);
@@ -290,6 +300,18 @@ abstract class AppServiceUtil {
 
   Future<void> salesBillCancel(Function(int statusCode)? onSuccessCallBack,
       String? salesId, String? reason);
+
+  Future<void> accessControlPostData(
+      Function(int? statusCode) onSuccessCallBack, UserAccess requestObj);
+
+  Future<List<AccessControlList>?> getAllUserAccessControlData(
+      {Function(int? statusCode,
+              AccessControlList? getAllUserAccessControlDetails)?
+          onSuccessCallback,
+      String? userId,
+      String? role});
+
+  Future<List<UserDetailsList>?> getAllUserNameList();
 }
 
 class AppServiceUtilImpl extends AppServiceUtil {
@@ -298,8 +320,11 @@ class AppServiceUtilImpl extends AppServiceUtil {
   final dio = Dio();
 
   @override
-  Future<void> login(String userName, String password,
-      Function(int p1) onSuccessCallBack) async {
+  Future<GetAllLoginResponse> login(
+    String userName,
+    String password,
+    dynamic Function(int) onSuccessCallBack,
+  ) async {
     try {
       var response = await dio.post(AppUrl.login,
           data: {'mobileNo': userName, 'passWord': password});
@@ -311,7 +336,8 @@ class AppServiceUtilImpl extends AppServiceUtil {
         var useRefId = response.data['result']['login']['useRefId'] ?? '';
         var branchId = response.data['result']['login']['branchId'] ?? '';
         var branchName = response.data['result']['login']['branchName'] ?? '';
-        var isMainBranch = response.data['result']['login']['mainBranch'] ?? '';
+        var isMainBranch =
+            response.data['result']['login']['mainBranch'] ?? false;
         SharedPreferences prefs = await SharedPreferences.getInstance();
         prefs.setString(AppConstants.token, token);
         prefs.setString(AppConstants.designation, designation);
@@ -322,9 +348,21 @@ class AppServiceUtilImpl extends AppServiceUtil {
         prefs.setString('branchName', branchName);
         prefs.setBool('mainBranch', isMainBranch);
         onSuccessCallBack(response.statusCode ?? 0);
+        return GetAllLoginResponse(
+            branchId: branchId,
+            userId: userId,
+            branchName: branchName,
+            token: token,
+            userName: userName,
+            designation: designation,
+            mainBranch: isMainBranch);
+      } else {
+        onSuccessCallBack(response.statusCode ?? 0);
+        return Future.error('Login failed');
       }
     } on DioException catch (e) {
       onSuccessCallBack(e.response?.statusCode ?? 0);
+      return Future.error(e.response?.data);
     }
   }
 
@@ -419,11 +457,9 @@ class AppServiceUtilImpl extends AppServiceUtil {
       if (mobileNumber.isNotEmpty) {
         url += '&mobileNo=$mobileNumber';
       }
-
       if (!isMainBranch) {
         url += '&branchId=$branchId';
       }
-
       if (branchName.isNotEmpty && branchName != 'All Branch') {
         url += '&branchName=$branchName';
       }
@@ -1450,7 +1486,9 @@ class AppServiceUtilImpl extends AppServiceUtil {
       String? bookingId,
       String? customerName,
       String? paymentType,
-      String? branchName) async {
+      String? branchName,
+      Function(int? statusCode) onSuccessCallback,
+      {String? bookingStatus}) async {
     try {
       final dio = Dio();
       SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -1458,7 +1496,9 @@ class AppServiceUtilImpl extends AppServiceUtil {
       dio.options.headers['Authorization'] = 'Bearer $token';
       bool isMainBranch = prefs.getBool('mainBranch') ?? false;
       String branchId = prefs.getString('branchId') ?? '';
-      String url = '${AppUrl.booking}/page?page=$currentPage&size=10';
+      String url =
+          '${AppUrl.booking}/page?page=$currentPage&size=10&bookingStatus=$bookingStatus';
+
       if (bookingId != null && bookingId.isNotEmpty) {
         url += '&bookingNo=$bookingId';
       }
@@ -1479,6 +1519,7 @@ class AppServiceUtilImpl extends AppServiceUtil {
         url += '&branchName=$branchName';
       }
       var response = await dio.get(url);
+      onSuccessCallback(response.statusCode);
       return parentResponseModelFromJson(jsonEncode(response.data))
           .result
           ?.getAllBookingListWithPagination;
@@ -1660,9 +1701,6 @@ class AppServiceUtilImpl extends AppServiceUtil {
       var response = await dio.post(AppUrl.accountHead,
           data: jsonEncode(addAccountHeadModel));
 
-      print(AppUrl.accountHead);
-      print(response.statusCode);
-
       onSuccessCallBack(response.statusCode ?? 0);
     } on DioException catch (e) {
       onSuccessCallBack(e.response?.statusCode);
@@ -1678,12 +1716,9 @@ class AppServiceUtilImpl extends AppServiceUtil {
       dio.options.headers['Authorization'] = 'Bearer $token';
       var response = await dio.put('${AppUrl.accountHead}/$accountId',
           data: jsonEncode(addAccountHeadModel));
-      print('${AppUrl.accountHead}/$accountId');
-      print(response.statusCode);
 
       onSuccessCallBack(response.statusCode ?? 0);
     } on DioException catch (e) {
-      print(e);
       onSuccessCallBack(e.response?.statusCode);
     }
   }
@@ -1708,7 +1743,6 @@ class AppServiceUtilImpl extends AppServiceUtil {
       accountListUrl += '&accountHeadName=$accountHeadName';
     }
 
-    print(accountListUrl);
     var response = await dio.get(accountListUrl);
 
     final responseList = parentResponseModelFromJson(jsonEncode(response.data));
@@ -1726,5 +1760,101 @@ class AppServiceUtilImpl extends AppServiceUtil {
         .result
         ?.getAllAccount;
     return accountDeatils;
+  }
+
+  @override
+  Future<void> accessControlPostData(
+      Function(int? statusCode) onSuccessCallBack,
+      UserAccess requestObj) async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      var token = prefs.getString('token');
+      dio.options.headers['Authorization'] = 'Bearer $token';
+      var response =
+          await dio.post(AppUrl.accessContol, data: jsonEncode(requestObj));
+      onSuccessCallBack(response.statusCode);
+    } on DioException catch (e) {
+      onSuccessCallBack(e.response?.statusCode);
+    }
+  }
+
+  @override
+  Future<void> accessControlUpdateData(
+      Function(int? statusCode) onSuccessCallBack,
+      UserAccess requestObj,
+      String accessId) async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      var token = prefs.getString('token');
+      dio.options.headers['Authorization'] = 'Bearer $token';
+      final url = '${AppUrl.accessContol}/$accessId';
+      var response = await dio.put(url, data: jsonEncode(requestObj));
+      onSuccessCallBack(response.statusCode);
+    } on DioException catch (e) {
+      onSuccessCallBack(e.response?.statusCode);
+    }
+  }
+
+  @override
+  Future<List<AccessControlList>?> getAllUserAccessControlData(
+      {Function(int? statusCode,
+              AccessControlList? getAllUserAccessControlDetails)?
+          onSuccessCallback,
+      String? branchId,
+      String? userId,
+      String? role}) async {
+    try {
+      final dio = Dio();
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      var token = prefs.getString('token');
+      dio.options.headers['Authorization'] = 'Bearer $token';
+      var url = '${AppUrl.accessContol}?';
+
+      if (userId != null) {
+        url += 'userId=$userId&';
+      }
+      if (role != null) {
+        url += 'designation=$role&';
+      }
+      if (branchId != null) {
+        url += 'branchId=$branchId&';
+      }
+
+      var response = await dio.get(url);
+
+      var accessLevelList =
+          parentResponseModelFromJson(jsonEncode(response.data))
+              .result
+              ?.getAllUserAccessControlDetails;
+
+      if (response.statusCode == 200) {
+        return accessLevelList;
+      }
+    } on DioException catch (exception) {
+      exception.response?.statusCode ?? 0;
+    }
+    return null;
+  }
+
+  @override
+  Future<List<UserDetailsList>?> getAllUserNameList() async {
+    try {
+      final dio = Dio();
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      var token = prefs.getString('token');
+      dio.options.headers['Authorization'] = 'Bearer $token';
+      var url = AppUrl.newUserOnboard;
+      var response = await dio.get(url);
+      var accessLevelList =
+          parentResponseModelFromJson(jsonEncode(response.data))
+              .result
+              ?.getAllUserWithoutPagenation;
+      if (response.statusCode == 200) {
+        return accessLevelList;
+      }
+    } on DioException catch (exception) {
+      exception.response?.statusCode ?? 0;
+    }
+    return null;
   }
 }
