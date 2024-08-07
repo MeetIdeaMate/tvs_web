@@ -33,21 +33,13 @@ class _PurchaseViewState extends State<PurchaseView>
   @override
   void initState() {
     super.initState();
-    // sharedPref();
+
     _purchaseViewBloc.vehicleAndAccessoriesTabController =
         TabController(length: 2, vsync: this);
   }
 
-  // sharedPref() async {
-  //   await AccessLevel.accessingData();
-  //   print('**************1 =>${AccessLevel.canAdd('Purchase')}');
-  //   print('**************2 =>${!AccessLevel.canAdd('Purchase')}');
-  // }
-
   @override
   Widget build(BuildContext context) {
-    // print('**************builder =>${AccessLevel.canAdd('Purchase')}');
-
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.symmetric(

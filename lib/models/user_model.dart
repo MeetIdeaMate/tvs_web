@@ -1,4 +1,4 @@
-class  UsersListModel {
+class UsersListModel {
   List<UserDetailsList>? content;
   Pageable? pageable;
   int? totalPages;

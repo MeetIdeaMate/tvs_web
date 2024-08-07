@@ -133,9 +133,6 @@ class _SideMenuNavigationState extends State<SideMenuNavigation> {
   }
 
   Widget _buildDrawer() {
-    // print(
-    //     '11111111111111111111dashboard${AccessLevel.canHide(AppConstants.dashboard)}');
-
     return StreamBuilder(
       stream: _sideMenuBloc.sideMenuStream,
       builder: (context, snapshot) {

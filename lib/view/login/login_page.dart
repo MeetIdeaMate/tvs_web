@@ -218,7 +218,6 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   _buiuldOnPressed() async {
-    print(_rememberMe);
     if (_loginPageBlocImpl.loginFormKey.currentState!.validate()) {
       _isLoadingState(state: true);
       _loginPageBlocImpl.login(
@@ -276,7 +275,6 @@ class _LoginPageState extends State<LoginPage> {
                   element.userId == userId;
             }).toList() ??
             [];
-        print(' 1 $filteredaccessControl');
         if (filteredaccessControl.isNotEmpty) {
           UserAccessLevels.storeUserAccessData(filteredaccessControl);
           return;
@@ -295,7 +293,6 @@ class _LoginPageState extends State<LoginPage> {
                     element.userId == null;
               }).toList() ??
               [];
-          print(' 2 $filteredaccessControl');
 
           if (filteredaccessControl.isNotEmpty) {
             UserAccessLevels.storeUserAccessData(filteredaccessControl);
@@ -314,7 +311,6 @@ class _LoginPageState extends State<LoginPage> {
                       element.userId == null;
                 }).toList() ??
                 [];
-            print(' 3 $filteredaccessControl');
             if (filteredaccessControl.isNotEmpty) {
               List<AccessControlList>? accessControl4 =
                   await _accessControlBloc.getAllUserAccessControlData(
@@ -329,7 +325,6 @@ class _LoginPageState extends State<LoginPage> {
                         element.userId == null;
                   }).toList() ??
                   [];
-              print(' 4 $filteredaccessControl');
               if (filteredaccessControl.isNotEmpty) {
                 UserAccessLevels.storeUserAccessData(filteredaccessControl);
                 return;

@@ -1701,9 +1701,6 @@ class AppServiceUtilImpl extends AppServiceUtil {
       var response = await dio.post(AppUrl.accountHead,
           data: jsonEncode(addAccountHeadModel));
 
-      print(AppUrl.accountHead);
-      print(response.statusCode);
-
       onSuccessCallBack(response.statusCode ?? 0);
     } on DioException catch (e) {
       onSuccessCallBack(e.response?.statusCode);
@@ -1719,12 +1716,9 @@ class AppServiceUtilImpl extends AppServiceUtil {
       dio.options.headers['Authorization'] = 'Bearer $token';
       var response = await dio.put('${AppUrl.accountHead}/$accountId',
           data: jsonEncode(addAccountHeadModel));
-      print('${AppUrl.accountHead}/$accountId');
-      print(response.statusCode);
 
       onSuccessCallBack(response.statusCode ?? 0);
     } on DioException catch (e) {
-      print(e);
       onSuccessCallBack(e.response?.statusCode);
     }
   }
@@ -1749,7 +1743,6 @@ class AppServiceUtilImpl extends AppServiceUtil {
       accountListUrl += '&accountHeadName=$accountHeadName';
     }
 
-    print(accountListUrl);
     var response = await dio.get(accountListUrl);
 
     final responseList = parentResponseModelFromJson(jsonEncode(response.data));
@@ -1833,9 +1826,7 @@ class AppServiceUtilImpl extends AppServiceUtil {
           parentResponseModelFromJson(jsonEncode(response.data))
               .result
               ?.getAllUserAccessControlDetails;
-      print(url);
-      print('**************stc => ${response.statusCode}');
-      print('**************rd => ${response.data}');
+
       if (response.statusCode == 200) {
         return accessLevelList;
       }

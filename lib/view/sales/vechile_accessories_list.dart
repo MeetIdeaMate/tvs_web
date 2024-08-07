@@ -412,8 +412,6 @@ class _VehicleAccessoriesListState extends State<VehicleAccessoriesList> {
                       onSelectionChanged: (Set<String> newValue) {
                         var selectedValue = newValue.first;
 
-                        print(selectedValue);
-
                         widget.addSalesBloc.screenChangeStreamController(true);
 
                         widget.addSalesBloc

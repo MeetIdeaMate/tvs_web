@@ -10,8 +10,7 @@ abstract class LoginPageBloc {
   TextEditingController get passwordTextController;
   Stream<bool> get passwordVisibleStream;
   bool get ispasswordVisible;
-  Future<GetAllLoginResponse> login(
-      Function(int statusCode) onSuccessCallBack);
+  Future<GetAllLoginResponse> login(Function(int statusCode) onSuccessCallBack);
 }
 
 class LoginPageBlocImpl extends LoginPageBloc {
@@ -47,8 +46,7 @@ class LoginPageBlocImpl extends LoginPageBloc {
   }
 
   @override
-  Future<GetAllLoginResponse> login(
-      Function(int p1) onSuccessCallBack) {
+  Future<GetAllLoginResponse> login(Function(int p1) onSuccessCallBack) {
     return _appserviceUtilImpl.login(mobileNumberTextController.text,
         passwordTextController.text, onSuccessCallBack);
   }

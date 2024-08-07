@@ -43,9 +43,7 @@ class LogoutDialog extends StatelessWidget {
     prefs.remove('token');
     prefs.remove('isAccessCheckBoxChanged');
     prefs.remove('rememberMe');
-    print(prefs.getString('user_access'));
     prefs.remove('user_access');
-    print(prefs.getString('user_access'));
     prefs.clear();
     sideMenuNavigationBlocImpl?.sideMenuStreamController(true);
     Navigator.pushReplacement(

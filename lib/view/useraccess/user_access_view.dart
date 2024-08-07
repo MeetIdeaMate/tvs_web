@@ -90,14 +90,12 @@ class _AccessControlViewScreenState extends State<AccessControlViewScreen>
 
     // Determine the filtering criteria based on the provided parameters
     if (branchId != null && role == null && userId == null) {
-      print(true);
       filteredCheckboxValue = checkboxValue
           .where((element) =>
               element.branchId != null &&
               element.userId == null &&
               element.designation == null)
           .toList();
-      print('filteredCheckboxValue $filteredCheckboxValue');
       _accessViewControlBloc.refreshTavViewStreamController(true);
     } else if (branchId != null && role != null && userId == null) {
       filteredCheckboxValue = checkboxValue
@@ -117,9 +115,7 @@ class _AccessControlViewScreenState extends State<AccessControlViewScreen>
       return;
     }
 
-    print('Filtered Checkbox Value: $filteredCheckboxValue');
     isUpdateAccess = filteredCheckboxValue.isEmpty;
-    print(isUpdateAccess);
 
     if (filteredCheckboxValue.isEmpty) {
       _selectedMenus.clear();
@@ -134,8 +130,6 @@ class _AccessControlViewScreenState extends State<AccessControlViewScreen>
 
     // Use the first item that matches the condition
     final AccessControlList element = filteredCheckboxValue.first;
-
-    print(isUpdateAccess);
 
     // Clear previous values
     _selectedMenus.clear();
@@ -471,7 +465,6 @@ class _AccessControlViewScreenState extends State<AccessControlViewScreen>
         userId: _userId);
     _accessViewControlBloc.setLoadingState(true);
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    print(isUpdateAccess);
     if (isUpdateAccess ?? false) {
       _accessViewControlBloc.accessControlPostData(
         (statusCode) {
