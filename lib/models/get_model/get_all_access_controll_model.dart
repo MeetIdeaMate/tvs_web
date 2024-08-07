@@ -36,9 +36,12 @@ class AccessControlList {
   String? id;
   dynamic departmentId;
   String? userId;
+  String? branchId;
+  String? designation;
   dynamic role;
   List<MenuList>? menus;
   List<UiComponent>? uiComponents;
+
   DateTime? createdDateTime;
   String? createdBy;
   DateTime? updatedDateTime;
@@ -55,6 +58,8 @@ class AccessControlList {
     this.createdBy,
     this.updatedDateTime,
     this.updatedBy,
+    this.branchId,
+    this.designation,
   });
 
   factory AccessControlList.fromJson(Map<String, dynamic> json) =>
@@ -79,6 +84,8 @@ class AccessControlList {
             ? null
             : DateTime.parse(json["updatedDateTime"]),
         updatedBy: json["updatedBy"],
+        branchId: json["branchId"],
+        designation: json["designation"],
       );
 
   Map<String, dynamic> toJson() => {
@@ -96,6 +103,8 @@ class AccessControlList {
         "createdBy": createdBy,
         "updatedDateTime": updatedDateTime?.toIso8601String(),
         "updatedBy": updatedBy,
+        "branchId": branchId,
+        "designation": designation,
       };
 }
 

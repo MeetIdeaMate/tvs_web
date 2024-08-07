@@ -31,6 +31,7 @@ class _LoginPageState extends State<LoginPage> {
   final _accessControlBloc = AccessControlViewBlocImpl();
   String? userId;
   String? role;
+  String? branchId;
 
   @override
   void initState() {
@@ -258,13 +259,87 @@ class _LoginPageState extends State<LoginPage> {
         },
       ).then((values) async {
         userId = values.userId;
-        List<AccessControlList>? accessControl =
+        role = values.designation;
+        branchId = values.branchId;
+        List<AccessControlList>? accessControl1 =
             await _accessControlBloc.getAllUserAccessControlData(
-                onSuccessCallback: (statusCode, accessControlList) {},
-                userId: values.userId,
-                role: values.designation);
+          onSuccessCallback: (statusCode, accessControlList) {},
+          userId: values.userId,
+          role: values.designation,
+          branchId: values.branchId,
+        );
 
-        UserAccessLevels.storeUserAccessData(accessControl);
+        List<AccessControlList> filteredaccessControl = [];
+        filteredaccessControl = accessControl1?.where((element) {
+              return element.branchId == branchId &&
+                  element.designation == role &&
+                  element.userId == userId;
+            }).toList() ??
+            [];
+        print(' 1 $filteredaccessControl');
+        if (filteredaccessControl.isNotEmpty) {
+          UserAccessLevels.storeUserAccessData(filteredaccessControl);
+          return;
+        } else {
+          List<AccessControlList>? accessControl2 =
+              await _accessControlBloc.getAllUserAccessControlData(
+            onSuccessCallback: (statusCode, accessControlList) {},
+            role: values.designation,
+            branchId: values.branchId,
+          );
+
+          List<AccessControlList> filteredaccessControl = [];
+          filteredaccessControl = accessControl2?.where((element) {
+                return element.branchId == branchId &&
+                    element.designation == role &&
+                    element.userId == null;
+              }).toList() ??
+              [];
+          print(' 2 $filteredaccessControl');
+
+          if (filteredaccessControl.isNotEmpty) {
+            UserAccessLevels.storeUserAccessData(filteredaccessControl);
+            return;
+          } else {
+            List<AccessControlList>? accessControl3 =
+                await _accessControlBloc.getAllUserAccessControlData(
+              onSuccessCallback: (statusCode, accessControlList) {},
+              branchId: values.branchId,
+            );
+
+            List<AccessControlList> filteredaccessControl = [];
+            filteredaccessControl = accessControl3?.where((element) {
+                  return element.branchId == branchId &&
+                      element.designation == null &&
+                      element.userId == null;
+                }).toList() ??
+                [];
+            print(' 3 $filteredaccessControl');
+            if (filteredaccessControl.isNotEmpty) {
+              List<AccessControlList>? accessControl4 =
+                  await _accessControlBloc.getAllUserAccessControlData(
+                onSuccessCallback: (statusCode, accessControlList) {},
+                branchId: values.branchId,
+              );
+
+              List<AccessControlList> filteredaccessControl = [];
+              filteredaccessControl = accessControl4?.where((element) {
+                    return element.branchId == null &&
+                        element.designation == role &&
+                        element.userId == null;
+                  }).toList() ??
+                  [];
+              print(' 4 $filteredaccessControl');
+              if (filteredaccessControl.isNotEmpty) {
+                UserAccessLevels.storeUserAccessData(filteredaccessControl);
+                return;
+              }
+
+              UserAccessLevels.storeUserAccessData(filteredaccessControl);
+              return;
+            }
+          }
+        }
       });
     }
   }

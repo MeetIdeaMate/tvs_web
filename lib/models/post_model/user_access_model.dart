@@ -4,6 +4,8 @@ class UserAccess {
   String? role;
   List<UIComponent>? uiComponents;
   String? userId;
+  String? branchId;
+  String? designation;
 
   UserAccess({
     this.departmentId,
@@ -11,6 +13,8 @@ class UserAccess {
     this.role,
     this.uiComponents,
     this.userId,
+    this.branchId,
+    this.designation,
   });
 
   Map<String, dynamic> toJson() {
@@ -18,8 +22,11 @@ class UserAccess {
       'departmentId': departmentId,
       'menus': menus?.map((menu) => menu.toJson()).toList(),
       'role': role,
-      'uiComponents': uiComponents?.map((component) => component.toJson()).toList(),
+      'uiComponents':
+          uiComponents?.map((component) => component.toJson()).toList(),
       'userId': userId,
+      'branchId': branchId,
+      'designation': designation
     };
   }
 }

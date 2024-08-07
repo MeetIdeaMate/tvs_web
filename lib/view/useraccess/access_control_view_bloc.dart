@@ -4,6 +4,7 @@ import 'package:tlbilling/api_service/app_service_utils.dart';
 import 'package:tlbilling/models/get_model/get_all_access_controll_model.dart';
 import 'package:tlbilling/models/get_model/get_all_branches_by_pagination.dart';
 import 'package:tlbilling/models/get_model/get_configuration_model.dart';
+import 'package:tlbilling/models/parent_response_model.dart';
 import 'package:tlbilling/models/post_model/user_access_model.dart';
 import 'package:tlbilling/models/user_model.dart';
 import 'package:tlbilling/utils/app_constants.dart';
@@ -15,6 +16,7 @@ abstract class AccessControlViewBloc {
   Future<List<BranchDetail>?> getBranchesList();
   List<String> get branchList;
   String? get selectedBranch;
+  String? get branchId;
   String? get selectedRole;
   String? get selectedUserName;
   String? get selectedDesignation;
@@ -35,6 +37,8 @@ abstract class AccessControlViewBloc {
   Stream<List<bool>> get pUpdateChecksStream;
   Stream<List<bool>> get fUpdateChecksStream;
   Stream<List<bool>> get deleteChecksStream;
+  Stream<bool> get userNameSelectStream;
+  Stream<bool> get designationSelectStream;
   Stream<bool> get checkBoxStream;
   Future<void> accessControlPostData(
       Function(int? statusCode) onSuccessCallBack, UserAccess requestObj);
@@ -51,6 +55,7 @@ abstract class AccessControlViewBloc {
       String? role});
 
   Future<List<UserDetailsList>?> getAllUserNameList();
+  Future<ParentResponseModel> getBranchName();
   Stream<bool> get refreshTabViewStream;
 
   void dispose();
@@ -69,6 +74,7 @@ class AccessControlViewBlocImpl implements AccessControlViewBloc {
 
   final List<String> _branchList = [];
   String? _selectedBranch;
+  String? _branchId;
   String? _selectedRole;
   String? _selectedDesignation;
   String? _selectedUserName;
@@ -100,6 +106,9 @@ class AccessControlViewBlocImpl implements AccessControlViewBloc {
   final _checkBoxStreamController = StreamController<bool>.broadcast();
   final _uiComponentsNamesController =
       StreamController<List<String>>.broadcast();
+
+  final _userNameSelectedSream = StreamController<bool>.broadcast();
+  final _designationSelectedStream = StreamController<bool>.broadcast();
 
   @override
   Future<List<BranchDetail>?> getBranchesList() async {
@@ -350,12 +359,14 @@ class AccessControlViewBlocImpl implements AccessControlViewBloc {
       {Function(int? statusCode,
               AccessControlList? getAllUserAccessControlDetails)?
           onSuccessCallback,
+      String? branchId,
       String? userId,
       String? role}) {
     return _apiCalls.getAllUserAccessControlData(
       onSuccessCallback: onSuccessCallback,
       role: role,
       userId: userId,
+      branchId: branchId,
     );
   }
 
@@ -386,5 +397,28 @@ class AccessControlViewBlocImpl implements AccessControlViewBloc {
       String accessId) {
     return _apiCalls.accessControlUpdateData(
         onSuccessCallBack, requestObj, accessId);
+  }
+
+  @override
+  Future<ParentResponseModel> getBranchName() {
+    return _apiCalls.getBranchName();
+  }
+
+  @override
+  String? get branchId => _branchId;
+  set branchId(String? value) {
+    _branchId = value;
+  }
+
+  @override
+  Stream<bool> get userNameSelectStream => _userNameSelectedSream.stream;
+  userNameSelectedSreamController(bool value) {
+    _userNameSelectedSream.add(value);
+  }
+
+  @override
+  Stream<bool> get designationSelectStream => _designationSelectedStream.stream;
+  designationSelectedSreamController(bool value) {
+    _designationSelectedStream.add(value);
   }
 }

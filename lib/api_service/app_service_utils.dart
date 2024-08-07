@@ -1807,6 +1807,7 @@ class AppServiceUtilImpl extends AppServiceUtil {
       {Function(int? statusCode,
               AccessControlList? getAllUserAccessControlDetails)?
           onSuccessCallback,
+      String? branchId,
       String? userId,
       String? role}) async {
     try {
@@ -1814,9 +1815,16 @@ class AppServiceUtilImpl extends AppServiceUtil {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       var token = prefs.getString('token');
       dio.options.headers['Authorization'] = 'Bearer $token';
-      var url = AppUrl.accessContol;
+      var url = '${AppUrl.accessContol}?';
+
       if (userId != null) {
-        url += '?userId=$userId';
+        url += 'userId=$userId&';
+      }
+      if (role != null) {
+        url += 'designation=$role&';
+      }
+      if (branchId != null) {
+        url += 'branchId=$branchId&';
       }
 
       var response = await dio.get(url);
@@ -1825,6 +1833,7 @@ class AppServiceUtilImpl extends AppServiceUtil {
           parentResponseModelFromJson(jsonEncode(response.data))
               .result
               ?.getAllUserAccessControlDetails;
+      print(url);
       print('**************stc => ${response.statusCode}');
       print('**************rd => ${response.data}');
       if (response.statusCode == 200) {

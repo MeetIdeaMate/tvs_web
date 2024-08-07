@@ -137,7 +137,7 @@ class _CreateAccountHeadState extends State<CreateAccountHead> {
   }
 
   _buildAccCodeFields() {
-    return Flexible(
+    return Expanded(
       child: Padding(
         padding: const EdgeInsets.only(bottom: 25),
         child: TldsInputFormField(
@@ -316,21 +316,19 @@ class _CreateAccountHeadState extends State<CreateAccountHead> {
   ) {
     return SizedBox(
       width: 150,
-      child: Flexible(
-        child: ListTile(
-          title: Text(text),
-          leading: Checkbox(
-              value: value,
-              onChanged: (newValue) {
-                if (text == AppConstants.cashierRequired) {
-                  _createAccountBlocImpl.iscashierRequired = newValue;
-                  _createAccountBlocImpl.checkBoxOnChangeStreamController(true);
-                } else if (text == AppConstants.print) {
-                  _createAccountBlocImpl.isPrint = newValue;
-                  _createAccountBlocImpl.checkBoxOnChangeStreamController(true);
-                }
-              }),
-        ),
+      child: ListTile(
+        title: Text(text),
+        leading: Checkbox(
+            value: value,
+            onChanged: (newValue) {
+              if (text == AppConstants.cashierRequired) {
+                _createAccountBlocImpl.iscashierRequired = newValue;
+                _createAccountBlocImpl.checkBoxOnChangeStreamController(true);
+              } else if (text == AppConstants.print) {
+                _createAccountBlocImpl.isPrint = newValue;
+                _createAccountBlocImpl.checkBoxOnChangeStreamController(true);
+              }
+            }),
       ),
     );
   }
