@@ -1,5 +1,7 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:tlbilling/api_service/token_interceptor.dart';
 import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/view/login/login_page.dart';
 import 'package:tlbilling/view/useraccess/access_level_shared_pref.dart';
@@ -14,7 +16,13 @@ class MyApp extends StatelessWidget {
   const MyApp({super.key});
   @override
   Widget build(BuildContext context) {
+    final Dio dio = Dio();
+    dio.interceptors.add(TokenInterceptor(dio, context));
     return MaterialApp(
+      routes: {
+        '/login': (context) => const LoginPage(),
+      },
+      initialRoute: '/',
       scrollBehavior: const MaterialScrollBehavior().copyWith(
         dragDevices: {
           PointerDeviceKind.mouse,
