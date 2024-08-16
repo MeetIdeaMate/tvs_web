@@ -486,16 +486,6 @@ class _AddBookingDialogState extends State<AddBookingDialog> {
               _appColors.successLightColor);
         } else {
           _isLoading(false);
-          AppWidgetUtils.buildToast(
-              context,
-              ToastificationType.error,
-              AppConstants.bookingCreatedErr,
-              Icon(
-                Icons.error_outline_outlined,
-                color: _appColors.errorColor,
-              ),
-              AppConstants.somethingWentWrong,
-              _appColors.errorLightColor);
         }
       });
     }

@@ -129,16 +129,6 @@ class _CreateBranchDialogState extends State<CreateBranchDialog> {
                       _appColors.successLightColor);
                 } else {
                   _isLoading(false);
-                  AppWidgetUtils.buildToast(
-                      context,
-                      ToastificationType.error,
-                      AppConstants.branchUpdated,
-                      Icon(
-                        Icons.error_outline_outlined,
-                        color: _appColors.errorColor,
-                      ),
-                      AppConstants.somethingWentWrong,
-                      _appColors.errorLightColor);
                 }
               },
             );
@@ -160,16 +150,6 @@ class _CreateBranchDialogState extends State<CreateBranchDialog> {
                     _appColors.successLightColor);
               } else {
                 _isLoading(false);
-                AppWidgetUtils.buildToast(
-                    context,
-                    ToastificationType.error,
-                    AppConstants.branchCreated,
-                    Icon(
-                      Icons.error_outline_outlined,
-                      color: _appColors.errorColor,
-                    ),
-                    AppConstants.somethingWentWrong,
-                    _appColors.errorLightColor);
               }
             });
           }

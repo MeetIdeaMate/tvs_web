@@ -150,6 +150,22 @@ class AppWidgetUtils {
     );
   }
 
+  static showErrorToast(String? description) {
+    return toastification.show(
+      showProgressBar: false,
+      backgroundColor: AppColors().errorLightColor,
+      borderRadius: BorderRadius.circular(10),
+      type: ToastificationType.error,
+      title: const Text('Error'),
+      icon: Icon(
+        Icons.check_circle_outline_rounded,
+        color: AppColors().errorColor,
+      ),
+      description: Text(description ?? ''),
+      autoCloseDuration: const Duration(seconds: 3),
+    );
+  }
+
   static Widget buildAddbutton(BuildContext context,
       {String? text, Function()? onPressed, int? flex, double? width}) {
     // double searchFieldWidth = MediaQuery.of(context).size.width * 0.17;

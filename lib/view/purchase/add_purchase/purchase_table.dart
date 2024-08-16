@@ -145,8 +145,8 @@ class _PurchaseTableState extends State<PurchaseTable> {
                               : _appColors.transparentBlueColor;
 
                           final row = DataRow(
-                            color: MaterialStateColor.resolveWith(
-                                (states) => color),
+                            color:
+                                WidgetStateColor.resolveWith((states) => color),
                             cells: [
                               DataCell(Text(serialNumber.toString())),
                               DataCell(Text(data.partNo ?? '')),
@@ -288,7 +288,7 @@ class _PurchaseTableState extends State<PurchaseTable> {
                         }).toList();
                       }),
                       DataRow(
-                        color: MaterialStateColor.resolveWith(
+                        color: WidgetStateColor.resolveWith(
                             (states) => Colors.greenAccent.shade200),
                         cells: [
                           const DataCell(Text('Total')),
@@ -492,26 +492,10 @@ class _PurchaseTableState extends State<PurchaseTable> {
                                   );
                                 } else {
                                   _isLoadingState(state: false);
-                                  AppWidgetUtils.buildToast(
-                                      context,
-                                      ToastificationType.error,
-                                      AppConstants.purchaseBillerr,
-                                      Icon(Icons.not_interested_rounded,
-                                          color: _appColors.errorColor),
-                                      AppConstants.purchaseBillDescerr,
-                                      _appColors.errorLightColor);
                                 }
                               });
                             } else {
                               _isLoadingState(state: false);
-                              AppWidgetUtils.buildToast(
-                                  context,
-                                  ToastificationType.error,
-                                  AppConstants.purchaseBillEmpty,
-                                  Icon(Icons.not_interested_rounded,
-                                      color: _appColors.errorColor),
-                                  AppConstants.purchaseBillDesEmptycerr,
-                                  _appColors.errorLightColor);
                             }
                           },
                           buttonText: AppConstants.save),

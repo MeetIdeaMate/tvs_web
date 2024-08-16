@@ -163,12 +163,12 @@ class _NewVoucherState extends State<NewVoucher> {
             AppWidgetUtils.buildSizedBox(custWidth: 5),
             IconButton(
               style: ButtonStyle(
-                  shape: MaterialStateProperty.all(RoundedRectangleBorder(
+                  shape: WidgetStateProperty.all(RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(5))),
-                  padding: MaterialStateProperty.all(
+                  padding: WidgetStateProperty.all(
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 6)),
                   backgroundColor:
-                      MaterialStateProperty.all(_appColors.primaryColor)),
+                      WidgetStateProperty.all(_appColors.primaryColor)),
               onPressed: () {
                 showDialog(
                   context: context,
@@ -311,16 +311,6 @@ class _NewVoucherState extends State<NewVoucher> {
                       _appColors.successLightColor);
                 } else {
                   _isLoadingState(state: false);
-                  AppWidgetUtils.buildToast(
-                      context,
-                      ToastificationType.error,
-                      AppConstants.VoucharCreate,
-                      Icon(
-                        Icons.error_outline_outlined,
-                        color: _appColors.errorColor,
-                      ),
-                      AppConstants.somethingWentWrong,
-                      _appColors.errorLightColor);
                 }
               },
             );

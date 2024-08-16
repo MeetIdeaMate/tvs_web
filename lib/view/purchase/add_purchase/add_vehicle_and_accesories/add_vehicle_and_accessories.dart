@@ -738,16 +738,16 @@ class _AddVehicleAndAccessoriesState extends State<AddVehicleAndAccessories> {
             onSubmit: (partNumberValue) {
               widget.purchaseBloc.getPurchasePartNoDetails(
                 (statusCode) {
-                  if (statusCode == 401 || statusCode == 400) {
-                    AppWidgetUtils.buildToast(
-                        context,
-                        ToastificationType.error,
-                        AppConstants.partNoError,
-                        Icon(Icons.check_circle_outline_rounded,
-                            color: _appColors.errorColor),
-                        AppConstants.partNoErrorDes,
-                        _appColors.errorLightColor);
-                  }
+                  // if (statusCode == 401 || statusCode == 400) {
+                  //   // AppWidgetUtils.buildToast(
+                  //   //     context,
+                  //   //     ToastificationType.error,
+                  //   //     AppConstants.partNoError,
+                  //   //     Icon(Icons.check_circle_outline_rounded,
+                  //   //         color: _appColors.errorColor),
+                  //   //     AppConstants.partNoErrorDes,
+                  //   //     _appColors.errorLightColor);
+                  // }
                 },
               ).then((partDetails) {
                 _getAndSetValuesForInputFields(partDetails);

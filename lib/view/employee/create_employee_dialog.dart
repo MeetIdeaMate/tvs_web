@@ -480,27 +480,8 @@ class _CreateEmployeeDialogState extends State<CreateEmployeeDialog> {
       widget.createUserDialogBlocImpl?.employeeNameSelectStream(true);
       widget.newVoucherBloc?.payToTextStreamController(true);
       widget.newVoucherBloc?.giverTextStreamController(true);
-    } else if (statusCode == 409) {
-      _isLoadingState(state: false);
-      AppWidgetUtils.buildToast(
-          context,
-          ToastificationType.error,
-          AppConstants.empAlreadyCreated,
-          Icon(Icons.error_outline, color: _appColors.errorColor),
-          AppConstants.addNewEmployee,
-          _appColors.errorLightColor);
     } else {
       _isLoadingState(state: false);
-      AppWidgetUtils.buildToast(
-          context,
-          ToastificationType.error,
-          AppConstants.employeeCreate,
-          Icon(
-            Icons.error_outline_outlined,
-            color: _appColors.errorColor,
-          ),
-          AppConstants.somethingWentWrong,
-          _appColors.errorLightColor);
     }
   }
 
@@ -523,16 +504,6 @@ class _CreateEmployeeDialogState extends State<CreateEmployeeDialog> {
         widget.employeeViewBloc?.pageNumberUpdateStreamController(0);
       } else {
         _isLoadingState(state: false);
-        AppWidgetUtils.buildToast(
-            context,
-            ToastificationType.error,
-            AppConstants.employeeUpdate,
-            Icon(
-              Icons.error_outline_outlined,
-              color: _appColors.errorColor,
-            ),
-            AppConstants.somethingWentWrong,
-            _appColors.errorLightColor);
       }
     });
   }

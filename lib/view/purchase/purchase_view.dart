@@ -459,18 +459,7 @@ class _PurchaseViewState extends State<PurchaseView>
                         _appColors.successLightColor);
                     _purchaseViewBloc.getAllPurchaseList();
                     _purchaseViewBloc.pageNumberUpdateStreamController(0);
-                  } else {
-                    AppWidgetUtils.buildToast(
-                        context,
-                        ToastificationType.error,
-                        AppConstants.purchaseCancelError,
-                        Icon(
-                          Icons.error_outline_outlined,
-                          color: _appColors.errorColor,
-                        ),
-                        AppConstants.purchaseCancelErrorDesc,
-                        _appColors.errorLightColor);
-                  }
+                  } else {}
                 });
               },
               buttonText: AppConstants.cancel),
@@ -520,18 +509,7 @@ class _PurchaseViewState extends State<PurchaseView>
                         _appColors.successLightColor);
                     _purchaseViewBloc.getAllPurchaseList();
                     _purchaseViewBloc.pageNumberUpdateStreamController(0);
-                  } else {
-                    AppWidgetUtils.buildToast(
-                        context,
-                        ToastificationType.error,
-                        AppConstants.stockNotCreated,
-                        Icon(
-                          Icons.error_outline_outlined,
-                          color: _appColors.errorColor,
-                        ),
-                        AppConstants.stockErrorDesc,
-                        _appColors.errorLightColor);
-                  }
+                  } else {}
                 });
               },
               buttonText: AppConstants.approve),

@@ -10,6 +10,7 @@ import 'package:tlbilling/utils/app_util_widgets.dart';
 import 'package:tlbilling/utils/input_validation.dart';
 import 'package:tlbilling/view/login/login_page_bloc.dart';
 import 'package:tlbilling/view/useraccess/access_control_view_bloc.dart';
+import 'package:tlbilling/view/useraccess/access_level_shared_pref.dart';
 import 'package:tlbilling/view/useraccess/user_access_levels.dart';
 import 'package:tlds_flutter/components/tlds_input_form_field.dart';
 import 'package:tlds_flutter/components/tlds_input_formaters.dart';
@@ -26,7 +27,7 @@ class _LoginPageState extends State<LoginPage> {
   final _appColors = AppColors();
   final _loginPageBlocImpl = LoginPageBlocImpl();
   bool _loading = false;
-  bool? _rememberMe = true;
+  bool _rememberMe = true;
   String? token;
   final _accessControlBloc = AccessControlViewBlocImpl();
   String? userId;
@@ -36,27 +37,22 @@ class _LoginPageState extends State<LoginPage> {
   @override
   void initState() {
     super.initState();
-
-    // _loginPageBlocImpl.mobileNumberTextController.text = '9876543210';
-    // _loginPageBlocImpl.passwordTextController.text = '1234';
     checkUserStatus();
   }
 
   Future<void> checkUserStatus() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    token = prefs.getString('token') ?? '';
-    prefs.setBool('rememberMe', _rememberMe ?? false);
+    token = prefs.getString('token');
+    prefs.setBool('rememberMe', _rememberMe);
     _rememberMe = prefs.getBool('rememberMe') ?? false;
 
-    if (_rememberMe == true) {
-      if (token?.isNotEmpty ?? false) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const SideMenuNavigation(),
-          ),
-        );
-      }
+    if (_rememberMe && token != null) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const SideMenuNavigation(),
+        ),
+      );
     }
   }
 
@@ -224,11 +220,6 @@ class _LoginPageState extends State<LoginPage> {
         (statusCode, {response}) {
           if (statusCode == 200 || statusCode == 201) {
             _isLoadingState(state: true);
-            const Center(
-              child: CircularProgressIndicator(
-                  //  color: .appColor,
-                  ),
-            );
             Future.delayed(const Duration(seconds: 3), () {
               AppWidgetUtils.buildToast(
                   context,
@@ -247,13 +238,6 @@ class _LoginPageState extends State<LoginPage> {
             });
           } else {
             _isLoadingState(state: false);
-            AppWidgetUtils.buildToast(
-                context,
-                ToastificationType.error,
-                AppConstants.somethingWentWrong,
-                Icon(Icons.error_outline, color: _appColors.errorColor),
-                AppConstants.loginFailed,
-                _appColors.errorLightColor);
           }
         },
       ).then((values) async {
@@ -277,6 +261,7 @@ class _LoginPageState extends State<LoginPage> {
             [];
         if (filteredaccessControl.isNotEmpty) {
           UserAccessLevels.storeUserAccessData(filteredaccessControl);
+          AccessLevel.accessingData();
           return;
         } else {
           List<AccessControlList>? accessControl2 =
@@ -296,6 +281,7 @@ class _LoginPageState extends State<LoginPage> {
 
           if (filteredaccessControl.isNotEmpty) {
             UserAccessLevels.storeUserAccessData(filteredaccessControl);
+            AccessLevel.accessingData();
             return;
           } else {
             List<AccessControlList>? accessControl3 =
@@ -327,10 +313,12 @@ class _LoginPageState extends State<LoginPage> {
                   [];
               if (filteredaccessControl.isNotEmpty) {
                 UserAccessLevels.storeUserAccessData(filteredaccessControl);
+                AccessLevel.accessingData();
                 return;
               }
 
               UserAccessLevels.storeUserAccessData(filteredaccessControl);
+              AccessLevel.accessingData();
               return;
             }
           }

@@ -270,16 +270,6 @@ class _CreateVendorDialogState extends State<CreateVendorDialog> {
         widget.vendorViewBlocImpl?.pageNumberUpdateStreamController(0);
       } else {
         _isLoadingState(state: false);
-        AppWidgetUtils.buildToast(
-            context,
-            ToastificationType.error,
-            AppConstants.vendorUpdate,
-            Icon(
-              Icons.error_outline_outlined,
-              color: _appColors.errorColor,
-            ),
-            AppConstants.somethingWentWrong,
-            _appColors.errorLightColor);
       }
     });
   }
@@ -305,16 +295,6 @@ class _CreateVendorDialogState extends State<CreateVendorDialog> {
         widget.vendorViewBlocImpl?.pageNumberUpdateStreamController(0);
       } else {
         _isLoadingState(state: false);
-        AppWidgetUtils.buildToast(
-            context,
-            ToastificationType.error,
-            AppConstants.employeeCreate,
-            Icon(
-              Icons.error_outline_outlined,
-              color: _appColors.errorColor,
-            ),
-            AppConstants.somethingWentWrong,
-            _appColors.errorLightColor);
       }
     });
   }

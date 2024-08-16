@@ -502,15 +502,6 @@ class _TransferViewState extends State<TransferView>
                               color: _appColors.successColor),
                           AppConstants.stockTransferUpdateSuccessfully,
                           _appColors.successLightColor);
-                    } else {
-                      AppWidgetUtils.buildToast(
-                          context,
-                          ToastificationType.error,
-                          AppConstants.stockTransferUpdate,
-                          Icon(Icons.warning_amber,
-                              color: _appColors.errorColor),
-                          AppConstants.somethingWentWrong,
-                          _appColors.errorLightColor);
                     }
                   },
                 );

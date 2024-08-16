@@ -44,7 +44,7 @@ String parentResponseModelToJson(ParentResponseModel data) =>
 
 class ParentResponseModel {
   ResultObj? result;
-  dynamic error;
+  ErrorResponse? error;
   String? status;
   int? statusCode;
 
@@ -59,7 +59,9 @@ class ParentResponseModel {
       ParentResponseModel(
         result:
             json["result"] == null ? null : ResultObj.fromJson(json["result"]),
-        error: json["error"],
+        error: json["error"] != null
+            ? ErrorResponse.fromJson(json["error"])
+            : null,
         status: json["status"],
         statusCode: json["statusCode"],
       );
@@ -69,6 +71,30 @@ class ParentResponseModel {
         "error": error,
         "status": status,
         "statusCode": statusCode,
+      };
+}
+
+class ErrorResponse {
+  String? timestamp;
+  int? status;
+  String? message;
+
+  ErrorResponse({
+    this.timestamp,
+    this.status,
+    this.message,
+  });
+
+  factory ErrorResponse.fromJson(Map<String, dynamic> json) => ErrorResponse(
+        timestamp: json["timestamp"],
+        status: json["status"],
+        message: json["message"],
+      );
+
+  Map<String, dynamic> toJson() => {
+        "timestamp": timestamp,
+        "status": status,
+        "message": message,
       };
 }
 
