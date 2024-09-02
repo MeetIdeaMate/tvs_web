@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:tlbilling/api_service/app_service_utils.dart';
+import 'package:tlbilling/api_service/service_locator.dart';
 import 'package:tlbilling/models/get_model/get_all_category_model.dart';
 import 'package:tlbilling/models/get_model/get_all_customer_name_list.dart';
 import 'package:tlbilling/models/get_model/get_all_customers_model.dart';
@@ -147,7 +148,7 @@ abstract class AddSalesBloc {
 }
 
 class AddSalesBlocImpl extends AddSalesBloc {
-  final _apiServices = AppServiceUtilImpl();
+  final _apiServices = getIt<AppServiceUtilImpl>();
   final _selectedVehicleAndAccessoriesStream = StreamController.broadcast();
   final _changeVehicleAndAccessoriesListStream = StreamController.broadcast();
   final _vehicleAndEngineNumberStream = StreamController.broadcast();

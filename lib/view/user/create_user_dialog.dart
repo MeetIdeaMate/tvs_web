@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tlbilling/api_service/service_locator.dart';
 import 'package:tlbilling/components/custom_action_button.dart';
 import 'package:tlbilling/components/custom_dropdown_button_form_field.dart';
 import 'package:tlbilling/models/get_all_employee_model.dart';
@@ -20,8 +21,9 @@ import 'package:tlds_flutter/util/app_colors.dart';
 import 'package:toastification/toastification.dart';
 
 class CreateUserDialog extends StatefulWidget {
-  final UserViewBlocImpl userViewBloc;
-  const CreateUserDialog({super.key, required this.userViewBloc});
+  const CreateUserDialog({
+    super.key,
+  });
 
   @override
   State<CreateUserDialog> createState() => _CreateUserDialogState();
@@ -29,7 +31,8 @@ class CreateUserDialog extends StatefulWidget {
 
 class _CreateUserDialogState extends State<CreateUserDialog> {
   final _appColors = AppColors();
-  final _createUserDialogBlocImpl = CreateUserDialogBlocImpl();
+  final _createUserDialogBlocImpl = getIt<CreateUserDialogBlocImpl>();
+  final _userViewBlocImpl = getIt<UserViewBlocImpl>();
   bool _isLoading = false;
   void _isLoadingState({required bool state}) {
     setState(() {
@@ -111,7 +114,7 @@ class _CreateUserDialogState extends State<CreateUserDialog> {
             _buildUserNameAndMobNoFields(),
             _buildDesignationAndPasswordFields(),
             AppWidgetUtils.buildSizedBox(custHeight: 15),
-            if (widget.userViewBloc.isMainBranch ?? false) _buildSelectBranch()
+            if (_userViewBlocImpl.isMainBranch ?? false) _buildSelectBranch()
           ],
         ),
       ),
@@ -242,8 +245,7 @@ class _CreateUserDialogState extends State<CreateUserDialog> {
               onPressed: () {
                 showDialog(
                   context: context,
-                  builder: (context) => CreateEmployeeDialog(
-                      createUserDialogBlocImpl: _createUserDialogBlocImpl),
+                  builder: (context) => const CreateEmployeeDialog(),
                 );
               },
               icon: SvgPicture.asset(
@@ -419,7 +421,7 @@ class _CreateUserDialogState extends State<CreateUserDialog> {
             AppColor().successLightColor);
         Navigator.pop(context);
         _isLoadingState(state: false);
-        widget.userViewBloc.pageNumberUpdateStreamController(0);
+        _userViewBlocImpl.pageNumberUpdateStreamController(0);
       }, (statusCode) {
         if (statusCode == 409) {
           _isLoadingState(state: false);

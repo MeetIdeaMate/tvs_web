@@ -1,17 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:tlbilling/api_service/service_locator.dart';
 import 'package:tlbilling/utils/app_colors.dart';
 import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/utils/app_util_widgets.dart';
 import 'package:tlbilling/view/sales/accessories_sales_table.dart';
 import 'package:tlbilling/view/sales/add_sales_bloc.dart';
 import 'package:tlbilling/view/sales/payment_details.dart';
-import 'package:tlbilling/view/sales/sales_view_bloc.dart';
 import 'package:tlbilling/view/sales/selected_sales_data.dart';
 import 'package:tlbilling/view/sales/vechile_accessories_list.dart';
 
 class AddSales extends StatefulWidget {
-  final SalesViewBlocImpl salesViewBloc;
-  const AddSales({super.key, required this.salesViewBloc});
+  const AddSales({super.key});
 
   @override
   State<AddSales> createState() => _AddSalesState();
@@ -19,7 +18,7 @@ class AddSales extends StatefulWidget {
 
 class _AddSalesState extends State<AddSales> {
   final _appColors = AppColors();
-  final _addSalesBloc = AddSalesBlocImpl();
+  final _addSalesBloc = getIt<AddSalesBlocImpl>();
 
   @override
   void initState() {
@@ -89,9 +88,7 @@ class _AddSalesState extends State<AddSales> {
                                   vertical: BorderSide(color: _appColors.grey)),
                             )
                           : const BoxDecoration(),
-                      child: AccessoiresSalesTable(
-                        addSalesBloc: _addSalesBloc,
-                      ),
+                      child: const AccessoiresSalesTable(),
                     ),
                   ),
                   if (_addSalesBloc.isAccessoriestable)
@@ -115,10 +112,7 @@ class _AddSalesState extends State<AddSales> {
               border: Border.symmetric(
                   vertical: BorderSide(color: _appColors.grey)),
             ),
-            child: PaymentDetails(
-              salesViewBloc: widget.salesViewBloc,
-              addSalesBloc: _addSalesBloc,
-            ),
+            child: const PaymentDetails(),
           ),
         ),
       ],
@@ -135,7 +129,7 @@ class _AddSalesState extends State<AddSales> {
           borderRadius: const BorderRadius.all(Radius.circular(8)),
           color: _appColors.lightBgColor,
         ),
-        child: SelectedSalesData(addSalesBloc: _addSalesBloc),
+        child: const SelectedSalesData(),
       ),
     );
   }
@@ -158,9 +152,7 @@ class _AddSalesState extends State<AddSales> {
             decoration: BoxDecoration(
               color: _appColors.whiteColor,
             ),
-            child: VehicleAccessoriesList(
-              addSalesBloc: _addSalesBloc,
-            ),
+            child: const VehicleAccessoriesList(),
           ),
         ),
       ],

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tlbilling/api_service/app_service_utils.dart';
+import 'package:tlbilling/api_service/service_locator.dart';
 import 'package:tlbilling/models/get_model/get_all_customers_model.dart';
 import 'package:tlbilling/models/post_model/add_customer_model.dart';
 
@@ -46,7 +47,7 @@ class CreateCustomerDialogBlocImpl extends CreateCustomerDialogBloc {
   final _customerCityTextController = TextEditingController();
   final _customerAddressTextController = TextEditingController();
   final _customerIFSCTextController = TextEditingController();
-  final _apiCalls = AppServiceUtilImpl();
+  final _apiCalls = getIt<AppServiceUtilImpl>();
   bool? _isAsyncCall = false;
   String? _branchId;
 

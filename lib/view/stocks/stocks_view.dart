@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tlbilling/api_service/service_locator.dart';
 import 'package:tlbilling/components/custom_pagenation.dart';
 import 'package:tlbilling/models/get_model/get_all_branches_by_pagination.dart';
 import 'package:tlbilling/models/get_model/get_all_stock_with_pagination.dart';
@@ -24,7 +25,7 @@ class StocksView extends StatefulWidget {
 class _StocksViewState extends State<StocksView>
     with SingleTickerProviderStateMixin {
   final _appColors = AppColors();
-  final _stocksViewBloc = StocksViewBlocImpl();
+  final _stocksViewBloc = getIt<StocksViewBlocImpl>();
 
   @override
   void initState() {

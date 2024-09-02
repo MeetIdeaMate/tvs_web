@@ -2,6 +2,7 @@ import 'package:blurry_modal_progress_hud/blurry_modal_progress_hud.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
+import 'package:tlbilling/api_service/service_locator.dart';
 import 'package:tlbilling/components/custom_action_button.dart';
 import 'package:tlbilling/utils/app_colors.dart';
 import 'package:tlbilling/utils/app_constants.dart';
@@ -23,7 +24,7 @@ class NewVoucher extends StatefulWidget {
 }
 
 class _NewVoucherState extends State<NewVoucher> {
-  final _newVoucherBloc = NewVoucherBlocImpl();
+  final _newVoucherBloc = getIt<NewVoucherBlocImpl>();
   final _appColors = AppColors();
   bool _isLoading = false;
 
@@ -173,8 +174,7 @@ class _NewVoucherState extends State<NewVoucher> {
                 showDialog(
                   context: context,
                   builder: (context) {
-                    return CreateEmployeeDialog(
-                        newVoucherBloc: _newVoucherBloc);
+                    return const CreateEmployeeDialog();
                   },
                 );
               },

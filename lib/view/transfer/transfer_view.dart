@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tlbilling/api_service/service_locator.dart';
 import 'package:tlbilling/components/custom_action_button.dart';
 import 'package:tlbilling/components/custom_elevated_button.dart';
 import 'package:tlbilling/models/get_model/get_all_branches_by_pagination.dart';
@@ -24,7 +25,7 @@ class TransferView extends StatefulWidget {
 
 class _TransferViewState extends State<TransferView>
     with SingleTickerProviderStateMixin {
-  final _transferViewBloc = TransferViewBlocImpl();
+  final _transferViewBloc = getIt<TransferViewBlocImpl>();
   final _appColors = AppColors();
 
   @override
@@ -240,9 +241,7 @@ class _TransferViewState extends State<TransferView>
         Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => NewTransfer(
-                transferViewBloc: _transferViewBloc,
-              ),
+              builder: (context) => const NewTransfer(),
             ));
       },
     );

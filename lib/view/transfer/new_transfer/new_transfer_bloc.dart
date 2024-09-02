@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:tlbilling/api_service/app_service_utils.dart';
+import 'package:tlbilling/api_service/service_locator.dart';
 import 'package:tlbilling/models/get_model/get_all_branches_by_pagination.dart';
 import 'package:tlbilling/models/get_model/get_all_category_model.dart';
 import 'package:tlbilling/models/get_model/get_all_stocks_without_pagination.dart';
@@ -87,6 +88,8 @@ abstract class NewTransferBloc {
 
   bool? get isLoading;
 
+  bool? get isLoadingTranfer;
+
   String? get branchId;
 
   int? get quantity;
@@ -129,6 +132,7 @@ class NewTransferBlocImpl extends NewTransferBloc {
   String? _transporterName;
   String? _branchId;
   bool? _isLoading = false;
+  bool? _isLoadingTranfer = false;
   int initialValue = 0;
   int? _salesIndex = 0;
   int? _quantity;
@@ -137,7 +141,7 @@ class NewTransferBlocImpl extends NewTransferBloc {
   List<GetAllStocksWithoutPaginationModel>? accessoriesList = [];
   final List<GetAllStocksWithoutPaginationModel>? filteredAccessoriesList = [];
 
-  final _appServices = AppServiceUtilImpl();
+  final _appServices = getIt<AppServiceUtilImpl>();
 
   @override
   String? get selectedVehicleAndAccessories => _selectedVehicleAndAccessories;
@@ -155,8 +159,8 @@ class NewTransferBlocImpl extends NewTransferBloc {
   }
 
   changeSegmentedColor(Color color) {
-    return MaterialStateProperty.resolveWith((states) {
-      if (states.contains(MaterialState.selected)) {
+    return WidgetStateProperty.resolveWith((states) {
+      if (states.contains(WidgetState.selected)) {
         return color;
       }
       return null;
@@ -440,5 +444,12 @@ class NewTransferBlocImpl extends NewTransferBloc {
     }
     filteredAccListStream(true);
     availableAccListStream(true);
+  }
+
+  @override
+  bool? get isLoadingTranfer => _isLoadingTranfer;
+
+  set isLoadingTranfer(bool? newValue) {
+    _isLoadingTranfer = newValue;
   }
 }

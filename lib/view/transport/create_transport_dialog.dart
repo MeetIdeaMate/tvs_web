@@ -1,5 +1,6 @@
 import 'package:blurry_modal_progress_hud/blurry_modal_progress_hud.dart';
 import 'package:flutter/material.dart';
+import 'package:tlbilling/api_service/service_locator.dart';
 import 'package:tlbilling/components/custom_action_button.dart';
 import 'package:tlbilling/utils/app_colors.dart';
 import 'package:tlbilling/utils/app_constants.dart';
@@ -14,10 +15,8 @@ import 'package:toastification/toastification.dart';
 
 class CreateTransportDialog extends StatefulWidget {
   final String? transportId;
-  final TransportBlocImpl? transportBlocImpl;
 
-  const CreateTransportDialog(
-      {super.key, this.transportId, this.transportBlocImpl});
+  const CreateTransportDialog({super.key, this.transportId});
 
   @override
   State<CreateTransportDialog> createState() =>
@@ -26,7 +25,8 @@ class CreateTransportDialog extends StatefulWidget {
 
 class _CreateTransportDialogDialogState extends State<CreateTransportDialog> {
   final _appColors = AppColors();
-  final _createTransportBlocImpl = CreateTransportBlocImpl();
+  final _createTransportBlocImpl = getIt<CreateTransportBlocImpl>();
+  final _transportViewBloc = getIt<TransportBlocImpl>();
 
   @override
   void initState() {
@@ -124,7 +124,7 @@ class _CreateTransportDialogDialogState extends State<CreateTransportDialog> {
               (statusCode) {
                 if (statusCode == 200 || statusCode == 201) {
                   _isLoading(false);
-                  widget.transportBlocImpl?.tablePageNoStream(0);
+                  _transportViewBloc.tablePageNoStream(0);
                   Navigator.pop(context);
                   AppWidgetUtils.buildToast(
                       context,
@@ -146,7 +146,7 @@ class _CreateTransportDialogDialogState extends State<CreateTransportDialog> {
               (statusCode) {
                 if (statusCode == 200 || statusCode == 201) {
                   _isLoading(false);
-                  widget.transportBlocImpl?.tablePageNoStream(0);
+                  _transportViewBloc.tablePageNoStream(0);
                   Navigator.pop(context);
                   AppWidgetUtils.buildToast(
                       context,

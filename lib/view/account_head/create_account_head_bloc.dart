@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:tlbilling/api_service/app_service_utils.dart';
+import 'package:tlbilling/api_service/service_locator.dart';
 import 'package:tlbilling/models/get_model/get_all_account_head_by_pagination_model.dart';
 import 'package:tlbilling/models/post_model/add_account_head.dart';
 
@@ -29,7 +30,7 @@ abstract class CreateAccountBloc {
 }
 
 class CreateAccountBlocImpl extends CreateAccountBloc {
-  final _appServiceUtilsImpl = AppServiceUtilImpl();
+  final _appServiceUtilsImpl = getIt<AppServiceUtilImpl>();
   final _accountCodeTextEditController = TextEditingController();
   final _accountNameTextEditController = TextEditingController();
   final _flatAmtTextEditController = TextEditingController();

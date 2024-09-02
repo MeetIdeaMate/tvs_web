@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:tlbilling/api_service/app_service_utils.dart';
+import 'package:tlbilling/api_service/service_locator.dart';
 import 'package:tlbilling/models/get_model/get_all_purchase_model.dart';
 
 abstract class PurchaseViewBloc {
@@ -45,7 +46,7 @@ class PurchaseViewBlocImpl extends PurchaseViewBloc {
   final _partNoSearchFieldControllerStream = StreamController.broadcast();
   final _invoiceSearchFieldControllerStream = StreamController.broadcast();
   late TabController _vehicleAndAccessoriesTabController;
-  final _apiCalls = AppServiceUtilImpl();
+  final _apiCalls = getIt<AppServiceUtilImpl>();
   int _currentPage = 0;
   final _pageNumberStreamController = StreamController<int>.broadcast();
 

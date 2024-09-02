@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tlbilling/api_service/service_locator.dart';
 import 'package:tlbilling/components/custom_pagenation.dart';
 import 'package:tlbilling/models/get_model/get_all_employee_by_pagination.dart';
 import 'package:tlbilling/utils/app_colors.dart';
@@ -19,7 +20,7 @@ class EmployeeView extends StatefulWidget {
 }
 
 class _EmployeeViewState extends State<EmployeeView> {
-  final _employeeViewBloc = EmployeeViewBlocImpl();
+  final _employeeViewBloc = getIt<EmployeeViewBlocImpl>();
   final _appColors = AppColors();
   final List<String>? city = ['kvp', 'chennai'];
 
@@ -217,7 +218,7 @@ class _EmployeeViewState extends State<EmployeeView> {
           barrierDismissible: false,
           context: context,
           builder: (context) {
-            return CreateEmployeeDialog(employeeViewBloc: _employeeViewBloc);
+            return const CreateEmployeeDialog();
           },
         );
       },
@@ -308,8 +309,6 @@ class _EmployeeViewState extends State<EmployeeView> {
                                               context: context,
                                               builder: (context) {
                                                 return CreateEmployeeDialog(
-                                                    employeeViewBloc:
-                                                        _employeeViewBloc,
                                                     employeeId: entry
                                                             .value.employeeId ??
                                                         '');

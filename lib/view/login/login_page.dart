@@ -1,6 +1,7 @@
 import 'package:blurry_modal_progress_hud/blurry_modal_progress_hud.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tlbilling/api_service/service_locator.dart';
 import 'package:tlbilling/components/custom_elevated_button.dart';
 import 'package:tlbilling/components/side_menu_navigation.dart';
 import 'package:tlbilling/models/get_model/get_all_access_controll_model.dart';
@@ -25,11 +26,11 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   final _appColors = AppColors();
-  final _loginPageBlocImpl = LoginPageBlocImpl();
+  final _loginPageBlocImpl = getIt<LoginPageBlocImpl>();
   bool _loading = false;
   bool _rememberMe = true;
   String? token;
-  final _accessControlBloc = AccessControlViewBlocImpl();
+  final _accessControlBloc = getIt<AccessControlViewBlocImpl>();
   String? userId;
   String? role;
   String? branchId;

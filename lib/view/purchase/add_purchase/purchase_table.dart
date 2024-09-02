@@ -2,6 +2,7 @@ import 'package:blurry_modal_progress_hud/blurry_modal_progress_hud.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tlbilling/api_service/service_locator.dart';
 import 'package:tlbilling/components/custom_action_button.dart';
 import 'package:tlbilling/models/post_model/add_purchase_model.dart';
 import 'package:tlbilling/models/purchase_bill_data.dart';
@@ -16,11 +17,7 @@ import 'package:tlds_flutter/util/app_colors.dart';
 import 'package:toastification/toastification.dart';
 
 class PurchaseTable extends StatefulWidget {
-  final AddVehicleAndAccessoriesBlocImpl purchaseBloc;
-  final PurchaseViewBlocImpl purchaseViewBloc;
-
-  const PurchaseTable(
-      {super.key, required this.purchaseBloc, required this.purchaseViewBloc});
+  const PurchaseTable({super.key});
 
   @override
   State<PurchaseTable> createState() => _PurchaseTableState();
@@ -28,6 +25,8 @@ class PurchaseTable extends StatefulWidget {
 
 class _PurchaseTableState extends State<PurchaseTable> {
   final _appColors = AppColor();
+  final _addPurchaseBloc = getIt<AddVehicleAndAccessoriesBlocImpl>();
+  final _purchaseViewBloc = getIt<PurchaseViewBlocImpl>();
   @override
   void initState() {
     super.initState();
@@ -36,13 +35,13 @@ class _PurchaseTableState extends State<PurchaseTable> {
 
   Future<void> getbranchId() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    widget.purchaseBloc.branchId = prefs.getString(AppConstants.branchId);
+    _addPurchaseBloc.branchId = prefs.getString(AppConstants.branchId);
   }
 
   @override
   Widget build(BuildContext context) {
     return BlurryModalProgressHUD(
-      inAsyncCall: widget.purchaseBloc.isAddPurchseBillLoading,
+      inAsyncCall: _addPurchaseBloc.isAddPurchseBillLoading,
       progressIndicator: AppWidgetUtils.buildLoading(),
       child: Container(
         width: MediaQuery.sizeOf(context).width * 0.64,
@@ -68,9 +67,9 @@ class _PurchaseTableState extends State<PurchaseTable> {
 
   Widget _buildAddedVehicleAndAccessoriesTable() {
     return StreamBuilder<bool>(
-      stream: widget.purchaseBloc.refreshPurchaseDataTable,
+      stream: _addPurchaseBloc.refreshPurchaseDataTable,
       builder: (context, snapshot) {
-        if (widget.purchaseBloc.purchaseBillDataList.isEmpty) {
+        if (_addPurchaseBloc.purchaseBillDataList.isEmpty) {
           return Expanded(
               child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -84,8 +83,7 @@ class _PurchaseTableState extends State<PurchaseTable> {
             ],
           ));
         }
-        final totals =
-            _calculateTotals(widget.purchaseBloc.purchaseBillDataList);
+        final totals = _calculateTotals(_addPurchaseBloc.purchaseBillDataList);
 
         int serialNumber = 1;
 
@@ -110,22 +108,22 @@ class _PurchaseTableState extends State<PurchaseTable> {
                       _buildVehicleTableHeader(AppConstants.totalValue),
                       _buildVehicleTableHeader(AppConstants.discountAmount),
                       _buildVehicleTableHeader(AppConstants.taxableValue),
-                      if (widget.purchaseBloc.selectedGstType !=
+                      if (_addPurchaseBloc.selectedGstType !=
                           AppConstants.igstAmount)
                         _buildVehicleTableHeader(AppConstants.cgstPercent),
-                      if (widget.purchaseBloc.selectedGstType !=
+                      if (_addPurchaseBloc.selectedGstType !=
                           AppConstants.igstAmount)
                         _buildVehicleTableHeader(AppConstants.cgstAmount),
-                      if (widget.purchaseBloc.selectedGstType !=
+                      if (_addPurchaseBloc.selectedGstType !=
                           AppConstants.igstAmount)
                         _buildVehicleTableHeader(AppConstants.sgstPercent),
-                      if (widget.purchaseBloc.selectedGstType !=
+                      if (_addPurchaseBloc.selectedGstType !=
                           AppConstants.igstAmount)
                         _buildVehicleTableHeader(AppConstants.sgstAmount),
-                      if (widget.purchaseBloc.selectedGstType !=
+                      if (_addPurchaseBloc.selectedGstType !=
                           AppConstants.gstPercent)
                         _buildVehicleTableHeader(AppConstants.igstPercent),
-                      if (widget.purchaseBloc.selectedGstType !=
+                      if (_addPurchaseBloc.selectedGstType !=
                           AppConstants.gstPercent)
                         _buildVehicleTableHeader(AppConstants.igstAmount),
                       _buildVehicleTableHeader(AppConstants.tcsValue),
@@ -137,7 +135,7 @@ class _PurchaseTableState extends State<PurchaseTable> {
                       _buildVehicleTableHeader(AppConstants.action),
                     ],
                     rows: [
-                      ...widget.purchaseBloc.purchaseBillDataList
+                      ..._addPurchaseBloc.purchaseBillDataList
                           .expand((billData) {
                         return billData.vehicleDetails!.map((data) {
                           final color = serialNumber.isEven
@@ -161,24 +159,24 @@ class _PurchaseTableState extends State<PurchaseTable> {
                                   data.discountValue ?? 0.0))),
                               DataCell(Text(AppUtils.formatCurrency(
                                   data.taxableValue ?? 0.0))),
-                              if (widget.purchaseBloc.selectedGstType !=
+                              if (_addPurchaseBloc.selectedGstType !=
                                   AppConstants.igstAmount)
                                 DataCell(Text(data.cgstPercentage.toString())),
-                              if (widget.purchaseBloc.selectedGstType !=
+                              if (_addPurchaseBloc.selectedGstType !=
                                   AppConstants.igstAmount)
                                 DataCell(Text(AppUtils.formatCurrency(
                                     data.cgstAmount ?? 0.0))),
-                              if (widget.purchaseBloc.selectedGstType !=
+                              if (_addPurchaseBloc.selectedGstType !=
                                   AppConstants.igstAmount)
                                 DataCell(Text(data.sgstPercentage.toString())),
-                              if (widget.purchaseBloc.selectedGstType !=
+                              if (_addPurchaseBloc.selectedGstType !=
                                   AppConstants.igstAmount)
                                 DataCell(Text(AppUtils.formatCurrency(
                                     data.sgstAmount ?? 0.0))),
-                              if (widget.purchaseBloc.selectedGstType !=
+                              if (_addPurchaseBloc.selectedGstType !=
                                   AppConstants.gstPercent)
                                 DataCell(Text(data.igstPercentage.toString())),
-                              if (widget.purchaseBloc.selectedGstType !=
+                              if (_addPurchaseBloc.selectedGstType !=
                                   AppConstants.gstPercent)
                                 DataCell(Text(AppUtils.formatCurrency(
                                     data.igstAmount ?? 0.0))),
@@ -309,10 +307,10 @@ class _PurchaseTableState extends State<PurchaseTable> {
                           const DataCell(Text('')),
                           DataCell(Text(
                               AppUtils.formatCurrency(totals['sgstAmount']!))),
-                          if (widget.purchaseBloc.selectedGstType !=
+                          if (_addPurchaseBloc.selectedGstType !=
                               AppConstants.gstPercent)
                             const DataCell(Text('')),
-                          if (widget.purchaseBloc.selectedGstType !=
+                          if (_addPurchaseBloc.selectedGstType !=
                               AppConstants.gstPercent)
                             DataCell(Text(AppUtils.formatCurrency(
                                 totals['igstAmount']!))),
@@ -343,21 +341,21 @@ class _PurchaseTableState extends State<PurchaseTable> {
 
   Widget _buildPurchaseTableVerifyCheckBox() {
     return StreamBuilder<bool>(
-      stream: widget.purchaseBloc.isTableDataVerifyedStream,
+      stream: _addPurchaseBloc.isTableDataVerifyedStream,
       builder: (context, snapshot) {
         return Visibility(
-          visible: widget.purchaseBloc.purchaseBillDataList.isNotEmpty,
+          visible: _addPurchaseBloc.purchaseBillDataList.isNotEmpty,
           child: SizedBox(
             width: 500,
             child: Row(
               children: [
                 Checkbox(
-                  value: widget.purchaseBloc.isTableDataVerifited,
+                  value: _addPurchaseBloc.isTableDataVerifited,
                   onChanged: (value) {
                     setState(() {
-                      widget.purchaseBloc.isTableDataVerifited = value!;
+                      _addPurchaseBloc.isTableDataVerifited = value!;
                     });
-                    widget.purchaseBloc
+                    _addPurchaseBloc
                         .isTableDataVerifyedStreamController(value!);
                   },
                 ),
@@ -424,27 +422,26 @@ class _PurchaseTableState extends State<PurchaseTable> {
 
   Widget _buildPreviewAndActionButton() {
     return StreamBuilder<bool>(
-        stream: widget.purchaseBloc.isTableDataVerifyedStream,
+        stream: _addPurchaseBloc.isTableDataVerifyedStream,
         builder: (context, snapshot) {
           return Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               StreamBuilder<bool>(
-                  stream: widget.purchaseBloc.isTableDataVerifyedStream,
+                  stream: _addPurchaseBloc.isTableDataVerifyedStream,
                   builder: (context, snapshot) {
                     return Visibility(
-                      visible:
-                          widget.purchaseBloc.isTableDataVerifited ?? false,
+                      visible: _addPurchaseBloc.isTableDataVerifited ?? false,
                       child: CustomActionButtons(
                           onPressed: () {
-                            if (widget
-                                .purchaseBloc.purchaseBillDataList.isNotEmpty) {
+                            if (_addPurchaseBloc
+                                .purchaseBillDataList.isNotEmpty) {
                               _isLoadingState(state: true);
-                              widget.purchaseBloc.addNewPurchaseDetails(
+                              _addPurchaseBloc.addNewPurchaseDetails(
                                   _purchasePostData(), (statusCode, response) {
                                 if (statusCode == 201 || statusCode == 200) {
                                   Navigator.pop(context);
-                                  widget.purchaseViewBloc
+                                  _purchaseViewBloc
                                       .pageNumberUpdateStreamController(0);
                                   _isLoadingState(state: false);
                                   AppWidgetUtils.buildToast(
@@ -510,7 +507,7 @@ class _PurchaseTableState extends State<PurchaseTable> {
     SpecificationsValue specValue = SpecificationsValue(specs: {});
     List<Map<String, dynamic>> mainSpecInfos = [];
 
-    for (var mainSpecValue in widget.purchaseBloc.purchaseBillDataList) {
+    for (var mainSpecValue in _addPurchaseBloc.purchaseBillDataList) {
       for (var vehicle in mainSpecValue.vehicleDetails!) {
         for (var element in vehicle.engineDetails) {
           mainSpecInfos.add({
@@ -536,7 +533,7 @@ class _PurchaseTableState extends State<PurchaseTable> {
       list.add(detail);
     }
 
-    for (var gstDetails in widget.purchaseBloc.purchaseBillDataList) {
+    for (var gstDetails in _addPurchaseBloc.purchaseBillDataList) {
       for (var vehicle in gstDetails.vehicleDetails!) {
         if (vehicle.gstType == AppConstants.gstPercent) {
           addGstDetail(
@@ -595,7 +592,7 @@ class _PurchaseTableState extends State<PurchaseTable> {
 
     List<ItemDetail> itemDetailsList = [];
 
-    for (var itemData in widget.purchaseBloc.purchaseBillDataList) {
+    for (var itemData in _addPurchaseBloc.purchaseBillDataList) {
       for (var vehicleData in itemData.vehicleDetails!) {
         final itemDetail = ItemDetail(
           hsnSacCode: vehicleData.hsnCode.toString(),
@@ -604,16 +601,16 @@ class _PurchaseTableState extends State<PurchaseTable> {
           gstDetails: List.from(gstDetailsList),
           incentives: List.from(incentivesList),
           itemName: vehicleData.vehicleName,
-          mainSpecInfos: widget.purchaseBloc.selectedPurchaseType !=
-                  AppConstants.accessories
-              ? mainSpecInfos
-              : null,
+          mainSpecInfos:
+              _addPurchaseBloc.selectedPurchaseType != AppConstants.accessories
+                  ? mainSpecInfos
+                  : null,
           partNo: vehicleData.partNo.toString(),
           quantity: vehicleData.qty,
-          specificationsValue: widget.purchaseBloc.selectedPurchaseType !=
-                  AppConstants.accessories
-              ? specValue
-              : null,
+          specificationsValue:
+              _addPurchaseBloc.selectedPurchaseType != AppConstants.accessories
+                  ? specValue
+                  : null,
           taxes: List.from(taxDetailsList),
           unitRate: vehicleData.unitRate,
         );
@@ -624,14 +621,14 @@ class _PurchaseTableState extends State<PurchaseTable> {
     int totalQty = itemDetailsList.fold(0, (sum, item) => sum + item.quantity);
 
     final purchaseData = AddPurchaseModel(
-      branchId: widget.purchaseBloc.branchId.toString(),
+      branchId: _addPurchaseBloc.branchId.toString(),
       itemDetails: itemDetailsList,
       pInvoiceDate: AppUtils.appToAPIDateFormat(
-          widget.purchaseBloc.invoiceDateController.text),
-      pInvoiceNo: widget.purchaseBloc.invoiceNumberController.text,
-      pOrderRefNo: widget.purchaseBloc.purchaseRefController.text,
+          _addPurchaseBloc.invoiceDateController.text),
+      pInvoiceNo: _addPurchaseBloc.invoiceNumberController.text,
+      pOrderRefNo: _addPurchaseBloc.purchaseRefController.text,
       totalQty: totalQty,
-      vendorId: widget.purchaseBloc.selectedVendorId.toString(),
+      vendorId: _addPurchaseBloc.selectedVendorId.toString(),
     );
 
     return purchaseData;
@@ -639,65 +636,64 @@ class _PurchaseTableState extends State<PurchaseTable> {
 
   void _isLoadingState({required bool state}) {
     setState(() {
-      widget.purchaseBloc.isAddPurchseBillLoading = state;
+      _addPurchaseBloc.isAddPurchseBillLoading = state;
     });
   }
 
   void _editPurchaseBillRow(VehicleDetails data, int index) {
     setState(() {
-      widget.purchaseBloc.editIndex = index;
-      widget.purchaseBloc.partNumberController.text =
+      _addPurchaseBloc.editIndex = index;
+      _addPurchaseBloc.partNumberController.text =
           data.partNo?.toString() ?? '';
-      widget.purchaseBloc.vehicleNameTextController.text = data.vehicleName;
-      widget.purchaseBloc.hsnCodeController.text =
-          data.hsnCode?.toString() ?? '';
-      widget.purchaseBloc.unitRateController.text = data.unitRate.toString();
-      widget.purchaseBloc.gstRadioBtnRefreshStreamController(true);
-      widget.purchaseBloc.paymentDetailsStreamController(true);
-      widget.purchaseBloc.totalValue = data.totalValue;
-      widget.purchaseBloc.discountTextController.text =
+      _addPurchaseBloc.vehicleNameTextController.text = data.vehicleName;
+      _addPurchaseBloc.hsnCodeController.text = data.hsnCode?.toString() ?? '';
+      _addPurchaseBloc.unitRateController.text = data.unitRate.toString();
+      _addPurchaseBloc.gstRadioBtnRefreshStreamController(true);
+      _addPurchaseBloc.paymentDetailsStreamController(true);
+      _addPurchaseBloc.totalValue = data.totalValue;
+      _addPurchaseBloc.discountTextController.text =
           (data.discountValue ?? 0).toString();
-      widget.purchaseBloc.taxableValue = data.taxableValue;
-      widget.purchaseBloc.cgstAmount = data.cgstAmount;
-      widget.purchaseBloc.sgstAmount = data.sgstAmount;
-      widget.purchaseBloc.tcsvalueTextController.text =
+      _addPurchaseBloc.taxableValue = data.taxableValue;
+      _addPurchaseBloc.cgstAmount = data.cgstAmount;
+      _addPurchaseBloc.sgstAmount = data.sgstAmount;
+      _addPurchaseBloc.tcsvalueTextController.text =
           (data.tcsValue ?? 0).toString();
-      widget.purchaseBloc.gstRadioBtnRefreshStreamController(true);
-      widget.purchaseBloc.paymentDetailsStreamController(true);
-      widget.purchaseBloc.invAmount = data.invoiceValue;
-      widget.purchaseBloc.stateIncentiveTextController.text =
+      _addPurchaseBloc.gstRadioBtnRefreshStreamController(true);
+      _addPurchaseBloc.paymentDetailsStreamController(true);
+      _addPurchaseBloc.invAmount = data.invoiceValue;
+      _addPurchaseBloc.stateIncentiveTextController.text =
           (data.stateIncentive ?? 0).toString();
-      widget.purchaseBloc.empsIncentiveTextController.text =
+      _addPurchaseBloc.empsIncentiveTextController.text =
           (data.empsIncentive ?? 0.0).toString();
-      widget.purchaseBloc.totalInvAmount = data.totalInvoiceValue;
+      _addPurchaseBloc.totalInvAmount = data.totalInvoiceValue;
 
-      widget.purchaseBloc.engineDetailsStreamController(true);
-      widget.purchaseBloc.paymentDetailsStreamController(true);
+      _addPurchaseBloc.engineDetailsStreamController(true);
+      _addPurchaseBloc.paymentDetailsStreamController(true);
 
-      widget.purchaseBloc.engineDetailsList.clear();
+      _addPurchaseBloc.engineDetailsList.clear();
       for (var engineDetailsMap in data.engineDetails) {
-        widget.purchaseBloc.engineDetailsList.add(engineDetailsMap);
-        widget.purchaseBloc.refreshEngineDetailsListStramController(true);
-        widget.purchaseBloc.gstRadioBtnRefreshStreamController(true);
-        widget.purchaseBloc.paymentDetailsStreamController(true);
+        _addPurchaseBloc.engineDetailsList.add(engineDetailsMap);
+        _addPurchaseBloc.refreshEngineDetailsListStramController(true);
+        _addPurchaseBloc.gstRadioBtnRefreshStreamController(true);
+        _addPurchaseBloc.paymentDetailsStreamController(true);
       }
 
-      widget.purchaseBloc.selectedGstType = data.gstType;
+      _addPurchaseBloc.selectedGstType = data.gstType;
       if (data.gstType == AppConstants.gstPercent) {
-        widget.purchaseBloc.cgstPresentageTextController.text =
+        _addPurchaseBloc.cgstPresentageTextController.text =
             data.cgstPercentage?.toString() ?? '';
-        widget.purchaseBloc.sgstPresentageTextController.text =
+        _addPurchaseBloc.sgstPresentageTextController.text =
             data.sgstPercentage?.toString() ?? '';
-        widget.purchaseBloc.gstRadioBtnRefreshStreamController(true);
-        widget.purchaseBloc.paymentDetailsStreamController(true);
+        _addPurchaseBloc.gstRadioBtnRefreshStreamController(true);
+        _addPurchaseBloc.paymentDetailsStreamController(true);
       } else {
-        widget.purchaseBloc.igstPresentageTextController.text =
+        _addPurchaseBloc.igstPresentageTextController.text =
             data.igstPercentage?.toString() ?? '';
-        widget.purchaseBloc.gstRadioBtnRefreshStreamController(true);
-        widget.purchaseBloc.paymentDetailsStreamController(true);
+        _addPurchaseBloc.gstRadioBtnRefreshStreamController(true);
+        _addPurchaseBloc.paymentDetailsStreamController(true);
       }
-      widget.purchaseBloc.gstRadioBtnRefreshStreamController(true);
-      widget.purchaseBloc.paymentDetailsStreamController(true);
+      _addPurchaseBloc.gstRadioBtnRefreshStreamController(true);
+      _addPurchaseBloc.paymentDetailsStreamController(true);
     });
   }
 }

@@ -1,6 +1,7 @@
 import 'package:blurry_modal_progress_hud/blurry_modal_progress_hud.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:tlbilling/api_service/service_locator.dart';
 import 'package:tlbilling/components/custom_action_button.dart';
 import 'package:tlbilling/components/custom_dropdown_button_form_field.dart';
 import 'package:tlbilling/components/custom_form_field.dart';
@@ -17,8 +18,8 @@ import 'package:toastification/toastification.dart';
 
 class CreateBranchDialog extends StatefulWidget {
   final String? branchId;
-  final BranchViewBlocImpl? branchViewBlocImpl;
-  const CreateBranchDialog({super.key, this.branchId, this.branchViewBlocImpl});
+
+  const CreateBranchDialog({super.key, this.branchId});
 
   @override
   State<CreateBranchDialog> createState() => _CreateBranchDialogState();
@@ -26,7 +27,8 @@ class CreateBranchDialog extends StatefulWidget {
 
 class _CreateBranchDialogState extends State<CreateBranchDialog> {
   final _appColors = AppColors();
-  final _createBranchDialogBlocImpl = CreateBranchDialogBlocImpl();
+  final _createBranchDialogBlocImpl = getIt<CreateBranchDialogBlocImpl>();
+  final _branchViewBloc = getIt<BranchViewBlocImpl>();
 
   @override
   void initState() {
@@ -115,7 +117,7 @@ class _CreateBranchDialogState extends State<CreateBranchDialog> {
               (statusCode) {
                 if (statusCode == 200 || statusCode == 201) {
                   _isLoading(false);
-                  widget.branchViewBlocImpl?.branchTablePageStream(0);
+                  _branchViewBloc.branchTablePageStream(0);
                   Navigator.pop(context);
                   AppWidgetUtils.buildToast(
                       context,
@@ -136,7 +138,7 @@ class _CreateBranchDialogState extends State<CreateBranchDialog> {
             _createBranchDialogBlocImpl.addBranch((statusCode) {
               if (statusCode == 200 || statusCode == 201) {
                 _isLoading(false);
-                widget.branchViewBlocImpl?.branchTablePageStream(0);
+                _branchViewBloc.branchTablePageStream(0);
                 Navigator.pop(context);
                 AppWidgetUtils.buildToast(
                     context,

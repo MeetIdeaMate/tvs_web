@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:tlbilling/api_service/app_service_utils.dart';
+import 'package:tlbilling/api_service/service_locator.dart';
 import 'package:tlbilling/models/get_model/get_configuration_model.dart';
 
 abstract class ConfigurationDialogBloc {
@@ -30,7 +31,7 @@ class ConfigurationDialogBlocImpl extends ConfigurationDialogBloc {
   final _configValuesTextController = TextEditingController();
   final _defaultValueTextController = TextEditingController();
   final _addChipStream = StreamController();
-  final _appServices = AppServiceUtilImpl();
+  final _appServices = getIt<AppServiceUtilImpl>();
   late List<String> configValues = [];
   bool _isAsyncCall = false;
 

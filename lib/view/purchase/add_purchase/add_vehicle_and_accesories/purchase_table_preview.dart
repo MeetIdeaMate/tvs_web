@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:tlbilling/api_service/service_locator.dart';
 import 'package:tlbilling/models/purchase_bill_data.dart';
 import 'package:tlbilling/utils/app_colors.dart';
 import 'package:tlbilling/utils/app_constants.dart';
@@ -9,14 +10,14 @@ import 'package:tlbilling/view/purchase/add_purchase/add_vehicle_and_accesories/
 import 'package:tlds_flutter/export.dart';
 
 class PurchaseTablePreview extends StatefulWidget {
-  final AddVehicleAndAccessoriesBlocImpl purchaseBloc;
-  const PurchaseTablePreview({super.key, required this.purchaseBloc});
+  const PurchaseTablePreview({super.key});
 
   @override
   State<PurchaseTablePreview> createState() => _PurchaseTablePreviewState();
 }
 
 class _PurchaseTablePreviewState extends State<PurchaseTablePreview> {
+  final _addPurchaseBlocImpl = getIt<AddVehicleAndAccessoriesBlocImpl>();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -37,10 +38,10 @@ class _PurchaseTablePreviewState extends State<PurchaseTablePreview> {
             ),
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
-              itemCount: widget.purchaseBloc.purchaseBillDataList.length,
+              itemCount: _addPurchaseBlocImpl.purchaseBillDataList.length,
               itemBuilder: (BuildContext context, int index) {
                 final billData =
-                    widget.purchaseBloc.purchaseBillDataList[index];
+                    _addPurchaseBlocImpl.purchaseBillDataList[index];
                 return Column(
                   children: [
                     ListTile(
@@ -86,9 +87,9 @@ class _PurchaseTablePreviewState extends State<PurchaseTablePreview> {
 
   Widget _buildAddedVehicleAndAccessoriesTable() {
     return StreamBuilder<bool>(
-      stream: widget.purchaseBloc.refreshPurchaseDataTable,
+      stream: _addPurchaseBlocImpl.refreshPurchaseDataTable,
       builder: (context, snapshot) {
-        if (widget.purchaseBloc.purchaseBillDataList.isEmpty) {
+        if (_addPurchaseBlocImpl.purchaseBillDataList.isEmpty) {
           return Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -105,7 +106,7 @@ class _PurchaseTablePreviewState extends State<PurchaseTablePreview> {
           );
         }
         final totals =
-            _calculateTotals(widget.purchaseBloc.purchaseBillDataList);
+            _calculateTotals(_addPurchaseBlocImpl.purchaseBillDataList);
         return SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: SingleChildScrollView(
@@ -137,7 +138,7 @@ class _PurchaseTablePreviewState extends State<PurchaseTablePreview> {
                 _buildVehicleTableHeader(AppConstants.totInvVal),
               ],
               rows: [
-                ...widget.purchaseBloc.purchaseBillDataList.expand((billData) {
+                ..._addPurchaseBlocImpl.purchaseBillDataList.expand((billData) {
                   return billData.vehicleDetails!.asMap().entries.map((entry) {
                     final data = entry.value;
                     final index = entry.key;
@@ -146,7 +147,7 @@ class _PurchaseTablePreviewState extends State<PurchaseTablePreview> {
                         ? AppColor().whiteColor
                         : AppColor().transparentBlueColor;
                     return DataRow(
-                      color: MaterialStateColor.resolveWith((states) => color),
+                      color: WidgetStateColor.resolveWith((states) => color),
                       cells: [
                         DataCell(Text((index + 1).toString())),
                         DataCell(Text(data.partNo ?? '')),
@@ -185,7 +186,7 @@ class _PurchaseTablePreviewState extends State<PurchaseTablePreview> {
                   }).toList();
                 }),
                 DataRow(
-                  color: MaterialStateColor.resolveWith(
+                  color: WidgetStateColor.resolveWith(
                       (states) => Colors.greenAccent.shade200),
                   cells: [
                     const DataCell(Text('Total')),

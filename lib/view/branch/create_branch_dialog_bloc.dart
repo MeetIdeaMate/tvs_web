@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:tlbilling/api_service/app_service_utils.dart';
+import 'package:tlbilling/api_service/service_locator.dart';
 import 'package:tlbilling/models/get_model/get_all_branch_model.dart';
 import 'package:tlbilling/models/parent_response_model.dart';
 import 'package:tlbilling/models/post_model/add_branch_model.dart';
@@ -64,7 +65,7 @@ class CreateBranchDialogBlocImpl extends CreateBranchDialogBloc {
   String? _mainBranchId;
   String? _mainBranchName;
   final _branchFormKey = GlobalKey<FormState>();
-  final _appService = AppServiceUtilImpl();
+  final _appService = getIt<AppServiceUtilImpl>();
   bool? _isMainBranch;
   bool? _isAsyncCall = false;
   final _cityRefreshStream = StreamController<bool>.broadcast();

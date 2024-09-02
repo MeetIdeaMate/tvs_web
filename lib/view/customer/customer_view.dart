@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tlbilling/api_service/service_locator.dart';
 import 'package:tlbilling/components/custom_pagenation.dart';
 import 'package:tlbilling/models/get_model/get_all_customer_by_pagination_model.dart';
 import 'package:tlbilling/models/get_model/get_all_customers_model.dart';
@@ -25,7 +26,7 @@ class CustomerView extends StatefulWidget {
 
 class _CustomerViewState extends State<CustomerView> {
   final _appColors = AppColors();
-  final _customerScreenBlocImpl = CustomerViewBlocImpl();
+  final _customerScreenBlocImpl = getIt<CustomerViewBlocImpl>();
 
   @override
   void initState() {
@@ -315,8 +316,6 @@ class _CustomerViewState extends State<CustomerView> {
                                                             context: context,
                                                             builder: (context) {
                                                               return CreateCustomerDialog(
-                                                                  customerScreenBlocImpl:
-                                                                      _customerScreenBlocImpl,
                                                                   customerId: entry
                                                                       .value
                                                                       .customerId);

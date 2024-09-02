@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:tlbilling/api_service/app_service_utils.dart';
+import 'package:tlbilling/api_service/service_locator.dart';
 import 'package:tlbilling/models/get_model/get_all_category_model.dart';
 import 'package:tlbilling/models/get_model/get_all_purchase_model.dart';
 import 'package:tlbilling/models/get_model/get_purchase_report_model.dart';
@@ -158,7 +159,7 @@ class AddVehicleAndAccessoriesBlocImpl extends AddVehicleAndAccessoriesBloc {
   final _partNoFocusNode = FocusNode();
   final _purchaseFormKey = GlobalKey<FormState>();
   final List<PurchaseBillData> _purchaseBillDataList = [];
-  final _apiServices = AppServiceUtilImpl();
+  final _apiServices = getIt<AppServiceUtilImpl>();
   List<String> _vendorNamesList = [];
   var _engineListScrollController = ScrollController();
   String? _selectedGstType;
@@ -252,8 +253,8 @@ class AddVehicleAndAccessoriesBlocImpl extends AddVehicleAndAccessoriesBloc {
   TextEditingController get quantityController => _quantityController;
 
   changeSegmentedColor(Color color) {
-    return MaterialStateProperty.resolveWith((states) {
-      if (states.contains(MaterialState.selected)) {
+    return WidgetStateProperty.resolveWith((states) {
+      if (states.contains(WidgetState.selected)) {
         return color;
       }
       return null;

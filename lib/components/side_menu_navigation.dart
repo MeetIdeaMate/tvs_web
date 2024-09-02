@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tlbilling/api_service/service_locator.dart';
 import 'package:tlbilling/components/responsive.dart';
 import 'package:tlbilling/components/side_menu_navigation_bloc.dart';
 import 'package:tlbilling/utils/app_colors.dart';
@@ -23,7 +24,6 @@ import 'package:tlbilling/view/transfer/transfer_view.dart';
 import 'package:tlbilling/view/transport/transport_view.dart';
 import 'package:tlbilling/view/user/user_view.dart';
 import 'package:tlbilling/view/useraccess/access_level_shared_pref.dart';
-import 'package:tlbilling/view/useraccess/user_access_levels.dart';
 import 'package:tlbilling/view/useraccess/user_access_view.dart';
 import 'package:tlbilling/view/vendor/vendor_view.dart';
 import 'package:tlbilling/view/voucher_receipt/voucher_receipt_list.dart';
@@ -37,7 +37,7 @@ class SideMenuNavigation extends StatefulWidget {
 
 class _SideMenuNavigationState extends State<SideMenuNavigation> {
   final _appcolors = AppColors();
-  final _sideMenuBloc = SideMenuNavigationBlocImpl();
+  final _sideMenuBloc = getIt<SideMenuNavigationBlocImpl>();
   String selectedMenuItem =
       !AccessLevel.canHide(AppConstants.sales) ? AppConstants.sales : '';
   String? userName;
@@ -485,9 +485,7 @@ class _SideMenuNavigationState extends State<SideMenuNavigation> {
       case AppConstants.accountHead:
         return const AccountHeadView();
       case AppConstants.accessControl:
-        return AccessControlViewScreen(
-          sideMenuNavigationBlocImpl: _sideMenuBloc,
-        );
+        return const AccessControlViewScreen();
       case AppConstants.logOut:
         return Container();
       default:

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:tlbilling/api_service/app_service_utils.dart';
+import 'package:tlbilling/api_service/service_locator.dart';
 import 'package:tlbilling/models/get_model/get_all_branches_by_pagination.dart';
 import 'package:tlbilling/models/get_model/get_all_employee_by_pagination.dart';
 import 'package:tlbilling/models/parent_response_model.dart';
@@ -28,7 +29,7 @@ class EmployeeViewBlocImpl extends EmployeeViewBloc {
   String? _employeeWorktype;
   String? _selectedBranch;
   final _empNameAndMobNoFilterController = TextEditingController();
-  final _appServiceBlocImpl = AppServiceUtilImpl();
+  final _appServiceBlocImpl = getIt<AppServiceUtilImpl>();
   final _employeeTableStream = StreamController<bool>.broadcast();
   int _currentPage = 0;
   final _pageNumberStreamController = StreamController<int>.broadcast();

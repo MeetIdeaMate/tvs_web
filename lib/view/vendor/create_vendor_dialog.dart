@@ -1,6 +1,7 @@
 import 'package:blurry_modal_progress_hud/blurry_modal_progress_hud.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:tlbilling/api_service/service_locator.dart';
 import 'package:tlbilling/components/custom_action_button.dart';
 import 'package:tlbilling/utils/app_colors.dart';
 import 'package:tlbilling/utils/app_constants.dart';
@@ -10,15 +11,12 @@ import 'package:tlbilling/utils/input_validation.dart';
 import 'package:tlbilling/view/vendor/create_vendor_dialog_bloc.dart';
 import 'package:tlbilling/view/vendor/vendor_view_bloc.dart';
 import 'package:tlds_flutter/components/tlds_input_form_field.dart';
-import 'package:tlds_flutter/components/tlds_input_formaters.dart';
-import 'package:tlds_flutter/export.dart' as tlds;
 import 'package:toastification/toastification.dart';
 
 class CreateVendorDialog extends StatefulWidget {
   final String? vendorId;
-  final VendorViewBlocImpl? vendorViewBlocImpl;
 
-  const CreateVendorDialog({super.key, this.vendorViewBlocImpl, this.vendorId});
+  const CreateVendorDialog({super.key, this.vendorId});
 
   @override
   State<CreateVendorDialog> createState() => _CreateVendorDialogState();
@@ -26,7 +24,8 @@ class CreateVendorDialog extends StatefulWidget {
 
 class _CreateVendorDialogState extends State<CreateVendorDialog> {
   final _appColors = AppColors();
-  final _createVendorDialogBlocImpl = CreateVendorDialogBlocImpl();
+  final _createVendorDialogBlocImpl = getIt<CreateVendorDialogBlocImpl>();
+  final _vendorViewBlocImpl = getIt<VendorViewBlocImpl>();
   bool _isLoading = false;
 
   void _isLoadingState({required bool state}) {
@@ -267,7 +266,7 @@ class _CreateVendorDialogState extends State<CreateVendorDialog> {
             ),
             AppConstants.vendorUpdateSuccessfully,
             _appColors.successLightColor);
-        widget.vendorViewBlocImpl?.pageNumberUpdateStreamController(0);
+        _vendorViewBlocImpl.pageNumberUpdateStreamController(0);
       } else {
         _isLoadingState(state: false);
       }
@@ -292,7 +291,7 @@ class _CreateVendorDialogState extends State<CreateVendorDialog> {
             ),
             AppConstants.vendorCreatedSuccessfully,
             _appColors.successLightColor);
-        widget.vendorViewBlocImpl?.pageNumberUpdateStreamController(0);
+        _vendorViewBlocImpl.pageNumberUpdateStreamController(0);
       } else {
         _isLoadingState(state: false);
       }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:tlbilling/api_service/service_locator.dart';
 import 'package:tlbilling/components/custom_dropdown_button_form_field.dart';
 import 'package:tlbilling/components/custom_pagenation.dart';
 import 'package:tlbilling/models/get_model/get_all_account_head_by_pagination_model.dart';
@@ -20,7 +21,7 @@ class AccountHeadView extends StatefulWidget {
 
 class _AccountHeadViewState extends State<AccountHeadView> {
   final _appColors = AppColors();
-  final _accountHeadViewImpl = AccountViewBlocImpl();
+  final _accountHeadViewImpl = getIt<AccountViewBlocImpl>();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -267,8 +268,6 @@ class _AccountHeadViewState extends State<AccountHeadView> {
                                                 accountCode:
                                                     entry.value.accountHeadCode,
                                                 accountId: entry.value.id,
-                                                accountHeadBloc:
-                                                    _accountHeadViewImpl,
                                               );
                                             },
                                           );

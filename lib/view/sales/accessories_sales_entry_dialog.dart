@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tlbilling/api_service/service_locator.dart';
 import 'package:tlbilling/components/custom_action_button.dart';
 import 'package:tlbilling/models/get_model/get_all_stocks_model.dart';
 import 'package:tlbilling/models/post_model/add_sales_model.dart' as sales;
@@ -11,7 +12,7 @@ import 'package:tlds_flutter/components/tlds_input_form_field.dart';
 
 class AccessoriesSalesEntryDialog extends StatefulWidget {
   final GetAllStockDetails? accessoriesDetails;
-  final AddSalesBlocImpl addSalesBloc;
+
   final sales.SalesItemDetail? editValues;
   final int? editIndex;
   final int? selectedItemTndex;
@@ -20,7 +21,6 @@ class AccessoriesSalesEntryDialog extends StatefulWidget {
   const AccessoriesSalesEntryDialog(
       {super.key,
       this.accessoriesDetails,
-      required this.addSalesBloc,
       this.editValues,
       this.editIndex,
       this.selectedItemTndex,
@@ -34,34 +34,35 @@ class AccessoriesSalesEntryDialog extends StatefulWidget {
 class _AccessoriesSalesEntryDialogState
     extends State<AccessoriesSalesEntryDialog> {
   final AppColors _appColors = AppColors();
+  final _addSalesBloc = getIt<AddSalesBlocImpl>();
 
   @override
   void initState() {
     super.initState();
 
-    widget.addSalesBloc.hsnCodeTextController.text =
+    _addSalesBloc.hsnCodeTextController.text =
         widget.accessoriesDetails?.hsnSacCode ?? '';
 
     if (widget.editValues != null) {
-      widget.addSalesBloc.quantityTextController.text =
+      _addSalesBloc.quantityTextController.text =
           widget.editValues?.quantity.toString() ?? '';
-      widget.addSalesBloc.discountTextController.text =
+      _addSalesBloc.discountTextController.text =
           widget.editValues?.discount.toString() ?? '0';
-      widget.addSalesBloc.unitRateTextController.text =
+      _addSalesBloc.unitRateTextController.text =
           widget.editValues?.unitRate.toString() ?? '';
-      widget.addSalesBloc.hsnCodeTextController.text =
+      _addSalesBloc.hsnCodeTextController.text =
           widget.editValues?.hsnSacCode.toString() ?? '';
 
       if (widget.editValues?.gstDetails != null) {
         for (var gstDetail in widget.editValues!.gstDetails!) {
           if (gstDetail.gstName == 'CGST') {
-            widget.addSalesBloc.cgstPresentageTextController.text =
+            _addSalesBloc.cgstPresentageTextController.text =
                 gstDetail.percentage.toString();
           } else if (gstDetail.gstName == 'SGST') {
-            widget.addSalesBloc.cgstPresentageTextController.text =
+            _addSalesBloc.cgstPresentageTextController.text =
                 gstDetail.percentage.toString();
           } else if (gstDetail.gstName == 'IGST') {
-            widget.addSalesBloc.igstPresentageTextController.text =
+            _addSalesBloc.igstPresentageTextController.text =
                 gstDetail.percentage.toString();
           }
         }
@@ -73,12 +74,12 @@ class _AccessoriesSalesEntryDialogState
   void dispose() {
     super.dispose();
 
-    widget.addSalesBloc.discountTextController.clear();
-    widget.addSalesBloc.quantityTextController.clear();
-    widget.addSalesBloc.hsnCodeTextController.clear();
-    widget.addSalesBloc.unitRateTextController.clear();
-    widget.addSalesBloc.cgstPresentageTextController.clear();
-    widget.addSalesBloc.igstPresentageTextController.clear();
+    _addSalesBloc.discountTextController.clear();
+    _addSalesBloc.quantityTextController.clear();
+    _addSalesBloc.hsnCodeTextController.clear();
+    _addSalesBloc.unitRateTextController.clear();
+    _addSalesBloc.cgstPresentageTextController.clear();
+    _addSalesBloc.igstPresentageTextController.clear();
   }
 
   @override
@@ -132,7 +133,7 @@ class _AccessoriesSalesEntryDialogState
 
   _buildAccessoriesEntryForm() {
     return Form(
-      key: widget.addSalesBloc.accessoriesEntryFormkey,
+      key: _addSalesBloc.accessoriesEntryFormkey,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -151,7 +152,7 @@ class _AccessoriesSalesEntryDialogState
       inputFormatters: TlInputFormatters.onlyAllowNumbers,
       hintText: AppConstants.hsnCode,
       labelText: AppConstants.hsnCode,
-      controller: widget.addSalesBloc.hsnCodeTextController,
+      controller: _addSalesBloc.hsnCodeTextController,
       onChanged: (hsn) {},
       //   readOnly: true,
       height: 70,
@@ -161,33 +162,33 @@ class _AccessoriesSalesEntryDialogState
         }
         return null;
       },
-      focusNode: widget.addSalesBloc.hsnCodeFocus,
+      focusNode: _addSalesBloc.hsnCodeFocus,
       onSubmit: (value) {
-        FocusScope.of(context).requestFocus(widget.addSalesBloc.quantityFocus);
+        FocusScope.of(context).requestFocus(_addSalesBloc.quantityFocus);
       },
     );
   }
 
   Widget _buildGstRadioBtns() {
     return StreamBuilder<bool>(
-      stream: widget.addSalesBloc.gstRadioBtnRefreashStream,
+      stream: _addSalesBloc.gstRadioBtnRefreashStream,
       builder: (context, snapshot) {
         return Row(
           children: [
             Row(
-              children: widget.addSalesBloc.gstTypeOptions.map((gstTypeOption) {
+              children: _addSalesBloc.gstTypeOptions.map((gstTypeOption) {
                 return Padding(
                   padding: const EdgeInsets.all(8),
                   child: Row(
                     children: [
                       Radio<String>(
                         value: gstTypeOption,
-                        groupValue: widget.addSalesBloc.selectedGstType,
+                        groupValue: _addSalesBloc.selectedGstType,
                         onChanged: (String? value) {
-                          widget.addSalesBloc.selectedGstType = value;
+                          _addSalesBloc.selectedGstType = value;
                           FocusScope.of(context)
-                              .requestFocus(widget.addSalesBloc.igstFocus);
-                          widget.addSalesBloc
+                              .requestFocus(_addSalesBloc.igstFocus);
+                          _addSalesBloc
                               .gstRadioBtnRefreashStreamController(true);
                         },
                       ),
@@ -198,10 +199,9 @@ class _AccessoriesSalesEntryDialogState
               }).toList(),
             ),
             AppWidgetUtils.buildSizedBox(custWidth: 10),
-            if (widget.addSalesBloc.selectedGstType == AppConstants.gstPercent)
+            if (_addSalesBloc.selectedGstType == AppConstants.gstPercent)
               _buildGstPercentFields()
-            else if (widget.addSalesBloc.selectedGstType ==
-                AppConstants.igstPercent)
+            else if (_addSalesBloc.selectedGstType == AppConstants.igstPercent)
               _buildIgstPercentField(),
           ],
         );
@@ -217,8 +217,8 @@ class _AccessoriesSalesEntryDialogState
             child: TldsInputFormField(
               inputFormatters: TlInputFormatters.onlyAllowDecimalNumbers,
               hintText: AppConstants.cgstPercent,
-              controller: widget.addSalesBloc.cgstPresentageTextController,
-              focusNode: widget.addSalesBloc.cgstFocus,
+              controller: _addSalesBloc.cgstPresentageTextController,
+              focusNode: _addSalesBloc.cgstFocus,
               height: 40,
               maxLength: 5,
               counterText: '',
@@ -226,12 +226,12 @@ class _AccessoriesSalesEntryDialogState
                 double cgstPercentage = double.tryParse(cgst) ?? 0;
                 _buildPaymentCalculation();
                 if (cgstPercentage > 100) {
-                  widget.addSalesBloc.cgstPresentageTextController.clear();
+                  _addSalesBloc.cgstPresentageTextController.clear();
                 }
               },
               onSubmit: (value) {
                 FocusScope.of(context)
-                    .requestFocus(widget.addSalesBloc.discountFocus);
+                    .requestFocus(_addSalesBloc.discountFocus);
               },
             ),
           ),
@@ -242,7 +242,7 @@ class _AccessoriesSalesEntryDialogState
               height: 40,
               inputFormatters: TlInputFormatters.onlyAllowDecimalNumbers,
               hintText: AppConstants.sgstPercent,
-              controller: widget.addSalesBloc.cgstPresentageTextController,
+              controller: _addSalesBloc.cgstPresentageTextController,
             ),
           ),
         ],
@@ -258,22 +258,22 @@ class _AccessoriesSalesEntryDialogState
             child: TldsInputFormField(
               inputFormatters: TlInputFormatters.onlyAllowDecimalNumbers,
               hintText: AppConstants.igstPercent,
-              controller: widget.addSalesBloc.igstPresentageTextController,
-              focusNode: widget.addSalesBloc.igstFocus,
+              controller: _addSalesBloc.igstPresentageTextController,
+              focusNode: _addSalesBloc.igstFocus,
               height: 40,
               maxLength: 5,
               counterText: '',
               onChanged: (igst) {
                 double igstPercent = double.tryParse(igst) ?? 0;
                 if (igstPercent > 100) {
-                  widget.addSalesBloc.igstPresentageTextController.clear();
+                  _addSalesBloc.igstPresentageTextController.clear();
                 }
 
                 _buildPaymentCalculation();
               },
               onSubmit: (value) {
                 FocusScope.of(context)
-                    .requestFocus(widget.addSalesBloc.discountFocus);
+                    .requestFocus(_addSalesBloc.discountFocus);
               },
             ),
           ),
@@ -288,44 +288,43 @@ class _AccessoriesSalesEntryDialogState
         // AppWidgetUtils.buildSizedBox(custWidth: 10),
         Expanded(
           child: StreamBuilder<bool>(
-              stream: widget.addSalesBloc.unitRateChangeStream,
+              stream: _addSalesBloc.unitRateChangeStream,
               builder: (context, snapshot) {
                 return TldsInputFormField(
                   inputFormatters: TlInputFormatters.onlyAllowDecimalNumbers,
                   hintText: AppConstants.quantity,
-                  controller: widget.addSalesBloc.quantityTextController,
-                  focusNode: widget.addSalesBloc.quantityFocus,
+                  controller: _addSalesBloc.quantityTextController,
+                  focusNode: _addSalesBloc.quantityFocus,
                   requiredLabelText: AppWidgetUtils.labelTextWithRequired(
                       (AppConstants.quantity)),
                   height: 70,
                   onChanged: (quantity) {
                     int quantityValue = int.tryParse(
-                            widget.addSalesBloc.quantityTextController.text) ??
+                            _addSalesBloc.quantityTextController.text) ??
                         0;
-                    int currentQty = widget.addSalesBloc.accessoriesQty[
+                    int currentQty = _addSalesBloc.accessoriesQty[
                                     widget.accessoriesDetails?.stockId ?? ''] ==
                                 null ||
-                            widget.addSalesBloc.accessoriesQty[
+                            _addSalesBloc.accessoriesQty[
                                     widget.accessoriesDetails?.stockId ?? ''] ==
                                 0
                         ? widget.accessoriesDetails?.quantity ?? 0
-                        : widget.addSalesBloc.accessoriesQty[
+                        : _addSalesBloc.accessoriesQty[
                                 widget.accessoriesDetails?.stockId ?? ''] ??
                             0;
 
-                    int currentQtyEdit =
-                        widget.addSalesBloc.totalAccessoriesQty[
-                                widget.editValues?.stockId ?? ''] ??
-                            0;
-                    widget.addSalesBloc.availableAccListStream(true);
+                    int currentQtyEdit = _addSalesBloc.totalAccessoriesQty[
+                            widget.editValues?.stockId ?? ''] ??
+                        0;
+                    _addSalesBloc.availableAccListStream(true);
                     if (widget.editValues != null) {
                       if (quantityValue > currentQtyEdit ||
                           quantityValue == 0) {
-                        widget.addSalesBloc.quantityTextController.clear();
+                        _addSalesBloc.quantityTextController.clear();
                       }
                     } else {
                       if (quantityValue > currentQty || quantityValue == 0) {
-                        widget.addSalesBloc.quantityTextController.clear();
+                        _addSalesBloc.quantityTextController.clear();
                       }
                     }
 
@@ -333,7 +332,7 @@ class _AccessoriesSalesEntryDialogState
                   },
                   onSubmit: (value) {
                     FocusScope.of(context)
-                        .requestFocus(widget.addSalesBloc.unitRateFocus);
+                        .requestFocus(_addSalesBloc.unitRateFocus);
                   },
                   validator: (value) {
                     if (value!.isEmpty) {
@@ -349,8 +348,8 @@ class _AccessoriesSalesEntryDialogState
           child: TldsInputFormField(
             inputFormatters: TlInputFormatters.onlyAllowDecimalNumbers,
             hintText: AppConstants.unitRate,
-            controller: widget.addSalesBloc.unitRateTextController,
-            focusNode: widget.addSalesBloc.unitRateFocus,
+            controller: _addSalesBloc.unitRateTextController,
+            focusNode: _addSalesBloc.unitRateFocus,
             requiredLabelText:
                 AppWidgetUtils.labelTextWithRequired((AppConstants.unitRate)),
             height: 70,
@@ -358,8 +357,7 @@ class _AccessoriesSalesEntryDialogState
               _buildPaymentCalculation();
             },
             onSubmit: (value) {
-              FocusScope.of(context)
-                  .requestFocus(widget.addSalesBloc.discountFocus);
+              FocusScope.of(context).requestFocus(_addSalesBloc.discountFocus);
             },
             validator: (value) {
               if (value!.isEmpty) {
@@ -374,25 +372,24 @@ class _AccessoriesSalesEntryDialogState
           child: TldsInputFormField(
             inputFormatters: TlInputFormatters.onlyAllowDecimalNumbers,
             hintText: AppConstants.discount,
-            controller: widget.addSalesBloc.discountTextController,
-            focusNode: widget.addSalesBloc.discountFocus,
+            controller: _addSalesBloc.discountTextController,
+            focusNode: _addSalesBloc.discountFocus,
             labelText: AppConstants.discountAmount,
             height: 70,
             onChanged: (discount) {
               double? discountAmount = double.tryParse(discount);
-              double? unitRate = double.tryParse(
-                      widget.addSalesBloc.unitRateTextController.text) ??
-                  0;
+              double? unitRate =
+                  double.tryParse(_addSalesBloc.unitRateTextController.text) ??
+                      0;
 
               if (discountAmount != null && discountAmount >= unitRate ||
                   discountAmount == 0) {
-                widget.addSalesBloc.discountTextController.clear();
+                _addSalesBloc.discountTextController.clear();
               }
               _buildPaymentCalculation();
             },
             onSubmit: (value) {
-              FocusScope.of(context)
-                  .requestFocus(widget.addSalesBloc.cgstFocus);
+              FocusScope.of(context).requestFocus(_addSalesBloc.cgstFocus);
             },
           ),
         ),
@@ -403,43 +400,38 @@ class _AccessoriesSalesEntryDialogState
   _buildSubmitButton() {
     return CustomActionButtons(
         onPressed: () {
-          if (widget.addSalesBloc.accessoriesEntryFormkey.currentState!
-              .validate()) {
+          if (_addSalesBloc.accessoriesEntryFormkey.currentState!.validate()) {
             if (widget.editValues != null) {
-              int quantityValue = int.tryParse(
-                      widget.addSalesBloc.quantityTextController.text) ??
-                  0;
-              int currentQty = widget.addSalesBloc
+              int quantityValue =
+                  int.tryParse(_addSalesBloc.quantityTextController.text) ?? 0;
+              int currentQty = _addSalesBloc
                       .totalAccessoriesQty[widget.editValues?.stockId ?? ''] ??
                   widget.accessoriesDetails?.quantity ??
                   0;
-              widget.addSalesBloc
-                      .accessoriesQty[widget.editValues?.stockId ?? '?'] =
+              _addSalesBloc.accessoriesQty[widget.editValues?.stockId ?? '?'] =
                   currentQty - quantityValue;
 
-              widget.addSalesBloc.availableAccListStream(true);
+              _addSalesBloc.availableAccListStream(true);
               _updateData(widget.editIndex ?? 1);
 
-              widget.addSalesBloc.paymentDetailsStreamController(true);
+              _addSalesBloc.paymentDetailsStreamController(true);
             } else {
-              int quantityValue = int.tryParse(
-                      widget.addSalesBloc.quantityTextController.text) ??
-                  0;
-              int currentQty = widget.addSalesBloc.accessoriesQty[
+              int quantityValue =
+                  int.tryParse(_addSalesBloc.quantityTextController.text) ?? 0;
+              int currentQty = _addSalesBloc.accessoriesQty[
                       widget.accessoriesDetails?.stockId ?? ''] ??
                   widget.accessoriesDetails?.quantity ??
                   0;
-              widget.addSalesBloc.accessoriesQty[
-                      widget.accessoriesDetails?.stockId ?? ''] =
-                  currentQty - quantityValue;
+              _addSalesBloc.accessoriesQty[widget.accessoriesDetails?.stockId ??
+                  ''] = currentQty - quantityValue;
 
-              widget.addSalesBloc.availableAccListStream(true);
+              _addSalesBloc.availableAccListStream(true);
               _saveData();
             }
 
             _clearInputFields();
-            widget.addSalesBloc.vehicleAndEngineNumberStreamController(true);
-            widget.addSalesBloc.refreshsalesDataTableController(true);
+            _addSalesBloc.vehicleAndEngineNumberStreamController(true);
+            _addSalesBloc.refreshsalesDataTableController(true);
             Navigator.pop(context);
           }
         },
@@ -448,177 +440,166 @@ class _AccessoriesSalesEntryDialogState
 
   _buildSetValueInList() {
     List<sales.GstDetail> gstDetails = [];
-    if (widget.addSalesBloc.selectedGstType == 'GST %') {
+    if (_addSalesBloc.selectedGstType == 'GST %') {
       gstDetails.add(
         sales.GstDetail(
-            gstAmount: widget.addSalesBloc.cgstAmount ?? 0,
+            gstAmount: _addSalesBloc.cgstAmount ?? 0,
             gstName: 'CGST',
             percentage: double.tryParse(
-                    widget.addSalesBloc.cgstPresentageTextController.text) ??
+                    _addSalesBloc.cgstPresentageTextController.text) ??
                 0),
       );
       gstDetails.add(
         sales.GstDetail(
-            gstAmount: widget.addSalesBloc.cgstAmount ?? 0,
+            gstAmount: _addSalesBloc.cgstAmount ?? 0,
             gstName: 'SGST',
             percentage: double.tryParse(
-                    widget.addSalesBloc.cgstPresentageTextController.text) ??
+                    _addSalesBloc.cgstPresentageTextController.text) ??
                 0),
       );
     }
-    if (widget.addSalesBloc.selectedGstType == 'IGST %') {
+    if (_addSalesBloc.selectedGstType == 'IGST %') {
       gstDetails.add(
         sales.GstDetail(
-            gstAmount: widget.addSalesBloc.igstAmount ?? 0,
+            gstAmount: _addSalesBloc.igstAmount ?? 0,
             gstName: 'IGST',
             percentage: double.tryParse(
-                    widget.addSalesBloc.igstPresentageTextController.text) ??
+                    _addSalesBloc.igstPresentageTextController.text) ??
                 0),
       );
     }
 
-    widget.addSalesBloc.accessoriesItemList?.add(sales.SalesItemDetail(
+    _addSalesBloc.accessoriesItemList?.add(sales.SalesItemDetail(
         categoryId: widget.accessoriesDetails?.categoryId ?? '',
-        unitRate:
-            double.tryParse(widget.addSalesBloc.unitRateTextController.text),
-        quantity: int.tryParse(widget.addSalesBloc.quantityTextController.text),
+        unitRate: double.tryParse(_addSalesBloc.unitRateTextController.text),
+        quantity: int.tryParse(_addSalesBloc.quantityTextController.text),
         stockId: widget.accessoriesDetails?.stockId ?? '',
         hsnSacCode: widget.accessoriesDetails?.hsnSacCode ?? '',
         itemName: widget.accessoriesDetails?.itemName ?? '',
         partNo: widget.accessoriesDetails?.partNo,
-        value: widget.addSalesBloc.totalValue ?? 0,
+        value: _addSalesBloc.totalValue ?? 0,
         discount:
-            double.tryParse(widget.addSalesBloc.discountTextController.text) ??
-                0,
-        taxableValue: widget.addSalesBloc.taxableValue ?? 0,
+            double.tryParse(_addSalesBloc.discountTextController.text) ?? 0,
+        taxableValue: _addSalesBloc.taxableValue ?? 0,
         gstDetails: gstDetails,
         taxes: [],
         incentives: [],
         mainSpecValue: {},
         specificationsValue: {},
-        invoiceValue: widget.addSalesBloc.invAmount ?? 0,
-        finalInvoiceValue: widget.addSalesBloc.totalInvAmount ?? 0));
+        invoiceValue: _addSalesBloc.invAmount ?? 0,
+        finalInvoiceValue: _addSalesBloc.totalInvAmount ?? 0));
   }
 
   void _saveData() {
     _buildSetValueInList();
-    widget.addSalesBloc.refreshsalesDataTableController(true);
+    _addSalesBloc.refreshsalesDataTableController(true);
 
-    widget.addSalesBloc.availableAccessoriesQty = widget
-            .addSalesBloc.availableAccessoriesQty ??
-        0 -
-            (int.tryParse(widget.addSalesBloc.quantityTextController.text) ??
-                0);
+    _addSalesBloc.availableAccessoriesQty =
+        _addSalesBloc.availableAccessoriesQty ??
+            0 - (int.tryParse(_addSalesBloc.quantityTextController.text) ?? 0);
   }
 
   void _updateData(int index) {
     List<sales.GstDetail> gstDetails = [];
-    if (widget.addSalesBloc.selectedGstType == 'GST %') {
+    if (_addSalesBloc.selectedGstType == 'GST %') {
       gstDetails.add(
         sales.GstDetail(
-            gstAmount: widget.addSalesBloc.cgstAmount ?? 0,
+            gstAmount: _addSalesBloc.cgstAmount ?? 0,
             gstName: 'CGST',
             percentage: double.tryParse(
-                    widget.addSalesBloc.cgstPresentageTextController.text) ??
+                    _addSalesBloc.cgstPresentageTextController.text) ??
                 0),
       );
       gstDetails.add(
         sales.GstDetail(
-            gstAmount: widget.addSalesBloc.cgstAmount ?? 0,
+            gstAmount: _addSalesBloc.cgstAmount ?? 0,
             gstName: 'SGST',
             percentage: double.tryParse(
-                    widget.addSalesBloc.cgstPresentageTextController.text) ??
+                    _addSalesBloc.cgstPresentageTextController.text) ??
                 0),
       );
     }
-    if (widget.addSalesBloc.selectedGstType == 'IGST %') {
+    if (_addSalesBloc.selectedGstType == 'IGST %') {
       gstDetails.add(
         sales.GstDetail(
-            gstAmount: widget.addSalesBloc.igstAmount ?? 0,
+            gstAmount: _addSalesBloc.igstAmount ?? 0,
             gstName: 'IGST',
             percentage: double.tryParse(
-                    widget.addSalesBloc.igstPresentageTextController.text) ??
+                    _addSalesBloc.igstPresentageTextController.text) ??
                 0),
       );
     }
 
     var updatedItem = sales.SalesItemDetail(
         categoryId: widget.editValues?.categoryId ?? '',
-        unitRate:
-            double.tryParse(widget.addSalesBloc.unitRateTextController.text),
-        quantity: int.tryParse(widget.addSalesBloc.quantityTextController.text),
+        unitRate: double.tryParse(_addSalesBloc.unitRateTextController.text),
+        quantity: int.tryParse(_addSalesBloc.quantityTextController.text),
         stockId: widget.editValues?.stockId ?? '',
         hsnSacCode: widget.editValues?.hsnSacCode ?? '',
         itemName: widget.editValues?.itemName ?? '',
         partNo: widget.editValues?.partNo ?? '',
-        value: widget.addSalesBloc.totalValue ?? 0,
+        value: _addSalesBloc.totalValue ?? 0,
         discount:
-            double.tryParse(widget.addSalesBloc.discountTextController.text) ??
-                0,
-        taxableValue: widget.addSalesBloc.taxableValue,
+            double.tryParse(_addSalesBloc.discountTextController.text) ?? 0,
+        taxableValue: _addSalesBloc.taxableValue,
         gstDetails: gstDetails,
         taxes: [],
         incentives: [],
         mainSpecValue: {},
         specificationsValue: {},
-        invoiceValue: widget.addSalesBloc.invAmount,
-        finalInvoiceValue: widget.addSalesBloc.totalInvAmount);
+        invoiceValue: _addSalesBloc.invAmount,
+        finalInvoiceValue: _addSalesBloc.totalInvAmount);
 
-    widget.addSalesBloc.accessoriesItemList?[index] = updatedItem;
-    widget.addSalesBloc.refreshsalesDataTableController(true);
+    _addSalesBloc.accessoriesItemList?[index] = updatedItem;
+    _addSalesBloc.refreshsalesDataTableController(true);
   }
 
   void _buildPaymentCalculation() {
-    int? qty =
-        int.tryParse(widget.addSalesBloc.quantityTextController.text) ?? 0;
+    int? qty = int.tryParse(_addSalesBloc.quantityTextController.text) ?? 0;
 
     double unitRate =
-        double.tryParse(widget.addSalesBloc.unitRateTextController.text) ?? 0.0;
+        double.tryParse(_addSalesBloc.unitRateTextController.text) ?? 0.0;
 
-    widget.addSalesBloc.totalValue = qty * unitRate;
+    _addSalesBloc.totalValue = qty * unitRate;
 
-    double totalValues = widget.addSalesBloc.totalValue ?? 0;
+    double totalValues = _addSalesBloc.totalValue ?? 0;
     double discount =
-        double.tryParse(widget.addSalesBloc.discountTextController.text) ?? 0;
+        double.tryParse(_addSalesBloc.discountTextController.text) ?? 0;
     if (discount >= unitRate || discount == 0) {
-      widget.addSalesBloc.discountTextController.clear();
+      _addSalesBloc.discountTextController.clear();
     }
-    widget.addSalesBloc.taxableValue = totalValues - discount;
-    double taxableValue = widget.addSalesBloc.taxableValue ?? 0;
+    _addSalesBloc.taxableValue = totalValues - discount;
+    double taxableValue = _addSalesBloc.taxableValue ?? 0;
 
-    double cgstPercent = double.tryParse(
-            widget.addSalesBloc.cgstPresentageTextController.text) ??
-        0;
-    double sgstPercent = double.tryParse(
-            widget.addSalesBloc.cgstPresentageTextController.text) ??
-        0;
-    double igstPercent = double.tryParse(
-            widget.addSalesBloc.igstPresentageTextController.text) ??
-        0;
+    double cgstPercent =
+        double.tryParse(_addSalesBloc.cgstPresentageTextController.text) ?? 0;
+    double sgstPercent =
+        double.tryParse(_addSalesBloc.cgstPresentageTextController.text) ?? 0;
+    double igstPercent =
+        double.tryParse(_addSalesBloc.igstPresentageTextController.text) ?? 0;
 
-    if (widget.addSalesBloc.selectedGstType == 'GST %') {
-      widget.addSalesBloc.cgstAmount = (taxableValue / 100) * cgstPercent;
-      widget.addSalesBloc.sgstAmount = (taxableValue / 100) * sgstPercent;
-      double gstAmt = (widget.addSalesBloc.cgstAmount ?? 0) +
-          (widget.addSalesBloc.sgstAmount ?? 0);
-      widget.addSalesBloc.invAmount = taxableValue + gstAmt;
-      widget.addSalesBloc.totalInvAmount = widget.addSalesBloc.invAmount;
+    if (_addSalesBloc.selectedGstType == 'GST %') {
+      _addSalesBloc.cgstAmount = (taxableValue / 100) * cgstPercent;
+      _addSalesBloc.sgstAmount = (taxableValue / 100) * sgstPercent;
+      double gstAmt =
+          (_addSalesBloc.cgstAmount ?? 0) + (_addSalesBloc.sgstAmount ?? 0);
+      _addSalesBloc.invAmount = taxableValue + gstAmt;
+      _addSalesBloc.totalInvAmount = _addSalesBloc.invAmount;
     }
 
-    if (widget.addSalesBloc.selectedGstType == 'IGST %') {
-      widget.addSalesBloc.igstAmount = (taxableValue / 100) * igstPercent;
-      widget.addSalesBloc.invAmount =
-          taxableValue + (widget.addSalesBloc.igstAmount ?? 0);
-      widget.addSalesBloc.totalInvAmount = widget.addSalesBloc.invAmount;
+    if (_addSalesBloc.selectedGstType == 'IGST %') {
+      _addSalesBloc.igstAmount = (taxableValue / 100) * igstPercent;
+      _addSalesBloc.invAmount = taxableValue + (_addSalesBloc.igstAmount ?? 0);
+      _addSalesBloc.totalInvAmount = _addSalesBloc.invAmount;
     }
   }
 
   void _clearInputFields() {
-    widget.addSalesBloc.hsnCodeTextController.clear();
-    widget.addSalesBloc.quantityTextController.clear();
-    widget.addSalesBloc.discountTextController.clear();
-    widget.addSalesBloc.unitRateTextController.clear();
-    widget.addSalesBloc.cgstPresentageTextController.clear();
-    widget.addSalesBloc.igstPresentageTextController.clear();
+    _addSalesBloc.hsnCodeTextController.clear();
+    _addSalesBloc.quantityTextController.clear();
+    _addSalesBloc.discountTextController.clear();
+    _addSalesBloc.unitRateTextController.clear();
+    _addSalesBloc.cgstPresentageTextController.clear();
+    _addSalesBloc.igstPresentageTextController.clear();
   }
 }

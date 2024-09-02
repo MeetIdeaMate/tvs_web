@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tlbilling/api_service/app_service_utils.dart';
+import 'package:tlbilling/api_service/service_locator.dart';
 import 'package:tlbilling/models/parent_response_model.dart';
 
 abstract class StocksReportBloc {
@@ -9,7 +10,7 @@ abstract class StocksReportBloc {
 
 class StocksReportBlocImpl extends StocksReportBloc {
   late TabController _stockReportTabController;
-  final _apiServiceBlocImpl = AppServiceUtilImpl();
+  final _apiServiceBlocImpl = getIt<AppServiceUtilImpl>();
   @override
   TabController get stockReportTabController => _stockReportTabController;
 

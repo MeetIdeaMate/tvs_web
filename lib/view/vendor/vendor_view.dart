@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:tlbilling/api_service/service_locator.dart';
 import 'package:tlbilling/components/custom_pagenation.dart';
 import 'package:tlbilling/models/get_model/get_all_vendor_by_pagination_model.dart';
 import 'package:tlbilling/utils/app_colors.dart';
@@ -21,7 +22,7 @@ class VendorView extends StatefulWidget {
 
 class _VendorViewState extends State<VendorView> {
   final _appColors = AppColors();
-  final _vendorViewBlocImpl = VendorViewBlocImpl();
+  final _vendorViewBlocImpl = getIt<VendorViewBlocImpl>();
 
   @override
   Widget build(BuildContext context) {
@@ -61,8 +62,7 @@ class _VendorViewState extends State<VendorView> {
                 barrierDismissible: false,
                 context: context,
                 builder: (context) {
-                  return CreateVendorDialog(
-                      vendorViewBlocImpl: _vendorViewBlocImpl);
+                  return const CreateVendorDialog();
                 },
               );
             },
@@ -242,8 +242,6 @@ class _VendorViewState extends State<VendorView> {
                                                 context: context,
                                                 builder: (context) {
                                                   return CreateVendorDialog(
-                                                    vendorViewBlocImpl:
-                                                        _vendorViewBlocImpl,
                                                     vendorId:
                                                         entry.value.vendorId,
                                                   );

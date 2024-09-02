@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:tlbilling/api_service/app_service_utils.dart';
+import 'package:tlbilling/api_service/service_locator.dart';
 import 'package:tlbilling/models/get_model/get_all_branch_model.dart';
 
 abstract class SideMenuNavigationBloc {
@@ -16,7 +17,7 @@ class SideMenuNavigationBlocImpl extends SideMenuNavigationBloc {
   String? _userName;
   String? _designation;
   String? _branchId;
-  final _apiServiceUtils = AppServiceUtilImpl();
+  final _apiServiceUtils = getIt<AppServiceUtilImpl>();
 
   @override
   Stream get sideMenuStream => _sideMenuStream.stream;

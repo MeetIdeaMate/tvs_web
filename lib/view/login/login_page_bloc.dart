@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/widgets.dart';
 import 'package:tlbilling/api_service/app_service_utils.dart';
+import 'package:tlbilling/api_service/service_locator.dart';
 import 'package:tlbilling/models/get_model/get_login_response.dart';
 
 abstract class LoginPageBloc {
@@ -14,7 +15,7 @@ abstract class LoginPageBloc {
 }
 
 class LoginPageBlocImpl extends LoginPageBloc {
-  final _appserviceUtilImpl = AppServiceUtilImpl();
+  final _appserviceUtilImpl = getIt<AppServiceUtilImpl>();
   bool _isPasswordVisible = false;
   final _passwordVisibleStream = StreamController<bool>();
   final _loginformkey = GlobalKey<FormState>();

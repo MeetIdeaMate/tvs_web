@@ -2,6 +2,7 @@ import 'package:blurry_modal_progress_hud/blurry_modal_progress_hud.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:tlbilling/api_service/service_locator.dart';
 import 'package:tlbilling/components/custom_action_button.dart';
 import 'package:tlbilling/components/custom_elevated_button.dart';
 import 'package:tlbilling/models/get_model/get_all_stocks_without_pagination.dart';
@@ -16,11 +17,7 @@ import 'package:tlds_flutter/components/tlds_input_form_field.dart';
 import 'package:toastification/toastification.dart';
 
 class TransferDetails extends StatefulWidget {
-  final NewTransferBlocImpl? newTransferBloc;
-  final TransferViewBlocImpl? transferViewBloc;
-
-  const TransferDetails(
-      {super.key, this.newTransferBloc, this.transferViewBloc});
+  const TransferDetails({super.key});
 
   @override
   State<TransferDetails> createState() => _TransferDetailsState();
@@ -28,13 +25,13 @@ class TransferDetails extends StatefulWidget {
 
 class _TransferDetailsState extends State<TransferDetails> {
   final _appColors = AppColors();
-  final _transferBloc = NewTransferBlocImpl();
-  final _transferViewBloc = TransferViewBlocImpl();
+  final _transferBloc = getIt<NewTransferBlocImpl>();
+  final _tranferviewBloc = getIt<TransferViewBlocImpl>();
 
   @override
   Widget build(BuildContext context) {
     return BlurryModalProgressHUD(
-      inAsyncCall: widget.newTransferBloc?.isLoading ?? false,
+      inAsyncCall: _transferBloc.isLoadingTranfer ?? false,
       progressIndicator: AppWidgetUtils.buildLoading(),
       child: Container(
           decoration: BoxDecoration(
@@ -79,17 +76,13 @@ class _TransferDetailsState extends State<TransferDetails> {
             onPressed: () {
               _loadingStatus(true);
               AddNewTransfer? addNewTransferObj;
-              if (widget.newTransferBloc?.selectedVehicleList?.isNotEmpty ==
-                  true) {
-                transferPostService(widget.newTransferBloc?.selectedVehicleList,
+              if (_transferBloc.selectedVehicleList?.isNotEmpty == true) {
+                transferPostService(_transferBloc.selectedVehicleList,
                     addNewTransferObj, false);
-              } else if (widget
-                      .newTransferBloc?.filteredAccessoriesList?.isNotEmpty ==
+              } else if (_transferBloc.filteredAccessoriesList?.isNotEmpty ==
                   true) {
-                transferPostService(
-                    widget.newTransferBloc?.filteredAccessoriesList,
-                    addNewTransferObj,
-                    true);
+                transferPostService(_transferBloc.filteredAccessoriesList,
+                    addNewTransferObj, true);
               }
             },
             buttonText: AppConstants.save)
@@ -115,7 +108,7 @@ class _TransferDetailsState extends State<TransferDetails> {
                 stream: _transferBloc.fromBranchNameListStreamController,
                 builder: (context, snapshot) {
                   for (var element in futureSnapshot.data ?? []) {
-                    if (element.branchId == widget.newTransferBloc?.branchId) {
+                    if (element.branchId == _transferBloc.branchId) {
                       _transferBloc.selectedFromBranch = element.branchName;
                       _transferBloc.selectedFromBranchId = element.branchId;
                     }
@@ -212,16 +205,14 @@ class _TransferDetailsState extends State<TransferDetails> {
   }
 
   void createNewTransfer(AddNewTransfer? addNewTransferObj) {
-    widget.newTransferBloc?.createNewTransfer(
+    _transferBloc.createNewTransfer(
       addNewTransferObj,
       (statusCode) {
         if (statusCode == 200 || statusCode == 201) {
           _loadingStatus(false);
           Navigator.pop(context);
-          widget.transferViewBloc?.tabBarStream(true);
-          widget.transferViewBloc?.tableRefreshStream(true);
-          _transferViewBloc.tabBarStream(true);
-          _transferViewBloc.tableRefreshStream(true);
+          _tranferviewBloc.tabBarStream(true);
+          _tranferviewBloc.tableRefreshStream(true);
           AppWidgetUtils.buildToast(
               context,
               ToastificationType.success,
@@ -232,7 +223,7 @@ class _TransferDetailsState extends State<TransferDetails> {
               ),
               AppConstants.transferRequestSuccessfully,
               _appColors.successLightColor);
-          _transferViewBloc.tableRefreshStream(true);
+          _tranferviewBloc.tableRefreshStream(true);
         } else {
           _loadingStatus(false);
         }

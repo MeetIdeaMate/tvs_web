@@ -1,5 +1,6 @@
 import 'package:blurry_modal_progress_hud/blurry_modal_progress_hud.dart';
 import 'package:flutter/material.dart';
+import 'package:tlbilling/api_service/service_locator.dart';
 import 'package:tlbilling/components/custom_action_button.dart';
 import 'package:tlbilling/utils/app_colors.dart';
 import 'package:tlbilling/utils/app_constants.dart';
@@ -16,9 +17,7 @@ class CreateAccountHead extends StatefulWidget {
 
   final String? accountId;
 
-  final AccountViewBlocImpl? accountHeadBloc;
-  const CreateAccountHead(
-      {super.key, this.accountCode, this.accountId, this.accountHeadBloc});
+  const CreateAccountHead({super.key, this.accountCode, this.accountId});
 
   @override
   State<CreateAccountHead> createState() => _CreateAccountHeadState();
@@ -26,7 +25,8 @@ class CreateAccountHead extends StatefulWidget {
 
 class _CreateAccountHeadState extends State<CreateAccountHead> {
   final AppColors _appColors = AppColors();
-  final _createAccountBlocImpl = CreateAccountBlocImpl();
+  final _createAccountBlocImpl = getIt<CreateAccountBlocImpl>();
+  final _accountHeadBlocImpl = getIt<AccountViewBlocImpl>();
 
   bool isLoading = false;
 
@@ -390,7 +390,7 @@ class _CreateAccountHeadState extends State<CreateAccountHead> {
 
                 Navigator.pop(context);
 
-                widget.accountHeadBloc?.pageNumberUpdateStreamController(0);
+                _accountHeadBlocImpl.pageNumberUpdateStreamController(0);
 
                 AppWidgetUtils.buildToast(
                     context,
@@ -412,7 +412,7 @@ class _CreateAccountHeadState extends State<CreateAccountHead> {
                 _isLoadingState(state: false);
 
                 Navigator.pop(context);
-                widget.accountHeadBloc?.pageNumberUpdateStreamController(0);
+                _accountHeadBlocImpl.pageNumberUpdateStreamController(0);
 
                 AppWidgetUtils.buildToast(
                     context,

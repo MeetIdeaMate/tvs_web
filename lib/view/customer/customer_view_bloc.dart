@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:tlbilling/api_service/app_service_utils.dart';
+import 'package:tlbilling/api_service/service_locator.dart';
 import 'package:tlbilling/models/get_model/get_all_customer_by_pagination_model.dart';
 import 'package:tlbilling/models/parent_response_model.dart';
 
@@ -39,7 +40,7 @@ class CustomerViewBlocImpl extends CustomerViewBloc {
   final _customerNameStreamController = StreamController.broadcast();
   final _customerMobileNumberStreamController = StreamController.broadcast();
   final _customerCityStreamController = StreamController.broadcast();
-  final _appServices = AppServiceUtilImpl();
+  final _appServices = getIt<AppServiceUtilImpl>();
   String? _branchName;
   bool? _isMainBranch;
 

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:tlbilling/api_service/app_service_utils.dart';
+import 'package:tlbilling/api_service/service_locator.dart';
 import 'package:tlbilling/models/parent_response_model.dart';
 
 abstract class ReportScreenBloc {
@@ -13,7 +14,7 @@ abstract class ReportScreenBloc {
 class ReportScreenBlocImpl extends ReportScreenBloc {
   late TabController _reportScreenTabController;
   final _dropDownChangeStream = StreamController<bool>.broadcast();
-  final _appServiceUtils = AppServiceUtilImpl();
+  final _appServiceUtils = getIt<AppServiceUtilImpl>();
   @override
   TabController get reportScreenTabController => _reportScreenTabController;
 

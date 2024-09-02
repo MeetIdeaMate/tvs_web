@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:tlbilling/api_service/service_locator.dart';
 import 'package:tlbilling/models/get_model/get_all_category_model.dart';
 import 'package:tlbilling/models/get_model/get_all_stocks_model.dart';
 import 'package:tlbilling/utils/app_colors.dart';
@@ -12,10 +13,8 @@ import 'package:tlbilling/view/sales/add_sales_bloc.dart';
 import 'package:tlds_flutter/components/tlds_input_form_field.dart';
 
 class VehicleAccessoriesList extends StatefulWidget {
-  final AddSalesBlocImpl addSalesBloc;
   final Function(List<Widget>)? selectedItems;
-  const VehicleAccessoriesList(
-      {super.key, required this.addSalesBloc, this.selectedItems});
+  const VehicleAccessoriesList({super.key, this.selectedItems});
 
   @override
   State<VehicleAccessoriesList> createState() => _VehicleAccessoriesListState();
@@ -23,11 +22,12 @@ class VehicleAccessoriesList extends StatefulWidget {
 
 class _VehicleAccessoriesListState extends State<VehicleAccessoriesList> {
   final _appColors = AppColors();
+  final _addSalesblocImpl = getIt<AddSalesBlocImpl>();
 
   @override
   void initState() {
     super.initState();
-    widget.addSalesBloc.selectedVehicleAndAccessories = 'M-Vehicle';
+    _addSalesblocImpl.selectedVehicleAndAccessories = 'M-Vehicle';
   }
 
   @override
@@ -46,27 +46,27 @@ class _VehicleAccessoriesListState extends State<VehicleAccessoriesList> {
 
   Widget _buildVehicleAndAccessoriesList() {
     return StreamBuilder(
-      stream: widget.addSalesBloc.changeVehicleAndAccessoriesListStream,
+      stream: _addSalesblocImpl.changeVehicleAndAccessoriesListStream,
       builder: (context, snapshot) {
-        return widget.addSalesBloc.selectedVehicleAndAccessories == 'M-Vehicle'
+        return _addSalesblocImpl.selectedVehicleAndAccessories == 'M-Vehicle'
             ? _buildAvailableVehicleList(
-                widget.addSalesBloc.selectedVehicleAndAccessories)
-            : widget.addSalesBloc.selectedVehicleAndAccessories == 'E-Vehicle'
+                _addSalesblocImpl.selectedVehicleAndAccessories)
+            : _addSalesblocImpl.selectedVehicleAndAccessories == 'E-Vehicle'
                 ? _buildAvailableVehicleList(
-                    widget.addSalesBloc.selectedVehicleAndAccessories)
-                : widget.addSalesBloc.selectedVehicleAndAccessories ==
+                    _addSalesblocImpl.selectedVehicleAndAccessories)
+                : _addSalesblocImpl.selectedVehicleAndAccessories ==
                         'Accessories'
                     ? _buildAvailableAccessoriesList(
-                        widget.addSalesBloc.selectedVehicleAndAccessories)
+                        _addSalesblocImpl.selectedVehicleAndAccessories)
                     : _buildAvailableVehicleList(
-                        widget.addSalesBloc.selectedVehicleAndAccessories);
+                        _addSalesblocImpl.selectedVehicleAndAccessories);
       },
     );
   }
 
   Widget _buildAvailableVehicleList(String? category) {
     return FutureBuilder(
-      future: widget.addSalesBloc.getStockDetails(category: category),
+      future: _addSalesblocImpl.getStockDetails(category: category),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: Text(AppConstants.loading));
@@ -75,17 +75,17 @@ class _VehicleAccessoriesListState extends State<VehicleAccessoriesList> {
         } else if (!snapshot.hasData || snapshot.data == null) {
           return Center(child: SvgPicture.asset(AppConstants.imgNoData));
         }
-        widget.addSalesBloc.vehicleData = snapshot.data;
+        _addSalesblocImpl.vehicleData = snapshot.data;
 
-        widget.addSalesBloc.vehicleAndEngineNumberStreamController(true);
+        _addSalesblocImpl.vehicleAndEngineNumberStreamController(true);
 
         return StreamBuilder(
-          stream: widget.addSalesBloc.vehicleAndEngineNumberStream,
+          stream: _addSalesblocImpl.vehicleAndEngineNumberStream,
           builder: (context, snapshot) {
             String searchTerm =
-                widget.addSalesBloc.vehicleNoAndEngineNoSearchController.text;
-            List<GetAllStockDetails>? filteredVehicleData = widget
-                .addSalesBloc.vehicleData
+                _addSalesblocImpl.vehicleNoAndEngineNoSearchController.text;
+            List<GetAllStockDetails>? filteredVehicleData = _addSalesblocImpl
+                .vehicleData
                 ?.where((vehicle) =>
                     (vehicle.mainSpecValue?.engineNo
                             ?.toLowerCase()
@@ -166,37 +166,33 @@ class _VehicleAccessoriesListState extends State<VehicleAccessoriesList> {
                                         var selectedVehicle =
                                             filteredVehicleData?[index];
                                         filteredVehicleData?.removeAt(index);
-                                        widget.addSalesBloc.vehicleData
+                                        _addSalesblocImpl.vehicleData
                                             ?.remove(selectedVehicle!);
-                                        if (widget.addSalesBloc
+                                        if (_addSalesblocImpl
                                                     .selectedVehiclesList !=
                                                 null &&
-                                            widget
-                                                .addSalesBloc
+                                            _addSalesblocImpl
                                                 .selectedVehiclesList!
                                                 .isNotEmpty) {
                                           // Replace the selected vehicle
-                                          widget.addSalesBloc.vehicleData?.add(
-                                              widget.addSalesBloc
+                                          _addSalesblocImpl.vehicleData?.add(
+                                              _addSalesblocImpl
                                                   .selectedVehiclesList!.first);
-                                          widget
-                                              .addSalesBloc.selectedVehiclesList
+                                          _addSalesblocImpl.selectedVehiclesList
                                               ?.clear();
                                         }
-                                        widget.addSalesBloc.selectedVehiclesList
+                                        _addSalesblocImpl.selectedVehiclesList
                                             ?.add(selectedVehicle!);
-                                        widget.addSalesBloc
+                                        _addSalesblocImpl
                                             .vehicleAndEngineNumberStreamController(
                                                 true);
-                                        widget.addSalesBloc
+                                        _addSalesblocImpl
                                             .selectedItemStream(true);
-                                        widget
-                                            .addSalesBloc
-                                            .hsnCodeTextController
+                                        _addSalesblocImpl.hsnCodeTextController
                                             .text = vehicle?.hsnSacCode ?? '';
-                                        widget.addSalesBloc
+                                        _addSalesblocImpl
                                             .gstDetailsStreamController(true);
-                                        widget.addSalesBloc
+                                        _addSalesblocImpl
                                             .batteryDetailsRefreshStreamController(
                                                 true);
                                         if (filteredVehicleData?.isEmpty ??
@@ -230,8 +226,8 @@ class _VehicleAccessoriesListState extends State<VehicleAccessoriesList> {
 
   Widget _buildAvailableAccessoriesList(String? selectedVehicleAndAccessories) {
     return FutureBuilder(
-      future: widget.addSalesBloc
-          .getStockDetails(category: selectedVehicleAndAccessories),
+      future: _addSalesblocImpl.getStockDetails(
+          category: selectedVehicleAndAccessories),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: Text(AppConstants.loading));
@@ -240,12 +236,12 @@ class _VehicleAccessoriesListState extends State<VehicleAccessoriesList> {
         } else if (!snapshot.hasData) {
           return Center(child: SvgPicture.asset(AppConstants.imgNoData));
         }
-        widget.addSalesBloc.accessoriesData = snapshot.data;
-        widget.addSalesBloc.vehicleAndEngineNumberStreamController(true);
+        _addSalesblocImpl.accessoriesData = snapshot.data;
+        _addSalesblocImpl.vehicleAndEngineNumberStreamController(true);
         return StreamBuilder(
-            stream: widget.addSalesBloc.availableAccListStreamController,
+            stream: _addSalesblocImpl.availableAccListStreamController,
             builder: (context, streamSnapshot) {
-              if (widget.addSalesBloc.accessoriesData?.isEmpty ?? false) {
+              if (_addSalesblocImpl.accessoriesData?.isEmpty ?? false) {
                 return Expanded(
                     child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -257,20 +253,20 @@ class _VehicleAccessoriesListState extends State<VehicleAccessoriesList> {
                 ));
               }
               String searchTerm =
-                  widget.addSalesBloc.vehicleNoAndEngineNoSearchController.text;
-              List<GetAllStockDetails>? filteredAccessoriesData = widget
-                  .addSalesBloc.accessoriesData
-                  ?.where((accessory) =>
-                      (accessory.itemName
-                              ?.toLowerCase()
-                              .contains(searchTerm.toLowerCase()) ??
-                          false) ||
-                      (accessory.partNo
-                              ?.toLowerCase()
-                              .contains(searchTerm.toLowerCase()) ??
-                          false))
-                  .toList();
-              widget.addSalesBloc.vehicleAndEngineNumberStreamController(true);
+                  _addSalesblocImpl.vehicleNoAndEngineNoSearchController.text;
+              List<GetAllStockDetails>? filteredAccessoriesData =
+                  _addSalesblocImpl.accessoriesData
+                      ?.where((accessory) =>
+                          (accessory.itemName
+                                  ?.toLowerCase()
+                                  .contains(searchTerm.toLowerCase()) ??
+                              false) ||
+                          (accessory.partNo
+                                  ?.toLowerCase()
+                                  .contains(searchTerm.toLowerCase()) ??
+                              false))
+                      .toList();
+              _addSalesblocImpl.vehicleAndEngineNumberStreamController(true);
               if (filteredAccessoriesData?.isEmpty ?? false) {
                 return Expanded(
                     child: Column(
@@ -287,7 +283,7 @@ class _VehicleAccessoriesListState extends State<VehicleAccessoriesList> {
                 itemCount: filteredAccessoriesData?.length ?? 0,
                 itemBuilder: (context, index) {
                   var accessoriesData = filteredAccessoriesData?[index];
-                  widget.addSalesBloc
+                  _addSalesblocImpl
                           .totalAccessoriesQty[accessoriesData?.stockId ?? ''] =
                       accessoriesData?.quantity ?? 0;
                   return Card(
@@ -321,12 +317,12 @@ class _VehicleAccessoriesListState extends State<VehicleAccessoriesList> {
                                 ],
                               ),
                               _buildCustomTextWidget(
-                                  'Qty - ${widget.addSalesBloc.accessoriesQty[accessoriesData?.stockId] ?? accessoriesData?.quantity}',
+                                  'Qty - ${_addSalesblocImpl.accessoriesQty[accessoriesData?.stockId] ?? accessoriesData?.quantity}',
                                   fontSize: 14,
                                   fontWeight: FontWeight.w500),
                               IconButton(
                                   onPressed: () {
-                                    if ((widget.addSalesBloc.accessoriesQty[
+                                    if ((_addSalesblocImpl.accessoriesQty[
                                                 accessoriesData?.stockId] ??
                                             accessoriesData?.quantity) ==
                                         accessoriesData?.quantity) {
@@ -340,24 +336,22 @@ class _VehicleAccessoriesListState extends State<VehicleAccessoriesList> {
                                           return AccessoriesSalesEntryDialog(
                                             accessoriesDetails:
                                                 selectedAccessory,
-                                            addSalesBloc: widget.addSalesBloc,
                                             selectedItemTndex: index,
                                           );
                                         },
                                       );
                                     }
 
-                                    widget.addSalesBloc
+                                    _addSalesblocImpl
                                         .availableAccListStream(true);
-                                    widget.addSalesBloc
+                                    _addSalesblocImpl
                                         .selectedAccessoriesListStreamController(
                                             true);
-                                    widget.addSalesBloc
-                                        .selectedItemStream(true);
-                                    widget.addSalesBloc
+                                    _addSalesblocImpl.selectedItemStream(true);
+                                    _addSalesblocImpl
                                         .vehicleAndEngineNumberStreamController(
                                             true);
-                                    widget.addSalesBloc
+                                    _addSalesblocImpl
                                         .batteryDetailsRefreshStreamController(
                                             true);
                                   },
@@ -385,7 +379,7 @@ class _VehicleAccessoriesListState extends State<VehicleAccessoriesList> {
       children: [
         Expanded(
           child: FutureBuilder<GetAllCategoryListModel?>(
-            future: widget.addSalesBloc.getAllCategoryList(),
+            future: _addSalesblocImpl.getAllCategoryList(),
             builder: (context, futureSnapshot) {
               if (futureSnapshot.connectionState == ConnectionState.waiting) {
                 return const Center(child: Text(AppConstants.loading));
@@ -395,11 +389,10 @@ class _VehicleAccessoriesListState extends State<VehicleAccessoriesList> {
               } else {
                 var categoryList = futureSnapshot.data?.category;
                 return StreamBuilder(
-                  stream:
-                      widget.addSalesBloc.selectedVehicleAndAccessoriesStream,
+                  stream: _addSalesblocImpl.selectedVehicleAndAccessoriesStream,
                   builder: (context, snapshot) {
                     var selectedCategory =
-                        widget.addSalesBloc.selectedVehicleAndAccessories;
+                        _addSalesblocImpl.selectedVehicleAndAccessories;
                     return SegmentedButton(
                       selected: {selectedCategory ?? ''},
                       multiSelectionEnabled: false,
@@ -412,26 +405,26 @@ class _VehicleAccessoriesListState extends State<VehicleAccessoriesList> {
                       onSelectionChanged: (Set<String> newValue) {
                         var selectedValue = newValue.first;
 
-                        widget.addSalesBloc.screenChangeStreamController(true);
+                        _addSalesblocImpl.screenChangeStreamController(true);
 
-                        widget.addSalesBloc
+                        _addSalesblocImpl
                             .changeVehicleAndAccessoriesListStreamController(
                                 true);
 
-                        widget.addSalesBloc
+                        _addSalesblocImpl
                             .vehicleAndEngineNumberStreamController(true);
-                        widget.addSalesBloc.availableAccListStream(true);
-                        widget.addSalesBloc
+                        _addSalesblocImpl.availableAccListStream(true);
+                        _addSalesblocImpl
                             .vehicleAndEngineNumberStreamController(true);
-                        widget.addSalesBloc
+                        _addSalesblocImpl
                             .selectedVehicleAndAccessoriesListStreamController(
                                 true);
-                        widget.addSalesBloc
+                        _addSalesblocImpl
                             .batteryDetailsRefreshStreamController(true);
 
-                        widget.addSalesBloc.selectedVehicleAndAccessories =
+                        _addSalesblocImpl.selectedVehicleAndAccessories =
                             selectedValue;
-                        widget.addSalesBloc
+                        _addSalesblocImpl
                             .selectedVehicleAndAccessoriesListStreamController(
                                 true);
                         //widget.addSalesBloc.screenChangeStreamController(true);
@@ -439,45 +432,40 @@ class _VehicleAccessoriesListState extends State<VehicleAccessoriesList> {
                         clear();
 
                         // if (widget.addSalesBloc.selectedCustomerId != null) {
-                        //   widget.addSalesBloc.selectedCustomer = null;
-                        //   widget.addSalesBloc.selectedCustomerId = null;
-                        //   widget.addSalesBloc
+                        //  _addSalesblocImpl.selectedCustomer = null;
+                        //  _addSalesblocImpl.selectedCustomerId = null;
+                        //  _addSalesblocImpl
                         //       .screenChangeStreamController(true);
                         // }
 
-                        widget.addSalesBloc.selectedVehiclesList?.clear();
-                        widget.addSalesBloc.slectedAccessoriesList?.clear();
+                        _addSalesblocImpl.selectedVehiclesList?.clear();
+                        _addSalesblocImpl.slectedAccessoriesList?.clear();
 
-                        widget.addSalesBloc.selectedMandatoryAddOns.clear();
-                        widget.addSalesBloc.cgstPresentageTextController
-                            .clear();
-                        //  widget.addSalesBloc.sgstPresentageTextController.clear();
-                        widget.addSalesBloc.igstPresentageTextController
-                            .clear();
-                        widget.addSalesBloc.discountTextController.clear();
-                        widget.addSalesBloc.stateIncentiveTextController
-                            .clear();
-                        widget.addSalesBloc.empsIncentiveTextController.clear();
-                        widget.addSalesBloc.hsnCodeTextController.clear();
+                        _addSalesblocImpl.selectedMandatoryAddOns.clear();
+                        _addSalesblocImpl.cgstPresentageTextController.clear();
+                        // _addSalesblocImpl.sgstPresentageTextController.clear();
+                        _addSalesblocImpl.igstPresentageTextController.clear();
+                        _addSalesblocImpl.discountTextController.clear();
+                        _addSalesblocImpl.stateIncentiveTextController.clear();
+                        _addSalesblocImpl.empsIncentiveTextController.clear();
+                        _addSalesblocImpl.hsnCodeTextController.clear();
 
-                        widget.addSalesBloc
+                        _addSalesblocImpl
                             .selectedVehicleAndAccessoriesListStreamController(
                                 true);
 
-                        widget.addSalesBloc
+                        _addSalesblocImpl
                             .batteryDetailsRefreshStreamController(true);
-                        widget.addSalesBloc
+                        _addSalesblocImpl
                             .selectedVehicleAndAccessoriesListStreamController(
                                 true);
-                        widget.addSalesBloc
-                            .paymentDetailsStreamController(true);
-                        widget.addSalesBloc
+                        _addSalesblocImpl.paymentDetailsStreamController(true);
+                        _addSalesblocImpl
                             .selectedVehicleAndAccessoriesListStreamController(
                                 true);
                       },
                       style: ButtonStyle(
-                        backgroundColor:
-                            widget.addSalesBloc.changeSegmentedColor(
+                        backgroundColor: _addSalesblocImpl.changeSegmentedColor(
                           _appColors.segmentedButtonColor,
                         ),
                       ),
@@ -496,38 +484,37 @@ class _VehicleAccessoriesListState extends State<VehicleAccessoriesList> {
     return Container(
       color: _appColors.whiteColor,
       child: StreamBuilder(
-        stream: widget.addSalesBloc.vehicleAndEngineNumberStream,
+        stream: _addSalesblocImpl.vehicleAndEngineNumberStream,
         builder: (context, snapshot) {
-          final bool isTextEmpty = widget
-              .addSalesBloc.vehicleNoAndEngineNoSearchController.text.isEmpty;
+          final bool isTextEmpty = _addSalesblocImpl
+              .vehicleNoAndEngineNoSearchController.text.isEmpty;
           final IconData iconData = isTextEmpty ? Icons.search : Icons.close;
           final Color iconColor =
               isTextEmpty ? _appColors.primaryColor : Colors.red;
-          widget.addSalesBloc
-              .selectedVehicleAndAccessoriesStreamController(true);
+          _addSalesblocImpl.selectedVehicleAndAccessoriesStreamController(true);
           bool showSearchBar =
-              widget.addSalesBloc.selectedVehicleAndAccessories == 'Accessories'
-                  ? (widget.addSalesBloc.accessoriesData?.isNotEmpty ?? false)
-                  : (widget.addSalesBloc.vehicleData?.isNotEmpty ?? false);
+              _addSalesblocImpl.selectedVehicleAndAccessories == 'Accessories'
+                  ? (_addSalesblocImpl.accessoriesData?.isNotEmpty ?? false)
+                  : (_addSalesblocImpl.vehicleData?.isNotEmpty ?? false);
           return Visibility(
             visible: showSearchBar,
             child: TldsInputFormField(
               height: 40,
               controller:
-                  widget.addSalesBloc.vehicleNoAndEngineNoSearchController,
-              hintText: widget.addSalesBloc.selectedVehicleAndAccessories ==
+                  _addSalesblocImpl.vehicleNoAndEngineNoSearchController,
+              hintText: _addSalesblocImpl.selectedVehicleAndAccessories ==
                       'Accessories'
                   ? 'Accessories Name/Part No'
                   : AppConstants.vehicleNameAndEngineNumber,
               suffixIcon: IconButton(
                 onPressed: () {
                   if (!isTextEmpty) {
-                    widget.addSalesBloc.vehicleNoAndEngineNoSearchController
+                    _addSalesblocImpl.vehicleNoAndEngineNoSearchController
                         .clear();
 
-                    widget.addSalesBloc
+                    _addSalesblocImpl
                         .vehicleAndEngineNumberStreamController(true);
-                    widget.addSalesBloc.availableAccListStream(true);
+                    _addSalesblocImpl.availableAccListStream(true);
                   }
                 },
                 icon: Icon(
@@ -536,9 +523,8 @@ class _VehicleAccessoriesListState extends State<VehicleAccessoriesList> {
                 ),
               ),
               onChanged: (value) {
-                widget.addSalesBloc
-                    .vehicleAndEngineNumberStreamController(true);
-                widget.addSalesBloc.availableAccListStream(true);
+                _addSalesblocImpl.vehicleAndEngineNumberStreamController(true);
+                _addSalesblocImpl.availableAccListStream(true);
               },
             ),
           );
@@ -563,51 +549,51 @@ class _VehicleAccessoriesListState extends State<VehicleAccessoriesList> {
 
   void clear() {
     // Reset properties
-    widget.addSalesBloc.totalValue = 0.0;
-    widget.addSalesBloc.taxableValue = 0.0;
-    widget.addSalesBloc.totalInvAmount = 0.0;
-    widget.addSalesBloc.invAmount = 0.0;
-    widget.addSalesBloc.igstAmount = 0.0;
-    widget.addSalesBloc.cgstAmount = 0.0;
-    widget.addSalesBloc.sgstAmount = 0.0;
-    widget.addSalesBloc.totalUnitRate = 0.0;
-    // widget.addSalesBloc.advanceAmt = 0.0;
-    widget.addSalesBloc.toBePayedAmt = 0.0;
-    widget.addSalesBloc.totalQty = 0.0;
+    _addSalesblocImpl.totalValue = 0.0;
+    _addSalesblocImpl.taxableValue = 0.0;
+    _addSalesblocImpl.totalInvAmount = 0.0;
+    _addSalesblocImpl.invAmount = 0.0;
+    _addSalesblocImpl.igstAmount = 0.0;
+    _addSalesblocImpl.cgstAmount = 0.0;
+    _addSalesblocImpl.sgstAmount = 0.0;
+    _addSalesblocImpl.totalUnitRate = 0.0;
+    //_addSalesblocImpl.advanceAmt = 0.0;
+    _addSalesblocImpl.toBePayedAmt = 0.0;
+    _addSalesblocImpl.totalQty = 0.0;
 
-    // widget.addSalesBloc.selectedCustomer = null;
-    // widget.addSalesBloc.selectedCustomerId = null;
-    // widget.addSalesBloc.selectedCustomerDetailsStreamController(true);
+    //_addSalesblocImpl.selectedCustomer = null;
+    //_addSalesblocImpl.selectedCustomerId = null;
+    //_addSalesblocImpl.selectedCustomerDetailsStreamController(true);
 
-    widget.addSalesBloc.isSplitPayment = false;
+    _addSalesblocImpl.isSplitPayment = false;
 
-    widget.addSalesBloc.selectedMandatoryAddOns.clear();
+    _addSalesblocImpl.selectedMandatoryAddOns.clear();
 
-    widget.addSalesBloc.splitPaymentAmt.clear();
-    widget.addSalesBloc.splitPaymentId.clear();
-    widget.addSalesBloc.paymentName.clear();
-    widget.addSalesBloc.accessoriesQty.clear();
+    _addSalesblocImpl.splitPaymentAmt.clear();
+    _addSalesblocImpl.splitPaymentId.clear();
+    _addSalesblocImpl.paymentName.clear();
+    _addSalesblocImpl.accessoriesQty.clear();
 
-    widget.addSalesBloc.discountTextController.clear();
-    widget.addSalesBloc.transporterVehicleNumberController.clear();
-    widget.addSalesBloc.vehicleNoAndEngineNoSearchController.clear();
-    widget.addSalesBloc.unitRateControllers.clear();
-    widget.addSalesBloc.hsnCodeTextController.clear();
-    widget.addSalesBloc.betteryNameTextController.clear();
-    widget.addSalesBloc.batteryCapacityTextController.clear();
-    widget.addSalesBloc.empsIncentiveTextController.clear();
-    widget.addSalesBloc.stateIncentiveTextController.clear();
-    widget.addSalesBloc.paidAmountController.clear();
-    widget.addSalesBloc.paymentTypeIdTextController.clear();
-    widget.addSalesBloc.quantityTextController.clear();
-    widget.addSalesBloc.unitRateTextController.clear();
+    _addSalesblocImpl.discountTextController.clear();
+    _addSalesblocImpl.transporterVehicleNumberController.clear();
+    _addSalesblocImpl.vehicleNoAndEngineNoSearchController.clear();
+    _addSalesblocImpl.unitRateControllers.clear();
+    _addSalesblocImpl.hsnCodeTextController.clear();
+    _addSalesblocImpl.betteryNameTextController.clear();
+    _addSalesblocImpl.batteryCapacityTextController.clear();
+    _addSalesblocImpl.empsIncentiveTextController.clear();
+    _addSalesblocImpl.stateIncentiveTextController.clear();
+    _addSalesblocImpl.paidAmountController.clear();
+    _addSalesblocImpl.paymentTypeIdTextController.clear();
+    _addSalesblocImpl.quantityTextController.clear();
+    _addSalesblocImpl.unitRateTextController.clear();
 
-    widget.addSalesBloc.vehicleAndEngineNumberStreamController(true);
+    _addSalesblocImpl.vehicleAndEngineNumberStreamController(true);
 
-    widget.addSalesBloc.gstDetailsStreamController(true);
-    widget.addSalesBloc.batteryDetailsRefreshStreamController(true);
-    widget.addSalesBloc.selectedVehicleAndAccessoriesListStreamController(true);
-    widget.addSalesBloc.paymentDetailsStreamController(true);
-    // widget.addSalesBloc.screenChangeStreamController(true);
+    _addSalesblocImpl.gstDetailsStreamController(true);
+    _addSalesblocImpl.batteryDetailsRefreshStreamController(true);
+    _addSalesblocImpl.selectedVehicleAndAccessoriesListStreamController(true);
+    _addSalesblocImpl.paymentDetailsStreamController(true);
+    //_addSalesblocImpl.screenChangeStreamController(true);
   }
 }

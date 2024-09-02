@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:tlbilling/api_service/app_service_utils.dart';
+import 'package:tlbilling/api_service/service_locator.dart';
 import 'package:tlbilling/models/get_model/get_all_voucher_with_pagenation.dart';
 import 'package:tlbilling/models/parent_response_model.dart';
 import 'package:tlbilling/utils/app_constants.dart';
@@ -25,7 +26,7 @@ class VoucherListBlocImpl extends VoucherList {
   final _receiptIdStream = StreamController.broadcast();
   final _receiptIdTextController = TextEditingController();
   List<String> employeeList = ['Ajith', 'Karthik', 'Senthil'];
-  final __appServiceUtilsImpl = AppServiceUtilImpl();
+  final __appServiceUtilsImpl = getIt<AppServiceUtilImpl>();
 
   List<Map<String, String>> rowData = [
     {

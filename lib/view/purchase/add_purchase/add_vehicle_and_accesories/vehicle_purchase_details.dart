@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:tlbilling/api_service/service_locator.dart';
 
 import 'package:tlbilling/models/purchase_bill_data.dart';
 import 'package:tlbilling/utils/app_colors.dart';
@@ -23,13 +24,14 @@ class EngineAndFrameNumberEntry extends StatefulWidget {
 
 class _EngineAndFrameNumberEntryState extends State<EngineAndFrameNumberEntry> {
   final _appColors = AppColors();
+  final _addPurchaseBlocImpl = getIt<AddVehicleAndAccessoriesBlocImpl>();
   Set<String> enteredEngineNumbers = {};
   Set<String> enteredFrameNumbers = {};
 
   @override
   void initState() {
     super.initState();
-    widget.addVehicleAndAccessoriesBloc.updateEngineDetailsStream.listen((_) {
+    _addPurchaseBlocImpl.updateEngineDetailsStream.listen((_) {
       _scrollToBottom();
     });
   }
@@ -38,10 +40,9 @@ class _EngineAndFrameNumberEntryState extends State<EngineAndFrameNumberEntry> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (widget
           .addVehicleAndAccessoriesBloc.engineListScrollController.hasClients) {
-        widget.addVehicleAndAccessoriesBloc.engineListScrollController
-            .animateTo(
-          widget.addVehicleAndAccessoriesBloc.engineListScrollController
-              .position.maxScrollExtent,
+        _addPurchaseBlocImpl.engineListScrollController.animateTo(
+          _addPurchaseBlocImpl
+              .engineListScrollController.position.maxScrollExtent,
           duration: const Duration(milliseconds: 300),
           curve: Curves.easeOut,
         );
@@ -93,7 +94,7 @@ class _EngineAndFrameNumberEntryState extends State<EngineAndFrameNumberEntry> {
 
   Widget _buildQtyData() {
     return StreamBuilder(
-        stream: widget.addVehicleAndAccessoriesBloc.refreshEngineListStream,
+        stream: _addPurchaseBlocImpl.refreshEngineListStream,
         builder: (context, snapshot) {
           return Chip(
             visualDensity: VisualDensity.compact,
@@ -103,7 +104,7 @@ class _EngineAndFrameNumberEntryState extends State<EngineAndFrameNumberEntry> {
             side: BorderSide.none,
             backgroundColor: _appColors.hightlightColor,
             label: Text(
-              'QTY : ${widget.addVehicleAndAccessoriesBloc.engineDetailsList.length}',
+              'QTY : ${_addPurchaseBlocImpl.engineDetailsList.length}',
               style: TextStyle(color: _appColors.primaryColor, fontSize: 14),
             ),
             padding: const EdgeInsets.all(4),
@@ -133,40 +134,37 @@ class _EngineAndFrameNumberEntryState extends State<EngineAndFrameNumberEntry> {
         Expanded(
             child: TldsInputFormField(
           inputFormatters: TlInputFormatters.onlyAllowAlphabetAndNumber,
-          focusNode: widget.addVehicleAndAccessoriesBloc.engineNoFocusNode,
+          focusNode: _addPurchaseBlocImpl.engineNoFocusNode,
           labelText: AppConstants.engineNumber,
           hintText: AppConstants.engineNumber,
-          controller:
-              widget.addVehicleAndAccessoriesBloc.engineNumberController,
+          controller: _addPurchaseBlocImpl.engineNumberController,
           onSubmit: (p0) {
-            FocusScope.of(context).requestFocus(
-                widget.addVehicleAndAccessoriesBloc.frameNumberFocusNode);
+            FocusScope.of(context)
+                .requestFocus(_addPurchaseBlocImpl.frameNumberFocusNode);
           },
         )),
         _buildDefaultWidth(),
         Expanded(
             child: TldsInputFormField(
                 inputFormatters: TlInputFormatters.onlyAllowAlphabetAndNumber,
-                focusNode:
-                    widget.addVehicleAndAccessoriesBloc.frameNumberFocusNode,
+                focusNode: _addPurchaseBlocImpl.frameNumberFocusNode,
                 onSubmit: (p0) {
-                  if (widget.addVehicleAndAccessoriesBloc.engineNumberController
-                      .text.isNotEmpty) {
+                  if (_addPurchaseBlocImpl
+                      .engineNumberController.text.isNotEmpty) {
                     _engineNumberAndFrameNumberOnSubmit();
                     _purchaseTableAmountCalculation();
                   }
                 },
                 labelText: AppConstants.frameNumber,
                 hintText: AppConstants.frameNumber,
-                controller:
-                    widget.addVehicleAndAccessoriesBloc.frameNumberController)),
+                controller: _addPurchaseBlocImpl.frameNumberController)),
       ],
     );
   }
 
   Widget _buildEngineDetailsList() {
     return StreamBuilder(
-        stream: widget.addVehicleAndAccessoriesBloc.updateEngineDetailsStream,
+        stream: _addPurchaseBlocImpl.updateEngineDetailsStream,
         builder: (context, snapshot) {
           return SizedBox(
             width: MediaQuery.sizeOf(context).width,
@@ -174,8 +172,7 @@ class _EngineAndFrameNumberEntryState extends State<EngineAndFrameNumberEntry> {
             child: ListView.builder(
               controller: widget
                   .addVehicleAndAccessoriesBloc.engineListScrollController,
-              itemCount:
-                  widget.addVehicleAndAccessoriesBloc.engineDetailsList.length,
+              itemCount: _addPurchaseBlocImpl.engineDetailsList.length,
               itemBuilder: (context, index) {
                 final engineDetails = widget
                     .addVehicleAndAccessoriesBloc.engineDetailsList[index];
@@ -204,13 +201,13 @@ class _EngineAndFrameNumberEntryState extends State<EngineAndFrameNumberEntry> {
                                 enteredFrameNumbers
                                     .remove(removedDetails.frameNo);
 
-                                widget.addVehicleAndAccessoriesBloc
+                                _addPurchaseBlocImpl
                                     .engineDetailsStreamController(true);
-                                widget.addVehicleAndAccessoriesBloc
+                                _addPurchaseBlocImpl
                                     .refreshEngineDetailsListStramController(
                                         true);
                                 _purchaseTableAmountCalculation();
-                                widget.addVehicleAndAccessoriesBloc
+                                _addPurchaseBlocImpl
                                     .paymentDetailsStreamController(true);
                               },
                               icon: Icon(
@@ -246,10 +243,8 @@ class _EngineAndFrameNumberEntryState extends State<EngineAndFrameNumberEntry> {
   }
 
   void _engineNumberAndFrameNumberOnSubmit() {
-    final engineNo =
-        widget.addVehicleAndAccessoriesBloc.engineNumberController.text;
-    final frameNo =
-        widget.addVehicleAndAccessoriesBloc.frameNumberController.text;
+    final engineNo = _addPurchaseBlocImpl.engineNumberController.text;
+    final frameNo = _addPurchaseBlocImpl.frameNumberController.text;
 
     bool isDuplicate = false;
 
@@ -261,7 +256,7 @@ class _EngineAndFrameNumberEntryState extends State<EngineAndFrameNumberEntry> {
       isDuplicate = true;
     }
 
-    widget.addVehicleAndAccessoriesBloc.purchaseValidate().then((value) {
+    _addPurchaseBlocImpl.purchaseValidate().then((value) {
       if (isDuplicate || value) {
         showDialog(
           context: context,
@@ -285,23 +280,21 @@ class _EngineAndFrameNumberEntryState extends State<EngineAndFrameNumberEntry> {
           },
         );
       } else {
-        widget.addVehicleAndAccessoriesBloc.engineDetailsList.add(
+        _addPurchaseBlocImpl.engineDetailsList.add(
           EngineDetails(engineNo: engineNo, frameNo: frameNo),
         );
-        widget.addVehicleAndAccessoriesBloc.engineDetailsStreamController(true);
-        widget.addVehicleAndAccessoriesBloc
-            .refreshEngineDetailsListStramController(true);
-        widget.addVehicleAndAccessoriesBloc.frameNumberController.clear();
-        widget.addVehicleAndAccessoriesBloc.engineNumberController.clear();
-        FocusScope.of(context).requestFocus(
-            widget.addVehicleAndAccessoriesBloc.engineNoFocusNode);
+        _addPurchaseBlocImpl.engineDetailsStreamController(true);
+        _addPurchaseBlocImpl.refreshEngineDetailsListStramController(true);
+        _addPurchaseBlocImpl.frameNumberController.clear();
+        _addPurchaseBlocImpl.engineNumberController.clear();
+        FocusScope.of(context)
+            .requestFocus(_addPurchaseBlocImpl.engineNoFocusNode);
 
         enteredEngineNumbers.add(engineNo);
         enteredFrameNumbers.add(frameNo);
 
         _purchaseTableAmountCalculation();
-        widget.addVehicleAndAccessoriesBloc
-            .selectedPurchaseTypeStreamController(true);
+        _addPurchaseBlocImpl.selectedPurchaseTypeStreamController(true);
       }
     });
   }
@@ -311,64 +304,58 @@ class _EngineAndFrameNumberEntryState extends State<EngineAndFrameNumberEntry> {
             .addVehicleAndAccessoriesBloc.engineDetailsList.length
             .toString()) ??
         0.0;
-    var unitRate = double.tryParse(
-            widget.addVehicleAndAccessoriesBloc.unitRateController.text) ??
-        0.0;
+    var unitRate =
+        double.tryParse(_addPurchaseBlocImpl.unitRateController.text) ?? 0.0;
     var totalValue = qty * unitRate;
-    if (widget.addVehicleAndAccessoriesBloc.selectedPurchaseType ==
-        'Accessories') {
+    if (_addPurchaseBlocImpl.selectedPurchaseType == 'Accessories') {
       totalValue = (int.tryParse(widget
                   .addVehicleAndAccessoriesBloc.quantityController.text) ??
               0) *
           unitRate;
     }
-    widget.addVehicleAndAccessoriesBloc.totalValue = totalValue;
+    _addPurchaseBlocImpl.totalValue = totalValue;
 
-    double? discountAmount = double.tryParse(
-            widget.addVehicleAndAccessoriesBloc.discountTextController.text) ??
-        0;
-    totalValue = widget.addVehicleAndAccessoriesBloc.totalValue ?? 0;
+    double? discountAmount =
+        double.tryParse(_addPurchaseBlocImpl.discountTextController.text) ?? 0;
+    totalValue = _addPurchaseBlocImpl.totalValue ?? 0;
     if (discountAmount > totalValue) {
       discountAmount = 0;
-      widget.addVehicleAndAccessoriesBloc.discountTextController.text =
+      _addPurchaseBlocImpl.discountTextController.text =
           discountAmount.toStringAsFixed(2);
     }
     var taxableValue = totalValue - discountAmount;
-    widget.addVehicleAndAccessoriesBloc.taxableValue = taxableValue;
-    widget.addVehicleAndAccessoriesBloc.taxableValue =
-        (widget.addVehicleAndAccessoriesBloc.totalValue ?? 0) -
-            (discountAmount);
+    _addPurchaseBlocImpl.taxableValue = taxableValue;
+    _addPurchaseBlocImpl.taxableValue =
+        (_addPurchaseBlocImpl.totalValue ?? 0) - (discountAmount);
 
-    widget.addVehicleAndAccessoriesBloc.totalInvAmount =
-        ((widget.addVehicleAndAccessoriesBloc.invAmount ?? 0) -
-            (discountAmount));
+    _addPurchaseBlocImpl.totalInvAmount =
+        ((_addPurchaseBlocImpl.invAmount ?? 0) - (discountAmount));
 
-    var tcsValue = double.tryParse(
-            widget.addVehicleAndAccessoriesBloc.tcsvalueTextController.text) ??
-        0.0;
+    var tcsValue =
+        double.tryParse(_addPurchaseBlocImpl.tcsvalueTextController.text) ??
+            0.0;
     double gstAmount = 0.0;
 
-    if (widget.addVehicleAndAccessoriesBloc.selectedGstType == 'GST %') {
-      var cgstPercentage = double.tryParse(widget.addVehicleAndAccessoriesBloc
-              .cgstPresentageTextController.text) ??
+    if (_addPurchaseBlocImpl.selectedGstType == 'GST %') {
+      var cgstPercentage = double.tryParse(
+              _addPurchaseBlocImpl.cgstPresentageTextController.text) ??
           0.0;
-      var sgstPercentage = double.tryParse(widget.addVehicleAndAccessoriesBloc
-              .cgstPresentageTextController.text) ??
+      var sgstPercentage = double.tryParse(
+              _addPurchaseBlocImpl.cgstPresentageTextController.text) ??
           0.0;
       var cgstAmount = taxableValue * (cgstPercentage / 100);
       var sgstAmount = taxableValue * (sgstPercentage / 100);
-      widget.addVehicleAndAccessoriesBloc.cgstAmount = cgstAmount;
-      widget.addVehicleAndAccessoriesBloc.sgstAmount = sgstAmount;
+      _addPurchaseBlocImpl.cgstAmount = cgstAmount;
+      _addPurchaseBlocImpl.sgstAmount = sgstAmount;
       gstAmount = cgstAmount + sgstAmount;
-    } else if (widget.addVehicleAndAccessoriesBloc.selectedGstType ==
-        'IGST %') {
-      var igstPercentage = double.tryParse(widget.addVehicleAndAccessoriesBloc
-              .igstPresentageTextController.text) ??
+    } else if (_addPurchaseBlocImpl.selectedGstType == 'IGST %') {
+      var igstPercentage = double.tryParse(
+              _addPurchaseBlocImpl.igstPresentageTextController.text) ??
           0.0;
       gstAmount = taxableValue * (igstPercentage / 100);
     }
     var invoiceValue = taxableValue + gstAmount;
-    widget.addVehicleAndAccessoriesBloc.invAmount = invoiceValue + tcsValue;
+    _addPurchaseBlocImpl.invAmount = invoiceValue + tcsValue;
     _updateTotalInvoiceAmount();
   }
 
@@ -382,25 +369,23 @@ class _EngineAndFrameNumberEntryState extends State<EngineAndFrameNumberEntry> {
 
     double totalIncentive = empsIncValue + stateIncValue;
 
-    double invoiceAmount = widget.addVehicleAndAccessoriesBloc.invAmount ?? 0;
+    double invoiceAmount = _addPurchaseBlocImpl.invAmount ?? 0;
 
     if (totalIncentive > invoiceAmount) {
       totalIncentive = invoiceAmount;
 
       if (empsIncValue > invoiceAmount) {
-        widget.addVehicleAndAccessoriesBloc.empsIncentiveTextController.text =
+        _addPurchaseBlocImpl.empsIncentiveTextController.text =
             invoiceAmount.toStringAsFixed(2);
-        widget.addVehicleAndAccessoriesBloc.stateIncentiveTextController.text =
-            '';
+        _addPurchaseBlocImpl.stateIncentiveTextController.text = '';
       } else {
-        widget.addVehicleAndAccessoriesBloc.stateIncentiveTextController.text =
+        _addPurchaseBlocImpl.stateIncentiveTextController.text =
             (invoiceAmount - empsIncValue).toStringAsFixed(2);
       }
     }
 
-    widget.addVehicleAndAccessoriesBloc.totalInvAmount =
-        invoiceAmount - totalIncentive;
+    _addPurchaseBlocImpl.totalInvAmount = invoiceAmount - totalIncentive;
 
-    widget.addVehicleAndAccessoriesBloc.paymentDetailsStreamController(true);
+    _addPurchaseBlocImpl.paymentDetailsStreamController(true);
   }
 }

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:tlbilling/api_service/app_service_utils.dart';
+import 'package:tlbilling/api_service/service_locator.dart';
 import 'package:tlbilling/models/get_employee_by_id.dart';
 import 'package:tlbilling/models/parent_response_model.dart';
 import 'package:tlbilling/models/user_model.dart';
@@ -44,7 +45,7 @@ abstract class CreateUserDialogBloc {
 class CreateUserDialogBlocImpl extends CreateUserDialogBloc {
   bool _isPasswordVisible = false;
 
-  final _appServiceUtilsImpl = AppServiceUtilImpl();
+  final _appServiceUtilsImpl = getIt<AppServiceUtilImpl>();
   final _passwordVisibleStream = StreamController<bool>.broadcast();
   final _selectedDesinationStream = StreamController<bool>.broadcast();
 

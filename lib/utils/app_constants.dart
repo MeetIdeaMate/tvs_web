@@ -169,6 +169,7 @@ class AppConstants {
 
   //Customer
   static const addCustomer = 'Add Customer';
+  static const updateCustomer = 'Update Customer';
   static const noDataStore = 'No more data to show';
   static const name = 'Name';
   static const hintName = 'Enter Name';

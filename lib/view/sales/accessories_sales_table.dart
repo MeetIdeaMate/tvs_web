@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:tlbilling/components/custom_action_button.dart';
+import 'package:tlbilling/api_service/service_locator.dart';
 import 'package:tlbilling/utils/app_colors.dart';
 import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/utils/app_util_widgets.dart';
@@ -10,8 +9,7 @@ import 'package:tlbilling/view/sales/accessories_sales_entry_dialog.dart';
 import 'package:tlbilling/view/sales/add_sales_bloc.dart';
 
 class AccessoiresSalesTable extends StatefulWidget {
-  final AddSalesBlocImpl addSalesBloc;
-  const AccessoiresSalesTable({super.key, required this.addSalesBloc});
+  const AccessoiresSalesTable({super.key});
 
   @override
   State<AccessoiresSalesTable> createState() => _AccessoiresSalesTableState();
@@ -19,6 +17,7 @@ class AccessoiresSalesTable extends StatefulWidget {
 
 class _AccessoiresSalesTableState extends State<AccessoiresSalesTable> {
   final _appColors = AppColors();
+  final _addSalesBloc = getIt<AddSalesBlocImpl>();
 
   @override
   Widget build(BuildContext context) {
@@ -37,9 +36,9 @@ class _AccessoiresSalesTableState extends State<AccessoiresSalesTable> {
 
   Widget _buildAddedAccessoriesAndAccessoriesTable() {
     return StreamBuilder<bool>(
-      stream: widget.addSalesBloc.refreshsalesDataTable,
+      stream: _addSalesBloc.refreshsalesDataTable,
       builder: (context, snapshot) {
-        if (widget.addSalesBloc.accessoriesItemList?.isEmpty ?? false) {
+        if (_addSalesBloc.accessoriesItemList?.isEmpty ?? false) {
           return Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -93,29 +92,29 @@ class _AccessoiresSalesTableState extends State<AccessoiresSalesTable> {
                       _buildAccessoriesTableHeader(AppConstants.totalValue),
                       _buildAccessoriesTableHeader(AppConstants.discountAmount),
                       _buildAccessoriesTableHeader(AppConstants.taxableValue),
-                      if (widget.addSalesBloc.selectedGstType !=
+                      if (_addSalesBloc.selectedGstType !=
                           AppConstants.igstAmount)
                         _buildAccessoriesTableHeader(AppConstants.cgstPercent),
-                      if (widget.addSalesBloc.selectedGstType !=
+                      if (_addSalesBloc.selectedGstType !=
                           AppConstants.igstAmount)
                         _buildAccessoriesTableHeader(AppConstants.cgstAmount),
-                      if (widget.addSalesBloc.selectedGstType !=
+                      if (_addSalesBloc.selectedGstType !=
                           AppConstants.igstAmount)
                         _buildAccessoriesTableHeader(AppConstants.sgstPercent),
-                      if (widget.addSalesBloc.selectedGstType !=
+                      if (_addSalesBloc.selectedGstType !=
                           AppConstants.igstAmount)
                         _buildAccessoriesTableHeader(AppConstants.sgstAmount),
-                      if (widget.addSalesBloc.selectedGstType !=
+                      if (_addSalesBloc.selectedGstType !=
                           AppConstants.gstPercent)
                         _buildAccessoriesTableHeader(AppConstants.igstPercent),
-                      if (widget.addSalesBloc.selectedGstType !=
+                      if (_addSalesBloc.selectedGstType !=
                           AppConstants.gstPercent)
                         _buildAccessoriesTableHeader(AppConstants.igstAmount),
                       _buildAccessoriesTableHeader(AppConstants.invValue),
                       _buildAccessoriesTableHeader(AppConstants.action),
                     ],
                     rows: [
-                      ...widget.addSalesBloc.accessoriesItemList!
+                      ..._addSalesBloc.accessoriesItemList!
                           .asMap()
                           .entries
                           .map((entry) {
@@ -143,15 +142,15 @@ class _AccessoiresSalesTableState extends State<AccessoiresSalesTable> {
                         totalSgstValue += sgstValue;
                         totalIgstValue += igstValue;
                         totalInvoiceValue += entry.value.invoiceValue ?? 0;
-                        widget.addSalesBloc.totalQty = totalQuantity;
-                        widget.addSalesBloc.totalValue = totalValue;
-                        widget.addSalesBloc.totalDiscount = totalDiscount;
-                        widget.addSalesBloc.taxableValue = totalTaxableValue;
-                        widget.addSalesBloc.cgstAmount = totalCgstValue;
-                        widget.addSalesBloc.sgstAmount = totalSgstValue;
-                        widget.addSalesBloc.igstAmount = totalIgstValue;
-                        widget.addSalesBloc.totalInvAmount = totalInvoiceValue;
-                        widget.addSalesBloc.toBePayedAmt = double.tryParse(
+                        _addSalesBloc.totalQty = totalQuantity;
+                        _addSalesBloc.totalValue = totalValue;
+                        _addSalesBloc.totalDiscount = totalDiscount;
+                        _addSalesBloc.taxableValue = totalTaxableValue;
+                        _addSalesBloc.cgstAmount = totalCgstValue;
+                        _addSalesBloc.sgstAmount = totalSgstValue;
+                        _addSalesBloc.igstAmount = totalIgstValue;
+                        _addSalesBloc.totalInvAmount = totalInvoiceValue;
+                        _addSalesBloc.toBePayedAmt = double.tryParse(
                             totalInvoiceValue.round().toString());
 
                         return DataRow(
@@ -176,24 +175,24 @@ class _AccessoiresSalesTableState extends State<AccessoiresSalesTable> {
                             DataCell(Text(AppUtils.formatCurrency(
                                     entry.value.taxableValue ?? 0)
                                 .toString())),
-                            if (widget.addSalesBloc.selectedGstType !=
+                            if (_addSalesBloc.selectedGstType !=
                                 AppConstants.igstAmount)
                               DataCell(Text(cgstPercent.toString())),
-                            if (widget.addSalesBloc.selectedGstType !=
+                            if (_addSalesBloc.selectedGstType !=
                                 AppConstants.igstAmount)
                               DataCell(Text(AppUtils.formatCurrency(cgstValue)
                                   .toString())),
-                            if (widget.addSalesBloc.selectedGstType !=
+                            if (_addSalesBloc.selectedGstType !=
                                 AppConstants.igstAmount)
                               DataCell(Text(sgstPercent.toString())),
-                            if (widget.addSalesBloc.selectedGstType !=
+                            if (_addSalesBloc.selectedGstType !=
                                 AppConstants.igstAmount)
                               DataCell(Text(AppUtils.formatCurrency(cgstValue)
                                   .toString())),
-                            if (widget.addSalesBloc.selectedGstType !=
+                            if (_addSalesBloc.selectedGstType !=
                                 AppConstants.gstPercent)
                               DataCell(Text(igstPercent.toString())),
-                            if (widget.addSalesBloc.selectedGstType !=
+                            if (_addSalesBloc.selectedGstType !=
                                 AppConstants.gstPercent)
                               DataCell(Text(AppUtils.formatCurrency(igstValue)
                                   .toString())),
@@ -207,7 +206,6 @@ class _AccessoiresSalesTableState extends State<AccessoiresSalesTable> {
                                     barrierDismissible: false,
                                     builder: (context) {
                                       return AccessoriesSalesEntryDialog(
-                                        addSalesBloc: widget.addSalesBloc,
                                         editValues: entry.value,
                                         editIndex: entry.key,
                                         totalQty: totalQuantity,
@@ -238,26 +236,26 @@ class _AccessoiresSalesTableState extends State<AccessoiresSalesTable> {
                           DataCell(Text(
                               AppUtils.formatCurrency(totalTaxableValue)
                                   .toString())),
-                          if (widget.addSalesBloc.selectedGstType !=
+                          if (_addSalesBloc.selectedGstType !=
                               AppConstants.igstAmount)
                             const DataCell(Text('')),
-                          if (widget.addSalesBloc.selectedGstType !=
+                          if (_addSalesBloc.selectedGstType !=
                               AppConstants.igstAmount)
                             DataCell(Text(
                                 AppUtils.formatCurrency(totalCgstValue)
                                     .toString())),
-                          if (widget.addSalesBloc.selectedGstType !=
+                          if (_addSalesBloc.selectedGstType !=
                               AppConstants.igstAmount)
                             const DataCell(Text('')),
-                          if (widget.addSalesBloc.selectedGstType !=
+                          if (_addSalesBloc.selectedGstType !=
                               AppConstants.igstAmount)
                             DataCell(Text(
                                 AppUtils.formatCurrency(totalSgstValue)
                                     .toString())),
-                          if (widget.addSalesBloc.selectedGstType !=
+                          if (_addSalesBloc.selectedGstType !=
                               AppConstants.gstPercent)
                             const DataCell(Text('')),
-                          if (widget.addSalesBloc.selectedGstType !=
+                          if (_addSalesBloc.selectedGstType !=
                               AppConstants.gstPercent)
                             DataCell(Text(
                                 AppUtils.formatCurrency(totalIgstValue)
@@ -273,7 +271,7 @@ class _AccessoiresSalesTableState extends State<AccessoiresSalesTable> {
                 ),
               ),
               Visibility(
-                  visible: widget.addSalesBloc.isAccessoriestable == false,
+                  visible: _addSalesBloc.isAccessoriestable == false,
                   child: _buildSalestableVerifyCheckBox())
             ],
           ),
@@ -291,16 +289,16 @@ class _AccessoiresSalesTableState extends State<AccessoiresSalesTable> {
 
   Widget _buildSalestableVerifyCheckBox() {
     return Visibility(
-      visible: widget.addSalesBloc.accessoriesItemList?.isNotEmpty ?? false,
+      visible: _addSalesBloc.accessoriesItemList?.isNotEmpty ?? false,
       child: SizedBox(
         width: 500,
         child: Row(
           children: [
             Checkbox(
-              value: widget.addSalesBloc.isTableDataVerifited,
+              value: _addSalesBloc.isTableDataVerifited,
               onChanged: (value) {
                 setState(() {
-                  widget.addSalesBloc.isTableDataVerifited = value!;
+                  _addSalesBloc.isTableDataVerifited = value!;
                 });
               },
             ),
@@ -314,9 +312,9 @@ class _AccessoiresSalesTableState extends State<AccessoiresSalesTable> {
 
   _buildNextButton() {
     return Visibility(
-      visible: widget.addSalesBloc.isAccessoriestable == false,
+      visible: _addSalesBloc.isAccessoriestable == false,
       child: Visibility(
-          visible: widget.addSalesBloc.isTableDataVerifited ?? false,
+          visible: _addSalesBloc.isTableDataVerifited ?? false,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
@@ -334,8 +332,8 @@ class _AccessoiresSalesTableState extends State<AccessoiresSalesTable> {
                         WidgetStateProperty.all(_appColors.primaryColor),
                   ),
                   onPressed: () {
-                    widget.addSalesBloc.isAccessoriestable = true;
-                    widget.addSalesBloc.screenChangeStreamController(true);
+                    _addSalesBloc.isAccessoriestable = true;
+                    _addSalesBloc.screenChangeStreamController(true);
                   },
                   child: Text(
                     AppConstants.next,

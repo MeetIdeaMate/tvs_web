@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tlbilling/api_service/service_locator.dart';
 import 'package:tlbilling/models/get_model/get_all_stocks_without_pagination.dart';
 import 'package:tlbilling/utils/app_colors.dart';
 import 'package:tlbilling/utils/app_constants.dart';
@@ -13,8 +14,9 @@ import 'package:tlbilling/view/transfer/transfer_view_bloc.dart';
 import 'package:tlds_flutter/components/tlds_input_form_field.dart';
 
 class NewTransfer extends StatefulWidget {
-  final TransferViewBlocImpl? transferViewBloc;
-  const NewTransfer({super.key, this.transferViewBloc});
+  const NewTransfer({
+    super.key,
+  });
 
   @override
   State<NewTransfer> createState() => _NewTransferState();
@@ -22,7 +24,7 @@ class NewTransfer extends StatefulWidget {
 
 class _NewTransferState extends State<NewTransfer> {
   final _appColors = AppColors();
-  final _newTransferBloc = NewTransferBlocImpl();
+  final _newTransferBloc = getIt<NewTransferBlocImpl>();
 
   @override
   void initState() {
@@ -50,10 +52,7 @@ class _NewTransferState extends State<NewTransfer> {
           child: Row(
             children: [
               _buildVehicleDetails(),
-              TransferDetails(
-                newTransferBloc: _newTransferBloc,
-                transferViewBloc: widget.transferViewBloc,
-              ),
+              const TransferDetails(),
             ],
           )),
     );

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:tlbilling/api_service/service_locator.dart';
 import 'package:tlbilling/models/get_model/get_all_stocks_model.dart';
 import 'package:tlbilling/models/parent_response_model.dart';
 import 'package:tlbilling/utils/app_colors.dart';
@@ -11,11 +12,8 @@ import 'package:tlbilling/view/sales/add_sales_bloc.dart';
 import 'package:tlds_flutter/components/tlds_input_form_field.dart';
 
 class SelectedSalesData extends StatefulWidget {
-  final AddSalesBlocImpl addSalesBloc;
-
   const SelectedSalesData({
     super.key,
-    required this.addSalesBloc,
   });
 
   @override
@@ -24,6 +22,7 @@ class SelectedSalesData extends StatefulWidget {
 
 class _SelectedSalesDataState extends State<SelectedSalesData> {
   final _appColors = AppColors();
+  final _addSalesBloc = getIt<AddSalesBlocImpl>();
   bool isEVehicle = false;
 
   @override
@@ -36,10 +35,10 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 25),
       child: StreamBuilder<bool>(
-          stream: widget.addSalesBloc.batteryDetailsRefreshStream,
+          stream: _addSalesBloc.batteryDetailsRefreshStream,
           builder: (context, snapshot) {
-            if (widget.addSalesBloc.selectedVehiclesList?.isEmpty == true &&
-                widget.addSalesBloc.slectedAccessoriesList?.isEmpty == true) {
+            if (_addSalesBloc.selectedVehiclesList?.isEmpty == true &&
+                _addSalesBloc.slectedAccessoriesList?.isEmpty == true) {
               return Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -54,23 +53,22 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 AppWidgetUtils.buildSizedBox(custHeight: 10),
-                _buildHeadingText(
-                    widget.addSalesBloc.selectedVehicleAndAccessories ==
-                            AppConstants.accessories
-                        ? AppConstants.selectedAccessories
-                        : widget.addSalesBloc.selectedVehicleAndAccessories ==
-                                AppConstants.eVehicle
-                            ? AppConstants.selectEVehicle
-                            : AppConstants.selectMVehicle),
+                _buildHeadingText(_addSalesBloc.selectedVehicleAndAccessories ==
+                        AppConstants.accessories
+                    ? AppConstants.selectedAccessories
+                    : _addSalesBloc.selectedVehicleAndAccessories ==
+                            AppConstants.eVehicle
+                        ? AppConstants.selectEVehicle
+                        : AppConstants.selectMVehicle),
                 _buildSelectedDataList(),
                 AppWidgetUtils.buildSizedBox(custHeight: 10),
-                if (widget.addSalesBloc.selectedVehicleAndAccessories !=
+                if (_addSalesBloc.selectedVehicleAndAccessories !=
                     AppConstants.accessories)
                   _buildHeadingText(AppConstants.mandatoryAddons),
-                if (widget.addSalesBloc.selectedVehicleAndAccessories !=
+                if (_addSalesBloc.selectedVehicleAndAccessories !=
                     AppConstants.accessories)
                   FutureBuilder<ParentResponseModel>(
-                    future: widget.addSalesBloc.getMandantoryAddOns(),
+                    future: _addSalesBloc.getMandantoryAddOns(),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return const Center(child: Text(AppConstants.loading));
@@ -88,10 +86,9 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
                             ?.getConfigurationModel
                             ?.configuration as List<String>;
 
-                        if (widget
-                            .addSalesBloc.selectedMandatoryAddOns.isEmpty) {
+                        if (_addSalesBloc.selectedMandatoryAddOns.isEmpty) {
                           for (String addOn in mandatoryAddOns) {
-                            widget.addSalesBloc.selectedMandatoryAddOns[addOn] =
+                            _addSalesBloc.selectedMandatoryAddOns[addOn] =
                                 AppConstants.yesC;
                           }
                         }
@@ -99,7 +96,7 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
                                 ?.inputType ==
                             'YES/NO') {
                           return StreamBuilder<bool>(
-                            stream: widget.addSalesBloc.mandatoryRefereshStream,
+                            stream: _addSalesBloc.mandatoryRefereshStream,
                             builder: (context, snapshot) {
                               return ListView.builder(
                                 shrinkWrap: true,
@@ -109,15 +106,15 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
 
                                   return _buildMandatoryAdd(
                                     addOn,
-                                    widget.addSalesBloc
+                                    _addSalesBloc
                                             .selectedMandatoryAddOns[addOn] ??
                                         AppConstants.yesC,
                                     (value) {
-                                      widget.addSalesBloc
+                                      _addSalesBloc
                                           .mandatoryRefereshStreamController(
                                               true);
 
-                                      widget.addSalesBloc
+                                      _addSalesBloc
                                               .selectedMandatoryAddOns[addOn] =
                                           value ?? '';
                                     },
@@ -148,8 +145,7 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
                                         controller: TextEditingController(),
                                         hintText: componentName,
                                         onChanged: (value) {
-                                          widget.addSalesBloc
-                                                  .selectedMandatoryAddOns[
+                                          _addSalesBloc.selectedMandatoryAddOns[
                                               componentName] = value;
 
                                           printBatteryDetails();
@@ -169,7 +165,7 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
                     },
                   ),
                 const SizedBox(height: 15),
-                if (widget.addSalesBloc.selectedVehicleAndAccessories ==
+                if (_addSalesBloc.selectedVehicleAndAccessories ==
                     AppConstants.eVehicle)
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -188,10 +184,10 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
     return Column(
       children: [
         StreamBuilder(
-            stream: widget.addSalesBloc.batteryDetailsRefreshStream,
+            stream: _addSalesBloc.batteryDetailsRefreshStream,
             builder: (context, snapshot) {
               return FutureBuilder<ParentResponseModel>(
-                future: widget.addSalesBloc.getBatteryDetails(),
+                future: _addSalesBloc.getBatteryDetails(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: Text(AppConstants.loading));
@@ -206,17 +202,17 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
                     List<String> eVehicleComponents = snapshot.data?.result
                         ?.getConfigurationModel?.configuration as List<String>;
 
-                    widget.addSalesBloc.batteryDetailsMap.clear();
+                    _addSalesBloc.batteryDetailsMap.clear();
 
                     for (String componentName in eVehicleComponents) {
-                      widget.addSalesBloc.batteryDetailsMap[componentName] = '';
+                      _addSalesBloc.batteryDetailsMap[componentName] = '';
                     }
 
                     if (snapshot
                             .data?.result?.getConfigurationModel?.inputType ==
                         'YES/NO') {
                       return StreamBuilder<bool>(
-                        stream: widget.addSalesBloc.mandatoryRefereshStream,
+                        stream: _addSalesBloc.mandatoryRefereshStream,
                         builder: (context, snapshot) {
                           return ListView.builder(
                             shrinkWrap: true,
@@ -226,15 +222,14 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
 
                               return _buildMandatoryAdd(
                                 bettery,
-                                widget.addSalesBloc
-                                        .batteryDetailsMap[bettery] ??
+                                _addSalesBloc.batteryDetailsMap[bettery] ??
                                     AppConstants.yesC,
                                 (value) {
-                                  widget.addSalesBloc
+                                  _addSalesBloc
                                       .mandatoryRefereshStreamController(true);
 
-                                  widget.addSalesBloc
-                                      .batteryDetailsMap[bettery] = value ?? '';
+                                  _addSalesBloc.batteryDetailsMap[bettery] =
+                                      value ?? '';
                                 },
                               );
                             },
@@ -262,7 +257,7 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
                                     controller: TextEditingController(),
                                     hintText: componentName,
                                     onChanged: (value) {
-                                      widget.addSalesBloc.batteryDetailsMap[
+                                      _addSalesBloc.batteryDetailsMap[
                                           componentName] = value;
 
                                       printBatteryDetails();
@@ -285,7 +280,7 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
   }
 
   void printBatteryDetails() {
-    widget.addSalesBloc.batteryDetailsMap.forEach((key, value) {});
+    _addSalesBloc.batteryDetailsMap.forEach((key, value) {});
   }
 
   Widget _buildHeadingText(String text) {
@@ -301,19 +296,19 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
   Widget _buildSelectedDataList() {
     return Expanded(
       child: StreamBuilder(
-        stream: widget.addSalesBloc.selectedItemStreamController,
+        stream: _addSalesBloc.selectedItemStreamController,
         builder: (context, snapshot) {
           List<GetAllStockDetails>? selectedVehiclesList =
-              widget.addSalesBloc.selectedVehiclesList;
+              _addSalesBloc.selectedVehiclesList;
 
-          bool hasVehicles =
-              selectedVehiclesList != null && selectedVehiclesList.isNotEmpty;
+          bool hasVehicles = selectedVehiclesList?.isNotEmpty ?? false;
 
           return ListView.builder(
-            itemCount: hasVehicles ? selectedVehiclesList.length : 0,
+            itemCount: hasVehicles ? selectedVehiclesList?.length : 0,
             itemBuilder: (BuildContext context, int index) {
               if (hasVehicles) {
-                GetAllStockDetails? vehicle = selectedVehiclesList[index];
+                GetAllStockDetails? vehicle =
+                    selectedVehiclesList?[index] as GetAllStockDetails;
 
                 return _buildSelectedVehicleCard(vehicle, index);
               } else {
@@ -368,8 +363,8 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
   }
 
   Widget _buildSelectedVehicleCard(GetAllStockDetails vehicle, int index) {
-    widget.addSalesBloc.unitRateControllers.text =
-        widget.addSalesBloc.unitRates[index] ?? '';
+    _addSalesBloc.unitRateControllers.text =
+        _addSalesBloc.unitRates[index] ?? '';
 
     return Card(
       color: _appColors.whiteColor,
@@ -408,36 +403,33 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
                     inputFormatters: TlInputFormatters.onlyAllowDecimalNumbers,
                     hintText: AppConstants.rupeeHint,
                     onChanged: (value) {
-                      widget.addSalesBloc.unitRates[index] = value;
+                      _addSalesBloc.unitRates[index] = value;
                       _buildPaymentCalculation();
                     },
                   ),
                 ),
                 IconButton(
                   onPressed: () {
-                    widget.addSalesBloc.selectedVehiclesList?.removeAt(index);
-                    widget.addSalesBloc.unitRates.remove(index);
+                    _addSalesBloc.selectedVehiclesList?.removeAt(index);
+                    _addSalesBloc.unitRates.remove(index);
                     clear();
-                    widget.addSalesBloc
-                        .vehicleAndEngineNumberStreamController(true);
-                    widget.addSalesBloc
-                        .batteryDetailsRefreshStreamController(true);
-                    widget.addSalesBloc.selectedItemStream(true);
-                    widget.addSalesBloc.vehicleData?.add(vehicle);
-                    widget.addSalesBloc.availableVehicleListStream(true);
+                    _addSalesBloc.vehicleAndEngineNumberStreamController(true);
+                    _addSalesBloc.batteryDetailsRefreshStreamController(true);
+                    _addSalesBloc.selectedItemStream(true);
+                    _addSalesBloc.vehicleData?.add(vehicle);
+                    _addSalesBloc.availableVehicleListStream(true);
 
-                    widget.addSalesBloc.selectedCustomer = null;
-                    widget.addSalesBloc.selectedCustomerId = null;
-                    widget.addSalesBloc
-                        .selectedCustomerDetailsStreamController(true);
+                    _addSalesBloc.selectedCustomer = null;
+                    _addSalesBloc.selectedCustomerId = null;
+                    _addSalesBloc.selectedCustomerDetailsStreamController(true);
 
-                    widget.addSalesBloc.cgstPresentageTextController.clear();
-                    //  widget.addSalesBloc.sgstPresentageTextController.clear();
-                    widget.addSalesBloc.igstPresentageTextController.clear();
-                    widget.addSalesBloc.discountTextController.clear();
-                    widget.addSalesBloc.stateIncentiveTextController.clear();
-                    widget.addSalesBloc.empsIncentiveTextController.clear();
-                    widget.addSalesBloc.hsnCodeTextController.clear();
+                    _addSalesBloc.cgstPresentageTextController.clear();
+                    //  _addSalesBloc.sgstPresentageTextController.clear();
+                    _addSalesBloc.igstPresentageTextController.clear();
+                    _addSalesBloc.discountTextController.clear();
+                    _addSalesBloc.stateIncentiveTextController.clear();
+                    _addSalesBloc.empsIncentiveTextController.clear();
+                    _addSalesBloc.hsnCodeTextController.clear();
                     _buildPaymentCalculation();
                   },
                   icon: SvgPicture.asset(
@@ -456,60 +448,55 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
 
   void _buildPaymentCalculation() {
     double totalUnitValue = 0.0;
-    int qty = widget.addSalesBloc.selectedVehiclesList?.length ?? 0;
+    int qty = _addSalesBloc.selectedVehiclesList?.length ?? 0;
 
     for (int i = 0; i < qty; i++) {
-      double unitRate =
-          double.tryParse(widget.addSalesBloc.unitRates[i]!) ?? 0.0;
+      double unitRate = double.tryParse(_addSalesBloc.unitRates[i]!) ?? 0.0;
       totalUnitValue += unitRate;
     }
 
-    widget.addSalesBloc.totalValue = totalUnitValue * qty;
+    _addSalesBloc.totalValue = totalUnitValue * qty;
 
-    double totalValues = widget.addSalesBloc.totalValue ?? 0;
-    double cgstPercent = double.tryParse(
-            widget.addSalesBloc.cgstPresentageTextController.text) ??
-        0;
-    double sgstPercent = double.tryParse(
-            widget.addSalesBloc.cgstPresentageTextController.text) ??
-        0;
+    double totalValues = _addSalesBloc.totalValue ?? 0;
+    double cgstPercent =
+        double.tryParse(_addSalesBloc.cgstPresentageTextController.text) ?? 0;
+    double sgstPercent =
+        double.tryParse(_addSalesBloc.cgstPresentageTextController.text) ?? 0;
 
-    widget.addSalesBloc.taxableValue = totalValues;
-    widget.addSalesBloc.cgstAmount = (totalValues / 100) * cgstPercent;
-    widget.addSalesBloc.sgstAmount = (totalValues / 100) * sgstPercent;
+    _addSalesBloc.taxableValue = totalValues;
+    _addSalesBloc.cgstAmount = (totalValues / 100) * cgstPercent;
+    _addSalesBloc.sgstAmount = (totalValues / 100) * sgstPercent;
 
-    double taxableValue = widget.addSalesBloc.taxableValue ?? 0;
-    widget.addSalesBloc.invAmount =
-        taxableValue + (widget.addSalesBloc.sgstAmount ?? 0 * 2);
+    double taxableValue = _addSalesBloc.taxableValue ?? 0;
+    _addSalesBloc.invAmount =
+        taxableValue + (_addSalesBloc.sgstAmount ?? 0 * 2);
     _updateTotalInvoiceAmount();
 
-    widget.addSalesBloc.paymentDetailsStreamController(true);
-    widget.addSalesBloc.gstRadioBtnRefreashStreamController(true);
+    _addSalesBloc.paymentDetailsStreamController(true);
+    _addSalesBloc.gstRadioBtnRefreashStreamController(true);
   }
 
   void _updateTotalInvoiceAmount() {
     double? empsIncValue =
-        double.tryParse(widget.addSalesBloc.empsIncentiveTextController.text) ??
-            0.0;
-    double? stateIncValue = double.tryParse(
-            widget.addSalesBloc.stateIncentiveTextController.text) ??
-        0.0;
+        double.tryParse(_addSalesBloc.empsIncentiveTextController.text) ?? 0.0;
+    double? stateIncValue =
+        double.tryParse(_addSalesBloc.stateIncentiveTextController.text) ?? 0.0;
 
     double totalIncentive = empsIncValue + stateIncValue;
 
-    if ((widget.addSalesBloc.invAmount ?? 0) != -1) {
-      widget.addSalesBloc.totalInvAmount =
-          (widget.addSalesBloc.invAmount ?? 0) - totalIncentive;
+    if ((_addSalesBloc.invAmount ?? 0) != -1) {
+      _addSalesBloc.totalInvAmount =
+          (_addSalesBloc.invAmount ?? 0) - totalIncentive;
     } else {
-      widget.addSalesBloc.totalInvAmount = 0.0;
+      _addSalesBloc.totalInvAmount = 0.0;
     }
-    double advanceAmt = widget.addSalesBloc.advanceAmt ?? 0;
+    double advanceAmt = _addSalesBloc.advanceAmt ?? 0;
 
-    double totalInvAmt = widget.addSalesBloc.totalInvAmount ?? 0;
-    widget.addSalesBloc.toBePayedAmt = totalInvAmt - advanceAmt;
-    widget.addSalesBloc.toBePayedAmt = double.tryParse(
-        widget.addSalesBloc.toBePayedAmt?.round().toString() ?? '');
-    widget.addSalesBloc.paymentDetailsStreamController(true);
+    double totalInvAmt = _addSalesBloc.totalInvAmount ?? 0;
+    _addSalesBloc.toBePayedAmt = totalInvAmt - advanceAmt;
+    _addSalesBloc.toBePayedAmt =
+        double.tryParse(_addSalesBloc.toBePayedAmt?.round().toString() ?? '');
+    _addSalesBloc.paymentDetailsStreamController(true);
   }
 
   Widget _buildCustomTextWidget(String text,
@@ -523,48 +510,48 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
   }
 
   void clear() {
-    widget.addSalesBloc.totalValue = 0.0;
-    widget.addSalesBloc.taxableValue = 0.0;
-    widget.addSalesBloc.totalInvAmount = 0.0;
-    widget.addSalesBloc.invAmount = 0.0;
-    widget.addSalesBloc.igstAmount = 0.0;
-    widget.addSalesBloc.cgstAmount = 0.0;
-    widget.addSalesBloc.sgstAmount = 0.0;
-    widget.addSalesBloc.totalUnitRate = 0.0;
-    widget.addSalesBloc.advanceAmt = 0.0;
-    widget.addSalesBloc.toBePayedAmt = 0.0;
-    widget.addSalesBloc.totalQty = 0.0;
+    _addSalesBloc.totalValue = 0.0;
+    _addSalesBloc.taxableValue = 0.0;
+    _addSalesBloc.totalInvAmount = 0.0;
+    _addSalesBloc.invAmount = 0.0;
+    _addSalesBloc.igstAmount = 0.0;
+    _addSalesBloc.cgstAmount = 0.0;
+    _addSalesBloc.sgstAmount = 0.0;
+    _addSalesBloc.totalUnitRate = 0.0;
+    _addSalesBloc.advanceAmt = 0.0;
+    _addSalesBloc.toBePayedAmt = 0.0;
+    _addSalesBloc.totalQty = 0.0;
 
-    widget.addSalesBloc.selectedCustomer = null;
-    widget.addSalesBloc.selectedCustomerId = null;
+    _addSalesBloc.selectedCustomer = null;
+    _addSalesBloc.selectedCustomerId = null;
 
-    widget.addSalesBloc.selectedMandatoryAddOns.clear();
+    _addSalesBloc.selectedMandatoryAddOns.clear();
 
-    widget.addSalesBloc.splitPaymentAmt.clear();
-    widget.addSalesBloc.splitPaymentId.clear();
-    widget.addSalesBloc.paymentName.clear();
-    widget.addSalesBloc.accessoriesQty.clear();
+    _addSalesBloc.splitPaymentAmt.clear();
+    _addSalesBloc.splitPaymentId.clear();
+    _addSalesBloc.paymentName.clear();
+    _addSalesBloc.accessoriesQty.clear();
 
-    widget.addSalesBloc.discountTextController.clear();
-    widget.addSalesBloc.transporterVehicleNumberController.clear();
-    widget.addSalesBloc.vehicleNoAndEngineNoSearchController.clear();
-    widget.addSalesBloc.unitRateControllers.clear();
-    widget.addSalesBloc.hsnCodeTextController.clear();
-    widget.addSalesBloc.betteryNameTextController.clear();
-    widget.addSalesBloc.batteryCapacityTextController.clear();
-    widget.addSalesBloc.empsIncentiveTextController.clear();
-    widget.addSalesBloc.stateIncentiveTextController.clear();
-    widget.addSalesBloc.paidAmountController.clear();
-    widget.addSalesBloc.paymentTypeIdTextController.clear();
-    widget.addSalesBloc.quantityTextController.clear();
-    widget.addSalesBloc.unitRateTextController.clear();
+    _addSalesBloc.discountTextController.clear();
+    _addSalesBloc.transporterVehicleNumberController.clear();
+    _addSalesBloc.vehicleNoAndEngineNoSearchController.clear();
+    _addSalesBloc.unitRateControllers.clear();
+    _addSalesBloc.hsnCodeTextController.clear();
+    _addSalesBloc.betteryNameTextController.clear();
+    _addSalesBloc.batteryCapacityTextController.clear();
+    _addSalesBloc.empsIncentiveTextController.clear();
+    _addSalesBloc.stateIncentiveTextController.clear();
+    _addSalesBloc.paidAmountController.clear();
+    _addSalesBloc.paymentTypeIdTextController.clear();
+    _addSalesBloc.quantityTextController.clear();
+    _addSalesBloc.unitRateTextController.clear();
 
-    widget.addSalesBloc.vehicleAndEngineNumberStreamController(true);
+    _addSalesBloc.vehicleAndEngineNumberStreamController(true);
 
-    widget.addSalesBloc.gstDetailsStreamController(true);
-    widget.addSalesBloc.batteryDetailsRefreshStreamController(true);
-    widget.addSalesBloc.selectedVehicleAndAccessoriesListStreamController(true);
-    widget.addSalesBloc.paymentDetailsStreamController(true);
-    widget.addSalesBloc.screenChangeStreamController(true);
+    _addSalesBloc.gstDetailsStreamController(true);
+    _addSalesBloc.batteryDetailsRefreshStreamController(true);
+    _addSalesBloc.selectedVehicleAndAccessoriesListStreamController(true);
+    _addSalesBloc.paymentDetailsStreamController(true);
+    _addSalesBloc.screenChangeStreamController(true);
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:tlbilling/api_service/service_locator.dart';
 import 'package:tlbilling/components/custom_action_button.dart';
 import 'package:tlbilling/utils/app_util_widgets.dart';
 import 'package:tlbilling/view/user/create_user_dialog_bloc.dart';
@@ -9,10 +10,8 @@ import 'package:tlds_flutter/util/app_colors.dart';
 class UserActiveInActiveDialog extends StatefulWidget {
   final String? userStatus;
   final String? userId;
-  final UserViewBlocImpl? userViewBlocImpl;
 
-  const UserActiveInActiveDialog(
-      {super.key, this.userStatus, this.userId, this.userViewBlocImpl});
+  const UserActiveInActiveDialog({super.key, this.userStatus, this.userId});
 
   @override
   State<UserActiveInActiveDialog> createState() =>
@@ -20,7 +19,8 @@ class UserActiveInActiveDialog extends StatefulWidget {
 }
 
 class _UserActiveInActiveDialogState extends State<UserActiveInActiveDialog> {
-  final _createUserDialogBloc = CreateUserDialogBlocImpl();
+  final _createUserDialogBloc = getIt<CreateUserDialogBlocImpl>();
+  final _userViewBlocImpl = getIt<UserViewBlocImpl>();
   final _appColor = AppColor();
 
   @override
@@ -54,8 +54,7 @@ class _UserActiveInActiveDialogState extends State<UserActiveInActiveDialog> {
                 widget.userId,
                 (statusCode) {
                   if (statusCode == 200) {
-                    widget.userViewBlocImpl
-                        ?.pageNumberUpdateStreamController(0);
+                    _userViewBlocImpl.pageNumberUpdateStreamController(0);
                     Navigator.pop(context);
                   }
                 },

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:tlbilling/api_service/app_service_utils.dart';
+import 'package:tlbilling/api_service/service_locator.dart';
 import 'package:tlbilling/models/get_model/get_all_account_head_by_pagination_model.dart';
 import 'package:tlbilling/utils/app_constants.dart';
 
@@ -22,7 +23,7 @@ class AccountViewBlocImpl extends AccountViewBloc {
   final _nameTextEditController = TextEditingController();
   final _accCodeTextEditStream = StreamController<bool>.broadcast();
   final _nameTextEditStream = StreamController<bool>.broadcast();
-  final _appServiceUtilsImpl = AppServiceUtilImpl();
+  final _appServiceUtilsImpl = getIt<AppServiceUtilImpl>();
   String? _selectedType = AppConstants.alltype;
   int _currentPage = 0;
   final _pageNumberStreamController = StreamController<int>.broadcast();

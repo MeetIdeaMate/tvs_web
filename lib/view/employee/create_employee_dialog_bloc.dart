@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:tlbilling/api_service/app_service_utils.dart';
+import 'package:tlbilling/api_service/service_locator.dart';
 import 'package:tlbilling/models/get_employee_by_id.dart';
 import 'package:tlbilling/models/parent_response_model.dart';
 import 'package:tlbilling/models/post_model/add_employee_model.dart';
@@ -45,7 +46,7 @@ class CreateEmployeeDialogBlocImpl extends CreateEmployeeDialogBloc {
   String? _selectEmpCity;
   String? _selectEmpBranchId;
   final _empFprmKey = GlobalKey<FormState>();
-  final _appServices = AppServiceUtilImpl();
+  final _appServices = getIt<AppServiceUtilImpl>();
   final _selectGenderStream = StreamController<bool>.broadcast();
   final _selectDesignationStream = StreamController<bool>.broadcast();
   final _selectBranchStream = StreamController<bool>.broadcast();

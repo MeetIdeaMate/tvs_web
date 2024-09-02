@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:tlbilling/api_service/app_service_utils.dart';
+import 'package:tlbilling/api_service/service_locator.dart';
 import 'package:tlbilling/models/get_model/get_all_vendor_by_pagination_model.dart';
 
 abstract class SalesVehicleReportBloc {
@@ -23,7 +24,7 @@ class SalesVehicleReportBlocImpl extends SalesVehicleReportBloc {
   final _toDateTextEdit = TextEditingController();
   int _currentPage = 0;
   final _pageNumberStreamController = StreamController<int>.broadcast();
-  final _appServiceUtils = AppServiceUtilImpl();
+  final _appServiceUtils = getIt<AppServiceUtilImpl>();
 
   @override
   String? get vehicleType => _vehicleType;

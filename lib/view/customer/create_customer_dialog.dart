@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tlbilling/api_service/service_locator.dart';
 import 'package:tlbilling/components/custom_action_button.dart';
 import 'package:tlbilling/components/custom_elevated_button.dart';
 import 'package:tlbilling/utils/app_colors.dart';
@@ -21,10 +22,8 @@ import 'package:toastification/toastification.dart';
 
 class CreateCustomerDialog extends StatefulWidget {
   final String? customerId;
-  final AddSalesBlocImpl? bloc;
-  final CustomerViewBlocImpl? customerScreenBlocImpl;
-  const CreateCustomerDialog(
-      {super.key, this.customerId, this.bloc, this.customerScreenBlocImpl});
+
+  const CreateCustomerDialog({super.key, this.customerId});
 
   @override
   State<CreateCustomerDialog> createState() => _CreateCustomerDialogState();
@@ -32,7 +31,9 @@ class CreateCustomerDialog extends StatefulWidget {
 
 class _CreateCustomerDialogState extends State<CreateCustomerDialog> {
   final _appColors = AppColors();
-  final _createCustomerDialogBlocImpl = CreateCustomerDialogBlocImpl();
+  final _createCustomerDialogBlocImpl = getIt<CreateCustomerDialogBlocImpl>();
+  final _customerViewBlocImpl = getIt<CustomerViewBlocImpl>();
+  final _addSalesBlocImpl = getIt<AddSalesBlocImpl>();
 
   @override
   void initState() {
@@ -80,7 +81,9 @@ class _CreateCustomerDialogState extends State<CreateCustomerDialog> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             AppWidgetUtils.buildText(
-              text: AppConstants.addCustomer,
+              text: widget.customerId != null
+                  ? AppConstants.updateCustomer
+                  : AppConstants.addCustomer,
               fontSize: 22,
               color: _appColors.primaryColor,
               fontWeight: FontWeight.bold,
@@ -255,7 +258,9 @@ class _CreateCustomerDialogState extends State<CreateCustomerDialog> {
 
   _buildSaveButton() {
     return CustomActionButtons(
-      buttonText: AppConstants.addCustomer,
+      buttonText: widget.customerId != null
+          ? AppConstants.updateCustomer
+          : AppConstants.addCustomer,
       onPressed: () {
         if (_createCustomerDialogBlocImpl.customerFormKey.currentState!
             .validate()) {
@@ -266,19 +271,18 @@ class _CreateCustomerDialogState extends State<CreateCustomerDialog> {
               (statusCode) {
                 if (statusCode == 200 || statusCode == 201) {
                   _isLoading(false);
-                  widget.customerScreenBlocImpl?.customerTableStream(true);
-                  widget.customerScreenBlocImpl
-                      ?.pageNumberUpdateStreamController(0);
+                  _customerViewBlocImpl.customerTableStream(true);
+                  _customerViewBlocImpl.pageNumberUpdateStreamController(0);
                   Navigator.pop(context);
                   AppWidgetUtils.buildToast(
                       context,
                       ToastificationType.success,
-                      AppConstants.customerUpdate,
+                      AppConstants.customerCreate,
                       Icon(
                         Icons.check_circle_outline_rounded,
                         color: _appColors.successColor,
                       ),
-                      AppConstants.customerUpdateSuccessfully,
+                      AppConstants.customerCreatedSuccessfully,
                       _appColors.successLightColor);
                 } else {
                   _isLoading(false);
@@ -290,9 +294,8 @@ class _CreateCustomerDialogState extends State<CreateCustomerDialog> {
                 .addCustomer((statusCode, customerName, customerId) {
               if (statusCode == 200 || statusCode == 201) {
                 _isLoading(false);
-                widget.customerScreenBlocImpl?.customerTableStream(true);
-                widget.customerScreenBlocImpl
-                    ?.pageNumberUpdateStreamController(0);
+                _customerViewBlocImpl.customerTableStream(true);
+                _customerViewBlocImpl.pageNumberUpdateStreamController(0);
                 Navigator.pop(context);
 
                 AppWidgetUtils.buildToast(
@@ -305,11 +308,11 @@ class _CreateCustomerDialogState extends State<CreateCustomerDialog> {
                     ),
                     AppConstants.customerUpdateSuccessfully,
                     _appColors.successLightColor);
-                widget.bloc?.selectedCustomerDetailsStreamController(true);
-                widget.bloc?.selectedCustomer = customerName ?? '';
-                widget.bloc?.selectedCustomerId = customerId ?? '';
-                widget.bloc?.customerNameStreamcontroller(true);
-                widget.bloc?.selectedCustomerDetailsStreamController(true);
+                _addSalesBlocImpl.selectedCustomerDetailsStreamController(true);
+                _addSalesBlocImpl.selectedCustomer = customerName ?? '';
+                _addSalesBlocImpl.selectedCustomerId = customerId ?? '';
+                _addSalesBlocImpl.customerNameStreamcontroller(true);
+                _addSalesBlocImpl.selectedCustomerDetailsStreamController(true);
               } else {
                 _isLoading(false);
               }

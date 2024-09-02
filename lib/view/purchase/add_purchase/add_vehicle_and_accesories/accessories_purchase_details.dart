@@ -1,13 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:tlbilling/api_service/service_locator.dart';
 import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/view/purchase/add_purchase/add_vehicle_and_accesories/add_vehicle_and_accessories_bloc.dart';
 import 'package:tlds_flutter/export.dart';
 
 class AccessoriesPurchaseDetails extends StatefulWidget {
-  AddVehicleAndAccessoriesBlocImpl purchaseBloc;
-  AccessoriesPurchaseDetails({super.key, required this.purchaseBloc});
+  const AccessoriesPurchaseDetails({super.key});
 
   @override
   State<AccessoriesPurchaseDetails> createState() =>
@@ -16,7 +16,7 @@ class AccessoriesPurchaseDetails extends StatefulWidget {
 
 class _AccessoriesPurchaseDetailsState
     extends State<AccessoriesPurchaseDetails> {
-  final _addVehicleAndAccessoriesBloc = AddVehicleAndAccessoriesBlocImpl();
+  final addPurchaseBloc = getIt<AddVehicleAndAccessoriesBlocImpl>();
   final List<String> vehicleAndAccessories = ['Vehicle', 'Accessories'];
 
   @override
@@ -44,14 +44,14 @@ class _AccessoriesPurchaseDetailsState
                 height: 40,
                 labelText: AppConstants.materialNumber,
                 hintText: AppConstants.materialNumber,
-                controller: widget.purchaseBloc.partNumberController)),
+                controller: addPurchaseBloc.partNumberController)),
         _buildDefaultWidth(),
         Expanded(
             child: TldsInputFormField(
                 height: 40,
                 labelText: AppConstants.materialName,
                 hintText: AppConstants.materialName,
-                controller: widget.purchaseBloc.vehicleNameTextController)),
+                controller: addPurchaseBloc.vehicleNameTextController)),
       ],
     );
   }
@@ -64,14 +64,14 @@ class _AccessoriesPurchaseDetailsState
                 height: 40,
                 labelText: AppConstants.hsnCode,
                 hintText: AppConstants.hsnCode,
-                controller: widget.purchaseBloc.hsnCodeController)),
+                controller: addPurchaseBloc.hsnCodeController)),
         _buildDefaultWidth(),
         Expanded(
             child: TldsInputFormField(
                 height: 40,
                 labelText: AppConstants.quantity,
                 hintText: AppConstants.quantity,
-                controller: widget.purchaseBloc.quantityController)),
+                controller: addPurchaseBloc.quantityController)),
       ],
     );
   }
@@ -84,7 +84,7 @@ class _AccessoriesPurchaseDetailsState
                 height: 40,
                 labelText: AppConstants.unitRate,
                 hintText: AppConstants.unitRate,
-                controller: widget.purchaseBloc.unitRateController)),
+                controller: addPurchaseBloc.unitRateController)),
       ],
     );
   }

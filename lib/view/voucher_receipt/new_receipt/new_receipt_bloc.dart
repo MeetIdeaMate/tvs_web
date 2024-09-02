@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:tlbilling/api_service/app_service_utils.dart';
+import 'package:tlbilling/api_service/service_locator.dart';
 import 'package:tlbilling/models/get_model/get_all_customer_name_list.dart';
 import 'package:tlbilling/models/parent_response_model.dart';
 
@@ -35,7 +36,7 @@ class NewReceiptBlocImpl extends NewReceiptBloc {
   final _colorController = TextEditingController();
   final _receivedFromController = TextEditingController();
   final _receivedAmountController = TextEditingController();
-  final _apiSericeUtils = AppServiceUtilImpl();
+  final _apiSericeUtils = getIt<AppServiceUtilImpl>();
   final _formKey = GlobalKey<FormState>();
   List<String> customerList = [
     'Ajithkumar',

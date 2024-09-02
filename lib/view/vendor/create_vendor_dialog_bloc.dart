@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:tlbilling/api_service/app_service_utils.dart';
+import 'package:tlbilling/api_service/service_locator.dart';
 import 'package:tlbilling/models/get_model/get_vendor_by_id_model.dart';
 import 'package:tlbilling/models/post_model/add_vendor_model.dart';
 
@@ -34,7 +35,7 @@ class CreateVendorDialogBlocImpl extends CreateVendorDialogBloc {
   final _vendorFaxController = TextEditingController();
   final _vendorAccNoController = TextEditingController();
   final _vendorIFSCCodeController = TextEditingController();
-  final _appServiceBlocImpl = AppServiceUtilImpl();
+  final _appServiceBlocImpl = getIt<AppServiceUtilImpl>();
 
   @override
   TextEditingController get vendorAddressController => _vendorAddressController;

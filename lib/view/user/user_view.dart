@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tlbilling/api_service/service_locator.dart';
 import 'package:tlbilling/components/custom_dropdown_button_form_field.dart';
 import 'package:tlbilling/components/custom_pagenation.dart';
 import 'package:tlbilling/models/user_model.dart';
@@ -24,7 +25,9 @@ class UserView extends StatefulWidget {
 
 class _UserViewState extends State<UserView> {
   final _appColors = AppColors();
-  final _userViewBlocImpl = UserViewBlocImpl();
+
+  final _userViewBlocImpl = getIt<UserViewBlocImpl>();
+
   Future<void> getBranchName() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
@@ -83,7 +86,7 @@ class _UserViewState extends State<UserView> {
                 barrierDismissible: false,
                 context: context,
                 builder: (context) {
-                  return CreateUserDialog(userViewBloc: _userViewBlocImpl);
+                  return const CreateUserDialog();
                 },
               );
             },
@@ -362,7 +365,6 @@ class _UserViewState extends State<UserView> {
           context: context,
           builder: (context) {
             return UserActiveInActiveDialog(
-              userViewBlocImpl: _userViewBlocImpl,
               userStatus: entry.value.userStatus,
               userId: entry.value.userId,
             );

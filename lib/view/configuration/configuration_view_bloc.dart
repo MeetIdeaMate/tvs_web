@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:tlbilling/api_service/app_service_utils.dart';
+import 'package:tlbilling/api_service/service_locator.dart';
 import 'package:tlbilling/models/get_model/get_configuration_list_model.dart';
 
 abstract class ConfigurationViewBloc {
@@ -15,7 +16,7 @@ abstract class ConfigurationViewBloc {
 }
 
 class ConfigurationBlocImpl extends ConfigurationViewBloc {
-  final _appServices = AppServiceUtilImpl();
+  final _appServices = getIt<AppServiceUtilImpl>();
   final _searchConfigStream = StreamController();
   final _reLoadStream = StreamController();
   final _configSearchTextController = TextEditingController();

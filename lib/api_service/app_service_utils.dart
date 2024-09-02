@@ -332,14 +332,8 @@ class AppServiceUtilImpl extends AppServiceUtil {
       return status != null;
     };
 
-    dio.interceptors.add(LogInterceptor(
-      error: true,
-      responseBody: true,
-    ));
-
     dio.interceptors.add(InterceptorsWrapper(
       onResponse: (response, handler) {
-        print(response.data);
         final result = parentResponseModelFromJson(jsonEncode(response.data));
         if (response.statusCode != 200 && response.statusCode != 201) {
           AppWidgetUtils.showErrorToast(
@@ -351,7 +345,6 @@ class AppServiceUtilImpl extends AppServiceUtil {
         handler.next(response);
       },
       onError: (error, handler) {
-        print('11111111111111111111111111111111111111111${error.message}');
         handler.next(error);
       },
     ));
@@ -1271,8 +1264,8 @@ class AppServiceUtilImpl extends AppServiceUtil {
     var token = prefs.getString('token');
     bool isMainBranch = prefs.getBool('mainBranch') ?? false;
     String branchNames = prefs.getString('branchName') ?? '';
-    dio.options.headers['Authorization'] =
-        'Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJUZWNobGFtYmRhcyIsImlhdCI6MTcyMzA0MTQzMiwiZXhwIjoxNzIzMDcwMjMyfQ.2bGGNYWK6Fp6pcd7B7rdIwSbYB7hILHGcs3G8TLnxTBWZiSDt7cMLM-rBs2C1t6mxMPHAKX09L3mzhQ7ht0gug';
+    dio.options.headers['Authorization'] = 'Bearer $token';
+    // 'Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJUZWNobGFtYmRhcyIsImlhdCI6MTcyMzA0MTQzMiwiZXhwIjoxNzIzMDcwMjMyfQ.2bGGNYWK6Fp6pcd7B7rdIwSbYB7hILHGcs3G8TLnxTBWZiSDt7cMLM-rBs2C1t6mxMPHAKX09L3mzhQ7ht0gug';
 
     String salesListUrl = '${AppUrl.sales}page?page=$currentPage&size=10';
     if (paymentStatus == 'PENDING' && iscancelled == false) {

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:tlbilling/api_service/app_service_utils.dart';
+import 'package:tlbilling/api_service/service_locator.dart';
 import 'package:tlbilling/models/get_model/get_all_sales_list_model.dart';
 import 'package:tlbilling/models/get_model/get_configuration_model.dart';
 import 'package:tlbilling/models/parent_response_model.dart';
@@ -67,7 +68,7 @@ class SalesViewBlocImpl extends SalesViewBloc {
   final _customerNameStreamController = StreamController<bool>.broadcast();
   final _paymentDetailsListStreamController =
       StreamController<bool>.broadcast();
-  final _appServiceUtilBlocImpl = AppServiceUtilImpl();
+  final _appServiceUtilBlocImpl = getIt<AppServiceUtilImpl>();
   int _currentPage = 0;
   final _pageNumberStreamController = StreamController<int>.broadcast();
   final _paidAmtFormKey = GlobalKey<FormState>();

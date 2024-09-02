@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:tlbilling/api_service/app_service_utils.dart';
+import 'package:tlbilling/api_service/service_locator.dart';
 import 'package:tlbilling/models/get_model/get_all_branches_by_pagination.dart';
 import 'package:tlbilling/models/get_model/get_all_transfer_model.dart';
 import 'package:tlbilling/models/get_model/get_configuration_model.dart';
@@ -85,7 +86,7 @@ class TransferViewBlocImpl extends TransferViewBloc {
   final _fromBranchNameListStreamController = StreamController.broadcast();
   late TabController _transferScreenTabController;
   String? _selectedVendor;
-  final _appService = AppServiceUtilImpl();
+  final _appService = getIt<AppServiceUtilImpl>();
   String? _transferListCount;
   String? _receivedListCount;
   String? _selectedStatus;

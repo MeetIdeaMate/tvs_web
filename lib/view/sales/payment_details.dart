@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
+import 'package:tlbilling/api_service/service_locator.dart';
 import 'package:tlbilling/components/custom_action_button.dart';
 import 'package:tlbilling/models/post_model/add_sales_model.dart';
 import 'package:tlbilling/utils/app_colors.dart';
@@ -17,13 +18,8 @@ import 'package:tlds_flutter/components/tlds_input_formaters.dart';
 import 'package:toastification/toastification.dart';
 
 class PaymentDetails extends StatefulWidget {
-  final AddSalesBlocImpl addSalesBloc;
-  final SalesViewBlocImpl salesViewBloc;
-
   const PaymentDetails({
     super.key,
-    required this.addSalesBloc,
-    required this.salesViewBloc,
   });
 
   @override
@@ -33,12 +29,15 @@ class PaymentDetails extends StatefulWidget {
 class _PaymentDetailsState extends State<PaymentDetails> {
   List<String>? _paymentsListFuture;
 
+  final _salesViewBloc = getIt<SalesViewBlocImpl>();
+  final _addSalesViewBloc = getIt<AddSalesBlocImpl>();
+
   @override
   void initState() {
     super.initState();
     getbranchId();
 
-    widget.addSalesBloc.getPaymentsList().then((value) {
+    _addSalesViewBloc.getPaymentsList().then((value) {
       setState(() {
         _paymentsListFuture = value?.configuration ?? [];
         _checkedList =
@@ -49,7 +48,7 @@ class _PaymentDetailsState extends State<PaymentDetails> {
 
   Future<void> getbranchId() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    widget.addSalesBloc.branchId = prefs.getString(AppConstants.branchId);
+    _addSalesViewBloc.branchId = prefs.getString(AppConstants.branchId);
   }
 
   final _appColors = AppColors();
@@ -62,10 +61,8 @@ class _PaymentDetailsState extends State<PaymentDetails> {
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            CustomerDetails(
-              addSalesBloc: widget.addSalesBloc,
-            ),
-            if (widget.addSalesBloc.selectedVehicleAndAccessories !=
+            const CustomerDetails(),
+            if (_addSalesViewBloc.selectedVehicleAndAccessories !=
                 AppConstants.accessories)
               _buildGstDetails(),
             AppWidgetUtils.buildSizedBox(custHeight: 30),
@@ -79,7 +76,7 @@ class _PaymentDetailsState extends State<PaymentDetails> {
 
   Widget _buildGstDetails() {
     return StreamBuilder<bool>(
-        stream: widget.addSalesBloc.gstDetailsStream,
+        stream: _addSalesViewBloc.gstDetailsStream,
         builder: (context, snapshot) {
           return Column(
             mainAxisAlignment: MainAxisAlignment.start,
@@ -100,7 +97,7 @@ class _PaymentDetailsState extends State<PaymentDetails> {
       inputFormatters: TlInputFormatters.onlyAllowNumbers,
       hintText: AppConstants.hsnCode,
       labelText: AppConstants.hsnCode,
-      controller: widget.addSalesBloc.hsnCodeTextController,
+      controller: _addSalesViewBloc.hsnCodeTextController,
       onChanged: (hsn) {},
       height: 70,
       validator: (value) {
@@ -109,33 +106,33 @@ class _PaymentDetailsState extends State<PaymentDetails> {
         }
         return null;
       },
-      focusNode: widget.addSalesBloc.hsnCodeFocus,
+      focusNode: _addSalesViewBloc.hsnCodeFocus,
       onSubmit: (value) {
-        FocusScope.of(context).requestFocus(widget.addSalesBloc.cgstFocus);
+        FocusScope.of(context).requestFocus(_addSalesViewBloc.cgstFocus);
       },
     );
   }
 
   Widget _buildGstRadioBtns() {
     return StreamBuilder<bool>(
-      stream: widget.addSalesBloc.gstRadioBtnRefreashStream,
+      stream: _addSalesViewBloc.gstRadioBtnRefreashStream,
       builder: (context, snapshot) {
         return Row(
           children: [
             Row(
-              children: widget.addSalesBloc.gstTypeOptions.map((gstTypeOption) {
+              children: _addSalesViewBloc.gstTypeOptions.map((gstTypeOption) {
                 return Padding(
                   padding: const EdgeInsets.all(8),
                   child: Row(
                     children: [
                       Radio<String>(
                         value: gstTypeOption,
-                        groupValue: widget.addSalesBloc.selectedGstType,
+                        groupValue: _addSalesViewBloc.selectedGstType,
                         onChanged: (String? value) {
-                          widget.addSalesBloc.selectedGstType = value;
+                          _addSalesViewBloc.selectedGstType = value;
                           FocusScope.of(context)
-                              .requestFocus(widget.addSalesBloc.igstFocus);
-                          widget.addSalesBloc
+                              .requestFocus(_addSalesViewBloc.igstFocus);
+                          _addSalesViewBloc
                               .gstRadioBtnRefreashStreamController(true);
                         },
                       ),
@@ -146,9 +143,9 @@ class _PaymentDetailsState extends State<PaymentDetails> {
               }).toList(),
             ),
             AppWidgetUtils.buildSizedBox(custWidth: 10),
-            if (widget.addSalesBloc.selectedGstType == AppConstants.gstPercent)
+            if (_addSalesViewBloc.selectedGstType == AppConstants.gstPercent)
               _buildGstPercentFields()
-            else if (widget.addSalesBloc.selectedGstType ==
+            else if (_addSalesViewBloc.selectedGstType ==
                 AppConstants.igstPercent)
               _buildIgstPercentField(),
           ],
@@ -165,8 +162,8 @@ class _PaymentDetailsState extends State<PaymentDetails> {
             child: TldsInputFormField(
               inputFormatters: TlInputFormatters.onlyAllowDecimalNumbers,
               hintText: AppConstants.cgstPercent,
-              controller: widget.addSalesBloc.cgstPresentageTextController,
-              focusNode: widget.addSalesBloc.cgstFocus,
+              controller: _addSalesViewBloc.cgstPresentageTextController,
+              focusNode: _addSalesViewBloc.cgstFocus,
               height: 40,
               maxLength: 5,
               counterText: '',
@@ -174,12 +171,12 @@ class _PaymentDetailsState extends State<PaymentDetails> {
                 _calculateGST();
                 double cgstPercentage = double.tryParse(cgst) ?? 0;
                 if (cgstPercentage > 100) {
-                  widget.addSalesBloc.cgstPresentageTextController.clear();
+                  _addSalesViewBloc.cgstPresentageTextController.clear();
                 }
               },
               onSubmit: (value) {
                 FocusScope.of(context)
-                    .requestFocus(widget.addSalesBloc.discountFocus);
+                    .requestFocus(_addSalesViewBloc.discountFocus);
               },
             ),
           ),
@@ -190,7 +187,7 @@ class _PaymentDetailsState extends State<PaymentDetails> {
               height: 40,
               inputFormatters: TlInputFormatters.onlyAllowDecimalNumbers,
               hintText: AppConstants.sgstPercent,
-              controller: widget.addSalesBloc.cgstPresentageTextController,
+              controller: _addSalesViewBloc.cgstPresentageTextController,
             ),
           ),
         ],
@@ -199,47 +196,47 @@ class _PaymentDetailsState extends State<PaymentDetails> {
   }
 
   void _calculateGST() {
-    double totalValues = widget.addSalesBloc.taxableValue ?? 0;
-    double cgstPercent = double.tryParse(
-            widget.addSalesBloc.cgstPresentageTextController.text) ??
-        0;
-    double sgstPercent = double.tryParse(
-            widget.addSalesBloc.cgstPresentageTextController.text) ??
-        0;
-    widget.addSalesBloc.taxableValue = totalValues;
-    widget.addSalesBloc.cgstAmount = (totalValues / 100) * cgstPercent;
-    widget.addSalesBloc.sgstAmount = (totalValues / 100) * sgstPercent;
+    double totalValues = _addSalesViewBloc.taxableValue ?? 0;
+    double cgstPercent =
+        double.tryParse(_addSalesViewBloc.cgstPresentageTextController.text) ??
+            0;
+    double sgstPercent =
+        double.tryParse(_addSalesViewBloc.cgstPresentageTextController.text) ??
+            0;
+    _addSalesViewBloc.taxableValue = totalValues;
+    _addSalesViewBloc.cgstAmount = (totalValues / 100) * cgstPercent;
+    _addSalesViewBloc.sgstAmount = (totalValues / 100) * sgstPercent;
     double cgstAmt =
-        double.tryParse(widget.addSalesBloc.cgstAmount.toString()) ?? 0;
-    double taxableValue = widget.addSalesBloc.taxableValue ?? 0;
+        double.tryParse(_addSalesViewBloc.cgstAmount.toString()) ?? 0;
+    double taxableValue = _addSalesViewBloc.taxableValue ?? 0;
     double gstAmt = cgstAmt + cgstAmt;
-    widget.addSalesBloc.invAmount = taxableValue + (gstAmt);
+    _addSalesViewBloc.invAmount = taxableValue + (gstAmt);
     _updateTotalInvoiceAmount();
 
-    widget.addSalesBloc.paymentDetailsStreamController(true);
-    widget.addSalesBloc.gstRadioBtnRefreashStreamController(true);
+    _addSalesViewBloc.paymentDetailsStreamController(true);
+    _addSalesViewBloc.gstRadioBtnRefreashStreamController(true);
   }
 
   void _updateTotalInvoiceAmount() {
     double? empsIncValue =
-        double.tryParse(widget.addSalesBloc.empsIncentiveTextController.text) ??
+        double.tryParse(_addSalesViewBloc.empsIncentiveTextController.text) ??
             0.0;
-    double? stateIncValue = double.tryParse(
-            widget.addSalesBloc.stateIncentiveTextController.text) ??
-        0.0;
+    double? stateIncValue =
+        double.tryParse(_addSalesViewBloc.stateIncentiveTextController.text) ??
+            0.0;
     double totalIncentive = empsIncValue + stateIncValue;
-    if ((widget.addSalesBloc.invAmount ?? 0) != -1) {
-      widget.addSalesBloc.totalInvAmount =
-          (widget.addSalesBloc.invAmount ?? 0) - totalIncentive;
+    if ((_addSalesViewBloc.invAmount ?? 0) != -1) {
+      _addSalesViewBloc.totalInvAmount =
+          (_addSalesViewBloc.invAmount ?? 0) - totalIncentive;
     } else {
-      widget.addSalesBloc.totalInvAmount = 0.0;
+      _addSalesViewBloc.totalInvAmount = 0.0;
     }
-    double advanceAmt = widget.addSalesBloc.advanceAmt ?? 0;
-    double totalInvAmt = widget.addSalesBloc.totalInvAmount ?? 0;
-    widget.addSalesBloc.toBePayedAmt = totalInvAmt - advanceAmt;
-    widget.addSalesBloc.toBePayedAmt = double.parse(
-        widget.addSalesBloc.toBePayedAmt?.round().toString() ?? '');
-    widget.addSalesBloc.paymentDetailsStreamController(true);
+    double advanceAmt = _addSalesViewBloc.advanceAmt ?? 0;
+    double totalInvAmt = _addSalesViewBloc.totalInvAmount ?? 0;
+    _addSalesViewBloc.toBePayedAmt = totalInvAmt - advanceAmt;
+    _addSalesViewBloc.toBePayedAmt =
+        double.parse(_addSalesViewBloc.toBePayedAmt?.round().toString() ?? '');
+    _addSalesViewBloc.paymentDetailsStreamController(true);
   }
 
   Widget _buildHeadingText(String text) {
@@ -260,34 +257,34 @@ class _PaymentDetailsState extends State<PaymentDetails> {
             child: TldsInputFormField(
               inputFormatters: TlInputFormatters.onlyAllowDecimalNumbers,
               hintText: AppConstants.igstPercent,
-              controller: widget.addSalesBloc.igstPresentageTextController,
-              focusNode: widget.addSalesBloc.igstFocus,
+              controller: _addSalesViewBloc.igstPresentageTextController,
+              focusNode: _addSalesViewBloc.igstFocus,
               height: 40,
               maxLength: 5,
               counterText: '',
               onChanged: (igst) {
                 double igstPercent = double.tryParse(igst) ?? 0;
                 if (igstPercent > 100) {
-                  widget.addSalesBloc.igstPresentageTextController.clear();
+                  _addSalesViewBloc.igstPresentageTextController.clear();
                 }
                 double igstPersent = double.parse(igst);
-                widget.addSalesBloc.paymentDetailsStreamController(true);
-                widget.addSalesBloc.gstRadioBtnRefreashStreamController(true);
-                double unitRate = widget.addSalesBloc.totalUnitRate ?? 0;
-                widget.addSalesBloc.paymentDetailsStreamController(true);
-                widget.addSalesBloc.igstAmount = (unitRate / 10) * igstPersent;
-                widget.addSalesBloc.paymentDetailsStreamController(true);
-                double taxableValue = widget.addSalesBloc.taxableValue ?? 0;
-                widget.addSalesBloc.paymentDetailsStreamController(true);
-                widget.addSalesBloc.invAmount =
-                    taxableValue + (widget.addSalesBloc.sgstAmount ?? 0 * 2);
-                widget.addSalesBloc.paymentDetailsStreamController(true);
+                _addSalesViewBloc.paymentDetailsStreamController(true);
+                _addSalesViewBloc.gstRadioBtnRefreashStreamController(true);
+                double unitRate = _addSalesViewBloc.totalUnitRate ?? 0;
+                _addSalesViewBloc.paymentDetailsStreamController(true);
+                _addSalesViewBloc.igstAmount = (unitRate / 10) * igstPersent;
+                _addSalesViewBloc.paymentDetailsStreamController(true);
+                double taxableValue = _addSalesViewBloc.taxableValue ?? 0;
+                _addSalesViewBloc.paymentDetailsStreamController(true);
+                _addSalesViewBloc.invAmount =
+                    taxableValue + (_addSalesViewBloc.sgstAmount ?? 0 * 2);
+                _addSalesViewBloc.paymentDetailsStreamController(true);
                 _updateTotalInvoiceAmount();
-                widget.addSalesBloc.paymentDetailsStreamController(true);
+                _addSalesViewBloc.paymentDetailsStreamController(true);
               },
               onSubmit: (value) {
                 FocusScope.of(context)
-                    .requestFocus(widget.addSalesBloc.discountFocus);
+                    .requestFocus(_addSalesViewBloc.discountFocus);
               },
             ),
           ),
@@ -298,7 +295,7 @@ class _PaymentDetailsState extends State<PaymentDetails> {
 
   Widget _buildPaymentDetails() {
     return StreamBuilder<bool>(
-        stream: widget.addSalesBloc.paymentDetailsStream,
+        stream: _addSalesViewBloc.paymentDetailsStream,
         builder: (context, snapshot) {
           return SizedBox(
             // padding: const EdgeInsets.all(12),
@@ -307,17 +304,17 @@ class _PaymentDetailsState extends State<PaymentDetails> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _buildTotalValue(),
-                if (widget.addSalesBloc.selectedVehicleAndAccessories !=
+                if (_addSalesViewBloc.selectedVehicleAndAccessories !=
                     AppConstants.accessories)
                   _buildDiscountfield(context),
-                if (widget.addSalesBloc.selectedVehicleAndAccessories ==
+                if (_addSalesViewBloc.selectedVehicleAndAccessories ==
                     AppConstants.accessories)
                   _buildPaymentDetailTile(
                       AppConstants.discount,
                       subTitle: AppConstants.discountB,
                       Text(
                         AppUtils.formatCurrency(
-                            widget.addSalesBloc.totalDiscount ?? 0.0),
+                            _addSalesViewBloc.totalDiscount ?? 0.0),
                         style: const TextStyle(
                             fontSize: 16, fontWeight: FontWeight.bold),
                       )),
@@ -326,19 +323,19 @@ class _PaymentDetailsState extends State<PaymentDetails> {
                 AppWidgetUtils.buildSizedBox(custHeight: 10),
                 _buildgstAmountText(),
                 AppWidgetUtils.buildSizedBox(custHeight: 10),
-                if (widget.addSalesBloc.selectedVehicleAndAccessories !=
+                if (_addSalesViewBloc.selectedVehicleAndAccessories !=
                     AppConstants.accessories)
                   _buildInvoiceText(),
-                if (widget.addSalesBloc.selectedVehicleAndAccessories !=
+                if (_addSalesViewBloc.selectedVehicleAndAccessories !=
                     AppConstants.accessories)
                   _buildEmpsInsentive(context),
-                if (widget.addSalesBloc.selectedVehicleAndAccessories !=
+                if (_addSalesViewBloc.selectedVehicleAndAccessories !=
                     AppConstants.accessories)
                   _buildStateInsentive(),
                 AppWidgetUtils.buildSizedBox(custHeight: 10),
                 _buildTotalInvAmtText(),
                 AppWidgetUtils.buildSizedBox(custHeight: 10),
-                if (widget.addSalesBloc.selectedVehicleAndAccessories !=
+                if (_addSalesViewBloc.selectedVehicleAndAccessories !=
                     'Accessories')
                   _buildAdvAmount(),
                 AppWidgetUtils.buildSizedBox(custHeight: 10),
@@ -368,7 +365,7 @@ class _PaymentDetailsState extends State<PaymentDetails> {
           style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
         ),
         trailing: Text(
-          AppUtils.formatCurrency(widget.addSalesBloc.toBePayedAmt ?? 0.00),
+          AppUtils.formatCurrency(_addSalesViewBloc.toBePayedAmt ?? 0.00),
           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
         ),
       ),
@@ -377,7 +374,7 @@ class _PaymentDetailsState extends State<PaymentDetails> {
 
   StreamBuilder<bool> _buildAdvAmount() {
     return StreamBuilder<bool>(
-        stream: widget.addSalesBloc.advanceAmountRefreshStream,
+        stream: _addSalesViewBloc.advanceAmountRefreshStream,
         builder: (context, snapshot) {
           return Container(
             decoration: BoxDecoration(
@@ -390,7 +387,7 @@ class _PaymentDetailsState extends State<PaymentDetails> {
                 style: TextStyle(fontSize: 16, color: _appColors.primaryColor),
               ),
               trailing: Text(
-                AppUtils.formatCurrency(widget.addSalesBloc.advanceAmt ?? 0),
+                AppUtils.formatCurrency(_addSalesViewBloc.advanceAmt ?? 0),
                 style: TextStyle(color: _appColors.primaryColor, fontSize: 16),
               ),
             ),
@@ -407,7 +404,7 @@ class _PaymentDetailsState extends State<PaymentDetails> {
         style: TextStyle(color: _appColors.grey),
       ),
       trailing: Text(
-        AppUtils.formatCurrency(widget.addSalesBloc.totalInvAmount ?? 0.0),
+        AppUtils.formatCurrency(_addSalesViewBloc.totalInvAmount ?? 0.0),
         style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
       ),
     );
@@ -420,17 +417,17 @@ class _PaymentDetailsState extends State<PaymentDetails> {
       TldsInputFormField(
         hintText: AppConstants.rupeeHint,
         inputFormatters: TldsInputFormatters.onlyAllowDecimalNumbers,
-        focusNode: widget.addSalesBloc.stateIncentiveFocus,
+        focusNode: _addSalesViewBloc.stateIncentiveFocus,
         width: 100,
         height: 40,
-        controller: widget.addSalesBloc.stateIncentiveTextController,
+        controller: _addSalesViewBloc.stateIncentiveTextController,
         onChanged: (stateInc) {
           double? stateIncentive = double.tryParse(stateInc);
-          double totalInvAmount = widget.addSalesBloc.totalInvAmount ?? 0;
+          double totalInvAmount = _addSalesViewBloc.totalInvAmount ?? 0;
 
           if (stateIncentive != null && stateIncentive >= totalInvAmount) {
             stateIncentive = 0;
-            widget.addSalesBloc.stateIncentiveTextController.text =
+            _addSalesViewBloc.stateIncentiveTextController.text =
                 stateIncentive.toString();
           }
 
@@ -447,17 +444,17 @@ class _PaymentDetailsState extends State<PaymentDetails> {
       TldsInputFormField(
         hintText: AppConstants.rupeeHint,
         inputFormatters: TldsInputFormatters.onlyAllowDecimalNumbers,
-        focusNode: widget.addSalesBloc.empsIncentiveFocus,
+        focusNode: _addSalesViewBloc.empsIncentiveFocus,
         width: 100,
         height: 40,
-        controller: widget.addSalesBloc.empsIncentiveTextController,
+        controller: _addSalesViewBloc.empsIncentiveTextController,
         onChanged: (empsInc) {
           double? empsIncentive = double.tryParse(empsInc);
-          double totalInvAmount = widget.addSalesBloc.totalInvAmount ?? 0;
+          double totalInvAmount = _addSalesViewBloc.totalInvAmount ?? 0;
 
           if (empsIncentive != null && empsIncentive >= totalInvAmount) {
             empsIncentive = 0;
-            widget.addSalesBloc.empsIncentiveTextController.text =
+            _addSalesViewBloc.empsIncentiveTextController.text =
                 empsIncentive.toString();
           }
 
@@ -465,7 +462,7 @@ class _PaymentDetailsState extends State<PaymentDetails> {
         },
         onSubmit: (value) {
           FocusScope.of(context)
-              .requestFocus(widget.addSalesBloc.stateIncentiveFocus);
+              .requestFocus(_addSalesViewBloc.stateIncentiveFocus);
         },
       ),
     );
@@ -476,7 +473,7 @@ class _PaymentDetailsState extends State<PaymentDetails> {
         AppConstants.invoiceValue,
         subTitle: AppConstants.invoiceValueThree,
         Text(
-          AppUtils.formatCurrency(widget.addSalesBloc.invAmount ?? 0.0),
+          AppUtils.formatCurrency(_addSalesViewBloc.invAmount ?? 0.0),
           style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
         ));
   }
@@ -490,37 +487,37 @@ class _PaymentDetailsState extends State<PaymentDetails> {
         child: Column(
           children: [
             Visibility(
-              visible: widget.addSalesBloc.selectedGstType ==
-                  AppConstants.igstPercent,
+              visible:
+                  _addSalesViewBloc.selectedGstType == AppConstants.igstPercent,
               child: _buildPaymentDetailTile(
                   AppConstants.igstAmount,
                   Text(
                     AppUtils.formatCurrency(
-                        widget.addSalesBloc.igstAmount ?? 0.0),
+                        _addSalesViewBloc.igstAmount ?? 0.0),
                     style: const TextStyle(
                         fontSize: 16, fontWeight: FontWeight.bold),
                   )),
             ),
             Visibility(
-              visible: widget.addSalesBloc.selectedGstType ==
-                  AppConstants.gstPercent,
+              visible:
+                  _addSalesViewBloc.selectedGstType == AppConstants.gstPercent,
               child: _buildPaymentDetailTile(
                   AppConstants.cgstAmount,
                   Text(
                     AppUtils.formatCurrency(
-                        widget.addSalesBloc.cgstAmount ?? 0.0),
+                        _addSalesViewBloc.cgstAmount ?? 0.0),
                     style: const TextStyle(
                         fontSize: 16, fontWeight: FontWeight.bold),
                   )),
             ),
             Visibility(
-              visible: widget.addSalesBloc.selectedGstType ==
-                  AppConstants.gstPercent,
+              visible:
+                  _addSalesViewBloc.selectedGstType == AppConstants.gstPercent,
               child: _buildPaymentDetailTile(
                   AppConstants.sgstAmount,
                   Text(
                     AppUtils.formatCurrency(
-                        widget.addSalesBloc.sgstAmount ?? 0.0),
+                        _addSalesViewBloc.sgstAmount ?? 0.0),
                     style: const TextStyle(
                         fontSize: 16, fontWeight: FontWeight.bold),
                   )),
@@ -544,7 +541,7 @@ class _PaymentDetailsState extends State<PaymentDetails> {
         AppConstants.taxableValue,
         subTitle: AppConstants.taxableValueAB,
         Text(
-          AppUtils.formatCurrency(widget.addSalesBloc.taxableValue ?? 0.0),
+          AppUtils.formatCurrency(_addSalesViewBloc.taxableValue ?? 0.0),
           style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
         ));
   }
@@ -558,30 +555,30 @@ class _PaymentDetailsState extends State<PaymentDetails> {
         inputFormatters: TldsInputFormatters.onlyAllowDecimalNumbers,
         width: 100,
         height: 40,
-        controller: widget.addSalesBloc.discountTextController,
-        focusNode: widget.addSalesBloc.discountFocus,
+        controller: _addSalesViewBloc.discountTextController,
+        focusNode: _addSalesViewBloc.discountFocus,
         onChanged: (discount) {
           double? discountAmount = double.tryParse(discount);
-          double totalValue = widget.addSalesBloc.totalValue ?? 0;
+          double totalValue = _addSalesViewBloc.totalValue ?? 0;
 
           if (discountAmount != null && discountAmount >= totalValue) {
             discountAmount = 0;
-            widget.addSalesBloc.discountTextController.text =
+            _addSalesViewBloc.discountTextController.text =
                 discountAmount.toStringAsFixed(2);
           }
 
-          widget.addSalesBloc.taxableValue = totalValue - (discountAmount ?? 0);
-          widget.addSalesBloc.totalInvAmount =
-              (widget.addSalesBloc.invAmount ?? 0) - (discountAmount ?? 0);
+          _addSalesViewBloc.taxableValue = totalValue - (discountAmount ?? 0);
+          _addSalesViewBloc.totalInvAmount =
+              (_addSalesViewBloc.invAmount ?? 0) - (discountAmount ?? 0);
 
           _calculateGST();
           _updateTotalInvoiceAmount();
 
-          widget.addSalesBloc.paymentDetailsStreamController(true);
+          _addSalesViewBloc.paymentDetailsStreamController(true);
         },
         onSubmit: (value) {
           FocusScope.of(context)
-              .requestFocus(widget.addSalesBloc.empsIncentiveFocus);
+              .requestFocus(_addSalesViewBloc.empsIncentiveFocus);
         },
       ),
     );
@@ -591,7 +588,7 @@ class _PaymentDetailsState extends State<PaymentDetails> {
     return _buildPaymentDetailTile(
         AppConstants.totalValue,
         Text(
-          AppUtils.formatCurrency(widget.addSalesBloc.totalValue ?? 0.0),
+          AppUtils.formatCurrency(_addSalesViewBloc.totalValue ?? 0.0),
           style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
         ),
         subTitle: AppConstants.totalValueA);
@@ -618,10 +615,10 @@ class _PaymentDetailsState extends State<PaymentDetails> {
 
   Widget _buildPaymentOptions() {
     return StreamBuilder<bool>(
-        stream: widget.addSalesBloc.paymentOptionStream,
+        stream: _addSalesViewBloc.paymentOptionStream,
         builder: (context, snapshot) {
           return FutureBuilder(
-            future: widget.addSalesBloc.getPaymentmethods(),
+            future: _addSalesViewBloc.getPaymentmethods(),
             builder: (context, snapshot) {
               if (snapshot.hasData) {
                 return SizedBox(
@@ -630,11 +627,11 @@ class _PaymentDetailsState extends State<PaymentDetails> {
                     itemCount: snapshot.data?.length ?? 0,
                     itemBuilder: (context, index) => _buildCustomRadioTile(
                       value: snapshot.data?[index].toString() ?? '',
-                      groupValue: widget.addSalesBloc.selectedPaymentOption,
+                      groupValue: _addSalesViewBloc.selectedPaymentOption,
                       onChanged: (value) {
                         setState(() {});
-                        widget.addSalesBloc.selectedPaymentOption = value!;
-                        widget.addSalesBloc.paymentOptionStreamController(true);
+                        _addSalesViewBloc.selectedPaymentOption = value!;
+                        _addSalesViewBloc.paymentOptionStreamController(true);
                       },
                       icon: Icons.payment,
                       label: snapshot.data?[index].toUpperCase() ?? '',
@@ -715,9 +712,9 @@ class _PaymentDetailsState extends State<PaymentDetails> {
 
   _buildPaiddetails() {
     return StreamBuilder<bool>(
-        stream: widget.addSalesBloc.isSplitPaymentStream,
+        stream: _addSalesViewBloc.isSplitPaymentStream,
         builder: (context, snapshot) {
-          return !widget.addSalesBloc.isSplitPayment
+          return !_addSalesViewBloc.isSplitPayment
               ? Column(
                   children: [
                     _paymentsListFuture?.isEmpty == true
@@ -725,50 +722,47 @@ class _PaymentDetailsState extends State<PaymentDetails> {
                         : TldsDropDownButtonFormField(
                             dropDownItems: _paymentsListFuture ?? [],
                             dropDownValue:
-                                widget.addSalesBloc.selectedPaymentList,
+                                _addSalesViewBloc.selectedPaymentList,
                             hintText: '',
                             width: double.infinity,
                             onChange: (value) {
-                              widget.addSalesBloc.selectedPaymentList = value;
-                              widget.addSalesBloc
+                              _addSalesViewBloc.selectedPaymentList = value;
+                              _addSalesViewBloc
                                   .selectedPaymentListStreamController(true);
                             },
                           ),
                     TldsInputFormField(
-                      controller: widget.addSalesBloc.paidAmountController,
+                      controller: _addSalesViewBloc.paidAmountController,
                       hintText: AppConstants.amount,
                       inputFormatters:
                           TlInputFormatters.onlyAllowDecimalNumbers,
                       onChanged: (value) {
                         double? paidAmount = double.tryParse(value);
                         double toBePaidAmt =
-                            widget.addSalesBloc.toBePayedAmt ?? 0;
+                            _addSalesViewBloc.toBePayedAmt ?? 0;
 
                         if (paidAmount != null && paidAmount >= toBePaidAmt) {
                           paidAmount = toBePaidAmt;
-                          widget.addSalesBloc.paidAmountController.text =
+                          _addSalesViewBloc.paidAmountController.text =
                               paidAmount.toStringAsFixed(2);
-                          //    widget.addSalesBloc.paidAmountControllerStreamController.add(true);
+                          //    _addSalesViewBloc.paidAmountControllerStreamController.add(true);
                         }
                       },
                     ),
                     StreamBuilder<bool>(
-                      stream: widget.addSalesBloc.selectedPaymentListStream,
+                      stream: _addSalesViewBloc.selectedPaymentListStream,
                       builder: (context, snapshot) {
                         return Visibility(
-                          visible: [
-                            'UPI',
-                            'CARD',
-                            'CHEQUE'
-                          ].contains(widget.addSalesBloc.selectedPaymentList),
+                          visible: ['UPI', 'CARD', 'CHEQUE']
+                              .contains(_addSalesViewBloc.selectedPaymentList),
                           child: Padding(
                             padding: const EdgeInsets.only(bottom: 13),
                             child: SizedBox(
                               child: TldsInputFormField(
-                                controller: widget
-                                    .addSalesBloc.paymentTypeIdTextController,
+                                controller: _addSalesViewBloc
+                                    .paymentTypeIdTextController,
                                 hintText:
-                                    '${widget.addSalesBloc.selectedPaymentList} ID',
+                                    '${_addSalesViewBloc.selectedPaymentList} ID',
                               ),
                             ),
                           ),
@@ -783,20 +777,20 @@ class _PaymentDetailsState extends State<PaymentDetails> {
 
   _buildSplitPayment() {
     return Visibility(
-      visible: widget.addSalesBloc.selectedPaymentOption == 'Pay',
+      visible: _addSalesViewBloc.selectedPaymentOption == 'Pay',
       child: Column(
         children: [
           StreamBuilder<bool>(
-            stream: widget.addSalesBloc.isSplitPaymentStream,
+            stream: _addSalesViewBloc.isSplitPaymentStream,
             builder: (context, snapshot) {
               return Row(
                 children: [
                   Switch(
-                    value: widget.addSalesBloc.isSplitPayment,
+                    value: _addSalesViewBloc.isSplitPayment,
                     onChanged: (value) {
-                      widget.addSalesBloc.isSplitPayment = value;
-                      widget.addSalesBloc.isSplitPaymentStreamController(true);
-                      widget.addSalesBloc.paidAmountController.clear();
+                      _addSalesViewBloc.isSplitPayment = value;
+                      _addSalesViewBloc.isSplitPaymentStreamController(true);
+                      _addSalesViewBloc.paidAmountController.clear();
 
                       if (!value) {
                         clearSplitPaymentData();
@@ -812,9 +806,9 @@ class _PaymentDetailsState extends State<PaymentDetails> {
             },
           ),
           StreamBuilder<bool>(
-              stream: widget.addSalesBloc.isSplitPaymentStream,
+              stream: _addSalesViewBloc.isSplitPaymentStream,
               builder: (context, snapshot) {
-                return widget.addSalesBloc.isSplitPayment
+                return _addSalesViewBloc.isSplitPayment
                     ? SizedBox(
                         child: _paymentsListFuture?.isEmpty == true
                             ? const Center(child: Text('No payments available'))
@@ -834,12 +828,12 @@ class _PaymentDetailsState extends State<PaymentDetails> {
 
                                   TextEditingController paidAmountController =
                                       TextEditingController(
-                                          text: widget.addSalesBloc
+                                          text: _addSalesViewBloc
                                               .splitPaymentAmt[index]);
 
                                   TextEditingController idController =
                                       TextEditingController(
-                                          text: widget.addSalesBloc
+                                          text: _addSalesViewBloc
                                               .splitPaymentId[index]);
 
                                   return Column(
@@ -852,7 +846,7 @@ class _PaymentDetailsState extends State<PaymentDetails> {
                                         children: [
                                           Expanded(
                                             child: StreamBuilder<bool>(
-                                                stream: widget.addSalesBloc
+                                                stream: _addSalesViewBloc
                                                     .splitPaymentCheckBoxStream,
                                                 builder: (context, snapshot) {
                                                   return CheckboxListTile(
@@ -869,20 +863,20 @@ class _PaymentDetailsState extends State<PaymentDetails> {
                                                         paidAmountController
                                                             .clear();
                                                         idController.clear();
-                                                        widget.addSalesBloc
+                                                        _addSalesViewBloc
                                                                 .splitPaymentAmt[
                                                             index] = '';
-                                                        widget.addSalesBloc
+                                                        _addSalesViewBloc
                                                                 .splitPaymentId[
                                                             index] = '';
                                                       }
-                                                      widget.addSalesBloc
+                                                      _addSalesViewBloc
                                                                   .paymentName[
                                                               index] =
                                                           _paymentsListFuture?[
                                                                   index] ??
                                                               '';
-                                                      widget.addSalesBloc
+                                                      _addSalesViewBloc
                                                           .splitPaymentCheckBoxStreamController(
                                                               true);
                                                     },
@@ -894,15 +888,14 @@ class _PaymentDetailsState extends State<PaymentDetails> {
                                           ),
                                           const SizedBox(height: 10),
                                           StreamBuilder<bool>(
-                                              stream: widget.addSalesBloc
+                                              stream: _addSalesViewBloc
                                                   .splitPaymentCheckBoxStream,
                                               builder: (context, snapshot) {
                                                 return Visibility(
                                                   visible: _checkedList[index],
                                                   child: Expanded(
                                                     child: StreamBuilder<bool>(
-                                                        stream: widget
-                                                            .addSalesBloc
+                                                        stream: _addSalesViewBloc
                                                             .selectedPaidAmtStream,
                                                         builder: (context,
                                                             snapshot) {
@@ -915,15 +908,14 @@ class _PaymentDetailsState extends State<PaymentDetails> {
                                                                 TlInputFormatters
                                                                     .onlyAllowDecimalNumbers,
                                                             onChanged: (value) {
-                                                              widget.addSalesBloc
+                                                              _addSalesViewBloc
                                                                       .splitPaymentAmt[
                                                                   index] = value;
 
                                                               double
                                                                   totalSplitPaymentAmt =
                                                                   0;
-                                                              widget
-                                                                  .addSalesBloc
+                                                              _addSalesViewBloc
                                                                   .splitPaymentAmt
                                                                   .forEach((key,
                                                                       amt) {
@@ -934,17 +926,16 @@ class _PaymentDetailsState extends State<PaymentDetails> {
                                                               });
 
                                                               if (totalSplitPaymentAmt >
-                                                                  (widget.addSalesBloc
+                                                                  (_addSalesViewBloc
                                                                           .toBePayedAmt ??
                                                                       0)) {
                                                                 setState(() {});
-                                                                widget.addSalesBloc
+                                                                _addSalesViewBloc
                                                                         .splitPaymentAmt[
                                                                     index] = '';
                                                               }
 
-                                                              widget
-                                                                  .addSalesBloc
+                                                              _addSalesViewBloc
                                                                   .selectedPaidAmtStreamController(
                                                                       true);
                                                             },
@@ -957,7 +948,7 @@ class _PaymentDetailsState extends State<PaymentDetails> {
                                       ),
                                       const SizedBox(height: 10),
                                       StreamBuilder<bool>(
-                                          stream: widget.addSalesBloc
+                                          stream: _addSalesViewBloc
                                               .splitPaymentCheckBoxStream,
                                           builder: (context, snapshot) {
                                             return Visibility(
@@ -972,7 +963,7 @@ class _PaymentDetailsState extends State<PaymentDetails> {
                                                     hintText:
                                                         '${_paymentsListFuture?[index]} ID',
                                                     onChanged: (value) {
-                                                      widget.addSalesBloc
+                                                      _addSalesViewBloc
                                                               .splitPaymentId[
                                                           index] = value;
                                                     },
@@ -996,23 +987,23 @@ class _PaymentDetailsState extends State<PaymentDetails> {
   }
 
   void clearSplitPaymentData() {
-    for (int i = 0; i < widget.addSalesBloc.splitPaymentAmt.length; i++) {
-      widget.addSalesBloc.splitPaymentAmt[i] = '';
-      widget.addSalesBloc.splitPaymentId[i] = '';
+    for (int i = 0; i < _addSalesViewBloc.splitPaymentAmt.length; i++) {
+      _addSalesViewBloc.splitPaymentAmt[i] = '';
+      _addSalesViewBloc.splitPaymentId[i] = '';
       _checkedList[i] = false;
     }
-    widget.addSalesBloc.splitPaymentCheckBoxStreamController(true);
+    _addSalesViewBloc.splitPaymentCheckBoxStreamController(true);
   }
 
   _buildSaveBtn() {
     return CustomActionButtons(
         onPressed: () {
-          if (widget.addSalesBloc.paymentFormKey.currentState!.validate()) {
-            widget.addSalesBloc.addNewSalesDeatils(salesPostObject(),
+          if (_addSalesViewBloc.paymentFormKey.currentState!.validate()) {
+            _addSalesViewBloc.addNewSalesDeatils(salesPostObject(),
                 (statusCode) {
               if (statusCode == 200 || statusCode == 201) {
                 Navigator.pop(context);
-                widget.salesViewBloc.pageNumberUpdateStreamController(0);
+                _salesViewBloc.pageNumberUpdateStreamController(0);
                 AppWidgetUtils.buildToast(
                     context,
                     ToastificationType.success,
@@ -1037,57 +1028,57 @@ class _PaymentDetailsState extends State<PaymentDetails> {
     int? totalQty = 0;
 
     List<PaidDetail> paidDetails = [];
-    for (var addon in widget.addSalesBloc.selectedMandatoryAddOns.keys) {
+    for (var addon in _addSalesViewBloc.selectedMandatoryAddOns.keys) {
       mandatoryAddonsMap[addon] =
-          widget.addSalesBloc.selectedMandatoryAddOns[addon]!;
+          _addSalesViewBloc.selectedMandatoryAddOns[addon]!;
     }
 
-    if (widget.addSalesBloc.selectedVehicleAndAccessories == 'E-Vehicle') {
-      for (var battery in widget.addSalesBloc.batteryDetailsMap.keys) {
+    if (_addSalesViewBloc.selectedVehicleAndAccessories == 'E-Vehicle') {
+      for (var battery in _addSalesViewBloc.batteryDetailsMap.keys) {
         eVehicleComponents[battery] =
-            widget.addSalesBloc.batteryDetailsMap[battery]!;
+            _addSalesViewBloc.batteryDetailsMap[battery]!;
       }
     }
 
-    if (widget.addSalesBloc.selectedVehicleAndAccessories == 'Accessories') {
-      totalQty = int.tryParse(widget.addSalesBloc.totalQty.toString());
+    if (_addSalesViewBloc.selectedVehicleAndAccessories == 'Accessories') {
+      totalQty = int.tryParse(_addSalesViewBloc.totalQty.toString());
     } else {
-      totalQty = widget.addSalesBloc.selectedVehiclesList?.length;
+      totalQty = _addSalesViewBloc.selectedVehiclesList?.length;
     }
 
-    if (widget.addSalesBloc.selectedGstType == 'GST %') {
+    if (_addSalesViewBloc.selectedGstType == 'GST %') {
       gstDetails.add(
         GstDetail(
-            gstAmount: widget.addSalesBloc.cgstAmount ?? 0,
+            gstAmount: _addSalesViewBloc.cgstAmount ?? 0,
             gstName: 'CGST',
             percentage: double.tryParse(
-                    widget.addSalesBloc.cgstPresentageTextController.text) ??
+                    _addSalesViewBloc.cgstPresentageTextController.text) ??
                 0),
       );
       gstDetails.add(
         GstDetail(
-            gstAmount: widget.addSalesBloc.cgstAmount ?? 0,
+            gstAmount: _addSalesViewBloc.cgstAmount ?? 0,
             gstName: 'SGST',
             percentage: double.tryParse(
-                    widget.addSalesBloc.cgstPresentageTextController.text) ??
+                    _addSalesViewBloc.cgstPresentageTextController.text) ??
                 0),
       );
     }
-    if (widget.addSalesBloc.selectedGstType == 'IGST %') {
+    if (_addSalesViewBloc.selectedGstType == 'IGST %') {
       gstDetails.add(
         GstDetail(
-            gstAmount: widget.addSalesBloc.igstAmount ?? 0,
+            gstAmount: _addSalesViewBloc.igstAmount ?? 0,
             gstName: 'IGST',
             percentage: double.tryParse(
-                    widget.addSalesBloc.igstPresentageTextController.text) ??
+                    _addSalesViewBloc.igstPresentageTextController.text) ??
                 0),
       );
     }
     for (int i = 0; i < _checkedList.length; i++) {
       if (_checkedList[i]) {
-        String paymentType = widget.addSalesBloc.paymentName[i] ?? '';
-        String paidAmount = widget.addSalesBloc.splitPaymentAmt[i] ?? '0';
-        String paidId = widget.addSalesBloc.splitPaymentId[i] ?? '0';
+        String paymentType = _addSalesViewBloc.paymentName[i] ?? '';
+        String paidAmount = _addSalesViewBloc.splitPaymentAmt[i] ?? '0';
+        String paidId = _addSalesViewBloc.splitPaymentId[i] ?? '0';
 
         final paidDetail = PaidDetail(
             paidAmount: double.tryParse(paidAmount) ?? 0,
@@ -1098,68 +1089,68 @@ class _PaymentDetailsState extends State<PaymentDetails> {
         paidDetails.add(paidDetail);
       }
     }
-    if (widget.addSalesBloc.paidAmountController.text != '') {
+    if (_addSalesViewBloc.paidAmountController.text != '') {
       paidDetails.add(PaidDetail(
-          paymentType: widget.addSalesBloc.selectedPaymentList,
+          paymentType: _addSalesViewBloc.selectedPaymentList,
           paidAmount: double.tryParse(
-            widget.addSalesBloc.paidAmountController.text,
+            _addSalesViewBloc.paidAmountController.text,
           ),
           paymentDate: DateFormat('yyyy-MM-dd').format(DateTime.now()),
           paymentReference:
-              widget.addSalesBloc.paymentTypeIdTextController.text));
+              _addSalesViewBloc.paymentTypeIdTextController.text));
     }
 
     List<Incentive> insentive = [];
-    if (widget.addSalesBloc.stateIncentiveTextController.text.isNotEmpty) {
+    if (_addSalesViewBloc.stateIncentiveTextController.text.isNotEmpty) {
       insentive.add(Incentive(
           incentiveAmount: double.tryParse(
-                  widget.addSalesBloc.stateIncentiveTextController.text) ??
+                  _addSalesViewBloc.stateIncentiveTextController.text) ??
               0,
           incentiveName: 'STATE INCENTIVE',
           percentage: 0));
     }
 
-    if (widget.addSalesBloc.empsIncentiveTextController.text.isNotEmpty) {
+    if (_addSalesViewBloc.empsIncentiveTextController.text.isNotEmpty) {
       insentive.add(Incentive(
           incentiveAmount: double.tryParse(
-                  widget.addSalesBloc.empsIncentiveTextController.text) ??
+                  _addSalesViewBloc.empsIncentiveTextController.text) ??
               0,
           incentiveName: 'EMPS INCENTIVE',
           percentage: 0));
     }
 
     List<Tax> tax = [];
-    if (widget.addSalesBloc.selectedVehiclesList!.isNotEmpty) {
-      for (var itemData in widget.addSalesBloc.selectedVehiclesList!) {
+    if (_addSalesViewBloc.selectedVehiclesList!.isNotEmpty) {
+      for (var itemData in _addSalesViewBloc.selectedVehiclesList!) {
         final itemDetail = SalesItemDetail(
             categoryId: itemData.categoryId ?? '',
             discount: double.tryParse(
-                    widget.addSalesBloc.discountTextController.text) ??
+                    _addSalesViewBloc.discountTextController.text) ??
                 0,
-            finalInvoiceValue: widget.addSalesBloc.totalInvAmount ?? 0,
+            finalInvoiceValue: _addSalesViewBloc.totalInvAmount ?? 0,
             gstDetails: gstDetails,
-            hsnSacCode: widget.addSalesBloc.hsnCodeTextController.text,
+            hsnSacCode: _addSalesViewBloc.hsnCodeTextController.text,
             incentives: insentive,
-            invoiceValue: widget.addSalesBloc.invAmount ?? 0,
+            invoiceValue: _addSalesViewBloc.invAmount ?? 0,
             itemName: itemData.itemName ?? '',
             mainSpecValue: {
               'engineNo': itemData.mainSpecValue?.engineNo ?? '',
               'frameNo': itemData.mainSpecValue?.frameNo ?? ''
             },
             partNo: itemData.partNo ?? '',
-            quantity: widget.addSalesBloc.selectedVehiclesList?.length,
+            quantity: _addSalesViewBloc.selectedVehiclesList?.length,
             specificationsValue: {},
             stockId: itemData.stockId ?? '',
-            taxableValue: widget.addSalesBloc.taxableValue ?? 0,
+            taxableValue: _addSalesViewBloc.taxableValue ?? 0,
             taxes: tax,
-            unitRate: double.tryParse(widget.addSalesBloc.unitRates[0] ?? ''),
-            value: widget.addSalesBloc.totalValue ?? 0);
+            unitRate: double.tryParse(_addSalesViewBloc.unitRates[0] ?? ''),
+            value: _addSalesViewBloc.totalValue ?? 0);
         itemdetails.add(itemDetail);
       }
     }
 
-    if (widget.addSalesBloc.accessoriesItemList?.isNotEmpty ?? false) {
-      for (var itemData in widget.addSalesBloc.accessoriesItemList!) {
+    if (_addSalesViewBloc.accessoriesItemList?.isNotEmpty ?? false) {
+      for (var itemData in _addSalesViewBloc.accessoriesItemList!) {
         final itemDetail = SalesItemDetail(
             categoryId: itemData.categoryId ?? '',
             discount: itemData.discount ?? 0,
@@ -1183,22 +1174,22 @@ class _PaymentDetailsState extends State<PaymentDetails> {
     }
 
     return AddSalesModel(
-        billType: widget.addSalesBloc.selectedPaymentOption,
-        bookingNo: widget.addSalesBloc.bookingId,
-        branchId: widget.addSalesBloc.branchId ?? '',
-        customerId: widget.addSalesBloc.selectedCustomerId ?? '',
+        billType: _addSalesViewBloc.selectedPaymentOption,
+        bookingNo: _addSalesViewBloc.bookingId,
+        branchId: _addSalesViewBloc.branchId ?? '',
+        customerId: _addSalesViewBloc.selectedCustomerId ?? '',
         evBattery: eVehicleComponents,
         invoiceDate: DateFormat('yyyy-MM-dd').format(DateTime.now()),
-        invoiceType: widget.addSalesBloc.selectedVehicleAndAccessories,
+        invoiceType: _addSalesViewBloc.selectedVehicleAndAccessories,
         itemDetails: itemdetails,
         mandatoryAddons: mandatoryAddonsMap,
         netAmt: double.parse(
-            widget.addSalesBloc.totalInvAmount?.round().toString() ?? ''),
+            _addSalesViewBloc.totalInvAmount?.round().toString() ?? ''),
         paidDetails: paidDetails,
-        roundOffAmt: double.parse(
-                widget.addSalesBloc.totalInvAmount?.toString() ?? '') -
-            double.parse(
-                widget.addSalesBloc.totalInvAmount?.round().toString() ?? ''),
+        roundOffAmt:
+            double.parse(_addSalesViewBloc.totalInvAmount?.toString() ?? '') -
+                double.parse(
+                    _addSalesViewBloc.totalInvAmount?.round().toString() ?? ''),
         totalQty: totalQty);
   }
 }

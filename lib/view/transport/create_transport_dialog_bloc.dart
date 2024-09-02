@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tlbilling/api_service/app_service_utils.dart';
+import 'package:tlbilling/api_service/service_locator.dart';
 import 'package:tlbilling/models/get_model/get_transport_by_pagination.dart';
 import 'package:tlbilling/models/post_model/add_transport_model.dart';
 
@@ -27,7 +28,7 @@ class CreateTransportBlocImpl extends CreateTransportBloc {
   final _transportNameController = TextEditingController();
   final _transportMobNoController = TextEditingController();
   final _transportCityController = TextEditingController();
-  final _apiServices = AppServiceUtilImpl();
+  final _apiServices = getIt<AppServiceUtilImpl>();
   bool _isAsyncCall = false;
 
   @override

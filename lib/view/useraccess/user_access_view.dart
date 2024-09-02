@@ -1,6 +1,7 @@
 import 'package:blurry_modal_progress_hud/blurry_modal_progress_hud.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tlbilling/api_service/service_locator.dart';
 import 'package:tlbilling/components/side_menu_navigation_bloc.dart';
 import 'package:tlbilling/models/get_model/get_all_access_controll_model.dart';
 import 'package:tlbilling/models/get_model/get_all_branches_by_pagination.dart';
@@ -16,8 +17,7 @@ import 'package:tlds_flutter/components/tlds_dropdown_button_form_field.dart';
 import 'package:toastification/toastification.dart';
 
 class AccessControlViewScreen extends StatefulWidget {
-  final SideMenuNavigationBlocImpl? sideMenuNavigationBlocImpl;
-  const AccessControlViewScreen({super.key, this.sideMenuNavigationBlocImpl});
+  const AccessControlViewScreen({super.key});
 
   @override
   State<AccessControlViewScreen> createState() =>
@@ -27,7 +27,8 @@ class AccessControlViewScreen extends StatefulWidget {
 class _AccessControlViewScreenState extends State<AccessControlViewScreen>
     with SingleTickerProviderStateMixin {
   final _appColors = AppColors();
-  final _accessViewControlBloc = AccessControlViewBlocImpl();
+  final _accessViewControlBloc = getIt<AccessControlViewBlocImpl>();
+  final _sideMenuNavigationBlocImpl = getIt<SideMenuNavigationBlocImpl>();
   String? _userId;
   String? _userName;
   bool? isUpdateAccess = false;
@@ -524,7 +525,7 @@ class _AccessControlViewScreenState extends State<AccessControlViewScreen>
             if (filteredaccessControl?.isNotEmpty ?? false) {
               UserAccessLevels.storeUserAccessData(filteredaccessControl);
               AccessLevel.accessingData();
-              widget.sideMenuNavigationBlocImpl?.sideMenuStreamController(true);
+              _sideMenuNavigationBlocImpl.sideMenuStreamController(true);
               return;
             }
           }

@@ -2,6 +2,7 @@ import 'package:blurry_modal_progress_hud/blurry_modal_progress_hud.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:tlbilling/api_service/service_locator.dart';
 import 'package:tlbilling/components/custom_action_button.dart';
 import 'package:tlbilling/components/custom_dropdown_button_form_field.dart';
 import 'package:tlbilling/utils/app_colors.dart';
@@ -18,17 +19,12 @@ import 'package:tlds_flutter/export.dart' as tlds;
 import 'package:toastification/toastification.dart';
 
 class CreateEmployeeDialog extends StatefulWidget {
-  final EmployeeViewBlocImpl? employeeViewBloc;
   final String? employeeId;
-  final CreateUserDialogBlocImpl? createUserDialogBlocImpl;
-  final NewVoucherBlocImpl? newVoucherBloc;
 
-  const CreateEmployeeDialog(
-      {super.key,
-      this.newVoucherBloc,
-      this.employeeViewBloc,
-      this.employeeId,
-      this.createUserDialogBlocImpl});
+  const CreateEmployeeDialog({
+    super.key,
+    this.employeeId,
+  });
 
   @override
   State<CreateEmployeeDialog> createState() => _CreateEmployeeDialogState();
@@ -36,7 +32,11 @@ class CreateEmployeeDialog extends StatefulWidget {
 
 class _CreateEmployeeDialogState extends State<CreateEmployeeDialog> {
   final _appColors = AppColors();
-  final _createEmployeeDialogBlocImpl = CreateEmployeeDialogBlocImpl();
+  final _createEmployeeDialogBlocImpl = getIt<CreateEmployeeDialogBlocImpl>();
+  final _employeeViewBloc = getIt<EmployeeViewBlocImpl>();
+  final _createUserDialogBloc = getIt<CreateUserDialogBlocImpl>();
+  final _newVoucherBlocImpl = getIt<NewVoucherBlocImpl>();
+
   bool _isLoading = false;
 
   void _isLoadingState({required bool state}) {
@@ -476,10 +476,10 @@ class _CreateEmployeeDialogState extends State<CreateEmployeeDialog> {
           ),
           AppConstants.employeeCreatedSuccessfully,
           _appColors.successLightColor);
-      widget.employeeViewBloc?.employeeTableViewStream(true);
-      widget.createUserDialogBlocImpl?.employeeNameSelectStream(true);
-      widget.newVoucherBloc?.payToTextStreamController(true);
-      widget.newVoucherBloc?.giverTextStreamController(true);
+      _employeeViewBloc.employeeTableViewStream(true);
+      _createUserDialogBloc.employeeNameSelectStream(true);
+      _newVoucherBlocImpl.payToTextStreamController(true);
+      _newVoucherBlocImpl.giverTextStreamController(true);
     } else {
       _isLoadingState(state: false);
     }
@@ -501,7 +501,7 @@ class _CreateEmployeeDialogState extends State<CreateEmployeeDialog> {
             ),
             AppConstants.employeeUpdateSuccessfully,
             _appColors.successLightColor);
-        widget.employeeViewBloc?.pageNumberUpdateStreamController(0);
+        _employeeViewBloc.pageNumberUpdateStreamController(0);
       } else {
         _isLoadingState(state: false);
       }

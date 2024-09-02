@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:tlbilling/api_service/app_service_utils.dart';
+import 'package:tlbilling/api_service/service_locator.dart';
 import 'package:tlbilling/models/parent_response_model.dart';
 import 'package:tlbilling/models/post_model/add_vouchar_model.dart';
 import 'package:tlbilling/utils/app_utils.dart';
@@ -30,7 +31,7 @@ class NewVoucherBlocImpl extends NewVoucherBloc {
   final _giverTextController = TextEditingController();
   final _amountTextController = TextEditingController();
   final _reasonTextController = TextEditingController();
-  final _appServiceUtilsImpl = AppServiceUtilImpl();
+  final _appServiceUtilsImpl = getIt<AppServiceUtilImpl>();
   final _payToTextStream = StreamController<bool>.broadcast();
   final _giverTextStream = StreamController<bool>.broadcast();
   final _formKey = GlobalKey<FormState>();

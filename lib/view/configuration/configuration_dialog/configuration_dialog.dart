@@ -1,6 +1,7 @@
 import 'package:blurry_modal_progress_hud/blurry_modal_progress_hud.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:tlbilling/api_service/service_locator.dart';
 import 'package:tlbilling/components/custom_action_button.dart';
 import 'package:tlbilling/utils/app_colors.dart';
 import 'package:tlbilling/utils/app_util_widgets.dart';
@@ -20,8 +21,7 @@ class ConfigurationDialog extends StatefulWidget {
 
 class _ConfigurationDialogState extends State<ConfigurationDialog> {
   final _appColors = AppColors();
-  final _configurationDialogBloc = ConfigurationDialogBlocImpl();
-  final _configurationViewBloc = ConfigurationBlocImpl();
+  final _configurationDialogBloc = getIt<ConfigurationDialogBlocImpl>();
 
   @override
   void initState() {

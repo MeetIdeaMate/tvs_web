@@ -309,12 +309,21 @@ class _AddBookingDialogState extends State<AddBookingDialog> {
   }
 
   Widget _buildExecutiveFrom() {
-    return FutureBuilder(
+    return FutureBuilder<List<GetAllEmployeeModel>?>(
       future: _addBookingDialogBloc.getAllExcutiveList(),
       builder: (context, snapshot) {
-        List<GetAllEmployeeModel?> employeeList = snapshot.data ?? [];
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: Text(AppConstants.loading));
+        } else if (snapshot.hasError) {
+          return const Center(child: Text(AppConstants.errorLoading));
+        } else if (!snapshot.hasData || snapshot.data == null) {
+          return const Center(child: Text(AppConstants.noData));
+        }
+
+        List<GetAllEmployeeModel> employeeList = snapshot.data!;
         List<String> employeeNames =
-            employeeList.map((e) => e?.employeeName ?? '').toList();
+            employeeList.map((e) => e.employeeName ?? '').toList();
+
         return TldsDropDownButtonFormField(
           requiredLabelText:
               AppWidgetUtils.labelTextWithRequired(AppConstants.executiveName),
@@ -331,10 +340,10 @@ class _AddBookingDialogState extends State<AddBookingDialog> {
           onChange: (String? newValue) {
             if (newValue != null) {
               GetAllEmployeeModel? selectedEmployee = employeeList.firstWhere(
-                  (e) => e?.employeeName == newValue,
+                  (e) => e.employeeName == newValue,
                   orElse: () => GetAllEmployeeModel());
               _addBookingDialogBloc.selectedExcutiveId =
-                  selectedEmployee?.employeeId ?? '';
+                  selectedEmployee.employeeId ?? '';
             }
           },
         );

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:tlbilling/api_service/app_service_utils.dart';
+import 'package:tlbilling/api_service/service_locator.dart';
 import 'package:tlbilling/models/parent_response_model.dart';
 
 abstract class PurchaseReportBloc {
@@ -13,7 +14,7 @@ abstract class PurchaseReportBloc {
 class PurchaseReportBlocImpl extends PurchaseReportBloc {
   late TabController _purchaseReportTabController;
   final _tabChangeStreamController = StreamController<bool>.broadcast();
-  final _apiServiceBlocImpl = AppServiceUtilImpl();
+  final _apiServiceBlocImpl = getIt<AppServiceUtilImpl>();
 
   @override
   TabController get purchaseReportTabController => _purchaseReportTabController;

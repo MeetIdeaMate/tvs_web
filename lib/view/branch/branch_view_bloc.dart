@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:tlbilling/api_service/app_service_utils.dart';
+import 'package:tlbilling/api_service/service_locator.dart';
 import 'package:tlbilling/models/get_model/get_all_branches_by_pagination.dart';
 
 abstract class BranchViewBloc {
@@ -34,7 +35,7 @@ class BranchViewBlocImpl extends BranchViewBloc {
   final _pinCodeStreamController = StreamController.broadcast();
   final _branchTablePageStreamController = StreamController.broadcast();
   String? _selectedCity;
-  final _apiCalls = AppServiceUtilImpl();
+  final _apiCalls = getIt<AppServiceUtilImpl>();
   int _currentPage = 0;
   bool _isAsyncCall = false;
 

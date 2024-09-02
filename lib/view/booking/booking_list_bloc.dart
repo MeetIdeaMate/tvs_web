@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:tlbilling/api_service/app_service_utils.dart';
+import 'package:tlbilling/api_service/service_locator.dart';
 import 'package:tlbilling/models/get_model/get_all_booking_list_with_pagination.dart';
 import 'package:tlbilling/models/get_model/get_configuration_model.dart';
 import 'package:tlbilling/models/parent_response_model.dart';
@@ -46,7 +47,7 @@ abstract class BookingListBloc {
 }
 
 class BookingListBlocImpl extends BookingListBloc {
-  final _appServices = AppServiceUtilImpl();
+  final _appServices = getIt<AppServiceUtilImpl>();
   final _bookingIdTextController = TextEditingController();
   final _customerTextController = TextEditingController();
   final _bookingIdFieldStreamController = StreamController.broadcast();

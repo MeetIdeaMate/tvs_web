@@ -33,7 +33,7 @@ class SalesViewScreen extends StatefulWidget {
 
 class _SalesViewScreenState extends State<SalesViewScreen>
     with TickerProviderStateMixin {
-  final _salesViewBloc = SalesViewBlocImpl();
+  final _salesViewBloc = getIt<SalesViewBlocImpl>();
 
   final _appColors = AppColor();
 
@@ -143,8 +143,7 @@ class _SalesViewScreenState extends State<SalesViewScreen>
                   Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) =>
-                            AddSales(salesViewBloc: _salesViewBloc),
+                        builder: (context) => const AddSales(),
                       ));
                 },
               )
@@ -423,8 +422,6 @@ class _SalesViewScreenState extends State<SalesViewScreen>
                                                 builder: (context) {
                                                   return PaymentDailog(
                                                     salesdata: entry.value,
-                                                    salesViewBloc:
-                                                        _salesViewBloc,
                                                     totalInvAmt: entry
                                                         .value.totalInvoiceAmt,
                                                   );

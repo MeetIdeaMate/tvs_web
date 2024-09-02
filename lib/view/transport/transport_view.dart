@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:tlbilling/api_service/service_locator.dart';
 import 'package:tlbilling/components/custom_pagenation.dart';
 import 'package:tlbilling/models/get_model/get_transport_by_pagination.dart';
 import 'package:tlbilling/utils/app_colors.dart';
@@ -23,7 +24,7 @@ class TransportView extends StatefulWidget {
 
 class _TransportViewState extends State<TransportView> {
   final _appColors = AppColors();
-  final _transportBlocImpl = TransportBlocImpl();
+  final _transportBlocImpl = getIt<TransportBlocImpl>();
 
   @override
   Widget build(BuildContext context) {

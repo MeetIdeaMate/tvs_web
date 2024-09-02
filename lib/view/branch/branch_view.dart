@@ -2,6 +2,7 @@ import 'package:blurry_modal_progress_hud/blurry_modal_progress_hud.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:tlbilling/api_service/service_locator.dart';
 import 'package:tlbilling/components/custom_pagenation.dart';
 import 'package:tlbilling/models/get_model/get_all_branches_by_pagination.dart';
 import 'package:tlbilling/utils/app_colors.dart';
@@ -25,7 +26,7 @@ class BranchView extends StatefulWidget {
 }
 
 class _MyWidgetState extends State<BranchView> {
-  final _branchViewBlocImpl = BranchViewBlocImpl();
+  final _branchViewBlocImpl = getIt<BranchViewBlocImpl>();
   final _appColors = AppColors();
   List<String>? city = [
     'All',
@@ -82,7 +83,7 @@ class _MyWidgetState extends State<BranchView> {
         barrierDismissible: false,
         context: context,
         builder: (context) {
-          return CreateBranchDialog(branchViewBlocImpl: _branchViewBlocImpl);
+          return const CreateBranchDialog();
         },
       );
     }, text: AppConstants.addBranch);

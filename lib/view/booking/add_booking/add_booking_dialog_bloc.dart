@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:tlbilling/api_service/app_service_utils.dart';
+import 'package:tlbilling/api_service/service_locator.dart';
 import 'package:tlbilling/models/get_model/get_all_customer_name_list.dart';
 import 'package:tlbilling/models/get_model/get_all_employee_model.dart';
 import 'package:tlbilling/models/get_model/get_all_stocks_without_pagination.dart';
@@ -35,7 +36,7 @@ abstract class AddBookingDialogBloc {
 }
 
 class AddBookingDialogBlocImpl extends AddBookingDialogBloc {
-  final _appServices = AppServiceUtilImpl();
+  final _appServices = getIt<AppServiceUtilImpl>();
   final _bookingDateTextController = TextEditingController();
   final _customerNameTextController = TextEditingController();
   final _vehicleNameTextController = TextEditingController();

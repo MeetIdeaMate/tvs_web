@@ -19,14 +19,10 @@ import 'package:toastification/toastification.dart';
 import '../../api_service/service_locator.dart';
 
 class PaymentDailog extends StatefulWidget {
-  final SalesViewBlocImpl salesViewBloc;
   final double? totalInvAmt;
   final Content? salesdata;
   const PaymentDailog(
-      {super.key,
-      required this.salesViewBloc,
-      required this.totalInvAmt,
-      required this.salesdata});
+      {super.key, required this.totalInvAmt, required this.salesdata});
 
   @override
   State<PaymentDailog> createState() => _PaymentDailogState();
@@ -34,6 +30,7 @@ class PaymentDailog extends StatefulWidget {
 
 class _PaymentDailogState extends State<PaymentDailog> {
   final _appColors = AppColors();
+  final _salesViewBloc = getIt<SalesViewBlocImpl>();
   bool _isLoading = false;
 
   void _isLoadingState({required bool state}) {
@@ -48,22 +45,22 @@ class _PaymentDailogState extends State<PaymentDailog> {
   void initState() {
     super.initState();
 
-    widget.salesViewBloc.getPaymentsList().then((value) {
+    _salesViewBloc.getPaymentsList().then((value) {
       setState(() {
         _paymentsListFuture = value?.configuration ?? [];
       });
     });
-    widget.salesViewBloc.totalInvAmtPaymentController.text =
+    _salesViewBloc.totalInvAmtPaymentController.text =
         widget.salesdata?.pendingAmt?.toStringAsFixed(2) ?? '';
-    widget.salesViewBloc.paymentDateTextController.text =
+    _salesViewBloc.paymentDateTextController.text =
         DateFormat('dd-MM-yyyy').format(DateTime.now());
   }
 
   @override
   void dispose() {
-    widget.salesViewBloc.paidAmountTextController.clear();
-    widget.salesViewBloc.balanceAmtController.clear();
-    widget.salesViewBloc.paymentDateTextController.clear();
+    _salesViewBloc.paidAmountTextController.clear();
+    _salesViewBloc.balanceAmtController.clear();
+    _salesViewBloc.paymentDateTextController.clear();
     super.dispose();
   }
 
@@ -74,7 +71,7 @@ class _PaymentDailogState extends State<PaymentDailog> {
       progressIndicator: AppWidgetUtils.buildLoading(),
       color: _appColors.whiteColor,
       child: StreamBuilder<bool>(
-          stream: widget.salesViewBloc.paymentDialogStream,
+          stream: _salesViewBloc.paymentDialogStream,
           builder: (context, snapshot) {
             return AlertDialog(
               backgroundColor: _appColors.whiteColor,
@@ -127,24 +124,23 @@ class _PaymentDailogState extends State<PaymentDailog> {
         CustomActionButtons(
             onPressed: widget.salesdata?.paymentStatus == 'PENDING'
                 ? () {
-                    if (widget.salesViewBloc.paidAmtFormKey.currentState!
+                    if (_salesViewBloc.paidAmtFormKey.currentState!
                         .validate()) {
                       _isLoadingState(state: true);
-                      widget.salesViewBloc.salesPaymentUpdate(
-                          AppUtils.appToAPIDateFormat(widget
-                              .salesViewBloc.paymentDateTextController.text),
-                          widget.salesViewBloc.selectedPaymentName ?? 'CASH',
-                          double.tryParse(widget.salesViewBloc
+                      _salesViewBloc.salesPaymentUpdate(
+                          AppUtils.appToAPIDateFormat(
+                              _salesViewBloc.paymentDateTextController.text),
+                          _salesViewBloc.selectedPaymentName ?? 'CASH',
+                          double.tryParse(_salesViewBloc
                                   .paidAmountTextController.text) ??
                               0,
                           widget.salesdata?.salesId ?? '',
-                          widget.salesViewBloc.reasonTextEditingController.text,
+                          _salesViewBloc.reasonTextEditingController.text,
                           (statusCode) {
                         if (statusCode == 200 || statusCode == 201) {
                           _isLoadingState(state: false);
                           Navigator.pop(context);
-                          widget.salesViewBloc
-                              .pageNumberUpdateStreamController(0);
+                          _salesViewBloc.pageNumberUpdateStreamController(0);
 
                           AppWidgetUtils.buildToast(
                               context,
@@ -154,10 +150,9 @@ class _PaymentDailogState extends State<PaymentDailog> {
                                   color: _appColors.successColor),
                               AppConstants.paymentUpdateSuccessfully,
                               _appColors.successLightColor);
-                          widget.salesViewBloc.paidAmountTextController.clear();
-                          widget.salesViewBloc.balanceAmtController.clear();
-                          widget.salesViewBloc.paymentDateTextController
-                              .clear();
+                          _salesViewBloc.paidAmountTextController.clear();
+                          _salesViewBloc.balanceAmtController.clear();
+                          _salesViewBloc.paymentDateTextController.clear();
                         } else {
                           _isLoadingState(state: false);
                           AppWidgetUtils.buildToast(
@@ -193,7 +188,7 @@ class _PaymentDailogState extends State<PaymentDailog> {
   _buildPaymentForm() {
     return SingleChildScrollView(
       child: Form(
-        key: widget.salesViewBloc.paidAmtFormKey,
+        key: _salesViewBloc.paidAmtFormKey,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
@@ -217,7 +212,7 @@ class _PaymentDailogState extends State<PaymentDailog> {
           child: TldsInputFormField(
             readOnly: true,
             labelText: AppConstants.pendingInvAmt,
-            controller: widget.salesViewBloc.totalInvAmtPaymentController,
+            controller: _salesViewBloc.totalInvAmtPaymentController,
             enabled: true,
             inputFormatters: TldsInputFormatters.onlyAllowDecimalNumbers,
             validator: (value) {
@@ -236,7 +231,7 @@ class _PaymentDailogState extends State<PaymentDailog> {
             child: TldsDatePicker(
               requiredLabelText:
                   AppWidgetUtils.labelTextWithRequired(AppConstants.date),
-              controller: widget.salesViewBloc.paymentDateTextController,
+              controller: _salesViewBloc.paymentDateTextController,
               height: 70,
               hintText: AppConstants.date,
               validator: (value) {
@@ -256,7 +251,7 @@ class _PaymentDailogState extends State<PaymentDailog> {
     return TldsInputFormField(
       maxLine: 100,
       height: 80,
-      controller: widget.salesViewBloc.reasonTextEditingController,
+      controller: _salesViewBloc.reasonTextEditingController,
       hintText: AppConstants.reason,
       labelText: AppConstants.reason,
     );
@@ -270,12 +265,12 @@ class _PaymentDailogState extends State<PaymentDailog> {
             : TldsDropDownButtonFormField(
                 labelText: AppConstants.paymentTypes,
                 dropDownItems: _paymentsListFuture ?? [],
-                dropDownValue: widget.salesViewBloc.selectedPaymentName,
+                dropDownValue: _salesViewBloc.selectedPaymentName,
                 hintText: '',
                 width: double.infinity,
                 onChange: (value) {
-                  widget.salesViewBloc.selectedPaymentName = value;
-                  widget.salesViewBloc.paymentStreamController(true);
+                  _salesViewBloc.selectedPaymentName = value;
+                  _salesViewBloc.paymentStreamController(true);
                 },
               ),
         AppWidgetUtils.buildSizedBox(custWidth: 15),
@@ -288,7 +283,7 @@ class _PaymentDailogState extends State<PaymentDailog> {
                   //   readOnly: true,
                   requiredLabelText: AppWidgetUtils.labelTextWithRequired(
                       AppConstants.paidAmt),
-                  controller: widget.salesViewBloc.paidAmountTextController,
+                  controller: _salesViewBloc.paidAmountTextController,
                   hintText: AppConstants.amount,
                   inputFormatters: TlInputFormatters.onlyAllowDecimalNumbers,
                   validator: (value) {
@@ -299,19 +294,19 @@ class _PaymentDailogState extends State<PaymentDailog> {
                     return null;
                   },
                   onChanged: (value) {
-                    double totalInv = double.tryParse(widget
-                            .salesViewBloc.totalInvAmtPaymentController.text) ??
+                    double totalInv = double.tryParse(
+                            _salesViewBloc.totalInvAmtPaymentController.text) ??
                         0;
 
-                    double paidAmt = double.tryParse(widget
-                            .salesViewBloc.paidAmountTextController.text) ??
+                    double paidAmt = double.tryParse(
+                            _salesViewBloc.paidAmountTextController.text) ??
                         0;
 
                     if (totalInv < paidAmt) {
-                      widget.salesViewBloc.paidAmountTextController.clear();
+                      _salesViewBloc.paidAmountTextController.clear();
                     }
                     double balanceAmt = totalInv - paidAmt;
-                    widget.salesViewBloc.balanceAmtController.text =
+                    _salesViewBloc.balanceAmtController.text =
                         balanceAmt.toString();
                   },
                 ),
@@ -323,13 +318,13 @@ class _PaymentDailogState extends State<PaymentDailog> {
         ),
         Visibility(
           visible: ['UPI ', 'CARD', 'CHEQUE']
-              .contains(widget.salesViewBloc.selectedPaymentName),
+              .contains(_salesViewBloc.selectedPaymentName),
           child: Padding(
             padding: const EdgeInsets.only(bottom: 13),
             child: SizedBox(
               child: TldsInputFormField(
-                controller: widget.salesViewBloc.paymentIdTextControler,
-                hintText: '${widget.salesViewBloc.selectedPaymentName} ID',
+                controller: _salesViewBloc.paymentIdTextControler,
+                hintText: '${_salesViewBloc.selectedPaymentName} ID',
               ),
             ),
           ),
@@ -345,7 +340,7 @@ class _PaymentDailogState extends State<PaymentDailog> {
           labelText: AppConstants.balanceAmt,
           enabled: true,
           readOnly: true,
-          controller: widget.salesViewBloc.balanceAmtController),
+          controller: _salesViewBloc.balanceAmtController),
     );
   }
 }

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:tlbilling/api_service/app_service_utils.dart';
+import 'package:tlbilling/api_service/service_locator.dart';
 import 'package:tlbilling/models/parent_response_model.dart';
 import 'package:tlbilling/models/user_model.dart';
 
@@ -23,7 +24,9 @@ class UserViewBlocImpl extends UserViewBloc {
   final _searchUserNameAndMobNoController = TextEditingController();
   String? _selectedDestination;
   final _userListStream = StreamController<bool>.broadcast();
-  final _appServiceUtilsImpl = AppServiceUtilImpl();
+  // final _appServiceUtilsImpl = AppServiceUtilImpl();
+  final _appServiceUtilsImpl = getIt<AppServiceUtilImpl>();
+
   int _currentPage = 0;
   final _pageNumberStreamController = StreamController<int>.broadcast();
   String? _branchId;

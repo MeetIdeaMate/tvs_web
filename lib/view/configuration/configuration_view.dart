@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:tlbilling/api_service/service_locator.dart';
 import 'package:tlbilling/components/custom_elevated_button.dart';
 import 'package:tlbilling/models/get_model/get_configuration_list_model.dart';
 import 'package:tlbilling/utils/app_colors.dart';
@@ -21,8 +22,7 @@ class ConfigurationView extends StatefulWidget {
 
 class _ConfigurationViewState extends State<ConfigurationView> {
   final _appColors = AppColors();
-  final _configurationViewBloc = ConfigurationBlocImpl();
-  final _configurationDialogBloc = ConfigurationDialogBlocImpl();
+  final _configurationViewBloc = getIt<ConfigurationBlocImpl>();
 
   @override
   Widget build(BuildContext context) {

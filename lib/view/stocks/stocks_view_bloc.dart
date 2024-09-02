@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:tlbilling/api_service/app_service_utils.dart';
+import 'package:tlbilling/api_service/service_locator.dart';
 import 'package:tlbilling/models/get_model/get_all_branch_model.dart';
 import 'package:tlbilling/models/get_model/get_all_branches_by_pagination.dart';
 import 'package:tlbilling/models/get_model/get_all_stock_with_pagination.dart';
@@ -39,7 +40,7 @@ class StocksViewBlocImpl extends StocksViewBloc {
   final _partNumberSearchControllerStream = StreamController.broadcast();
   final _vehicleNameSearchControllerStream = StreamController.broadcast();
   late TabController _stocksTableTableController;
-  final _apiServices = AppServiceUtilImpl();
+  final _apiServices = getIt<AppServiceUtilImpl>();
   int _currentPage = 0;
   final _pageNumberStreamController = StreamController<int>.broadcast();
   final _branchNameStreamController = StreamController<bool>.broadcast();

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:tlbilling/api_service/app_service_utils.dart';
+import 'package:tlbilling/api_service/service_locator.dart';
 import 'package:tlbilling/models/get_model/get_transport_by_pagination.dart';
 
 abstract class TransportViewBloc {
@@ -33,7 +34,7 @@ class TransportBlocImpl extends TransportViewBloc {
   final _transportCityStreamController = StreamController.broadcast();
   final _tablePageNoStreamController = StreamController.broadcast();
   int _currentPage = 0;
-  final _apiCalls = AppServiceUtilImpl();
+  final _apiCalls = getIt<AppServiceUtilImpl>();
 
   @override
   TextEditingController get transportCitySearchController =>

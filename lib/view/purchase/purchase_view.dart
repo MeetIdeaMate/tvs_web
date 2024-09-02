@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:tlbilling/api_service/service_locator.dart';
 import 'package:tlbilling/components/custom_action_button.dart';
 import 'package:tlbilling/components/custom_elevated_button.dart';
 import 'package:tlbilling/components/custom_pagenation.dart';
@@ -28,7 +29,7 @@ class PurchaseView extends StatefulWidget {
 class _PurchaseViewState extends State<PurchaseView>
     with SingleTickerProviderStateMixin {
   final _appColors = AppColor();
-  final _purchaseViewBloc = PurchaseViewBlocImpl();
+  final _purchaseViewBloc = getIt<PurchaseViewBlocImpl>();
 
   @override
   void initState() {
@@ -136,8 +137,7 @@ class _PurchaseViewState extends State<PurchaseView>
                   Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) =>
-                            AddPurchase(purchaseViewBloc: _purchaseViewBloc),
+                        builder: (context) => const AddPurchase(),
                       ));
                 },
               )

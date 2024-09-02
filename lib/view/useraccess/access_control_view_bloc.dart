@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:tlbilling/api_service/app_service_utils.dart';
+import 'package:tlbilling/api_service/service_locator.dart';
 import 'package:tlbilling/models/get_model/get_all_access_controll_model.dart';
 import 'package:tlbilling/models/get_model/get_all_branches_by_pagination.dart';
 import 'package:tlbilling/models/get_model/get_configuration_model.dart';
@@ -62,7 +63,7 @@ abstract class AccessControlViewBloc {
 }
 
 class AccessControlViewBlocImpl implements AccessControlViewBloc {
-  final _apiCalls = AppServiceUtilImpl();
+  final _apiCalls = getIt<AppServiceUtilImpl>();
   late TabController _accessControlTabController;
   final List<String> _accessLevels = [];
 
