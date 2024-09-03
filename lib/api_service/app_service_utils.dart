@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:core';
 import 'package:dio/dio.dart';
-import 'package:flutter/material.dart';
+
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tlbilling/api_service/app_url.dart';
 import 'package:intl/intl.dart';
@@ -332,26 +332,19 @@ class AppServiceUtilImpl extends AppServiceUtil {
       return status != null;
     };
 
-    dio.interceptors.add(LogInterceptor(
-      error: true,
-      responseBody: true,
-    ));
-
     dio.interceptors.add(InterceptorsWrapper(
       onResponse: (response, handler) {
-        print(response.data);
         final result = parentResponseModelFromJson(jsonEncode(response.data));
         if (response.statusCode != 200 && response.statusCode != 201) {
           AppWidgetUtils.showErrorToast(
               result.error?.message ?? AppConstants.somethingWentWrong);
           if (result.statusCode == 401) {
-            // logout();
+            logoutUser();
           }
         }
         handler.next(response);
       },
       onError: (error, handler) {
-        print('11111111111111111111111111111111111111111${error.message}');
         handler.next(error);
       },
     ));
@@ -1271,8 +1264,8 @@ class AppServiceUtilImpl extends AppServiceUtil {
     var token = prefs.getString('token');
     bool isMainBranch = prefs.getBool('mainBranch') ?? false;
     String branchNames = prefs.getString('branchName') ?? '';
-    dio.options.headers['Authorization'] =
-        'Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJUZWNobGFtYmRhcyIsImlhdCI6MTcyMzA0MTQzMiwiZXhwIjoxNzIzMDcwMjMyfQ.2bGGNYWK6Fp6pcd7B7rdIwSbYB7hILHGcs3G8TLnxTBWZiSDt7cMLM-rBs2C1t6mxMPHAKX09L3mzhQ7ht0gug';
+    dio.options.headers['Authorization'] = 'Bearer $token';
+    // 'Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJUZWNobGFtYmRhcyIsImlhdCI6MTcyMzA0MTQzMiwiZXhwIjoxNzIzMDcwMjMyfQ.2bGGNYWK6Fp6pcd7B7rdIwSbYB7hILHGcs3G8TLnxTBWZiSDt7cMLM-rBs2C1t6mxMPHAKX09L3mzhQ7ht0gug';
 
     String salesListUrl = '${AppUrl.sales}page?page=$currentPage&size=10';
     if (paymentStatus == 'PENDING' && iscancelled == false) {
