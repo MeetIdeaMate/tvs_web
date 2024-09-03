@@ -287,26 +287,26 @@ class _SideMenuNavigationState extends State<SideMenuNavigation> {
                       _onMenuItemSelected(AppConstants.branch);
                     },
                   ),
-              if (!AccessLevel.canHide(
-                AppConstants.voucher,
-              ))
-                _buildDrawerMenuItem(
-                  AppConstants.icVoucher,
-                  AppConstants.voucher,
-                  () {
-                    _onMenuItemSelected(AppConstants.voucher);
-                  },
-                ),
-              if (!AccessLevel.canHide(
-                AppConstants.reports,
-              ))
-                _buildDrawerMenuItem(
-                  AppConstants.icReport,
-                  AppConstants.reports,
-                  () {
-                    _onMenuItemSelected(AppConstants.reports);
-                  },
-                ),
+              // if (!AccessLevel.canHide(
+              //   AppConstants.voucher,
+              // ))
+              //   _buildDrawerMenuItem(
+              //     AppConstants.icVoucher,
+              //     AppConstants.voucher,
+              //     () {
+              //       _onMenuItemSelected(AppConstants.voucher);
+              //     },
+              //   ),
+              // if (!AccessLevel.canHide(
+              //   AppConstants.reports,
+              // ))
+              //   _buildDrawerMenuItem(
+              //     AppConstants.icReport,
+              //     AppConstants.reports,
+              //     () {
+              //       _onMenuItemSelected(AppConstants.reports);
+              //     },
+              //   ),
               if (!AccessLevel.canHide(
                 AppConstants.configC,
               ))
@@ -317,16 +317,16 @@ class _SideMenuNavigationState extends State<SideMenuNavigation> {
                     _onMenuItemSelected(AppConstants.configC);
                   },
                 ),
-              if (!AccessLevel.canHide(
-                AppConstants.insurance,
-              ))
-                _buildDrawerMenuItem(
-                  AppConstants.icReport,
-                  AppConstants.insurance,
-                  () {
-                    _onMenuItemSelected(AppConstants.insurance);
-                  },
-                ),
+              // if (!AccessLevel.canHide(
+              //   AppConstants.insurance,
+              // ))
+              //   _buildDrawerMenuItem(
+              //     AppConstants.icReport,
+              //     AppConstants.insurance,
+              //     () {
+              //       _onMenuItemSelected(AppConstants.insurance);
+              //     },
+              //   ),
               if (isMainBranch ?? false)
                 if (!AccessLevel.canHide(
                   AppConstants.accessControl,
@@ -338,13 +338,14 @@ class _SideMenuNavigationState extends State<SideMenuNavigation> {
                       _onMenuItemSelected(AppConstants.accessControl);
                     },
                   ),
-              _buildDrawerMenuItem(
-                AppConstants.icAccounthead,
-                AppConstants.accountHead,
-                () {
-                  _onMenuItemSelected(AppConstants.accountHead);
-                },
-              ),
+
+              // _buildDrawerMenuItem(
+              //   AppConstants.icAccounthead,
+              //   AppConstants.accountHead,
+              //   () {
+              //     _onMenuItemSelected(AppConstants.accountHead);
+              //   },
+              // ),
               AppWidgetUtils.buildSizedBox(custHeight: 30),
               _buildLogoutMenuItem(),
               AppWidgetUtils.buildSizedBox(custHeight: 20),
@@ -482,8 +483,8 @@ class _SideMenuNavigationState extends State<SideMenuNavigation> {
         return const InsuranseView();
       case AppConstants.booking:
         return const BookingList();
-      case AppConstants.accountHead:
-        return const AccountHeadView();
+      // case AppConstants.accountHead:
+      //   return const AccountHeadView();
       case AppConstants.accessControl:
         return AccessControlViewScreen(
           sideMenuNavigationBlocImpl: _sideMenuBloc,
