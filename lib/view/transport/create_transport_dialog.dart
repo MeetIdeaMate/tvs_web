@@ -138,16 +138,6 @@ class _CreateTransportDialogDialogState extends State<CreateTransportDialog> {
                       _appColors.successLightColor);
                 } else {
                   _isLoading(false);
-                  AppWidgetUtils.buildToast(
-                      context,
-                      ToastificationType.error,
-                      AppConstants.transportUpdate,
-                      Icon(
-                        Icons.error_outline_outlined,
-                        color: _appColors.errorColor,
-                      ),
-                      AppConstants.somethingWentWrong,
-                      _appColors.errorLightColor);
                 }
               },
             );
@@ -170,16 +160,6 @@ class _CreateTransportDialogDialogState extends State<CreateTransportDialog> {
                       _appColors.successLightColor);
                 } else {
                   _isLoading(false);
-                  AppWidgetUtils.buildToast(
-                      context,
-                      ToastificationType.error,
-                      AppConstants.transportCreated,
-                      Icon(
-                        Icons.error_outline_outlined,
-                        color: _appColors.errorColor,
-                      ),
-                      AppConstants.somethingWentWrong,
-                      _appColors.errorLightColor);
                 }
               },
             );

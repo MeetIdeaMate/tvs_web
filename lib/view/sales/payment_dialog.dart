@@ -143,6 +143,7 @@ class _PaymentDailogState extends State<PaymentDailog> {
                           Navigator.pop(context);
                           widget.salesViewBloc
                               .pageNumberUpdateStreamController(0);
+
                           AppWidgetUtils.buildToast(
                               context,
                               ToastificationType.success,

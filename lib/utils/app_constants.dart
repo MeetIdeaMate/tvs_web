@@ -44,6 +44,8 @@ class AppConstants {
   static const all = 'All';
   static const today = 'Today';
   static const pending = 'Pending';
+  static const pendingC = 'PENDING';
+  static const completedC = 'COMPLETED';
   static const completed = 'Completed';
 
   // static const branchId = 'branchId';

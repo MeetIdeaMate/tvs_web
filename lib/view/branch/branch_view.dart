@@ -344,16 +344,6 @@ class _MyWidgetState extends State<BranchView> {
                 _appColors.successLightColor);
             _isLoading(false);
           } else {
-            AppWidgetUtils.buildToast(
-                context,
-                ToastificationType.error,
-                AppConstants.branchDeleted,
-                Icon(
-                  Icons.error_outline_outlined,
-                  color: _appColors.errorColor,
-                ),
-                AppConstants.somethingWentWrong,
-                _appColors.errorLightColor);
             _isLoading(false);
           }
         }, entry.value.branchId ?? '');

@@ -235,16 +235,6 @@ class _TransferDetailsState extends State<TransferDetails> {
           _transferViewBloc.tableRefreshStream(true);
         } else {
           _loadingStatus(false);
-          AppWidgetUtils.buildToast(
-              context,
-              ToastificationType.error,
-              AppConstants.transferRequest,
-              Icon(
-                Icons.error_outline_outlined,
-                color: _appColors.errorColor,
-              ),
-              AppConstants.somethingWentWrong,
-              _appColors.errorLightColor);
         }
       },
     );

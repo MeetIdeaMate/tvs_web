@@ -204,6 +204,7 @@ class _ConfigurationDialogState extends State<ConfigurationDialog> {
               (statusCode) {
                 _isLoadingState(true);
                 if (statusCode == 200 || statusCode == 201) {
+                  _isLoadingState(false);
                   Navigator.pop(context);
                   AppWidgetUtils.buildToast(
                       context,
@@ -216,16 +217,7 @@ class _ConfigurationDialogState extends State<ConfigurationDialog> {
                       'Configuration Created Successfully',
                       _appColors.successLightColor);
                 } else {
-                  AppWidgetUtils.buildToast(
-                      context,
-                      ToastificationType.error,
-                      'Configuration Create Error',
-                      Icon(
-                        Icons.error_outline,
-                        color: _appColors.errorColor,
-                      ),
-                      'Configuration Not Created Successfully',
-                      _appColors.errorLightColor);
+                  _isLoadingState(false);
                 }
               },
             );

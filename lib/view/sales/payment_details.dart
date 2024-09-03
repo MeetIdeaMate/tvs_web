@@ -1021,16 +1021,7 @@ class _PaymentDetailsState extends State<PaymentDetails> {
                         color: _appColors.successColor),
                     AppConstants.salesBillDescScc,
                     _appColors.successLightColor);
-              } else {
-                AppWidgetUtils.buildToast(
-                    context,
-                    ToastificationType.error,
-                    AppConstants.salesBillerr,
-                    Icon(Icons.not_interested_rounded,
-                        color: _appColors.errorColor),
-                    AppConstants.salesBillDescerr,
-                    _appColors.errorLightColor);
-              }
+              } else {}
             });
           }
         },

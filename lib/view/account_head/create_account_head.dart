@@ -404,16 +404,6 @@ class _CreateAccountHeadState extends State<CreateAccountHead> {
                     _appColors.successLightColor);
               } else {
                 _isLoadingState(state: false);
-                AppWidgetUtils.buildToast(
-                    context,
-                    ToastificationType.error,
-                    AppConstants.accountHeadUpdate,
-                    Icon(
-                      Icons.error_outline_outlined,
-                      color: _appColors.errorColor,
-                    ),
-                    AppConstants.somethingWentWrong,
-                    _appColors.errorLightColor);
               }
             }, widget.accountId ?? '');
           } else {
@@ -436,16 +426,6 @@ class _CreateAccountHeadState extends State<CreateAccountHead> {
                     _appColors.successLightColor);
               } else {
                 _isLoadingState(state: false);
-                AppWidgetUtils.buildToast(
-                    context,
-                    ToastificationType.error,
-                    AppConstants.accountHeadCreated,
-                    Icon(
-                      Icons.error_outline_outlined,
-                      color: _appColors.errorColor,
-                    ),
-                    AppConstants.somethingWentWrong,
-                    _appColors.errorLightColor);
               }
             });
           }

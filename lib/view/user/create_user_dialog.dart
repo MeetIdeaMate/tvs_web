@@ -231,13 +231,13 @@ class _CreateUserDialogState extends State<CreateUserDialog> {
           padding: const EdgeInsets.only(top: 20),
           child: IconButton(
               style: ButtonStyle(
-                shape: MaterialStateProperty.all(
+                shape: WidgetStateProperty.all(
                   RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(5),
                   ),
                 ),
                 backgroundColor:
-                    MaterialStateProperty.all(_appColors.primaryColor),
+                    WidgetStateProperty.all(_appColors.primaryColor),
               ),
               onPressed: () {
                 showDialog(
@@ -421,16 +421,7 @@ class _CreateUserDialogState extends State<CreateUserDialog> {
         _isLoadingState(state: false);
         widget.userViewBloc.pageNumberUpdateStreamController(0);
       }, (statusCode) {
-        if (statusCode == 409) {
-          AppWidgetUtils.buildToast(
-              context,
-              ToastificationType.error,
-              AppConstants.userAlreadyCreated,
-              Icon(Icons.error_outline, color: AppColor().errorColor),
-              AppConstants.selectDiffrentUser,
-              AppColor().errorLightColor);
-          _isLoadingState(state: false);
-        }
+        _isLoadingState(state: false);
       });
     }
     _isLoadingState(state: false);

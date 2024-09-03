@@ -33,6 +33,7 @@ class SalesViewScreen extends StatefulWidget {
 class _SalesViewScreenState extends State<SalesViewScreen>
     with TickerProviderStateMixin {
   final _salesViewBloc = SalesViewBlocImpl();
+
   final _appColors = AppColor();
 
   @override
@@ -275,18 +276,17 @@ class _SalesViewScreenState extends State<SalesViewScreen>
         physics: const NeverScrollableScrollPhysics(),
         controller: _salesViewBloc.salesTabController,
         children: [
-          _buildSalesTableView(
-              context, DateFormat('yyyy-MM-dd').format(DateTime.now()), false),
-          _buildSalesTableView(context, 'PENDING', false),
-          _buildSalesTableView(context, 'COMPLETED', false),
-          _buildSalesTableView(context, '', true),
+          _buildSalesTableView(DateFormat('yyyy-MM-dd').format(DateTime.now())),
+          _buildSalesTableView(AppConstants.pendingC),
+          _buildSalesTableView(AppConstants.completedC),
+          _buildSalesTableView('', iscancelled: true),
         ],
       ),
     );
   }
 
-  Widget _buildSalesTableView(
-      BuildContext context, String paymentStatus, bool iscancelled) {
+  Widget _buildSalesTableView(String paymentStatus,
+      {bool iscancelled = false}) {
     return StreamBuilder<int>(
       stream: _salesViewBloc.pageNumberStream,
       initialData: _salesViewBloc.currentPage,
@@ -574,17 +574,6 @@ class _SalesViewScreenState extends State<SalesViewScreen>
                         AppConstants.salesCancelledDes,
                         _appColors.successLightColor);
                     _salesViewBloc.salesBillCancelReasonTextController.clear();
-                  } else {
-                    AppWidgetUtils.buildToast(
-                        context,
-                        ToastificationType.error,
-                        AppConstants.salesCancelledErr,
-                        Icon(
-                          Icons.error_outline_outlined,
-                          color: _appColors.errorColor,
-                        ),
-                        AppConstants.somethingWentWrong,
-                        _appColors.errorLightColor);
                   }
                 }, entry.value.salesId,
                     _salesViewBloc.salesBillCancelReasonTextController.text);
@@ -667,20 +656,20 @@ class _SalesViewScreenState extends State<SalesViewScreen>
                         trailing: Badge(
                           label: Text(item.quantity.toString()),
                         )),
-                    if (entry.value.invoiceType != 'Accessories')
+                    if (entry.value.invoiceType != 'Accessories') ...[
                       ListTile(
                         title: const Text(AppConstants.engineNumber),
                         subtitle: Text(entry.value.itemDetails?[index]
                                 .mainSpecValue?.engineNumber ??
                             ''),
                       ),
-                    if (entry.value.invoiceType != 'Accessories')
                       ListTile(
                         title: const Text(AppConstants.frameNumber),
                         subtitle: Text(entry.value.itemDetails?[index]
                                 .mainSpecValue?.frameNumber ??
                             ''),
                       ),
+                    ],
                     if (item.gstDetails != null && item.gstDetails!.isNotEmpty)
                       ListTile(
                         title: const Text('GST Details'),
@@ -826,21 +815,6 @@ class _SalesViewScreenState extends State<SalesViewScreen>
                                                         .salesCancelledDes,
                                                     _appColors
                                                         .successLightColor);
-                                              } else {
-                                                AppWidgetUtils.buildToast(
-                                                    context,
-                                                    ToastificationType.error,
-                                                    AppConstants
-                                                        .salesCancelledErr,
-                                                    Icon(
-                                                      Icons
-                                                          .error_outline_outlined,
-                                                      color:
-                                                          _appColors.errorColor,
-                                                    ),
-                                                    AppConstants
-                                                        .somethingWentWrong,
-                                                    _appColors.errorLightColor);
                                               }
                                             },
                                                 entry.value.salesId,

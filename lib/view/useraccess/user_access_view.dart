@@ -485,17 +485,6 @@ class _AccessControlViewScreenState extends State<AccessControlViewScreen>
                 _appColors.successLightColor);
           } else {
             _accessViewControlBloc.setLoadingState(false);
-
-            AppWidgetUtils.buildToast(
-                context,
-                ToastificationType.error,
-                AppConstants.userAccessNotCreated,
-                Icon(
-                  Icons.error_outline_outlined,
-                  color: _appColors.errorColor,
-                ),
-                AppConstants.userAccessNotCreatedDes,
-                _appColors.errorLightColor);
           }
         },
         accessData,
@@ -541,16 +530,6 @@ class _AccessControlViewScreenState extends State<AccessControlViewScreen>
           }
         } else {
           _isLoadingState(state: false);
-          AppWidgetUtils.buildToast(
-              context,
-              ToastificationType.error,
-              AppConstants.userAccessNotUpdated,
-              Icon(
-                Icons.error_outline_outlined,
-                color: _appColors.errorColor,
-              ),
-              AppConstants.userAccessNotUpdatedDes,
-              _appColors.errorLightColor);
         }
       }, accessData, accessId ?? '');
     }

@@ -1,9 +1,11 @@
 import 'dart:convert';
 import 'dart:core';
 import 'package:dio/dio.dart';
+
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tlbilling/api_service/app_url.dart';
 import 'package:intl/intl.dart';
+import 'package:tlbilling/main.dart';
 import 'package:tlbilling/models/get_employee_by_id.dart';
 import 'package:tlbilling/models/get_model/get_all_account_head_by_pagination_model.dart';
 import 'package:tlbilling/models/get_model/get_all_access_controll_model.dart';
@@ -47,6 +49,8 @@ import 'package:tlbilling/models/post_model/user_access_model.dart';
 import 'package:tlbilling/models/update/update_branch_model.dart';
 import 'package:tlbilling/models/user_model.dart';
 import 'package:tlbilling/utils/app_constants.dart';
+import 'package:tlbilling/utils/app_util_widgets.dart';
+import 'package:toastification/toastification.dart';
 
 import '../models/post_model/add_vendor_model.dart';
 
@@ -317,7 +321,41 @@ abstract class AppServiceUtil {
 class AppServiceUtilImpl extends AppServiceUtil {
   String? branchId;
   bool isMainBranch = false;
-  final dio = Dio();
+  final Dio dio;
+
+  AppServiceUtilImpl() : dio = Dio() {
+    setupInterceptors(dio);
+  }
+
+  void setupInterceptors(Dio dio) {
+    dio.options.validateStatus = (status) {
+      return status != null;
+    };
+
+    dio.interceptors.add(InterceptorsWrapper(
+      onResponse: (response, handler) {
+        final result = parentResponseModelFromJson(jsonEncode(response.data));
+        if (response.statusCode != 200 && response.statusCode != 201) {
+          AppWidgetUtils.showErrorToast(
+              result.error?.message ?? AppConstants.somethingWentWrong);
+          if (result.statusCode == 401) {
+            logoutUser();
+          }
+        }
+        handler.next(response);
+      },
+      onError: (error, handler) {
+        handler.next(error);
+      },
+    ));
+  }
+
+  Future<void> logoutUser() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
+
+    navigatorKey.currentState?.pushReplacementNamed('/login');
+  }
 
   @override
   Future<GetAllLoginResponse> login(
@@ -1224,11 +1262,13 @@ class AppServiceUtilImpl extends AppServiceUtil {
     bool isMainBranch = prefs.getBool('mainBranch') ?? false;
     String branchNames = prefs.getString('branchName') ?? '';
     dio.options.headers['Authorization'] = 'Bearer $token';
+    // 'Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJUZWNobGFtYmRhcyIsImlhdCI6MTcyMzA0MTQzMiwiZXhwIjoxNzIzMDcwMjMyfQ.2bGGNYWK6Fp6pcd7B7rdIwSbYB7hILHGcs3G8TLnxTBWZiSDt7cMLM-rBs2C1t6mxMPHAKX09L3mzhQ7ht0gug';
+
     String salesListUrl = '${AppUrl.sales}page?page=$currentPage&size=10';
-    if (paymentStatus == 'PENDING' && iscancelled == false) {
+    if (paymentStatus == AppConstants.pendingC && iscancelled == false) {
       salesListUrl += '&paymentStatus=$paymentStatus&isCancelled=$iscancelled';
     }
-    if (paymentStatus == 'COMPLETED' && iscancelled == false) {
+    if (paymentStatus == AppConstants.completedC && iscancelled == false) {
       salesListUrl += '&paymentStatus=$paymentStatus&isCancelled=$iscancelled';
     }
     if (invoiceNo.isNotEmpty) {
@@ -1254,10 +1294,14 @@ class AppServiceUtilImpl extends AppServiceUtil {
     if (iscancelled == true) {
       salesListUrl += '&isCancelled=$iscancelled';
     }
-    final response = await dio.get(salesListUrl);
-    return parentResponseModelFromJson(jsonEncode(response.data))
-        .result
-        ?.getAllSalesList;
+
+    try {
+      final response = await dio.get(salesListUrl);
+      return parentResponseModelFromJson(jsonEncode(response.data))
+          .result
+          ?.getAllSalesList;
+    } catch (e) {}
+    return null;
   }
 
   @override
