@@ -16,8 +16,6 @@ import 'package:tlds_flutter/components/tlds_input_form_field.dart';
 import 'package:tlds_flutter/components/tlds_input_formaters.dart';
 import 'package:toastification/toastification.dart';
 
-import '../../api_service/service_locator.dart';
-
 class PaymentDailog extends StatefulWidget {
   final SalesViewBlocImpl salesViewBloc;
   final double? totalInvAmt;

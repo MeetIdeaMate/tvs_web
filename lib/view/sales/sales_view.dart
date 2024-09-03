@@ -5,7 +5,6 @@ import 'package:flutter_svg/svg.dart';
 import 'package:pdf/pdf.dart';
 import 'package:printing/printing.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:tlbilling/api_service/service_locator.dart';
 import 'package:tlbilling/components/custom_action_button.dart';
 import 'package:tlbilling/components/custom_elevated_button.dart';
 import 'package:tlbilling/components/custom_form_field.dart';
@@ -278,8 +277,8 @@ class _SalesViewScreenState extends State<SalesViewScreen>
         controller: _salesViewBloc.salesTabController,
         children: [
           _buildSalesTableView(DateFormat('yyyy-MM-dd').format(DateTime.now())),
-          _buildSalesTableView('PENDING'),
-          _buildSalesTableView('COMPLETED'),
+          _buildSalesTableView(AppConstants.pendingC),
+          _buildSalesTableView(AppConstants.completedC),
           _buildSalesTableView('', iscancelled: true),
         ],
       ),

@@ -421,11 +421,7 @@ class _CreateUserDialogState extends State<CreateUserDialog> {
         _isLoadingState(state: false);
         widget.userViewBloc.pageNumberUpdateStreamController(0);
       }, (statusCode) {
-        if (statusCode == 409) {
-          _isLoadingState(state: false);
-        } else {
-          _isLoadingState(state: false);
-        }
+        _isLoadingState(state: false);
       });
     }
     _isLoadingState(state: false);

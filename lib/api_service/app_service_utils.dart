@@ -518,9 +518,6 @@ class AppServiceUtilImpl extends AppServiceUtil {
       var token = prefs.getString('token');
       dio.options.headers['Authorization'] = 'Bearer $token';
       var response = await dio.get('${AppUrl.customer}/$customerId');
-      print(parentResponseModelFromJson(jsonEncode(response.data))
-          .error
-          ?.message);
       return parentResponseModelFromJson(jsonEncode(response.data))
           .result
           ?.getCustomerById;
@@ -1268,10 +1265,10 @@ class AppServiceUtilImpl extends AppServiceUtil {
     // 'Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJUZWNobGFtYmRhcyIsImlhdCI6MTcyMzA0MTQzMiwiZXhwIjoxNzIzMDcwMjMyfQ.2bGGNYWK6Fp6pcd7B7rdIwSbYB7hILHGcs3G8TLnxTBWZiSDt7cMLM-rBs2C1t6mxMPHAKX09L3mzhQ7ht0gug';
 
     String salesListUrl = '${AppUrl.sales}page?page=$currentPage&size=10';
-    if (paymentStatus == 'PENDING' && iscancelled == false) {
+    if (paymentStatus == AppConstants.pendingC && iscancelled == false) {
       salesListUrl += '&paymentStatus=$paymentStatus&isCancelled=$iscancelled';
     }
-    if (paymentStatus == 'COMPLETED' && iscancelled == false) {
+    if (paymentStatus == AppConstants.completedC && iscancelled == false) {
       salesListUrl += '&paymentStatus=$paymentStatus&isCancelled=$iscancelled';
     }
     if (invoiceNo.isNotEmpty) {
@@ -1303,9 +1300,7 @@ class AppServiceUtilImpl extends AppServiceUtil {
       return parentResponseModelFromJson(jsonEncode(response.data))
           .result
           ?.getAllSalesList;
-    } catch (e) {
-      print(e);
-    }
+    } catch (e) {}
     return null;
   }
 

@@ -736,20 +736,11 @@ class _AddVehicleAndAccessoriesState extends State<AddVehicleAndAccessories> {
                 : AppConstants.materialNumber,
             controller: widget.purchaseBloc.partNumberController,
             onSubmit: (partNumberValue) {
-              widget.purchaseBloc.getPurchasePartNoDetails(
-                (statusCode) {
-                  // if (statusCode == 401 || statusCode == 400) {
-                  //   // AppWidgetUtils.buildToast(
-                  //   //     context,
-                  //   //     ToastificationType.error,
-                  //   //     AppConstants.partNoError,
-                  //   //     Icon(Icons.check_circle_outline_rounded,
-                  //   //         color: _appColors.errorColor),
-                  //   //     AppConstants.partNoErrorDes,
-                  //   //     _appColors.errorLightColor);
-                  // }
-                },
-              ).then((partDetails) {
+              widget.purchaseBloc
+                  .getPurchasePartNoDetails(
+                (statusCode) {},
+              )
+                  .then((partDetails) {
                 _getAndSetValuesForInputFields(partDetails);
               });
               FocusScope.of(context)
