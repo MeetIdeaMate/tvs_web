@@ -33,6 +33,7 @@ class CreateCustomerDialog extends StatefulWidget {
 class _CreateCustomerDialogState extends State<CreateCustomerDialog> {
   final _appColors = AppColors();
   final _createCustomerDialogBlocImpl = CreateCustomerDialogBlocImpl();
+  bool? isAsyncCall = false;
 
   @override
   void initState() {
@@ -50,7 +51,7 @@ class _CreateCustomerDialogState extends State<CreateCustomerDialog> {
   @override
   Widget build(BuildContext context) {
     return BlurryModalProgressHUD(
-        inAsyncCall: false,
+        inAsyncCall: isAsyncCall,
         color: _appColors.whiteColor,
         progressIndicator: AppWidgetUtils.buildLoading(),
         child: AlertDialog(
@@ -80,7 +81,9 @@ class _CreateCustomerDialogState extends State<CreateCustomerDialog> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             AppWidgetUtils.buildText(
-              text: AppConstants.addCustomer,
+              text: widget.customerId == null
+                  ? AppConstants.addCustomer
+                  : AppConstants.updateCustomer,
               fontSize: 22,
               color: _appColors.primaryColor,
               fontWeight: FontWeight.bold,
@@ -115,14 +118,14 @@ class _CreateCustomerDialogState extends State<CreateCustomerDialog> {
             AppWidgetUtils.buildSizedBox(custHeight: 13),
             _buildAddressFields(),
             AppWidgetUtils.buildSizedBox(custHeight: 13),
-            CustomElevatedButton(
-              text: AppConstants.uploadCustomerPhoto,
-              fontSize: 16,
-              buttonBackgroundColor: _appColors.primaryColor,
-              fontColor: _appColors.whiteColor,
-              preffixIcon: SvgPicture.asset(AppConstants.icCamera),
-            ),
-            AppWidgetUtils.buildSizedBox(custHeight: 13),
+            // CustomElevatedButton(
+            //   text: AppConstants.uploadCustomerPhoto,
+            //   fontSize: 16,
+            //   buttonBackgroundColor: _appColors.primaryColor,
+            //   fontColor: _appColors.whiteColor,
+            //   preffixIcon: SvgPicture.asset(AppConstants.icCamera),
+            // ),
+            // AppWidgetUtils.buildSizedBox(custHeight: 13),
           ],
         ),
       ),
@@ -255,7 +258,9 @@ class _CreateCustomerDialogState extends State<CreateCustomerDialog> {
 
   _buildSaveButton() {
     return CustomActionButtons(
-      buttonText: AppConstants.addCustomer,
+      buttonText: widget.customerId == null
+          ? AppConstants.addCustomer
+          : AppConstants.updateCustomer,
       onPressed: () {
         if (_createCustomerDialogBlocImpl.customerFormKey.currentState!
             .validate()) {
@@ -298,18 +303,21 @@ class _CreateCustomerDialogState extends State<CreateCustomerDialog> {
                 AppWidgetUtils.buildToast(
                     context,
                     ToastificationType.success,
-                    AppConstants.customerUpdate,
+                    AppConstants.customerCreate,
                     Icon(
                       Icons.check_circle_outline_rounded,
                       color: _appColors.successColor,
                     ),
-                    AppConstants.customerUpdateSuccessfully,
+                    AppConstants.customerCreatedSuccessfully,
                     _appColors.successLightColor);
                 widget.bloc?.selectedCustomerDetailsStreamController(true);
                 widget.bloc?.selectedCustomer = customerName ?? '';
                 widget.bloc?.selectedCustomerId = customerId ?? '';
                 widget.bloc?.customerNameStreamcontroller(true);
                 widget.bloc?.selectedCustomerDetailsStreamController(true);
+                widget.customerScreenBlocImpl?.customerTableStream(true);
+                widget.customerScreenBlocImpl
+                    ?.pageNumberUpdateStreamController(0);
               } else {
                 _isLoading(false);
               }
@@ -322,7 +330,7 @@ class _CreateCustomerDialogState extends State<CreateCustomerDialog> {
 
   _isLoading(bool? isLoadingState) {
     setState(() {
-      _createCustomerDialogBlocImpl.isAsyncCall = isLoadingState;
+      isAsyncCall = isLoadingState;
     });
   }
 

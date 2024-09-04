@@ -449,43 +449,43 @@ class _CreateEmployeeDialogState extends State<CreateEmployeeDialog> {
           if (_createEmployeeDialogBlocImpl.empFormkey.currentState!
               .validate()) {
             _isLoadingState(state: true);
-            _createEmployeeDialogBlocImpl.onboardNewEmployee(
-              (statusCode) {
-                if (widget.employeeId == null) {
-                  _buildCreateEmployee(statusCode);
-                } else {
-                  return _buildEditEmployee();
-                }
-              },
-            );
+
+            if (widget.employeeId == null) {
+              _buildCreateEmployee();
+            } else {
+              _buildEditEmployee();
+            }
           }
         });
   }
 
-  void _buildCreateEmployee(int? statusCode) {
-    if (statusCode == 200 || statusCode == 201) {
-      _isLoadingState(state: false);
-      Navigator.pop(context);
-      AppWidgetUtils.buildToast(
-          context,
-          ToastificationType.success,
-          AppConstants.employeeCreate,
-          Icon(
-            Icons.check_circle_outline_rounded,
-            color: _appColors.successColor,
-          ),
-          AppConstants.employeeCreatedSuccessfully,
-          _appColors.successLightColor);
-      widget.employeeViewBloc?.employeeTableViewStream(true);
-      widget.createUserDialogBlocImpl?.employeeNameSelectStream(true);
-      widget.newVoucherBloc?.payToTextStreamController(true);
-      widget.newVoucherBloc?.giverTextStreamController(true);
-    } else {
-      _isLoadingState(state: false);
-    }
+  _buildCreateEmployee() {
+    _createEmployeeDialogBlocImpl.onboardNewEmployee((statusCode) {
+      if (statusCode == 200 || statusCode == 201) {
+        _isLoadingState(state: false);
+        Navigator.pop(context);
+        AppWidgetUtils.buildToast(
+            context,
+            ToastificationType.success,
+            AppConstants.employeeCreate,
+            Icon(
+              Icons.check_circle_outline_rounded,
+              color: _appColors.successColor,
+            ),
+            AppConstants.employeeCreatedSuccessfully,
+            _appColors.successLightColor);
+        widget.employeeViewBloc?.employeeTableViewStream(true);
+        widget.employeeViewBloc?.pageNumberUpdateStreamController(0);
+        widget.createUserDialogBlocImpl?.employeeNameSelectStream(true);
+        widget.newVoucherBloc?.payToTextStreamController(true);
+        widget.newVoucherBloc?.giverTextStreamController(true);
+      } else {
+        _isLoadingState(state: false);
+      }
+    });
   }
 
-  Future<void> _buildEditEmployee() {
+  _buildEditEmployee() {
     return _createEmployeeDialogBlocImpl.updateEmployee(widget.employeeId ?? '',
         (statusCode) {
       if (statusCode == 200 || statusCode == 201) {

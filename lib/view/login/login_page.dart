@@ -260,7 +260,7 @@ class _LoginPageState extends State<LoginPage> {
             }).toList() ??
             [];
         if (filteredaccessControl.isNotEmpty) {
-          UserAccessLevels.storeUserAccessData(filteredaccessControl);
+          UserAccessLevels.storeUserAccessData(filteredaccessControl.first);
           AccessLevel.accessingData();
           return;
         } else {
@@ -280,7 +280,7 @@ class _LoginPageState extends State<LoginPage> {
               [];
 
           if (filteredaccessControl.isNotEmpty) {
-            UserAccessLevels.storeUserAccessData(filteredaccessControl);
+            UserAccessLevels.storeUserAccessData(filteredaccessControl.first);
             AccessLevel.accessingData();
             return;
           } else {
@@ -297,11 +297,16 @@ class _LoginPageState extends State<LoginPage> {
                       element.userId == null;
                 }).toList() ??
                 [];
+
             if (filteredaccessControl.isNotEmpty) {
+              UserAccessLevels.storeUserAccessData(filteredaccessControl.first);
+              AccessLevel.accessingData();
+              return;
+            } else {
               List<AccessControlList>? accessControl4 =
                   await _accessControlBloc.getAllUserAccessControlData(
                 onSuccessCallback: (statusCode, accessControlList) {},
-                branchId: values.branchId,
+                role: values.designation,
               );
 
               List<AccessControlList> filteredaccessControl = [];
@@ -311,16 +316,17 @@ class _LoginPageState extends State<LoginPage> {
                         element.userId == null;
                   }).toList() ??
                   [];
+
               if (filteredaccessControl.isNotEmpty) {
-                UserAccessLevels.storeUserAccessData(filteredaccessControl);
+                UserAccessLevels.storeUserAccessData(
+                    filteredaccessControl.first);
                 AccessLevel.accessingData();
                 return;
               }
-
-              UserAccessLevels.storeUserAccessData(filteredaccessControl);
-              AccessLevel.accessingData();
-              return;
             }
+            UserAccessLevels.storeUserAccessData(filteredaccessControl.first);
+            AccessLevel.accessingData();
+            return;
           }
         }
       });

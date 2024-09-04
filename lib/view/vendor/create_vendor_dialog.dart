@@ -240,6 +240,7 @@ class _CreateVendorDialogState extends State<CreateVendorDialog> {
       onPressed: () {
         if (_createVendorDialogBlocImpl.vendorFormKey.currentState!
             .validate()) {
+          _isLoadingState(state: true);
           if (widget.vendorId != null) {
             _buildUpdateVendor();
           } else {

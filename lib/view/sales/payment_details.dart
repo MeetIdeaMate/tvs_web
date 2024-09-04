@@ -1,3 +1,4 @@
+import 'package:blurry_modal_progress_hud/blurry_modal_progress_hud.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
@@ -52,26 +53,39 @@ class _PaymentDetailsState extends State<PaymentDetails> {
     widget.addSalesBloc.branchId = prefs.getString(AppConstants.branchId);
   }
 
+  bool _isLoading = false;
+
+  void _isLoadingState({required bool state}) {
+    setState(() {
+      _isLoading = state;
+    });
+  }
+
   final _appColors = AppColors();
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 45, right: 30, left: 30, bottom: 20),
-      child: SingleChildScrollView(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            CustomerDetails(
-              addSalesBloc: widget.addSalesBloc,
-            ),
-            if (widget.addSalesBloc.selectedVehicleAndAccessories !=
-                AppConstants.accessories)
-              _buildGstDetails(),
-            AppWidgetUtils.buildSizedBox(custHeight: 30),
-            _buildHeadingText(AppConstants.paymentDetails),
-            _buildPaymentDetails(),
-          ],
+    return BlurryModalProgressHUD(
+      inAsyncCall: _isLoading,
+      progressIndicator: AppWidgetUtils.buildLoading(),
+      child: Padding(
+        padding:
+            const EdgeInsets.only(top: 45, right: 30, left: 30, bottom: 20),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              CustomerDetails(
+                addSalesBloc: widget.addSalesBloc,
+              ),
+              if (widget.addSalesBloc.selectedVehicleAndAccessories !=
+                  AppConstants.accessories)
+                _buildGstDetails(),
+              AppWidgetUtils.buildSizedBox(custHeight: 30),
+              _buildHeadingText(AppConstants.paymentDetails),
+              _buildPaymentDetails(),
+            ],
+          ),
         ),
       ),
     );
@@ -1008,9 +1022,11 @@ class _PaymentDetailsState extends State<PaymentDetails> {
     return CustomActionButtons(
         onPressed: () {
           if (widget.addSalesBloc.paymentFormKey.currentState!.validate()) {
+            _isLoadingState(state: true);
             widget.addSalesBloc.addNewSalesDeatils(salesPostObject(),
                 (statusCode) {
               if (statusCode == 200 || statusCode == 201) {
+                _isLoadingState(state: false);
                 Navigator.pop(context);
                 widget.salesViewBloc.pageNumberUpdateStreamController(0);
                 AppWidgetUtils.buildToast(
@@ -1021,7 +1037,9 @@ class _PaymentDetailsState extends State<PaymentDetails> {
                         color: _appColors.successColor),
                     AppConstants.salesBillDescScc,
                     _appColors.successLightColor);
-              } else {}
+              } else {
+                _isLoadingState(state: false);
+              }
             });
           }
         },

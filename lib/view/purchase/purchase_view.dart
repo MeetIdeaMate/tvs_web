@@ -248,6 +248,16 @@ class _PurchaseViewState extends State<PurchaseView>
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return Center(child: AppWidgetUtils.buildLoading());
+            } else if (!snapshot.hasData ||
+                snapshot.data?.content?.isEmpty == true) {
+              return Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Center(child: SvgPicture.asset(AppConstants.imgNoData)),
+                  const Text('No Purchase Bill')
+                ],
+              );
             } else if (snapshot.hasData) {
               GetAllPurchaseByPageNation employeeListmodel = snapshot.data!;
               List<PurchaseBill> purchasedata = snapshot.data?.content ?? [];

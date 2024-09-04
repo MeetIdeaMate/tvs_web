@@ -91,7 +91,8 @@ class _TransportViewState extends State<TransportView> {
                 barrierDismissible: false,
                 context: context,
                 builder: (context) {
-                  return const CreateTransportDialog();
+                  return CreateTransportDialog(
+                      transportBlocImpl: _transportBlocImpl);
                 },
               );
             },
@@ -152,14 +153,14 @@ class _TransportViewState extends State<TransportView> {
 
   _buildTransportTableView(BuildContext context) {
     return Expanded(
-      child: StreamBuilder(
+      child: StreamBuilder<int>(
         stream: _transportBlocImpl.tablePageNoStreamController,
         initialData: _transportBlocImpl.currentPage,
         builder: (context, streamSnapshot) {
           int currentPage = streamSnapshot.data ?? 0;
           if (currentPage < 0) currentPage = 0;
           _transportBlocImpl.currentPage = currentPage;
-          return FutureBuilder(
+          return FutureBuilder<GetTransportByPaginationModel?>(
             future: _transportBlocImpl.getAllTransportByPagination(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
@@ -180,7 +181,7 @@ class _TransportViewState extends State<TransportView> {
                         Text(
                           AppConstants.noTransportDataAvailable,
                           style: TextStyle(color: _appColors.grey),
-                        )
+                        ),
                       ],
                     ),
                   ),
@@ -235,6 +236,8 @@ class _TransportViewState extends State<TransportView> {
                                                 context: context,
                                                 builder: (context) {
                                                   return CreateTransportDialog(
+                                                      transportBlocImpl:
+                                                          _transportBlocImpl,
                                                       transportId: entry
                                                           .value.transportId);
                                                 },
