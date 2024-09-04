@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:blurry_modal_progress_hud/blurry_modal_progress_hud.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -110,6 +112,13 @@ class _AccessControlViewScreenState extends State<AccessControlViewScreen>
               element.branchId != null &&
               element.designation != null &&
               element.userId != null)
+          .toList();
+    } else if (branchId == null && role != null && userId == null) {
+      filteredCheckboxValue = checkboxValue
+          .where((element) =>
+              element.branchId == null &&
+              element.designation != null &&
+              element.userId == null)
           .toList();
     } else {
       return;
@@ -272,12 +281,8 @@ class _AccessControlViewScreenState extends State<AccessControlViewScreen>
   Future<void> getUserDetails() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
-    //  _userId = prefs.getString('userId');
     _userName = prefs.getString('userName');
     loginUserId = prefs.getString('userId');
-    // _accessViewControlBloc.selectedBranch = prefs.getString('branchName');
-
-    _accessViewControlBloc.branchId = prefs.getString('branchId');
   }
 
   void _updateSelectedMenus() {
@@ -467,7 +472,7 @@ class _AccessControlViewScreenState extends State<AccessControlViewScreen>
     SharedPreferences prefs = await SharedPreferences.getInstance();
     if (isUpdateAccess ?? false) {
       _accessViewControlBloc.accessControlPostData(
-        (statusCode) {
+        (statusCode) async {
           _changedCheckboxes.clear();
           prefs.remove('isAccessCheckBoxChanged');
 
@@ -483,6 +488,29 @@ class _AccessControlViewScreenState extends State<AccessControlViewScreen>
                 ),
                 AppConstants.userAccessCreatedDes,
                 _appColors.successLightColor);
+            if (loginUserId == _userId) {
+              List<AccessControlList>? accessControl =
+                  await _accessViewControlBloc.getAllUserAccessControlData(
+                onSuccessCallback: (statusCode, accessControlList) {},
+                userId: loginUserId,
+              );
+              List<AccessControlList>? filteredaccessControl = [];
+              filteredaccessControl = accessControl?.where((element) {
+                    return element.branchId != null &&
+                        element.designation != null &&
+                        element.userId == _userId;
+                  }).toList() ??
+                  [];
+
+              if (filteredaccessControl.isNotEmpty) {
+                UserAccessLevels.storeUserAccessData(
+                    filteredaccessControl.first);
+                AccessLevel.accessingData();
+                widget.sideMenuNavigationBlocImpl
+                    ?.sideMenuStreamController(true);
+                return;
+              }
+            }
           } else {
             _accessViewControlBloc.setLoadingState(false);
           }
@@ -641,15 +669,15 @@ class _AccessControlViewScreenState extends State<AccessControlViewScreen>
               : _accessViewControlBloc.selectedBranch,
           onChange: (String? newValue) async {
             if (newValue == 'None') {
-              _accessViewControlBloc.selectedBranch = '';
-              _accessViewControlBloc.branchId = '';
+              _accessViewControlBloc.selectedBranch = null;
+              _accessViewControlBloc.branchId = null;
               _changedCheckboxes.clear();
               await _fetcthCheckboxValues(
                   branchId: _accessViewControlBloc.branchId,
                   role: _accessViewControlBloc.selectedRole);
               _accessViewControlBloc.designationSelectedSreamController(true);
             } else {
-              _accessViewControlBloc.selectedBranch = newValue ?? '';
+              _accessViewControlBloc.selectedBranch = newValue;
               _accessViewControlBloc.branchId =
                   branches.firstWhere((e) => e.branchName == newValue).branchId;
               _changedCheckboxes.clear();
@@ -860,17 +888,24 @@ class _AccessControlViewScreenState extends State<AccessControlViewScreen>
                         : _accessViewControlBloc.selectedRole,
                 onChange: (String? newValue) {
                   if (newValue == 'None') {
-                    _accessViewControlBloc.selectedRole = '';
+                    _accessViewControlBloc.selectedRole = null;
                     _changedCheckboxes.clear();
                     _fetcthCheckboxValues(
                       branchId: _accessViewControlBloc.branchId,
                     );
                   } else {
-                    _accessViewControlBloc.selectedRole = newValue ?? '';
+                    _accessViewControlBloc.selectedRole = newValue;
                     _changedCheckboxes.clear();
-                    _fetcthCheckboxValues(
-                        branchId: _accessViewControlBloc.branchId,
-                        role: _accessViewControlBloc.selectedRole);
+                    if (_accessViewControlBloc.branchId == null ||
+                        _accessViewControlBloc.branchId == "None" ||
+                        _accessViewControlBloc.branchId == '') {
+                      _fetcthCheckboxValues(
+                          role: _accessViewControlBloc.selectedRole);
+                    } else {
+                      _fetcthCheckboxValues(
+                          branchId: _accessViewControlBloc.branchId,
+                          role: _accessViewControlBloc.selectedRole);
+                    }
                   }
                   _accessViewControlBloc.userNameSelectedSreamController(true);
                   _accessViewControlBloc.refreshTavViewStreamController(true);
