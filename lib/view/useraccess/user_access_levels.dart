@@ -6,14 +6,14 @@ class UserAccessLevels {
   static const String _userAccessKey = 'user_access';
 
   static Future<void> storeUserAccessData(
-      List<AccessControlList>? accessControlList) async {
+      AccessControlList accessControlList) async {
     final prefs = await SharedPreferences.getInstance();
     Map<String, List<String>> menuAccess = {};
-    for (AccessControlList access in accessControlList ?? []) {
-      for (MenuList menu in access.menus ?? []) {
-        menuAccess[menu.menuName ?? ''] = menu.accessLevels ?? [];
-      }
+
+    for (MenuList menu in accessControlList.menus ?? []) {
+      menuAccess[menu.menuName ?? ''] = menu.accessLevels ?? [];
     }
+
     await prefs.setString(_userAccessKey, json.encode(menuAccess));
   }
 

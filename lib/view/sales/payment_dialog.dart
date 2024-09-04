@@ -158,14 +158,6 @@ class _PaymentDailogState extends State<PaymentDailog> {
                               .clear();
                         } else {
                           _isLoadingState(state: false);
-                          AppWidgetUtils.buildToast(
-                              context,
-                              ToastificationType.success,
-                              AppConstants.paymentUpdate,
-                              Icon(Icons.check_circle_outline_rounded,
-                                  color: _appColors.successColor),
-                              AppConstants.somethingWentWrong,
-                              _appColors.successLightColor);
                         }
                       });
                     }

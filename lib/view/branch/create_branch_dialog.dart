@@ -356,6 +356,7 @@ class _CreateBranchDialogState extends State<CreateBranchDialog> {
                           _createBranchDialogBlocImpl.selectedIsMainOrSub,
                       onChanged: (String? value) {
                         _createBranchDialogBlocImpl.selectedIsMainOrSub = value;
+                        _selectMainBranchStatus();
                         _createBranchDialogBlocImpl.radioButtonStream(true);
                       }),
                   Text(AppConstants.subBranch,

@@ -17,7 +17,7 @@ abstract class TransportViewBloc {
 
   Stream get transportCityStreamController;
 
-  Stream get tablePageNoStreamController;
+  Stream<int> get tablePageNoStreamController;
 
   int get currentPage;
 
@@ -31,7 +31,7 @@ class TransportBlocImpl extends TransportViewBloc {
   final _transportNameStreamController = StreamController.broadcast();
   final _transportMobileNumberStreamController = StreamController.broadcast();
   final _transportCityStreamController = StreamController.broadcast();
-  final _tablePageNoStreamController = StreamController.broadcast();
+  final _tablePageNoStreamController = StreamController<int>.broadcast();
   int _currentPage = 0;
   final _apiCalls = AppServiceUtilImpl();
 
@@ -79,10 +79,11 @@ class TransportBlocImpl extends TransportViewBloc {
   }
 
   @override
-  Stream get tablePageNoStreamController => _tablePageNoStreamController.stream;
+  Stream<int> get tablePageNoStreamController =>
+      _tablePageNoStreamController.stream;
 
   tablePageNoStream(int? streamValue) {
-    _tablePageNoStreamController.add(streamValue);
+    _tablePageNoStreamController.sink.add(streamValue ?? 0);
   }
 
   @override

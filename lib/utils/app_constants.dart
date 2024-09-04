@@ -189,6 +189,7 @@ class AppConstants {
   static const address = 'Address';
   static const uploadCustomerPhoto = 'Upload Customer Photo';
   static const customerName = 'Customer Name';
+  static const updateCustomer = 'Update Customer';
   static const sno = 'S.No';
   static const action = 'Action';
   static const print = 'Print';
@@ -391,7 +392,7 @@ class AppConstants {
   static const transportCreated = 'Transport Create';
   static const transportCreatedSuccessFully = 'Branch created successFully';
   static const transportUpdate = 'Transport Update';
-  static const transportUpdatedSuccessFully = 'Branch updated successFully';
+  static const transportUpdatedSuccessFully = 'Transport updated successFully';
 
   static const somethingWentWrong = 'Something went wrong try again...!';
   static const customerUpdate = 'Customer Update';

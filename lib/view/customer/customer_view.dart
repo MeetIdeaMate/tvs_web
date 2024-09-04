@@ -216,7 +216,9 @@ class _CustomerViewState extends State<CustomerView> {
         barrierDismissible: false,
         context: context,
         builder: (context) {
-          return const CreateCustomerDialog();
+          return CreateCustomerDialog(
+            customerScreenBlocImpl: _customerScreenBlocImpl,
+          );
         },
       );
     }, text: AppConstants.addCustomer, flex: 2);

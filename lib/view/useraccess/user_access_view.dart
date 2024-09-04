@@ -516,13 +516,14 @@ class _AccessControlViewScreenState extends State<AccessControlViewScreen>
             );
             List<AccessControlList>? filteredaccessControl = [];
             filteredaccessControl = accessControl?.where((element) {
-              return element.branchId != null &&
-                  element.designation != null &&
-                  element.userId == _userId;
-            }).toList();
+                  return element.branchId != null &&
+                      element.designation != null &&
+                      element.userId == _userId;
+                }).toList() ??
+                [];
 
-            if (filteredaccessControl?.isNotEmpty ?? false) {
-              UserAccessLevels.storeUserAccessData(filteredaccessControl);
+            if (filteredaccessControl.isNotEmpty) {
+              UserAccessLevels.storeUserAccessData(filteredaccessControl.first);
               AccessLevel.accessingData();
               widget.sideMenuNavigationBlocImpl?.sideMenuStreamController(true);
               return;
