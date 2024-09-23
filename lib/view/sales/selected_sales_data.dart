@@ -467,20 +467,39 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
     widget.addSalesBloc.totalValue = totalUnitValue * qty;
 
     double totalValues = widget.addSalesBloc.totalValue ?? 0;
+    double discount =
+        double.tryParse(widget.addSalesBloc.discountTextController.text) ?? 0;
+    if (discount >= totalValues || discount == 0) {
+      widget.addSalesBloc.discountTextController.clear();
+    }
+    widget.addSalesBloc.taxableValue = totalValues - discount;
+    double taxableValue = widget.addSalesBloc.taxableValue ?? 0;
+
     double cgstPercent = double.tryParse(
             widget.addSalesBloc.cgstPresentageTextController.text) ??
         0;
     double sgstPercent = double.tryParse(
             widget.addSalesBloc.cgstPresentageTextController.text) ??
         0;
+    double igstPercent = double.tryParse(
+            widget.addSalesBloc.igstPresentageTextController.text) ??
+        0;
 
-    widget.addSalesBloc.taxableValue = totalValues;
-    widget.addSalesBloc.cgstAmount = (totalValues / 100) * cgstPercent;
-    widget.addSalesBloc.sgstAmount = (totalValues / 100) * sgstPercent;
+    if (widget.addSalesBloc.selectedGstType == 'GST %') {
+      widget.addSalesBloc.cgstAmount = (taxableValue / 100) * cgstPercent;
+      widget.addSalesBloc.sgstAmount = (taxableValue / 100) * sgstPercent;
+      double gstAmt = (widget.addSalesBloc.cgstAmount ?? 0) +
+          (widget.addSalesBloc.sgstAmount ?? 0);
+      widget.addSalesBloc.invAmount = taxableValue + gstAmt;
+      widget.addSalesBloc.totalInvAmount = widget.addSalesBloc.invAmount;
+    }
 
-    double taxableValue = widget.addSalesBloc.taxableValue ?? 0;
-    widget.addSalesBloc.invAmount =
-        taxableValue + (widget.addSalesBloc.sgstAmount ?? 0 * 2);
+    if (widget.addSalesBloc.selectedGstType == 'IGST %') {
+      widget.addSalesBloc.igstAmount = (taxableValue / 100) * igstPercent;
+      widget.addSalesBloc.invAmount =
+          taxableValue + (widget.addSalesBloc.igstAmount ?? 0);
+      widget.addSalesBloc.totalInvAmount = widget.addSalesBloc.invAmount;
+    }
     _updateTotalInvoiceAmount();
 
     widget.addSalesBloc.paymentDetailsStreamController(true);
@@ -534,6 +553,7 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
     widget.addSalesBloc.advanceAmt = 0.0;
     widget.addSalesBloc.toBePayedAmt = 0.0;
     widget.addSalesBloc.totalQty = 0.0;
+    widget.addSalesBloc.totalDiscount = 0.0;
 
     widget.addSalesBloc.selectedCustomer = null;
     widget.addSalesBloc.selectedCustomerId = null;
@@ -558,6 +578,7 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
     widget.addSalesBloc.paymentTypeIdTextController.clear();
     widget.addSalesBloc.quantityTextController.clear();
     widget.addSalesBloc.unitRateTextController.clear();
+    widget.addSalesBloc.discountTextController.clear();
 
     widget.addSalesBloc.vehicleAndEngineNumberStreamController(true);
 

@@ -149,6 +149,19 @@ class _PaymentDetailsState extends State<PaymentDetails> {
                           widget.addSalesBloc.selectedGstType = value;
                           FocusScope.of(context)
                               .requestFocus(widget.addSalesBloc.igstFocus);
+                          widget.addSalesBloc.sgstAmount = 0.0;
+                          widget.addSalesBloc.cgstAmount = 0.0;
+                          widget.addSalesBloc.cgstPresentageTextController
+                              .clear();
+                          widget.addSalesBloc.igstAmount = 0.0;
+                          widget.addSalesBloc.igstPresentageTextController
+                              .clear();
+                          _calculateGST();
+                          _updateTotalInvoiceAmount();
+
+                          widget.addSalesBloc
+                              .paymentDetailsStreamController(true);
+
                           widget.addSalesBloc
                               .gstRadioBtnRefreashStreamController(true);
                         },
@@ -289,12 +302,14 @@ class _PaymentDetailsState extends State<PaymentDetails> {
                 widget.addSalesBloc.gstRadioBtnRefreashStreamController(true);
                 double unitRate = widget.addSalesBloc.totalUnitRate ?? 0;
                 widget.addSalesBloc.paymentDetailsStreamController(true);
-                widget.addSalesBloc.igstAmount = (unitRate / 10) * igstPersent;
+
                 widget.addSalesBloc.paymentDetailsStreamController(true);
                 double taxableValue = widget.addSalesBloc.taxableValue ?? 0;
+                widget.addSalesBloc.igstAmount =
+                    (taxableValue / 100) * igstPersent;
                 widget.addSalesBloc.paymentDetailsStreamController(true);
                 widget.addSalesBloc.invAmount =
-                    taxableValue + (widget.addSalesBloc.sgstAmount ?? 0 * 2);
+                    taxableValue + (widget.addSalesBloc.igstAmount ?? 0);
                 widget.addSalesBloc.paymentDetailsStreamController(true);
                 _updateTotalInvoiceAmount();
                 widget.addSalesBloc.paymentDetailsStreamController(true);
