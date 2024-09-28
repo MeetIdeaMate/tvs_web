@@ -1,6 +1,6 @@
 class AppUrl {
-  static const baseUrl = 'http://193.203.163.226:8084/';
-  // static const baseUrl = 'http://192.168.1.12:8080/';
+  //static const baseUrl = 'http://193.203.163.226:8084/';
+  static const baseUrl = 'http://192.168.1.12:8084/';
   // static const baseUrl = 'https://haasinitvsapi.techlambdas.com/'; //production
   // http://195.35.21.50:8082/
   static const login = '${baseUrl}user/login';
@@ -38,4 +38,6 @@ class AppUrl {
   static const salesBilCancel = '${baseUrl}sales/salesCancel/';
   static const accountHead = '${baseUrl}acchead';
   static const accessContol = '${baseUrl}access-controls';
+  static const itemPage = '${baseUrl}item/page';
+  static const item = '${baseUrl}item';
 }

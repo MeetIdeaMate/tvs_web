@@ -12,6 +12,7 @@ class AppConstants {
   static const noC = 'NO';
   static const cancel = 'Cancel';
   static const save = 'Save';
+  static const edit = 'Edit';
   static const preview = 'Preview';
   static const next = 'Next';
   static const delete = 'Delete';
@@ -134,6 +135,8 @@ class AppConstants {
   static const icPrevPage = 'assets/icons/ic_prev_page.svg';
   static const icInfo = 'assets/icons/ic_info.svg';
   static const icpayment = 'assets/icons/ic_payment.svg';
+  static const icProduct = 'assets/icons/ic_product.svg';
+  static const icEyeView = 'assets/icons/ic_eye_view.svg';
 
   //json
   static const jsonLoader = 'assets/json/json_loading_animation.json';
@@ -684,4 +687,13 @@ class AppConstants {
   static const String userAccessUpdatedDes = 'User Access Updated successfuly';
   static const String userAccessNotUpdated = 'Access Not Updated';
   static const String userAccessNotUpdatedDes = 'User Access Failed to update';
+
+  //product
+
+  static const String productConfig = 'Product Configuration';
+  static const String productConfigView = 'Product Configuration View';
+  static const String productConfigCreated = 'Product Configuration Created';
+  static const String productConfigUpdated = 'Product Configuration Updated';
+  static const String configNameAndAmountRequired =
+      'Config Name and Amount are required';
 }

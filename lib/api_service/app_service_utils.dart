@@ -20,6 +20,7 @@ import 'package:tlbilling/models/get_model/get_all_customers_model.dart';
 import 'package:tlbilling/models/get_model/get_all_employee_by_pagination.dart';
 import 'package:tlbilling/models/get_model/get_all_employee_model.dart';
 import 'package:tlbilling/models/get_model/get_all_insurance_by_pagination_model.dart';
+import 'package:tlbilling/models/get_model/get_all_product_by_pagination.dart';
 import 'package:tlbilling/models/get_model/get_all_purchase_model.dart';
 import 'package:tlbilling/models/get_model/get_all_sales_list_model.dart';
 import 'package:tlbilling/models/get_model/get_all_stock_with_pagination.dart';
@@ -50,8 +51,6 @@ import 'package:tlbilling/models/update/update_branch_model.dart';
 import 'package:tlbilling/models/user_model.dart';
 import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/utils/app_util_widgets.dart';
-import 'package:toastification/toastification.dart';
-
 import '../models/post_model/add_vendor_model.dart';
 
 abstract class AppServiceUtil {
@@ -72,6 +71,13 @@ abstract class AppServiceUtil {
       String customerName,
       int currentPage,
       String branchName);
+
+  Future<GetAllProductByPagination?> getAllProductByPagination(
+    String itemName,
+    String partNo,
+    String hsnCode,
+    int currentPage,
+  );
 
   Future<GetAllInsuranceByPaginationModel?> getAllInsuranceByPagination(
       String invoiceNo,
@@ -316,6 +322,8 @@ abstract class AppServiceUtil {
       String? role});
 
   Future<List<UserDetailsList>?> getAllUserNameList();
+
+  Future<bool> updateProductConfig(Map<String, double> addOns, String itemId);
 }
 
 class AppServiceUtilImpl extends AppServiceUtil {
@@ -1900,5 +1908,59 @@ class AppServiceUtilImpl extends AppServiceUtil {
       exception.response?.statusCode ?? 0;
     }
     return null;
+  }
+
+  @override
+  Future<GetAllProductByPagination?> getAllProductByPagination(
+      String itemName, String partNo, String hsnCode, int currentPage) async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      var token = prefs.getString('token');
+      // bool isMainBranch = prefs.getBool('mainBranch') ?? false;
+      // String branchId = prefs.getString('branchId') ?? '';
+
+      dio.options.headers['Authorization'] = 'Bearer $token';
+      String url = AppUrl.itemPage;
+      Map<String, dynamic> queryParameters = {
+        'page': currentPage,
+        'size': 10,
+      };
+
+      if (itemName.isNotEmpty) {
+        queryParameters['itemName'] = itemName;
+      }
+
+      if (partNo.isNotEmpty) {
+        queryParameters['partNo'] = partNo;
+      }
+      if (hsnCode.isNotEmpty) {
+        queryParameters['hsnCode'] = hsnCode;
+      }
+
+      // queryParameters['categoryId'] = 'a1ab4a611a0c4c4f8d1e6ce5d6995fec';
+
+      var response = await dio.get(url, queryParameters: queryParameters);
+      return parentResponseModelFromJson(jsonEncode(response.data))
+          .result
+          ?.getAllProductByPagination;
+    } on DioException catch (e) {
+      e.response?.statusCode ?? 0;
+    }
+    return null;
+  }
+
+  @override
+  Future<bool> updateProductConfig(
+      Map<String, double> addOns, String itemId) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var token = prefs.getString('token');
+    dio.options.headers['Authorization'] = 'Bearer $token';
+    String url = '${AppUrl.item}/addOns/$itemId';
+    try {
+      var response = await dio.patch(url, data: addOns);
+      return response.statusCode == 200;
+    } catch (e) {
+      return false;
+    }
   }
 }
