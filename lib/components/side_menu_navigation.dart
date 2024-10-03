@@ -317,16 +317,16 @@ class _SideMenuNavigationState extends State<SideMenuNavigation> {
                     _onMenuItemSelected(AppConstants.configC);
                   },
                 ),
-              // if (!AccessLevel.canHide(
-              //   AppConstants.insurance,
-              // ))
-              //   _buildDrawerMenuItem(
-              //     AppConstants.icReport,
-              //     AppConstants.insurance,
-              //     () {
-              //       _onMenuItemSelected(AppConstants.insurance);
-              //     },
-              //   ),
+              if (!AccessLevel.canHide(
+                AppConstants.insurance,
+              ))
+                _buildDrawerMenuItem(
+                  AppConstants.icReport,
+                  AppConstants.insurance,
+                  () {
+                    _onMenuItemSelected(AppConstants.insurance);
+                  },
+                ),
               if (isMainBranch ?? false)
                 if (!AccessLevel.canHide(
                   AppConstants.accessControl,

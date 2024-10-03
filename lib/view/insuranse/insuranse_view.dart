@@ -183,7 +183,7 @@ class _InsuranseViewState extends State<InsuranseView>
             } else if (snapshot.hasError) {
               return const Center(child: Text(AppConstants.somethingWentWrong));
             } else if (snapshot.hasData) {
-              if (snapshot.data?.getAllCustomersModel?.isEmpty ?? false) {
+              if (snapshot.data?.insuranceDataList?.isNotEmpty ?? false) {
                 return Center(
                   child: SvgPicture.asset(AppConstants.imgNoData),
                 );
@@ -193,8 +193,8 @@ class _InsuranseViewState extends State<InsuranseView>
             GetAllInsuranceByPaginationModel insuranceListModel =
                 snapshot.data!;
 
-            List<GetAllCustomersModel> insuranceData =
-                snapshot.data?.getAllCustomersModel ?? [];
+            List<InsuranceDataList> insuranceData =
+                snapshot.data?.insuranceDataList ?? [];
 
             return Column(
               children: [
@@ -208,62 +208,36 @@ class _InsuranseViewState extends State<InsuranseView>
                         columns: [
                           _buildInsuranceTableHeader(AppConstants.sno),
                           _buildInsuranceTableHeader(AppConstants.invoiceNo),
-                          _buildInsuranceTableHeader(AppConstants.invoiceDate),
+                          _buildInsuranceTableHeader(AppConstants.insuredDate),
                           _buildInsuranceTableHeader(AppConstants.vehicleNo),
-                          _buildInsuranceTableHeader(AppConstants.customerID),
+                          _buildInsuranceTableHeader(AppConstants.insuranceNo),
+                          _buildInsuranceTableHeader(
+                              AppConstants.insuranceCompanyName),
                           _buildInsuranceTableHeader(AppConstants.customerName),
                           _buildInsuranceTableHeader(AppConstants.mobileNo),
-                          _buildInsuranceTableHeader(AppConstants.status),
-                          _buildInsuranceTableHeader(AppConstants.createdBy),
-                          _buildInsuranceTableHeader(AppConstants.action),
+                          _buildInsuranceTableHeader(
+                              AppConstants.thirdPartyExpiryDate),
                         ],
                         rows: insuranceData.asMap().entries.map((entry) {
                           return DataRow(
-                            color: MaterialStateColor.resolveWith((states) {
+                            color: WidgetStateColor.resolveWith((states) {
                               return entry.key % 2 == 0
                                   ? Colors.white
                                   : _appColors.transparentBlueColor;
                             }),
                             cells: [
                               DataCell(Text('${entry.key + 1}')),
-                              DataCell(Text(entry.value.city ?? '')),
-                              DataCell(Text(entry.value.customerId ?? '')),
-                              DataCell(Text(entry.value.city ?? '')),
-                              DataCell(Text(entry.value.customerId ?? '')),
+                              DataCell(Text(entry.value.invoiceNo ?? '')),
+                              DataCell(
+                                  Text(entry.value.insuredDate.toString())),
+                              DataCell(Text(entry.value.vehicleNo ?? '')),
+                              DataCell(Text(entry.value.insuranceNo ?? '')),
+                              DataCell(
+                                  Text(entry.value.insuranceCompanyName ?? '')),
                               DataCell(Text(entry.value.customerName ?? '')),
                               DataCell(Text(entry.value.mobileNo ?? '')),
-                              DataCell(
-                                Chip(
-                                  label: Text(
-                                    status,
-                                    style: TextStyle(
-                                      color: status == AppConstants.pending
-                                          ? _appColors.yellowColor
-                                          : _appColors.red,
-                                    ),
-                                  ),
-                                  backgroundColor: Colors.transparent,
-                                  materialTapTargetSize:
-                                      MaterialTapTargetSize.shrinkWrap,
-                                  padding: EdgeInsets.zero,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(20),
-                                    side: BorderSide(
-                                      color: status == AppConstants.pending
-                                          ? _appColors.yellowColor
-                                          : _appColors.red,
-                                      width: 1,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              DataCell(Text(entry.value.customerName ?? '')),
-                              DataCell(
-                                IconButton(
-                                  icon: SvgPicture.asset(AppConstants.icEdit),
-                                  onPressed: () {},
-                                ),
-                              ),
+                              DataCell(Text(
+                                  entry.value.thirdPartyExpiryDate.toString())),
                             ],
                           );
                         }).toList(),

@@ -205,6 +205,8 @@ class _VehicleAccessoriesListState extends State<VehicleAccessoriesList> {
                                               child: SvgPicture.asset(
                                                   AppConstants.imgNoData));
                                         }
+
+                                        Navigator.pop(context);
                                       },
                                       icon: SvgPicture.asset(
                                         AppConstants.icFilledAdd,
@@ -572,7 +574,7 @@ class _VehicleAccessoriesListState extends State<VehicleAccessoriesList> {
     widget.addSalesBloc.sgstAmount = 0.0;
     widget.addSalesBloc.totalUnitRate = 0.0;
     // widget.addSalesBloc.advanceAmt = 0.0;
-    widget.addSalesBloc.toBePayedAmt = 0.0;
+    widget.addSalesBloc.exShowrRomPrice = 0.0;
     widget.addSalesBloc.totalQty = 0.0;
 
     // widget.addSalesBloc.selectedCustomer = null;

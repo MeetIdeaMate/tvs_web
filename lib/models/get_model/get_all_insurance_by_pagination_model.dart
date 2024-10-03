@@ -1,103 +1,186 @@
-import 'package:tlbilling/models/get_model/get_all_customers_model.dart';
+// To parse this JSON data, do
+//
+//     final getAllInsuranceByPaginationModel = getAllInsuranceByPaginationModelFromJson(jsonString);
+
+import 'dart:convert';
+
+GetAllInsuranceByPaginationModel getAllInsuranceByPaginationModelFromJson(
+        String str) =>
+    GetAllInsuranceByPaginationModel.fromJson(json.decode(str));
+
+String getAllInsuranceByPaginationModelToJson(
+        GetAllInsuranceByPaginationModel data) =>
+    json.encode(data.toJson());
 
 class GetAllInsuranceByPaginationModel {
-  List<GetAllCustomersModel>? getAllCustomersModel;
-  bool? empty;
-  bool? first;
-  bool? last;
-  int? number;
-  int? numberOfElements;
+  List<InsuranceDataList>? insuranceDataList;
   Pageable? pageable;
-  int? size;
-  Sort? sort;
+  bool? last;
   int? totalElements;
   int? totalPages;
+  int? size;
+  int? number;
+  Sort? sort;
+  int? numberOfElements;
+  bool? first;
+  bool? empty;
 
   GetAllInsuranceByPaginationModel({
-    this.getAllCustomersModel,
-    this.empty,
-    this.first,
-    this.last,
-    this.number,
-    this.numberOfElements,
+    this.insuranceDataList,
     this.pageable,
-    this.size,
-    this.sort,
+    this.last,
     this.totalElements,
     this.totalPages,
+    this.size,
+    this.number,
+    this.sort,
+    this.numberOfElements,
+    this.first,
+    this.empty,
   });
 
   factory GetAllInsuranceByPaginationModel.fromJson(
           Map<String, dynamic> json) =>
       GetAllInsuranceByPaginationModel(
-        getAllCustomersModel: json["content"] == null
+        insuranceDataList: json["content"] == null
             ? []
-            : List<GetAllCustomersModel>.from(
-                json["content"]!.map((x) => GetAllCustomersModel.fromJson(x))),
-        empty: json["empty"],
-        first: json["first"],
-        last: json["last"],
-        number: json["number"],
-        numberOfElements: json["numberOfElements"],
+            : List<InsuranceDataList>.from(
+                json["content"]!.map((x) => InsuranceDataList.fromJson(x))),
         pageable: json["pageable"] == null
             ? null
             : Pageable.fromJson(json["pageable"]),
-        size: json["size"],
-        sort: json["sort"] == null ? null : Sort.fromJson(json["sort"]),
+        last: json["last"],
         totalElements: json["totalElements"],
         totalPages: json["totalPages"],
+        size: json["size"],
+        number: json["number"],
+        sort: json["sort"] == null ? null : Sort.fromJson(json["sort"]),
+        numberOfElements: json["numberOfElements"],
+        first: json["first"],
+        empty: json["empty"],
       );
 
   Map<String, dynamic> toJson() => {
-        "content": getAllCustomersModel == null
+        "content": insuranceDataList == null
             ? []
-            : List<dynamic>.from(getAllCustomersModel!.map((x) => x.toJson())),
-        "empty": empty,
-        "first": first,
-        "last": last,
-        "number": number,
-        "numberOfElements": numberOfElements,
+            : List<dynamic>.from(insuranceDataList!.map((x) => x.toJson())),
         "pageable": pageable?.toJson(),
-        "size": size,
-        "sort": sort?.toJson(),
+        "last": last,
         "totalElements": totalElements,
         "totalPages": totalPages,
+        "size": size,
+        "number": number,
+        "sort": sort?.toJson(),
+        "numberOfElements": numberOfElements,
+        "first": first,
+        "empty": empty,
+      };
+}
+
+class InsuranceDataList {
+  String? insuranceId;
+  String? insuranceNo;
+  int? insuredAmt;
+  int? premiumAmt;
+  String? invoiceNo;
+  DateTime? insuredDate;
+  DateTime? ownDmgExpiryDate;
+  DateTime? thirdPartyExpiryDate;
+  String? customerName;
+  String? vehicleNo;
+  String? customerId;
+  String? mobileNo;
+  String? insuranceCompanyName;
+
+  InsuranceDataList({
+    this.insuranceId,
+    this.insuranceNo,
+    this.insuredAmt,
+    this.premiumAmt,
+    this.invoiceNo,
+    this.insuredDate,
+    this.ownDmgExpiryDate,
+    this.thirdPartyExpiryDate,
+    this.customerName,
+    this.vehicleNo,
+    this.customerId,
+    this.mobileNo,
+    this.insuranceCompanyName,
+  });
+
+  factory InsuranceDataList.fromJson(Map<String, dynamic> json) =>
+      InsuranceDataList(
+        insuranceId: json["insuranceId"],
+        insuranceNo: json["insuranceNo"],
+        insuredAmt: json["insuredAmt"],
+        premiumAmt: json["premiumAmt"],
+        invoiceNo: json["invoiceNo"],
+        insuredDate: json["insuredDate"] == null
+            ? null
+            : DateTime.parse(json["insuredDate"]),
+        ownDmgExpiryDate: json["ownDmgExpiryDate"] == null
+            ? null
+            : DateTime.parse(json["ownDmgExpiryDate"]),
+        thirdPartyExpiryDate: json["thirdPartyExpiryDate"] == null
+            ? null
+            : DateTime.parse(json["thirdPartyExpiryDate"]),
+        customerName: json["customerName"],
+        vehicleNo: json["vehicleNo"],
+        customerId: json["customerId"],
+        mobileNo: json["mobileNo"],
+        insuranceCompanyName: json["insuranceCompanyName"],
+      );
+
+  Map<String, dynamic> toJson() => {
+        "insuranceId": insuranceId,
+        "insuranceNo": insuranceNo,
+        "insuredAmt": insuredAmt,
+        "premiumAmt": premiumAmt,
+        "invoiceNo": invoiceNo,
+        "insuredDate": insuredDate?.toIso8601String(),
+        "ownDmgExpiryDate": ownDmgExpiryDate?.toIso8601String(),
+        "thirdPartyExpiryDate": thirdPartyExpiryDate?.toIso8601String(),
+        "customerName": customerName,
+        "vehicleNo": vehicleNo,
+        "customerId": customerId,
+        "mobileNo": mobileNo,
+        "insuranceCompanyName": insuranceCompanyName,
       };
 }
 
 class Pageable {
-  int? offset;
-  int? pageNumber;
-  int? pageSize;
-  bool? paged;
   Sort? sort;
+  int? offset;
+  int? pageSize;
+  int? pageNumber;
   bool? unpaged;
+  bool? paged;
 
   Pageable({
-    this.offset,
-    this.pageNumber,
-    this.pageSize,
-    this.paged,
     this.sort,
+    this.offset,
+    this.pageSize,
+    this.pageNumber,
     this.unpaged,
+    this.paged,
   });
 
   factory Pageable.fromJson(Map<String, dynamic> json) => Pageable(
-        offset: json["offset"],
-        pageNumber: json["pageNumber"],
-        pageSize: json["pageSize"],
-        paged: json["paged"],
         sort: json["sort"] == null ? null : Sort.fromJson(json["sort"]),
+        offset: json["offset"],
+        pageSize: json["pageSize"],
+        pageNumber: json["pageNumber"],
         unpaged: json["unpaged"],
+        paged: json["paged"],
       );
 
   Map<String, dynamic> toJson() => {
-        "offset": offset,
-        "pageNumber": pageNumber,
-        "pageSize": pageSize,
-        "paged": paged,
         "sort": sort?.toJson(),
+        "offset": offset,
+        "pageSize": pageSize,
+        "pageNumber": pageNumber,
         "unpaged": unpaged,
+        "paged": paged,
       };
 }
 

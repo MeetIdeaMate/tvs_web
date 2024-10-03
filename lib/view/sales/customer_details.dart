@@ -288,9 +288,9 @@ class _CustomerDetailsState extends State<CustomerDetails> {
 
     double advanceAmt = widget.addSalesBloc.advanceAmt ?? 0;
     double totalInvAmt = widget.addSalesBloc.totalInvAmount ?? 0;
-    widget.addSalesBloc.toBePayedAmt = totalInvAmt - advanceAmt;
-    widget.addSalesBloc.toBePayedAmt = double.parse(
-        widget.addSalesBloc.toBePayedAmt?.round().toString() ?? '');
+    widget.addSalesBloc.exShowrRomPrice = totalInvAmt - advanceAmt;
+    widget.addSalesBloc.exShowrRomPrice = double.parse(
+        widget.addSalesBloc.exShowrRomPrice?.round().toString() ?? '');
     widget.addSalesBloc.paymentDetailsStreamController(true);
   }
 
@@ -305,7 +305,7 @@ class _CustomerDetailsState extends State<CustomerDetails> {
     widget.addSalesBloc.sgstAmount = 0.0;
     widget.addSalesBloc.totalUnitRate = 0.0;
     // widget.addSalesBloc.advanceAmt = 0.0;
-    widget.addSalesBloc.toBePayedAmt = 0.0;
+    widget.addSalesBloc.exShowrRomPrice = 0.0;
     widget.addSalesBloc.totalQty = 0.0;
 
     // widget.addSalesBloc.selectedCustomer = null;

@@ -54,6 +54,12 @@ abstract class AddSalesBloc {
   TextEditingController get quantityTextController;
   TextEditingController get unitRateTextController;
 
+  TextEditingController get rtoAmountTextController;
+  TextEditingController get manditoryFittingAmountTextControler;
+  TextEditingController get optionlFittingAmountTextController;
+  TextEditingController get otherAmountTextController;
+  TextEditingController get discountAmountTextController;
+
   GlobalKey<FormState> get paymentFormKey;
 
   String? get selectedVehicleAndAccessories;
@@ -91,7 +97,8 @@ abstract class AddSalesBloc {
   double? get sgstAmount;
   double? get totalUnitRate;
   double? get advanceAmt;
-  double? get toBePayedAmt;
+  double? get exShowrRomPrice;
+  double? get toBePayed;
   double? get totalQty;
 
   String get selectedTypeTools;
@@ -107,6 +114,7 @@ abstract class AddSalesBloc {
   bool get isAccessoriestable;
   String? get selectedPaymentOption;
   Map<String, String> get batteryDetailsMap;
+  Map<String, String> get vehicleAddons;
   Future<GetAllCustomersModel?> getCustomerById();
 
   Future<List<GetAllCustomerNameList>?> getAllCustomerList();
@@ -144,6 +152,11 @@ abstract class AddSalesBloc {
   double? get totalDiscount;
   Stream<bool> get unitRateChangeStream;
   String? get bookingId;
+
+  Stream<double>? get totalAddOnsSumController;
+  Stream<bool> get totalAddOnsSumUpdateController;
+  Map<String, double> get previousValuesAddOns;
+  double get currentTotalAddons;
 }
 
 class AddSalesBlocImpl extends AddSalesBloc {
@@ -166,10 +179,16 @@ class AddSalesBlocImpl extends AddSalesBloc {
   final _unitRateTextController = TextEditingController();
   final _selectedPaymentListStream = StreamController<bool>.broadcast();
 
+  final _rtoAmountTextController = TextEditingController();
+  final _manditoryFittingAmountTextControler = TextEditingController();
+  final _optionlFittingAmountTextController = TextEditingController();
+  final _otherAmountTextControler = TextEditingController();
+
   String? _bookingId;
   final Map<int, String> _unitRate = {};
   final Map<String, int> _accessoriesQty = {};
   final Map<String, String> _batteryDetailsMap = {};
+  final Map<String, String> _vehicleAddons = {};
   final Map<int, String> _paymentName = {};
 
   bool _isAccessoriestable = false;
@@ -181,6 +200,7 @@ class AddSalesBlocImpl extends AddSalesBloc {
   final _accessoriesEntryFormkey = GlobalKey<FormState>();
 
   final _hsnCodeTextController = TextEditingController();
+  final _discountAmountController = TextEditingController();
   final _cgstPresentageTextController = TextEditingController();
   final _igstPresentageTextController = TextEditingController();
   final _empsInsentivetextEditController = TextEditingController();
@@ -211,6 +231,7 @@ class AddSalesBlocImpl extends AddSalesBloc {
 
   final _selectedItemStreamController = StreamController.broadcast();
   List<GetAllStockDetails>? selectedVehiclesList = [];
+  List<AddOns>? selectedVehicleAddons = [];
 
   List<GetAllStockDetails>? slectedAccessoriesList = [];
 
@@ -231,6 +252,10 @@ class AddSalesBlocImpl extends AddSalesBloc {
   List<GetAllStockDetails>? _vehicleDatas = [];
   List<GetAllStockDetails>? _accessoriesData = [];
   ValueNotifier<int> initialValueNotifier = ValueNotifier<int>(0);
+
+  final _totalAddOnsSumController = StreamController<double>.broadcast();
+  Map<String, double> _previousAddOnsValues = {};
+  double _currentTotal = 0.0;
 
   final List<String> _gstTypeOptions = ['GST %', 'IGST %'];
   @override
@@ -255,6 +280,7 @@ class AddSalesBlocImpl extends AddSalesBloc {
   final _splitPaymentCheckBoxStream = StreamController<bool>.broadcast();
   final _gstDetailsStreamController = StreamController<bool>.broadcast();
   final _unitRateChangeStream = StreamController<bool>.broadcast();
+  final _totalAddOnsSumUpdateController = StreamController<bool>.broadcast();
 
   final Map<String, int> _totalAccessoriesQty = {};
   final _paymentFormKey = GlobalKey<FormState>();
@@ -269,7 +295,8 @@ class AddSalesBlocImpl extends AddSalesBloc {
   double? _sgstAmount;
   double? _totalUnitRate;
   double? _advanceAmt;
-  double? _toBePayedAmt;
+  double? _exShowRoomPrice;
+  double? _toBePayed;
   double? _totalQty;
 
   bool _isSplitPayment = false;
@@ -678,9 +705,9 @@ class AddSalesBlocImpl extends AddSalesBloc {
   }
 
   @override
-  double? get toBePayedAmt => _toBePayedAmt;
-  set toBePayedAmt(double? value) {
-    _toBePayedAmt = value;
+  double? get exShowrRomPrice => _exShowRoomPrice;
+  set exShowrRomPrice(double? value) {
+    _exShowRoomPrice = value;
   }
 
   @override
@@ -793,7 +820,7 @@ class AddSalesBlocImpl extends AddSalesBloc {
       totalSplitPaymentAmt += double.tryParse(amt) ?? 0;
     });
 
-    if (totalSplitPaymentAmt > (toBePayedAmt ?? 0)) {
+    if (totalSplitPaymentAmt > (exShowrRomPrice ?? 0)) {
       splitPaymentAmt[index] = '';
     }
 
@@ -928,4 +955,62 @@ class AddSalesBlocImpl extends AddSalesBloc {
   selectedPaidAmtStreamController(bool newValue) {
     _selectedPaidAmtStream.add(newValue);
   }
+
+  @override
+  TextEditingController get manditoryFittingAmountTextControler =>
+      _manditoryFittingAmountTextControler;
+
+  @override
+  TextEditingController get otherAmountTextController =>
+      _otherAmountTextControler;
+
+  @override
+  TextEditingController get optionlFittingAmountTextController =>
+      _optionlFittingAmountTextController;
+
+  @override
+  TextEditingController get rtoAmountTextController => _rtoAmountTextController;
+
+  @override
+  Map<String, String> get vehicleAddons => _vehicleAddons;
+
+  @override
+  Stream<double> get totalAddOnsSumController =>
+      _totalAddOnsSumController.stream;
+
+  totalAddOnsSumStreamController(double? value) {
+    _totalAddOnsSumController.add(value ?? 0);
+  }
+
+  @override
+  double get currentTotalAddons => _currentTotal;
+
+  set currentTotalAddons(double value) {
+    _currentTotal = value;
+  }
+
+  @override
+  Map<String, double> get previousValuesAddOns => _previousAddOnsValues;
+
+  set previousValuesAddOns(Map<String, double> value) {
+    _previousAddOnsValues = value;
+  }
+
+  @override
+  double? get toBePayed => _toBePayed;
+
+  set toBePayed(double? value) {
+    _toBePayed = value;
+  }
+
+  @override
+  Stream<bool> get totalAddOnsSumUpdateController =>
+      _totalAddOnsSumUpdateController.stream;
+
+  totalAddOnsSumUpdateStreamController(bool value) {
+    _totalAddOnsSumUpdateController.add(value);
+  }
+  
+  @override
+  TextEditingController get discountAmountTextController => _discountAmountController;
 }
