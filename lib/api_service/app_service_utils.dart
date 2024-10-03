@@ -1269,7 +1269,8 @@ class AppServiceUtilImpl extends AppServiceUtil {
     var token = prefs.getString('token');
     bool isMainBranch = prefs.getBool('mainBranch') ?? false;
     String branchNames = prefs.getString('branchName') ?? '';
-    dio.options.headers['Authorization'] = 'Bearer $token';
+    dio.options.headers['Authorization'] =
+        'Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJUZWNobGFtYmRhcyIsImlhdCI6MTcyMzA0MTQzMiwiZXhwIjoxNzIzMDcwMjMyfQ.2bGGNYWK6Fp6pcd7B7rdIwSbYB7hILHGcs3G8TLnxTBWZiSDt7cMLM-rBs2C1t6mxMPHAKX09L3mzhQ7ht0gug';
     // 'Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJUZWNobGFtYmRhcyIsImlhdCI6MTcyMzA0MTQzMiwiZXhwIjoxNzIzMDcwMjMyfQ.2bGGNYWK6Fp6pcd7B7rdIwSbYB7hILHGcs3G8TLnxTBWZiSDt7cMLM-rBs2C1t6mxMPHAKX09L3mzhQ7ht0gug';
 
     String salesListUrl = '${AppUrl.sales}page?page=$currentPage&size=10';
@@ -1937,7 +1938,7 @@ class AppServiceUtilImpl extends AppServiceUtil {
         queryParameters['hsnCode'] = hsnCode;
       }
 
-      // queryParameters['categoryId'] = 'a1ab4a611a0c4c4f8d1e6ce5d6995fec';
+      queryParameters['categoryName'] = 'vehicle';
 
       var response = await dio.get(url, queryParameters: queryParameters);
       return parentResponseModelFromJson(jsonEncode(response.data))

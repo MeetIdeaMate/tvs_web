@@ -4,6 +4,7 @@ import 'package:tlbilling/utils/app_colors.dart';
 import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/utils/app_util_widgets.dart';
 import 'package:tlbilling/view/product/product_configuration_bloc.dart';
+import 'package:tlbilling/view/product/product_view_bloc.dart';
 import 'package:tlds_flutter/components/tlds_input_form_field.dart';
 import 'package:tlds_flutter/components/tlds_input_formaters.dart';
 import 'package:toastification/toastification.dart';
@@ -11,10 +12,12 @@ import 'package:toastification/toastification.dart';
 class ProductConfigurationView extends StatefulWidget {
   final String? itemId;
   final Map<String, double>? addOns;
+  final ProductViewBloc productViewBloc;
   const ProductConfigurationView(
     this.itemId, {
     super.key,
     this.addOns,
+    required this.productViewBloc,
   });
 
   @override

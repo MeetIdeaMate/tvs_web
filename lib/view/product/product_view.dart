@@ -261,7 +261,8 @@ class _ProductViewState extends State<ProductView> {
                     barrierDismissible: false,
                     context: context,
                     builder: (context) {
-                      return ProductConfigurationView(product.itemId);
+                      return ProductConfigurationView(product.itemId,
+                          productViewBloc: _productViewBlocImpl);
                     },
                   );
                 },
@@ -276,8 +277,11 @@ class _ProductViewState extends State<ProductView> {
                     barrierDismissible: false,
                     context: context,
                     builder: (context) {
-                      return ProductConfigurationView(product.itemId,
-                          addOns: product.addOns);
+                      return ProductConfigurationView(
+                        product.itemId,
+                        addOns: product.addOns,
+                        productViewBloc: _productViewBlocImpl,
+                      );
                     },
                   );
                 },
