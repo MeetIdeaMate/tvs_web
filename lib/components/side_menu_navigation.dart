@@ -15,6 +15,7 @@ import 'package:tlbilling/view/customer/customer_view.dart';
 import 'package:tlbilling/view/employee/employee_view_screen.dart';
 import 'package:tlbilling/view/insuranse/insuranse_view.dart';
 import 'package:tlbilling/view/login/logout_dialog.dart';
+import 'package:tlbilling/view/product/product_view.dart';
 import 'package:tlbilling/view/purchase/purchase_view.dart';
 import 'package:tlbilling/view/report/report_screen.dart';
 import 'package:tlbilling/view/sales/sales_view.dart';
@@ -203,6 +204,16 @@ class _SideMenuNavigationState extends State<SideMenuNavigation> {
                   AppConstants.sales,
                   () {
                     _onMenuItemSelected(AppConstants.sales);
+                  },
+                ),
+              if (!AccessLevel.canHide(
+                AppConstants.product,
+              ))
+                _buildDrawerMenuItem(
+                  AppConstants.icProduct,
+                  AppConstants.product,
+                  () {
+                    _onMenuItemSelected(AppConstants.product);
                   },
                 ),
               if (!AccessLevel.canHide(
@@ -459,6 +470,8 @@ class _SideMenuNavigationState extends State<SideMenuNavigation> {
         return const StocksView();
       case AppConstants.sales:
         return const SalesViewScreen();
+      case AppConstants.product:
+        return const ProductView();
       case AppConstants.customer:
         return const CustomerView();
       case AppConstants.transfer:
