@@ -238,9 +238,45 @@ class _PaymentDetailsState extends State<PaymentDetails> {
     double gstAmt = cgstAmt + cgstAmt;
     widget.addSalesBloc.invAmount = taxableValue + (gstAmt);
     _updateTotalInvoiceAmount();
-
+    _updateOtherAmountDetails();
     widget.addSalesBloc.paymentDetailsStreamController(true);
     widget.addSalesBloc.gstRadioBtnRefreashStreamController(true);
+  }
+
+  void _updateOtherAmountDetails() {
+    double rtoAmount =
+        double.tryParse(widget.addSalesBloc.rtoAmountTextController.text) ?? 0;
+    double manditoryFittingAmount = double.tryParse(
+            widget.addSalesBloc.manditoryFittingAmountTextControler.text) ??
+        0;
+    double optionalAcc = double.tryParse(
+            widget.addSalesBloc.optionlFittingAmountTextController.text) ??
+        0;
+    double otherAmount =
+        double.tryParse(widget.addSalesBloc.otherAmountTextController.text) ??
+            0;
+
+    double discountAmount = double.tryParse(
+            widget.addSalesBloc.discountAmountTextController.text) ??
+        0;
+    double tobepayedAmount = widget.addSalesBloc.exShowrRomPrice ?? 0;
+
+    double totalAmount = rtoAmount +
+        manditoryFittingAmount +
+        optionalAcc +
+        otherAmount +
+        tobepayedAmount;
+
+    if (discountAmount > 0) {
+      totalAmount -= discountAmount;
+    }
+
+    widget.addSalesBloc.toBePayed = totalAmount;
+
+    widget.addSalesBloc.paymentDetailsStreamController(true);
+
+    // Print total amount for debugging
+    print('Total Amount after discount: $totalAmount');
   }
 
   void _updateTotalInvoiceAmount() {

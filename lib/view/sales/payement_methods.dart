@@ -663,38 +663,47 @@ class _PaymentMethodsState extends State<PaymentMethods> {
     widget.addSalesBloc.splitPaymentCheckBoxStreamController(true);
   }
 
-  _buildSaveBtn() {
-    return CustomActionButtons(
-        onPressed: () {
-          if (widget.addSalesBloc.paymentFormKey.currentState!.validate()) {
-            widget.addSalesBloc.addNewSalesDeatils(salesPostObject(),
-                (statusCode) {
-              if (statusCode == 200 || statusCode == 201) {
-                Navigator.pop(context);
-                widget.salesViewBloc.pageNumberUpdateStreamController(0);
-                AppWidgetUtils.buildToast(
-                    context,
-                    ToastificationType.success,
-                    AppConstants.salesBillScc,
-                    Icon(Icons.check_circle_outline_rounded,
-                        color: _appColors.successColor),
-                    AppConstants.salesBillDescScc,
-                    _appColors.successLightColor);
-              } else {
-                AppWidgetUtils.buildToast(
-                    context,
-                    ToastificationType.error,
-                    AppConstants.salesBillerr,
-                    Icon(Icons.not_interested_rounded,
-                        color: _appColors.errorColor),
-                    AppConstants.salesBillDescerr,
-                    _appColors.errorLightColor);
-              }
-            });
+_buildSaveBtn() {
+  return CustomActionButtons(
+    onPressed: () {
+      if (_insuranceBloc.isInsuranceEntryDone == false) {
+        AppWidgetUtils.buildToast(
+          context,
+          ToastificationType.error,
+          'Insurance Entry',
+          Icon(Icons.not_interested_rounded, color: _appColors.errorColor),
+          'Please enter the insurance details before saving the sales bill!',
+          _appColors.errorLightColor,
+        );
+      } else if (widget.addSalesBloc.paymentFormKey.currentState!.validate()) {
+        widget.addSalesBloc.addNewSalesDeatils(salesPostObject(), (statusCode) {
+          if (statusCode == 200 || statusCode == 201) {
+            Navigator.pop(context);
+            widget.salesViewBloc.pageNumberUpdateStreamController(0);
+            AppWidgetUtils.buildToast(
+              context,
+              ToastificationType.success,
+              AppConstants.salesBillScc,
+              Icon(Icons.check_circle_outline_rounded, color: _appColors.successColor),
+              AppConstants.salesBillDescScc,
+              _appColors.successLightColor,
+            );
+          } else {
+            AppWidgetUtils.buildToast(
+              context,
+              ToastificationType.error,
+              AppConstants.salesBillerr,
+              Icon(Icons.not_interested_rounded, color: _appColors.errorColor),
+              AppConstants.salesBillDescerr,
+              _appColors.errorLightColor,
+            );
           }
-        },
-        buttonText: AppConstants.save);
-  }
+        });
+      }
+    },
+    buttonText: AppConstants.save,
+  );
+}
 
   salesPostObject() {
     List<SalesItemDetail> itemdetails = [];

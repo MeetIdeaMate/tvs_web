@@ -543,12 +543,10 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
                     widget.addSalesBloc.selectedItemStream(true);
                     widget.addSalesBloc.vehicleData?.add(vehicle);
                     widget.addSalesBloc.availableVehicleListStream(true);
-
                     widget.addSalesBloc.selectedCustomer = null;
                     widget.addSalesBloc.selectedCustomerId = null;
                     widget.addSalesBloc
                         .selectedCustomerDetailsStreamController(true);
-
                     widget.addSalesBloc.cgstPresentageTextController.clear();
                     //  widget.addSalesBloc.sgstPresentageTextController.clear();
                     widget.addSalesBloc.igstPresentageTextController.clear();
