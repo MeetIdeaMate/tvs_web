@@ -176,12 +176,15 @@ class _PaymentMethodsState extends State<PaymentMethods> {
     return Container(
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-          color: Colors.white, border: Border.all(color: Colors.black12)),
+          borderRadius: const BorderRadius.all(Radius.circular(10)),
+          color: Colors.white,
+          border: Border.all(color: Colors.black12)),
       child: ListTile(
+        contentPadding: const EdgeInsets.all(0),
         hoverColor: _appColors.bgHighlightColor,
         title: const Text(
           'InSurance Entry',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
         ),
         onTap: () {
           showDialog(

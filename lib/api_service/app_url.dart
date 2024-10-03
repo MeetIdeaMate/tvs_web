@@ -39,4 +39,6 @@ class AppUrl {
   static const salesBilCancel = '${baseUrl}sales/salesCancel/';
   static const accountHead = '${baseUrl}acchead';
   static const accessContol = '${baseUrl}access-controls';
+  static const itemPage = '${baseUrl}item/page';
+  static const item = '${baseUrl}item';
 }

@@ -37,7 +37,7 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 25),
+      padding: const EdgeInsets.symmetric(horizontal: 10),
       child: StreamBuilder<bool>(
           stream: widget.addSalesBloc.batteryDetailsRefreshStream,
           builder: (context, snapshot) {
@@ -53,138 +53,146 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
                 ],
               );
             }
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                CustomerDetails(
-                  addSalesBloc: widget.addSalesBloc,
-                ),
-                AppWidgetUtils.buildSizedBox(custHeight: 10),
-                _buildHeadingText(
-                    widget.addSalesBloc.selectedVehicleAndAccessories ==
-                            AppConstants.accessories
-                        ? AppConstants.selectedAccessories
-                        : widget.addSalesBloc.selectedVehicleAndAccessories ==
-                                AppConstants.eVehicle
-                            ? AppConstants.selectEVehicle
-                            : AppConstants.selectMVehicle),
-                _buildSelectedDataList(),
-                AppWidgetUtils.buildSizedBox(custHeight: 10),
-                if (widget.addSalesBloc.selectedVehicleAndAccessories !=
-                    AppConstants.accessories)
-                  _buildHeadingText(AppConstants.mandatoryAddons),
-                if (widget.addSalesBloc.selectedVehicleAndAccessories !=
-                    AppConstants.accessories)
-                  FutureBuilder<ParentResponseModel>(
-                    future: widget.addSalesBloc.getMandantoryAddOns(),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Center(child: Text(AppConstants.loading));
-                      } else if (snapshot.hasError) {
-                        return const Text(AppConstants.errorLoading);
-                      } else if (!snapshot.hasData ||
-                          (snapshot.data?.result?.getConfigurationModel
-                                  ?.configuration as List<String>)
-                              .isEmpty) {
-                        return const Text(AppConstants.noData);
-                      } else {
-                        List<String> mandatoryAddOns = snapshot
-                            .data
-                            ?.result
-                            ?.getConfigurationModel
-                            ?.configuration as List<String>;
+            return SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  AppWidgetUtils.buildSizedBox(custHeight: 10),
+                  CustomerDetails(
+                    addSalesBloc: widget.addSalesBloc,
+                  ),
+                  AppWidgetUtils.buildSizedBox(custHeight: 10),
+                  _buildHeadingText(
+                      widget.addSalesBloc.selectedVehicleAndAccessories ==
+                              AppConstants.accessories
+                          ? AppConstants.selectedAccessories
+                          : widget.addSalesBloc.selectedVehicleAndAccessories ==
+                                  AppConstants.eVehicle
+                              ? AppConstants.selectEVehicle
+                              : AppConstants.selectMVehicle),
+                  _buildSelectedDataList(),
+                  AppWidgetUtils.buildSizedBox(custHeight: 10),
+                  if (widget.addSalesBloc.selectedVehicleAndAccessories !=
+                      AppConstants.accessories)
+                    _buildHeadingText(AppConstants.mandatoryAddons),
+                  if (widget.addSalesBloc.selectedVehicleAndAccessories !=
+                      AppConstants.accessories)
+                    FutureBuilder<ParentResponseModel>(
+                      future: widget.addSalesBloc.getMandantoryAddOns(),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const Center(
+                              child: Text(AppConstants.loading));
+                        } else if (snapshot.hasError) {
+                          return const Text(AppConstants.errorLoading);
+                        } else if (!snapshot.hasData ||
+                            (snapshot.data?.result?.getConfigurationModel
+                                    ?.configuration as List<String>)
+                                .isEmpty) {
+                          return const Text(AppConstants.noData);
+                        } else {
+                          List<String> mandatoryAddOns = snapshot
+                              .data
+                              ?.result
+                              ?.getConfigurationModel
+                              ?.configuration as List<String>;
 
-                        if (widget
-                            .addSalesBloc.selectedMandatoryAddOns.isEmpty) {
-                          for (String addOn in mandatoryAddOns) {
-                            widget.addSalesBloc.selectedMandatoryAddOns[addOn] =
-                                AppConstants.yesC;
+                          if (widget
+                              .addSalesBloc.selectedMandatoryAddOns.isEmpty) {
+                            for (String addOn in mandatoryAddOns) {
+                              widget.addSalesBloc
+                                      .selectedMandatoryAddOns[addOn] =
+                                  AppConstants.yesC;
+                            }
                           }
-                        }
-                        if (snapshot.data?.result?.getConfigurationModel
-                                ?.inputType ==
-                            'YES/NO') {
-                          return StreamBuilder<bool>(
-                            stream: widget.addSalesBloc.mandatoryRefereshStream,
-                            builder: (context, snapshot) {
-                              return ListView.builder(
-                                shrinkWrap: true,
-                                itemCount: mandatoryAddOns.length,
-                                itemBuilder: (context, index) {
-                                  String addOn = mandatoryAddOns[index];
+                          if (snapshot.data?.result?.getConfigurationModel
+                                  ?.inputType ==
+                              'YES/NO') {
+                            return StreamBuilder<bool>(
+                              stream:
+                                  widget.addSalesBloc.mandatoryRefereshStream,
+                              builder: (context, snapshot) {
+                                return ListView.builder(
+                                  shrinkWrap: true,
+                                  itemCount: mandatoryAddOns.length,
+                                  itemBuilder: (context, index) {
+                                    String addOn = mandatoryAddOns[index];
 
-                                  return _buildMandatoryAdd(
-                                    addOn,
-                                    widget.addSalesBloc
-                                            .selectedMandatoryAddOns[addOn] ??
-                                        AppConstants.yesC,
-                                    (value) {
+                                    return _buildMandatoryAdd(
+                                      addOn,
                                       widget.addSalesBloc
-                                          .mandatoryRefereshStreamController(
-                                              true);
+                                              .selectedMandatoryAddOns[addOn] ??
+                                          AppConstants.yesC,
+                                      (value) {
+                                        widget.addSalesBloc
+                                            .mandatoryRefereshStreamController(
+                                                true);
 
-                                      widget.addSalesBloc
-                                              .selectedMandatoryAddOns[addOn] =
-                                          value ?? '';
-                                    },
-                                  );
-                                },
-                              );
-                            },
-                          );
-                        } else if (snapshot.data?.result?.getConfigurationModel
-                                ?.inputType ==
-                            'INPUT') {
-                          return ListView.builder(
-                            shrinkWrap: true,
-                            itemCount: mandatoryAddOns.length,
-                            itemBuilder: (context, index) {
-                              String componentName = mandatoryAddOns[index];
-                              return Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(componentName),
-                                  const Spacer(),
-                                  Expanded(
-                                    child: Padding(
-                                      padding: const EdgeInsets.only(bottom: 5),
-                                      child: TldsInputFormField(
-                                        height: 40,
-                                        controller: TextEditingController(),
-                                        hintText: componentName,
-                                        onChanged: (value) {
-                                          widget.addSalesBloc
-                                                  .selectedMandatoryAddOns[
-                                              componentName] = value;
+                                        widget.addSalesBloc
+                                                .selectedMandatoryAddOns[
+                                            addOn] = value ?? '';
+                                      },
+                                    );
+                                  },
+                                );
+                              },
+                            );
+                          } else if (snapshot.data?.result
+                                  ?.getConfigurationModel?.inputType ==
+                              'INPUT') {
+                            return ListView.builder(
+                              shrinkWrap: true,
+                              itemCount: mandatoryAddOns.length,
+                              itemBuilder: (context, index) {
+                                String componentName = mandatoryAddOns[index];
+                                return Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(componentName),
+                                    const Spacer(),
+                                    Expanded(
+                                      child: Padding(
+                                        padding:
+                                            const EdgeInsets.only(bottom: 5),
+                                        child: TldsInputFormField(
+                                          height: 40,
+                                          controller: TextEditingController(),
+                                          hintText: componentName,
+                                          onChanged: (value) {
+                                            widget.addSalesBloc
+                                                    .selectedMandatoryAddOns[
+                                                componentName] = value;
 
-                                          printBatteryDetails();
-                                        },
+                                            printBatteryDetails();
+                                          },
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                ],
-                              );
-                            },
-                          );
-                        }
+                                  ],
+                                );
+                              },
+                            );
+                          }
 
-                        return const Text(
-                            'Give Correct input Type YES/NO or INPUT');
-                      }
-                    },
-                  ),
-                const SizedBox(height: 15),
-                if (widget.addSalesBloc.selectedVehicleAndAccessories ==
-                    AppConstants.eVehicle)
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildHeadingText(AppConstants.eVehicleConponents),
-                      _buildBatteryDetails(),
-                    ],
-                  ),
-              ],
+                          return const Text(
+                              'Give Correct input Type YES/NO or INPUT');
+                        }
+                      },
+                    ),
+                  const SizedBox(height: 15),
+                  if (widget.addSalesBloc.selectedVehicleAndAccessories ==
+                      AppConstants.eVehicle)
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildHeadingText(AppConstants.eVehicleConponents),
+                        _buildBatteryDetails(),
+                      ],
+                    ),
+                ],
+              ),
             );
           }),
     );
@@ -305,118 +313,121 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
   }
 
   Widget _buildSelectedDataList() {
-    return Expanded(
-      child: StreamBuilder(
-        stream: widget.addSalesBloc.selectedItemStreamController,
-        builder: (context, snapshot) {
-          List<GetAllStockDetails>? selectedVehiclesList =
-              widget.addSalesBloc.selectedVehiclesList;
-          bool hasVehicles =
-              selectedVehiclesList != null && selectedVehiclesList.isNotEmpty;
-          return Column(
+    return StreamBuilder(
+      stream: widget.addSalesBloc.selectedItemStreamController,
+      builder: (context, snapshot) {
+        List<GetAllStockDetails>? selectedVehiclesList =
+            widget.addSalesBloc.selectedVehiclesList;
+        bool hasVehicles =
+            selectedVehiclesList != null && selectedVehiclesList.isNotEmpty;
+        return SingleChildScrollView(
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                child: ListView.builder(
-                  itemCount: hasVehicles ? selectedVehiclesList.length : 0,
-                  itemBuilder: (BuildContext context, int index) {
-                    if (hasVehicles) {
-                      GetAllStockDetails? vehicle = selectedVehiclesList[index];
-                      Map<String, dynamic>? addOnsMap =
-                          vehicle.addOns?.toJson();
-                      if (addOnsMap != null && addOnsMap.isNotEmpty) {
-                        addOnsMap.forEach((key, value) {
-                          double initialValue = value != null
-                              ? double.tryParse(value.toString()) ?? 0
-                              : 0;
-                          if (!widget.addSalesBloc.previousValuesAddOns
-                              .containsKey(key)) {
-                            widget.addSalesBloc.previousValuesAddOns[key] =
-                                initialValue;
-                          }
-                          widget.addSalesBloc.currentTotalAddons +=
+              ListView.builder(
+                physics: const NeverScrollableScrollPhysics(),
+                shrinkWrap: true,
+                itemCount: hasVehicles ? selectedVehiclesList.length : 0,
+                itemBuilder: (BuildContext context, int index) {
+                  if (hasVehicles) {
+                    GetAllStockDetails? vehicle = selectedVehiclesList[index];
+                    Map<String, dynamic>? addOnsMap = vehicle.addOns?.toJson();
+                    if (addOnsMap != null && addOnsMap.isNotEmpty) {
+                      addOnsMap.forEach((key, value) {
+                        double initialValue = value != null
+                            ? double.tryParse(value.toString()) ?? 0
+                            : 0;
+                        if (!widget.addSalesBloc.previousValuesAddOns
+                            .containsKey(key)) {
+                          widget.addSalesBloc.previousValuesAddOns[key] =
                               initialValue;
-                        });
-                        widget.addSalesBloc
-                            .totalAddOnsSumUpdateStreamController(true);
-                      }
-                      return StreamBuilder(
-                          stream: widget.addSalesBloc.totalAddOnsSumController,
-                          builder: (context, snapshot) {
-                            return Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                _buildSelectedVehicleCard(vehicle, index),
-                                AppWidgetUtils.buildSizedBox(custHeight: 15),
-                                AppWidgetUtils.buildHeaderText('Add Ons'),
-                                if (addOnsMap != null && addOnsMap.isNotEmpty)
-                                  Column(
-                                    children: addOnsMap.entries.map((entry) {
-                                      String key = entry.key;
-                                      dynamic value = entry.value;
-                                      TextEditingController controller =
-                                          TextEditingController(
-                                              text: value?.toString() ?? '');
-                                      return ListTile(
-                                        contentPadding:
-                                            const EdgeInsets.symmetric(
-                                                vertical: 10),
-                                        title: Text(
-                                          key,
-                                          style: const TextStyle(
-                                              fontWeight: FontWeight.bold),
-                                        ),
-                                        trailing: SizedBox(
-                                          width: 100,
-                                          height: 40,
-                                          child: TldsInputFormField(
-                                            controller: controller,
-                                            onChanged: (newValue) {
-                                              double? newNumericValue =
-                                                  double.tryParse(newValue);
-                                              if (newNumericValue != null) {
-                                                updateTotalAddOnsSum(addOnsMap,
-                                                    key, newNumericValue);
-                                              } else {
-                                                updateTotalAddOnsSum(
-                                                    addOnsMap, key, 0);
-                                              }
+                        }
+                        widget.addSalesBloc.currentTotalAddons += initialValue;
+                      });
+                      widget.addSalesBloc
+                          .totalAddOnsSumUpdateStreamController(true);
+                    }
+                    return StreamBuilder(
+                        stream: widget.addSalesBloc.totalAddOnsSumController,
+                        builder: (context, snapshot) {
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _buildSelectedVehicleCard(vehicle, index),
+                              AppWidgetUtils.buildSizedBox(custHeight: 15),
+                              AppWidgetUtils.buildHeaderText('Add Ons'),
+                              if (addOnsMap != null && addOnsMap.isNotEmpty)
+                                Column(
+                                  children: addOnsMap.entries.map((entry) {
+                                    String key = entry.key;
+                                    dynamic value = entry.value;
+                                    TextEditingController controller =
+                                        TextEditingController(
+                                            text: value?.toString() ?? '');
+                                    return ListTile(
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
+                                              vertical: 5),
+                                      title: Text(
+                                        key,
+                                        style: const TextStyle(
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                      trailing: TldsInputFormField(
+                                        width: 100,
+                                        height: 40,
+                                        controller: controller,
+                                        onChanged: (newValue) {
+                                          double? newNumericValue =
+                                              double.tryParse(newValue);
+                                          if (newNumericValue != null) {
+                                            updateTotalAddOnsSum(addOnsMap, key,
+                                                newNumericValue);
+                                          } else {
+                                            updateTotalAddOnsSum(
+                                                addOnsMap, key, 0);
+                                          }
 
-                                              widget.addSalesBloc
-                                                  .totalAddOnsSumUpdateStreamController(
-                                                      true);
-                                            },
-                                          ),
-                                        ),
-                                      );
-                                    }).toList(),
-                                  ),
-                                AppWidgetUtils.buildSizedBox(custHeight: 15),
-                                StreamBuilder<bool>(
-                                  stream: widget.addSalesBloc
-                                      .totalAddOnsSumUpdateController,
-                                  builder: (context, totalSnapshot) {
-                                    return Text(
+                                          widget.addSalesBloc
+                                              .totalAddOnsSumUpdateStreamController(
+                                                  true);
+                                        },
+                                      ),
+                                    );
+                                  }).toList(),
+                                ),
+                              AppWidgetUtils.buildSizedBox(custHeight: 15),
+                              StreamBuilder<bool>(
+                                stream: widget.addSalesBloc
+                                    .totalAddOnsSumUpdateController,
+                                builder: (context, totalSnapshot) {
+                                  return Container(
+                                    padding: const EdgeInsets.all(10),
+                                    decoration: BoxDecoration(
+                                        borderRadius: const BorderRadius.all(
+                                            Radius.circular(10)),
+                                        color: _appColors.bgHighlightColor),
+                                    child: Text(
                                       'Total Add-Ons: ₹ ${widget.addSalesBloc.currentTotalAddons.toStringAsFixed(2)}',
                                       style: const TextStyle(
                                           fontSize: 16,
                                           fontWeight: FontWeight.bold),
-                                    );
-                                  },
-                                ),
-                              ],
-                            );
-                          });
-                    } else {
-                      return Container();
-                    }
-                  },
-                ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ],
+                          );
+                        });
+                  } else {
+                    return Container();
+                  }
+                },
               ),
             ],
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 
