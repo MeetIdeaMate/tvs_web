@@ -100,6 +100,8 @@ abstract class AddSalesBloc {
   double? get exShowrRomPrice;
   double? get toBePayed;
   double? get totalQty;
+  double? get insuranceAmt;
+  double? get finalInvoiceValue;
 
   String get selectedTypeTools;
   String get selectedTypeManualBook;
@@ -298,6 +300,8 @@ class AddSalesBlocImpl extends AddSalesBloc {
   double? _exShowRoomPrice;
   double? _toBePayed;
   double? _totalQty;
+  double? _finalInvoiceValue;
+  double? _insuranceAmt;
 
   bool _isSplitPayment = false;
   final _vehicleListStreamController =
@@ -1010,7 +1014,21 @@ class AddSalesBlocImpl extends AddSalesBloc {
   totalAddOnsSumUpdateStreamController(bool value) {
     _totalAddOnsSumUpdateController.add(value);
   }
-  
+
   @override
-  TextEditingController get discountAmountTextController => _discountAmountController;
+  TextEditingController get discountAmountTextController =>
+      _discountAmountController;
+
+  @override
+  double? get finalInvoiceValue => _finalInvoiceValue;
+
+  set finalInvoiceValue(double? value) {
+    _finalInvoiceValue = value;
+  }
+
+  @override
+  double? get insuranceAmt => _insuranceAmt;
+  set insuranceAmt(double? value) {
+    _insuranceAmt = value;
+  }
 }

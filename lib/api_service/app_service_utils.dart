@@ -1236,9 +1236,9 @@ class AppServiceUtilImpl extends AppServiceUtil {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       var token = prefs.getString('token');
       dio.options.headers['Authorization'] = 'Bearer $token';
-      String url = '${AppUrl.insurance}?page=0&page=$currentPage&size=10';
+      String url = '${AppUrl.insurance}?page=$currentPage&size=10';
       if (invoiceNo.isNotEmpty) {
-        url += '&city=$invoiceNo';
+        url += '&invoiceNo=$invoiceNo';
       }
       if (customerName.isNotEmpty) {
         url += '&customerName=$customerName';

@@ -80,12 +80,12 @@ class GetAllInsuranceByPaginationModel {
 class InsuranceDataList {
   String? insuranceId;
   String? insuranceNo;
-  int? insuredAmt;
-  int? premiumAmt;
+  double? insuredAmt;
+  double? premiumAmt;
   String? invoiceNo;
-  DateTime? insuredDate;
-  DateTime? ownDmgExpiryDate;
-  DateTime? thirdPartyExpiryDate;
+  String? insuredDate;
+  String? ownDmgExpiryDate;
+  String? thirdPartyExpiryDate;
   String? customerName;
   String? vehicleNo;
   String? customerId;
@@ -115,15 +115,9 @@ class InsuranceDataList {
         insuredAmt: json["insuredAmt"],
         premiumAmt: json["premiumAmt"],
         invoiceNo: json["invoiceNo"],
-        insuredDate: json["insuredDate"] == null
-            ? null
-            : DateTime.parse(json["insuredDate"]),
-        ownDmgExpiryDate: json["ownDmgExpiryDate"] == null
-            ? null
-            : DateTime.parse(json["ownDmgExpiryDate"]),
-        thirdPartyExpiryDate: json["thirdPartyExpiryDate"] == null
-            ? null
-            : DateTime.parse(json["thirdPartyExpiryDate"]),
+        insuredDate: json["insuredDate"],
+        ownDmgExpiryDate: json["ownDmgExpiryDate"],
+        thirdPartyExpiryDate: json["thirdPartyExpiryDate"],
         customerName: json["customerName"],
         vehicleNo: json["vehicleNo"],
         customerId: json["customerId"],
@@ -137,9 +131,9 @@ class InsuranceDataList {
         "insuredAmt": insuredAmt,
         "premiumAmt": premiumAmt,
         "invoiceNo": invoiceNo,
-        "insuredDate": insuredDate?.toIso8601String(),
-        "ownDmgExpiryDate": ownDmgExpiryDate?.toIso8601String(),
-        "thirdPartyExpiryDate": thirdPartyExpiryDate?.toIso8601String(),
+        "insuredDate": insuredDate,
+        "ownDmgExpiryDate": ownDmgExpiryDate,
+        "thirdPartyExpiryDate": thirdPartyExpiryDate,
         "customerName": customerName,
         "vehicleNo": vehicleNo,
         "customerId": customerId,

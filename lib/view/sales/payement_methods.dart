@@ -961,20 +961,25 @@ class _PaymentMethodsState extends State<PaymentMethods> {
     double insuranceAmount =
         double.tryParse(_insuranceBloc.premiumAmountTextController.text) ?? 0;
 
+    widget.addSalesBloc.insuranceAmt = insuranceAmount;
+
     double totalAmount = rtoAmount +
         manditoryFittingAmount +
         optionalAcc +
         otherAmount +
-        tobepayedAmount;
+        tobepayedAmount +
+        insuranceAmount;
 
     if (discountAmount > 0) {
       totalAmount -= discountAmount;
     }
+    widget.addSalesBloc.finalInvoiceValue = totalAmount;
 
-    widget.addSalesBloc.toBePayed =
-        totalAmount - advanceAmount + insuranceAmount;
+    widget.addSalesBloc.toBePayed = totalAmount - advanceAmount;
 
     widget.addSalesBloc.paymentDetailsStreamController(true);
+    print(
+        'Total Amount after discount with final invoice value: ${widget.addSalesBloc.finalInvoiceValue}');
 
     // Print total amount for debugging
     print('Total Amount after discount: $totalAmount');

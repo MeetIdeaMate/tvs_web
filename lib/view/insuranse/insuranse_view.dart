@@ -183,7 +183,7 @@ class _InsuranseViewState extends State<InsuranseView>
             } else if (snapshot.hasError) {
               return const Center(child: Text(AppConstants.somethingWentWrong));
             } else if (snapshot.hasData) {
-              if (snapshot.data?.insuranceDataList?.isNotEmpty ?? false) {
+              if (snapshot.data?.insuranceDataList?.isEmpty ?? false) {
                 return Center(
                   child: SvgPicture.asset(AppConstants.imgNoData),
                 );
@@ -192,6 +192,8 @@ class _InsuranseViewState extends State<InsuranseView>
 
             GetAllInsuranceByPaginationModel insuranceListModel =
                 snapshot.data!;
+
+            print('insuranceListModel $insuranceListModel');
 
             List<InsuranceDataList> insuranceData =
                 snapshot.data?.insuranceDataList ?? [];

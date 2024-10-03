@@ -630,20 +630,31 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
     double otherAmount =
         double.tryParse(widget.addSalesBloc.otherAmountTextController.text) ??
             0;
+    double advanceAmount = widget.addSalesBloc.advanceAmt ?? 0;
+    double discountAmount = double.tryParse(
+            widget.addSalesBloc.discountAmountTextController.text) ??
+        0;
     double tobepayedAmount = widget.addSalesBloc.exShowrRomPrice ?? 0;
-    double advanceAmt = widget.addSalesBloc.advanceAmt ?? 0;
+    double insuranceAmount = widget.addSalesBloc.insuranceAmt ?? 0;
 
-    // Sum all the amounts including tobepayedAmount
     double totalAmount = rtoAmount +
         manditoryFittingAmount +
         optionalAcc +
         otherAmount +
-        tobepayedAmount;
+        tobepayedAmount +
+        insuranceAmount;
 
-    widget.addSalesBloc.toBePayed = totalAmount -advanceAmt;
+    if (discountAmount > 0) {
+      totalAmount -= discountAmount;
+    }
+
+    widget.addSalesBloc.finalInvoiceValue = totalAmount;
+    widget.addSalesBloc.toBePayed = totalAmount - advanceAmount;
+
     widget.addSalesBloc.paymentDetailsStreamController(true);
-    // Now you can use totalAmount as needed
-    print('Total Amount: $totalAmount');
+
+    // Print total amount for debugging
+    print('Total Amount after discount: $totalAmount');
   }
 
   void _updateTotalInvoiceAmount() {
@@ -671,6 +682,7 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
         widget.addSalesBloc.exShowrRomPrice?.round().toString() ?? '');
     widget.addSalesBloc.toBePayed = double.tryParse(
         widget.addSalesBloc.toBePayed?.round().toString() ?? '');
+    _updateOtherAmountDetails();
     widget.addSalesBloc.paymentDetailsStreamController(true);
   }
 

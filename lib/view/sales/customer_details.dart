@@ -14,8 +14,7 @@ import 'package:tlds_flutter/components/tlds_dropdown_button_form_field.dart';
 
 class CustomerDetails extends StatefulWidget {
   final AddSalesBlocImpl addSalesBloc;
-  const CustomerDetails(
-      {super.key, required this.addSalesBloc});
+  const CustomerDetails({super.key, required this.addSalesBloc});
 
   @override
   State<CustomerDetails> createState() => _CustomerDetailsState();
@@ -281,7 +280,47 @@ class _CustomerDetailsState extends State<CustomerDetails> {
         widget.addSalesBloc.exShowrRomPrice?.round().toString() ?? '');
     widget.addSalesBloc.toBePayed =
         double.parse(widget.addSalesBloc.toBePayed?.round().toString() ?? '');
+    _updateOtherAmountDetails();
     widget.addSalesBloc.paymentDetailsStreamController(true);
+  }
+
+  void _updateOtherAmountDetails() {
+    double rtoAmount =
+        double.tryParse(widget.addSalesBloc.rtoAmountTextController.text) ?? 0;
+    double manditoryFittingAmount = double.tryParse(
+            widget.addSalesBloc.manditoryFittingAmountTextControler.text) ??
+        0;
+    double optionalAcc = double.tryParse(
+            widget.addSalesBloc.optionlFittingAmountTextController.text) ??
+        0;
+    double otherAmount =
+        double.tryParse(widget.addSalesBloc.otherAmountTextController.text) ??
+            0;
+    double advanceAmount = widget.addSalesBloc.advanceAmt ?? 0;
+    double discountAmount = double.tryParse(
+            widget.addSalesBloc.discountAmountTextController.text) ??
+        0;
+    double tobepayedAmount = widget.addSalesBloc.exShowrRomPrice ?? 0;
+    double insuranceAmount = widget.addSalesBloc.insuranceAmt ?? 0;
+
+    double totalAmount = rtoAmount +
+        manditoryFittingAmount +
+        optionalAcc +
+        otherAmount +
+        tobepayedAmount +
+        insuranceAmount;
+
+    if (discountAmount > 0) {
+      totalAmount -= discountAmount;
+    }
+
+    widget.addSalesBloc.finalInvoiceValue = totalAmount;
+    widget.addSalesBloc.toBePayed = totalAmount - advanceAmount;
+
+    widget.addSalesBloc.paymentDetailsStreamController(true);
+
+    // Print total amount for debugging
+    print('Total Amount after discount: $totalAmount');
   }
 
   void clear() {
@@ -330,6 +369,6 @@ class _CustomerDetailsState extends State<CustomerDetails> {
     widget.addSalesBloc.batteryDetailsRefreshStreamController(true);
     widget.addSalesBloc.selectedVehicleAndAccessoriesListStreamController(true);
     widget.addSalesBloc.paymentDetailsStreamController(true);
-    // widget.addSalesBloc.screenChangeStreamController(true);
+    widget.addSalesBloc.screenChangeStreamController(true);
   }
 }

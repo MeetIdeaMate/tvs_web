@@ -237,7 +237,6 @@ class _PaymentDetailsState extends State<PaymentDetails> {
     double gstAmt = cgstAmt + cgstAmt;
     widget.addSalesBloc.invAmount = taxableValue + (gstAmt);
     _updateTotalInvoiceAmount();
-    _updateOtherAmountDetails();
     widget.addSalesBloc.paymentDetailsStreamController(true);
     widget.addSalesBloc.gstRadioBtnRefreashStreamController(true);
   }
@@ -259,23 +258,27 @@ class _PaymentDetailsState extends State<PaymentDetails> {
             widget.addSalesBloc.discountAmountTextController.text) ??
         0;
     double tobepayedAmount = widget.addSalesBloc.exShowrRomPrice ?? 0;
+    double insuranceAmount = widget.addSalesBloc.insuranceAmt ?? 0;
 
     double totalAmount = rtoAmount +
         manditoryFittingAmount +
         optionalAcc +
         otherAmount +
-        tobepayedAmount;
+        tobepayedAmount +
+        insuranceAmount;
 
     if (discountAmount > 0) {
       totalAmount -= discountAmount;
     }
 
+    widget.addSalesBloc.finalInvoiceValue = totalAmount;
     widget.addSalesBloc.toBePayed = totalAmount - advanceAmount;
 
     widget.addSalesBloc.paymentDetailsStreamController(true);
 
     // Print total amount for debugging
-    print('Total Amount after discount: $totalAmount');
+    print(
+        'Total Amount after discount with final invoice value: ${widget.addSalesBloc.finalInvoiceValue}');
   }
 
   void _updateTotalInvoiceAmount() {
@@ -300,6 +303,7 @@ class _PaymentDetailsState extends State<PaymentDetails> {
         double.parse(widget.addSalesBloc.toBePayed?.round().toString() ?? '');
     widget.addSalesBloc.exShowrRomPrice = double.parse(
         widget.addSalesBloc.exShowrRomPrice?.round().toString() ?? '');
+    _updateOtherAmountDetails();
     widget.addSalesBloc.gstRadioBtnRefreashStreamController(true);
     widget.addSalesBloc.paymentDetailsStreamController(true);
   }
@@ -1059,7 +1063,13 @@ class _PaymentDetailsState extends State<PaymentDetails> {
   _buildSaveBtn() {
     return CustomActionButtons(
         onPressed: () {
+          print('sdkdhskhdskdhsdskds');
+          print(
+              'final Invloice vbalue : ${widget.addSalesBloc.finalInvoiceValue}');
           if (widget.addSalesBloc.paymentFormKey.currentState!.validate()) {
+            print('sdkdhskhdskdhsdskds');
+            print(
+                'final Invloice vbalue : ${widget.addSalesBloc.finalInvoiceValue}');
             _isLoadingState(state: true);
             widget.addSalesBloc.addNewSalesDeatils(salesPostObject(),
                 (statusCode) {
@@ -1085,6 +1095,8 @@ class _PaymentDetailsState extends State<PaymentDetails> {
   }
 
   salesPostObject() {
+    print('sdkdhskhdskdhsdskds');
+    print('final Invloice vbalue : ${widget.addSalesBloc.finalInvoiceValue}');
     List<SalesItemDetail> itemdetails = [];
     List<GstDetail> gstDetails = [];
     Map<String, String> mandatoryAddonsMap = {};
@@ -1192,7 +1204,7 @@ class _PaymentDetailsState extends State<PaymentDetails> {
             discount: double.tryParse(
                     widget.addSalesBloc.discountTextController.text) ??
                 0,
-            finalInvoiceValue: widget.addSalesBloc.totalInvAmount ?? 0,
+            finalInvoiceValue: 0,
             gstDetails: gstDetails,
             hsnSacCode: widget.addSalesBloc.hsnCodeTextController.text,
             incentives: insentive,
@@ -1206,7 +1218,7 @@ class _PaymentDetailsState extends State<PaymentDetails> {
             quantity: widget.addSalesBloc.selectedVehiclesList?.length,
             specificationsValue: {},
             stockId: itemData.stockId ?? '',
-            taxableValue: widget.addSalesBloc.taxableValue ?? 0,
+            taxableValue: 0,
             taxes: tax,
             unitRate: double.tryParse(widget.addSalesBloc.unitRates[0] ?? ''),
             value: widget.addSalesBloc.totalValue ?? 0);
@@ -1249,12 +1261,13 @@ class _PaymentDetailsState extends State<PaymentDetails> {
         itemDetails: itemdetails,
         mandatoryAddons: mandatoryAddonsMap,
         netAmt: double.parse(
-            widget.addSalesBloc.totalInvAmount?.round().toString() ?? ''),
+            widget.addSalesBloc.finalInvoiceValue?.round().toString() ?? ''),
         paidDetails: paidDetails,
         roundOffAmt: double.parse(
-                widget.addSalesBloc.totalInvAmount?.toString() ?? '') -
+                widget.addSalesBloc.finalInvoiceValue?.toString() ?? '') -
             double.parse(
-                widget.addSalesBloc.totalInvAmount?.round().toString() ?? ''),
+                widget.addSalesBloc.finalInvoiceValue?.round().toString() ??
+                    ''),
         totalQty: totalQty);
   }
 }
