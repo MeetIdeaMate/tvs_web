@@ -14,10 +14,7 @@ import 'package:tlds_flutter/components/tlds_dropdown_button_form_field.dart';
 
 class CustomerDetails extends StatefulWidget {
   final AddSalesBlocImpl addSalesBloc;
-  const CustomerDetails({
-    super.key,
-    required this.addSalesBloc,
-  });
+  const CustomerDetails({super.key, required this.addSalesBloc});
 
   @override
   State<CustomerDetails> createState() => _CustomerDetailsState();
@@ -66,9 +63,7 @@ class _CustomerDetailsState extends State<CustomerDetails> {
                 } else if (!snapshot.hasData || snapshot.data == null) {
                   return const Center(child: Text(''));
                 }
-
                 GetAllCustomersModel? customer = snapshot.data;
-
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -199,34 +194,28 @@ class _CustomerDetailsState extends State<CustomerDetails> {
                                       .selectedVehicleAndAccessories =
                                   element.categoryName;
                               //    var selectedValue = newValue.first;
-
                               widget.addSalesBloc.selectedVehiclesList?.clear();
                               widget.addSalesBloc.slectedAccessoriesList
                                   ?.clear();
-
                               widget.addSalesBloc.selectedMandatoryAddOns
                                   .clear();
                               clear();
-
                               widget.addSalesBloc
                                   .batteryDetailsRefreshStreamController(true);
                               widget.addSalesBloc.unitRateTextController
                                   .clear();
-
                               widget.addSalesBloc
                                   .selectedVehicleAndAccessoriesListStreamController(
                                       true);
                               _updateTotalInvoiceAmount();
                               widget.addSalesBloc
                                   .paymentDetailsStreamController(true);
-
                               // widget.addSalesBloc.selectedVehiclesList = [];
                               widget.addSalesBloc
                                   .batteryDetailsRefreshStreamController(true);
                               widget.addSalesBloc.selectedItemStream(true);
                               widget.addSalesBloc
                                   .selectedVehiclesListStreamController(true);
-
                               widget.addSalesBloc
                                   .changeVehicleAndAccessoriesListStreamController(
                                       true);
@@ -276,22 +265,62 @@ class _CustomerDetailsState extends State<CustomerDetails> {
     double? stateIncValue = double.tryParse(
             widget.addSalesBloc.stateIncentiveTextController.text) ??
         0.0;
-
     double totalIncentive = empsIncValue + stateIncValue;
-
     if ((widget.addSalesBloc.invAmount ?? 0) != -1) {
       widget.addSalesBloc.totalInvAmount =
           (widget.addSalesBloc.invAmount ?? 0) - totalIncentive;
     } else {
       widget.addSalesBloc.totalInvAmount = 0.0;
     }
-
     double advanceAmt = widget.addSalesBloc.advanceAmt ?? 0;
     double totalInvAmt = widget.addSalesBloc.totalInvAmount ?? 0;
-    widget.addSalesBloc.toBePayedAmt = totalInvAmt - advanceAmt;
-    widget.addSalesBloc.toBePayedAmt = double.parse(
-        widget.addSalesBloc.toBePayedAmt?.round().toString() ?? '');
+    widget.addSalesBloc.exShowrRomPrice = totalInvAmt;
+    widget.addSalesBloc.toBePayed = totalInvAmt - advanceAmt;
+    widget.addSalesBloc.exShowrRomPrice = double.parse(
+        widget.addSalesBloc.exShowrRomPrice?.round().toString() ?? '');
+    widget.addSalesBloc.toBePayed =
+        double.parse(widget.addSalesBloc.toBePayed?.round().toString() ?? '');
+    _updateOtherAmountDetails();
     widget.addSalesBloc.paymentDetailsStreamController(true);
+  }
+
+  void _updateOtherAmountDetails() {
+    double rtoAmount =
+        double.tryParse(widget.addSalesBloc.rtoAmountTextController.text) ?? 0;
+    double manditoryFittingAmount = double.tryParse(
+            widget.addSalesBloc.manditoryFittingAmountTextControler.text) ??
+        0;
+    double optionalAcc = double.tryParse(
+            widget.addSalesBloc.optionlFittingAmountTextController.text) ??
+        0;
+    double otherAmount =
+        double.tryParse(widget.addSalesBloc.otherAmountTextController.text) ??
+            0;
+    double advanceAmount = widget.addSalesBloc.advanceAmt ?? 0;
+    double discountAmount = double.tryParse(
+            widget.addSalesBloc.discountAmountTextController.text) ??
+        0;
+    double tobepayedAmount = widget.addSalesBloc.exShowrRomPrice ?? 0;
+    double insuranceAmount = widget.addSalesBloc.insuranceAmt ?? 0;
+
+    double totalAmount = rtoAmount +
+        manditoryFittingAmount +
+        optionalAcc +
+        otherAmount +
+        tobepayedAmount +
+        insuranceAmount;
+
+    if (discountAmount > 0) {
+      totalAmount -= discountAmount;
+    }
+
+    widget.addSalesBloc.finalInvoiceValue = totalAmount;
+    widget.addSalesBloc.toBePayed = totalAmount - advanceAmount;
+
+    widget.addSalesBloc.paymentDetailsStreamController(true);
+
+    // Print total amount for debugging
+    print('Total Amount after discount: $totalAmount');
   }
 
   void clear() {
@@ -305,7 +334,7 @@ class _CustomerDetailsState extends State<CustomerDetails> {
     widget.addSalesBloc.sgstAmount = 0.0;
     widget.addSalesBloc.totalUnitRate = 0.0;
     // widget.addSalesBloc.advanceAmt = 0.0;
-    widget.addSalesBloc.toBePayedAmt = 0.0;
+    widget.addSalesBloc.exShowrRomPrice = 0.0;
     widget.addSalesBloc.totalQty = 0.0;
 
     // widget.addSalesBloc.selectedCustomer = null;
@@ -340,6 +369,6 @@ class _CustomerDetailsState extends State<CustomerDetails> {
     widget.addSalesBloc.batteryDetailsRefreshStreamController(true);
     widget.addSalesBloc.selectedVehicleAndAccessoriesListStreamController(true);
     widget.addSalesBloc.paymentDetailsStreamController(true);
-    // widget.addSalesBloc.screenChangeStreamController(true);
+    widget.addSalesBloc.screenChangeStreamController(true);
   }
 }

@@ -631,6 +631,7 @@ class AppConstants {
   static const String mandatoryAddons = 'Mandatory Add-ons';
   static const String bookAdvAmt = 'Booking Advance Amt';
   static const String toBePayed = 'To be payed';
+  static const String exShowroomPrice = 'Ex Showroom Price';
   static const String splitPayment = 'Split Payment';
 
   static const String allPayments = 'All Payments';
@@ -696,4 +697,13 @@ class AppConstants {
   static const String productConfigUpdated = 'Product Configuration Updated';
   static const String configNameAndAmountRequired =
       'Config Name and Amount are required';
+
+
+  //Insurance 
+
+  static const String insuredDate = 'Insure Date';
+  static const String insuranceNo = 'Insurance No';
+  static const String insuranceCompanyName = 'Insurance Company Name';
+  static const String thirdPartyExpiryDate = 'Third Party ExpiryDate';
+
 }

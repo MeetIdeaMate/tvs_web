@@ -441,6 +441,7 @@ class _AccessoriesSalesEntryDialogState
             widget.addSalesBloc.vehicleAndEngineNumberStreamController(true);
             widget.addSalesBloc.refreshsalesDataTableController(true);
             Navigator.pop(context);
+            Navigator.pop(context);
           }
         },
         buttonText: AppConstants.submit);

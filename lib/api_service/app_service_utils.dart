@@ -1236,9 +1236,9 @@ class AppServiceUtilImpl extends AppServiceUtil {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       var token = prefs.getString('token');
       dio.options.headers['Authorization'] = 'Bearer $token';
-      String url = '${AppUrl.insurance}/page?page=$currentPage&size=10';
+      String url = '${AppUrl.insurance}?page=$currentPage&size=10';
       if (invoiceNo.isNotEmpty) {
-        url += '&city=$invoiceNo';
+        url += '&invoiceNo=$invoiceNo';
       }
       if (customerName.isNotEmpty) {
         url += '&customerName=$customerName';
@@ -1246,7 +1246,11 @@ class AppServiceUtilImpl extends AppServiceUtil {
       if (mobileNumber.isNotEmpty) {
         url += '&mobileNo=$mobileNumber';
       }
+      print('**************url => $url');
       var response = await dio.get(url);
+      print('**************response => $response');
+      print('**************status code  => ${response.statusCode}');
+
       return parentResponseModelFromJson(jsonEncode(response.data))
           .result
           ?.getAllInsuranceModel;
@@ -1269,8 +1273,7 @@ class AppServiceUtilImpl extends AppServiceUtil {
     var token = prefs.getString('token');
     bool isMainBranch = prefs.getBool('mainBranch') ?? false;
     String branchNames = prefs.getString('branchName') ?? '';
-    dio.options.headers['Authorization'] =
-        'Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJUZWNobGFtYmRhcyIsImlhdCI6MTcyMzA0MTQzMiwiZXhwIjoxNzIzMDcwMjMyfQ.2bGGNYWK6Fp6pcd7B7rdIwSbYB7hILHGcs3G8TLnxTBWZiSDt7cMLM-rBs2C1t6mxMPHAKX09L3mzhQ7ht0gug';
+    dio.options.headers['Authorization'] = 'Bearer $token';
     // 'Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJUZWNobGFtYmRhcyIsImlhdCI6MTcyMzA0MTQzMiwiZXhwIjoxNzIzMDcwMjMyfQ.2bGGNYWK6Fp6pcd7B7rdIwSbYB7hILHGcs3G8TLnxTBWZiSDt7cMLM-rBs2C1t6mxMPHAKX09L3mzhQ7ht0gug';
 
     String salesListUrl = '${AppUrl.sales}page?page=$currentPage&size=10';
@@ -1626,7 +1629,12 @@ class AppServiceUtilImpl extends AppServiceUtil {
       var token = prefs.getString('token');
       dio.options.headers['Authorization'] = 'Bearer $token';
       var jsonData = json.encode(salesdata);
+      print('***********sales Request Obj => $jsonData');
+
       var response = await dio.post(AppUrl.sales, data: jsonData);
+      print('***********sales Response  Obj => $response');
+      print('***********sales status code => ${response.statusCode}');
+
       if (response.statusCode == 200 || response.statusCode == 201) {
         onSuccessCallBack(response.statusCode!);
       } else {

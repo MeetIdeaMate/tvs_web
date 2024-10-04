@@ -12,45 +12,46 @@ class GetAllStockDetails {
   Value? specificationsValue;
   String? stockId;
   String? stockStatus;
+ AddOns? addOns;
 
-  GetAllStockDetails({
-    this.branchId,
-    this.branchName,
-    this.categoryId,
-    this.categoryName,
-    this.hsnSacCode,
-    this.itemName,
-    this.mainSpecValue,
-    this.partNo,
-    this.purchaseItem,
-    this.quantity,
-    this.specificationsValue,
-    this.stockId,
-    this.stockStatus,
-  });
+  GetAllStockDetails(
+      {this.branchId,
+      this.branchName,
+      this.categoryId,
+      this.categoryName,
+      this.hsnSacCode,
+      this.itemName,
+      this.mainSpecValue,
+      this.partNo,
+      this.purchaseItem,
+      this.quantity,
+      this.specificationsValue,
+      this.stockId,
+      this.stockStatus,
+      this.addOns});
 
   factory GetAllStockDetails.fromJson(Map<String, dynamic> json) =>
       GetAllStockDetails(
-        branchId: json["branchId"],
-        branchName: json["branchName"],
-        categoryId: json["categoryId"],
-        categoryName: json["categoryName"],
-        hsnSacCode: json["hsnSacCode"],
-        itemName: json["itemName"],
-        mainSpecValue: json["mainSpecValue"] == null
-            ? null
-            : MainSpecValue.fromJson(json["mainSpecValue"]),
-        partNo: json["partNo"],
-        purchaseItem: json["purchaseItem"] == null
-            ? null
-            : PurchaseItem.fromJson(json["purchaseItem"]),
-        quantity: json["quantity"],
-        specificationsValue: json["specificationsValue"] == null
-            ? null
-            : Value.fromJson(json["specificationsValue"]),
-        stockId: json["stockId"],
-        stockStatus: json["stockStatus"],
-      );
+          branchId: json["branchId"],
+          branchName: json["branchName"],
+          categoryId: json["categoryId"],
+          categoryName: json["categoryName"],
+          hsnSacCode: json["hsnSacCode"],
+          itemName: json["itemName"],
+          mainSpecValue: json["mainSpecValue"] == null
+              ? null
+              : MainSpecValue.fromJson(json["mainSpecValue"]),
+          partNo: json["partNo"],
+          purchaseItem: json["purchaseItem"] == null
+              ? null
+              : PurchaseItem.fromJson(json["purchaseItem"]),
+          quantity: json["quantity"],
+          specificationsValue: json["specificationsValue"] == null
+              ? null
+              : Value.fromJson(json["specificationsValue"]),
+          stockId: json["stockId"],
+          stockStatus: json["stockStatus"],
+          addOns: json["addOns"] == null ? null : AddOns.fromJson(json["addOns"]));
 
   Map<String, dynamic> toJson() => {
         "branchId": branchId,
@@ -66,8 +67,29 @@ class GetAllStockDetails {
         "specificationsValue": specificationsValue?.toJson(),
         "stockId": stockId,
         "stockStatus": stockStatus,
+         "addOns": addOns?.toJson(),
       };
 }
+class AddOns {
+  Map<String, double>? addOnsMap;
+
+  AddOns({this.addOnsMap});
+
+  factory AddOns.fromJson(Map<String, dynamic> json) {
+    // Dynamically map each key-value pair from the JSON object into a Dart map
+    Map<String, double> map = {};
+    json.forEach((key, value) {
+      map[key] = value.toDouble();
+    });
+    return AddOns(addOnsMap: map);
+  }
+
+  Map<String, dynamic> toJson() {
+    return addOnsMap != null ? Map.from(addOnsMap!) : {};
+  }
+}
+
+
 
 class Value {
   Value();

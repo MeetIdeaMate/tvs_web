@@ -151,7 +151,7 @@ class _AccessoiresSalesTableState extends State<AccessoiresSalesTable> {
                         widget.addSalesBloc.sgstAmount = totalSgstValue;
                         widget.addSalesBloc.igstAmount = totalIgstValue;
                         widget.addSalesBloc.totalInvAmount = totalInvoiceValue;
-                        widget.addSalesBloc.toBePayedAmt = double.tryParse(
+                        widget.addSalesBloc.exShowrRomPrice = double.tryParse(
                             totalInvoiceValue.round().toString());
 
                         return DataRow(

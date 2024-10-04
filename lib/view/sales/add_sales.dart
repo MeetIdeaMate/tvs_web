@@ -4,6 +4,7 @@ import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/utils/app_util_widgets.dart';
 import 'package:tlbilling/view/sales/accessories_sales_table.dart';
 import 'package:tlbilling/view/sales/add_sales_bloc.dart';
+import 'package:tlbilling/view/sales/payement_methods.dart';
 import 'package:tlbilling/view/sales/payment_details.dart';
 import 'package:tlbilling/view/sales/sales_view_bloc.dart';
 import 'package:tlbilling/view/sales/selected_sales_data.dart';
@@ -26,6 +27,10 @@ class _AddSalesState extends State<AddSales> {
     super.initState();
     _addSalesBloc.selectedVehicleAndAccessories = 'Vehicle';
     _addSalesBloc.selectedVehicleAndAccessoriesStreamController(true);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _buildVehicleAndAccessoriesSelectionDialog();
+    });
   }
 
   @override
@@ -54,11 +59,22 @@ class _AddSalesState extends State<AddSales> {
           stream: _addSalesBloc.screenChangeStream,
           builder: (context, snapshot) {
             return Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 if (_addSalesBloc.isAccessoriestable == false)
-                  Expanded(
-                    flex: 1,
-                    child: _buildVehicleAndAccessoriesList(),
+                  Padding(
+                    padding: const EdgeInsets.all(10),
+                    child: IconButton(
+                        style: ButtonStyle(
+                            backgroundColor: WidgetStatePropertyAll(
+                                _appColors.primaryColor)),
+                        onPressed: () {
+                          _buildVehicleAndAccessoriesSelectionDialog();
+                        },
+                        icon: Icon(
+                          Icons.double_arrow_rounded,
+                          color: _appColors.whiteColor,
+                        )),
                   ),
                 if (_addSalesBloc.selectedVehicleAndAccessories !=
                     'Accessories')
@@ -74,6 +90,12 @@ class _AddSalesState extends State<AddSales> {
                   Expanded(
                     flex: 1,
                     child: _buildCustomerAndPaymentDetails(),
+                  ),
+                if (_addSalesBloc.selectedVehicleAndAccessories !=
+                    'Accessories')
+                  Expanded(
+                    flex: 1,
+                    child: _buildInsuranceAndPaymentMethods(),
                   ),
                 if (_addSalesBloc.selectedVehicleAndAccessories ==
                     'Accessories') ...[
@@ -106,6 +128,18 @@ class _AddSalesState extends State<AddSales> {
     );
   }
 
+  Future<dynamic> _buildVehicleAndAccessoriesSelectionDialog() {
+    return showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+            alignment: AlignmentDirectional.centerStart,
+            content: _buildVehicleAndAccessoriesList());
+      },
+    );
+  }
+
   Widget _buildCustomerAndPaymentDetails() {
     return Column(
       children: [
@@ -135,13 +169,14 @@ class _AddSalesState extends State<AddSales> {
           borderRadius: const BorderRadius.all(Radius.circular(8)),
           color: _appColors.lightBgColor,
         ),
-        child: SelectedSalesData(addSalesBloc: _addSalesBloc),
+        child: SelectedSalesData(addSalesBloc: _addSalesBloc ),
       ),
     );
   }
 
   Widget _buildVehicleAndAccessoriesList() {
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
         // Container(
         //   padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -153,12 +188,28 @@ class _AddSalesState extends State<AddSales> {
         //   ),
         // ),
         Expanded(
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10),
-            decoration: BoxDecoration(
-              color: _appColors.whiteColor,
-            ),
+          child: SizedBox(
+            width: 350,
             child: VehicleAccessoriesList(
+              addSalesBloc: _addSalesBloc,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  _buildInsuranceAndPaymentMethods() {
+    return Column(
+      children: [
+        Expanded(
+          child: Container(
+            decoration: BoxDecoration(
+              border: Border.symmetric(
+                  vertical: BorderSide(color: _appColors.grey)),
+            ),
+            child: PaymentMethods(
+              salesViewBloc: widget.salesViewBloc,
               addSalesBloc: _addSalesBloc,
             ),
           ),

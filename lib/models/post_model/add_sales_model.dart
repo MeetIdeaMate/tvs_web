@@ -14,29 +14,41 @@ class EvBatteryObj {
 }
 
 class InsuranceObj {
-  String? expiryDate;
-  String? insuranceCompanyName;
-  String? insuranceId;
-  double? insuredAmt;
-  String? insuredDate;
-  String? invoiceNo;
+  final String? customerId;
+  final String? insuranceCompanyName;
+  final String? insuranceNo;
+  final double? insuredAmt;
+  final String? insuredDate;
+  final String? invoiceNo;
+  final String? ownDmgExpiryDate;
+  final double? premiumAmt;
+  final String? thirdPartyExpiryDate;
+  final String? vehicleNo;
 
   InsuranceObj({
-    this.expiryDate,
+    this.customerId,
     this.insuranceCompanyName,
-    this.insuranceId,
+    this.insuranceNo,
     this.insuredAmt,
     this.insuredDate,
     this.invoiceNo,
+    this.ownDmgExpiryDate,
+    this.premiumAmt,
+    this.thirdPartyExpiryDate,
+    this.vehicleNo,
   });
 
   Map<String, dynamic> toJson() => {
-        'expiryDate': expiryDate,
+        'customerId': customerId,
         'insuranceCompanyName': insuranceCompanyName,
-        'insuranceId': insuranceId,
+        'insuranceNo': insuranceNo,
         'insuredAmt': insuredAmt,
         'insuredDate': insuredDate,
         'invoiceNo': invoiceNo,
+        'ownDmgExpiryDate': ownDmgExpiryDate,
+        'premiumAmt': premiumAmt,
+        'thirdPartyExpiryDate': thirdPartyExpiryDate,
+        'vehicleNo': vehicleNo,
       };
 }
 
@@ -94,6 +106,7 @@ class SalesItemDetail {
   List<Tax>? taxes;
   double? unitRate;
   double? value;
+  Map<String, dynamic>? addOns;
 
   SalesItemDetail({
     this.categoryId,
@@ -113,6 +126,7 @@ class SalesItemDetail {
     this.taxes,
     this.unitRate,
     this.value,
+    this.addOns
   });
 
   Map<String, dynamic> toJson() => {
@@ -133,6 +147,7 @@ class SalesItemDetail {
         'taxes': taxes?.map((x) => x.toJson()).toList(),
         'unitRate': unitRate,
         'value': value,
+        'addOns' :addOns
       };
 }
 
@@ -215,25 +230,32 @@ class AddSalesModel {
   String? paymentStatus;
   double? roundOffAmt;
   int? totalQty;
+  double? rtoCharges;
+  double? optionFitting;
+  double? others;
+  double? mandatoryFitting;
 
-  AddSalesModel({
-    this.billType,
-    this.bookingNo,
-    this.branchId,
-    this.customerId,
-    this.evBattery,
-    this.insurance,
-    this.invoiceDate,
-    this.invoiceType,
-    this.itemDetails,
-    this.loaninfo,
-    this.mandatoryAddons,
-    this.netAmt,
-    this.paidDetails,
-    this.paymentStatus,
-    this.roundOffAmt,
-    this.totalQty,
-  });
+  AddSalesModel(
+      {this.billType,
+      this.bookingNo,
+      this.branchId,
+      this.customerId,
+      this.evBattery,
+      this.insurance,
+      this.invoiceDate,
+      this.invoiceType,
+      this.itemDetails,
+      this.loaninfo,
+      this.mandatoryAddons,
+      this.netAmt,
+      this.paidDetails,
+      this.paymentStatus,
+      this.roundOffAmt,
+      this.totalQty,
+      this.rtoCharges,
+      this.mandatoryFitting,
+      this.others,
+      this.optionFitting});
 
   Map<String, dynamic> toJson() => {
         'billType': billType,
@@ -251,6 +273,10 @@ class AddSalesModel {
         'paidDetails': paidDetails?.map((x) => x.toJson()).toList(),
         'paymentStatus': paymentStatus,
         'roundOffAmt': roundOffAmt,
+        'rtoCharges': rtoCharges,
         'totalQty': totalQty,
+        "optionFitting": optionFitting,
+        "others": others,
+        "mandatoryFitting": mandatoryFitting,
       };
 }

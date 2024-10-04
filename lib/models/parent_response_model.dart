@@ -265,9 +265,9 @@ class ResultObj {
             ? List<TransportDetails>.from(
                 json['transports'].map((x) => TransportDetails.fromJson(x)))
             : null,
-        getAllInsuranceModel: json['customersWithPage'] != null
+        getAllInsuranceModel: json['insuranceListWithPage'] != null
             ? GetAllInsuranceByPaginationModel.fromJson(
-                json['customersWithPage'])
+                json['insuranceListWithPage'])
             : null,
         getAllSalesList: json['salesWithPage'] != null
             ? GetAllSales.fromJson(json['salesWithPage'])
