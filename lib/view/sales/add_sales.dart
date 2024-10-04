@@ -169,7 +169,7 @@ class _AddSalesState extends State<AddSales> {
           borderRadius: const BorderRadius.all(Radius.circular(8)),
           color: _appColors.lightBgColor,
         ),
-        child: SelectedSalesData(addSalesBloc: _addSalesBloc),
+        child: SelectedSalesData(addSalesBloc: _addSalesBloc ),
       ),
     );
   }

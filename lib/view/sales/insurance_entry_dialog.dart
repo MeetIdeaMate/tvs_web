@@ -9,6 +9,7 @@ import 'package:tlds_flutter/components/tlds_input_form_field.dart';
 
 class InsuranceEntryDialog extends StatefulWidget {
   final InsuranceEntryBlocImpl insuranceBloc;
+  
   const InsuranceEntryDialog(this.insuranceBloc, {super.key});
 
   @override

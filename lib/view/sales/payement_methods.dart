@@ -138,6 +138,9 @@ class _PaymentMethodsState extends State<PaymentMethods> {
                         },
                       )),
                   AppWidgetUtils.buildSizedBox(custHeight: 10),
+                  if (widget.addSalesBloc.selectedVehicleAndAccessories !=
+                      'Accessories')
+                    _buildAdvAmount(),
                   _buildToBePayed(),
                   AppWidgetUtils.buildSizedBox(custHeight: 10),
                   _buildPaymentDetails(),
@@ -146,6 +149,29 @@ class _PaymentMethodsState extends State<PaymentMethods> {
             );
           }),
     );
+  }
+
+  StreamBuilder<bool> _buildAdvAmount() {
+    return StreamBuilder<bool>(
+        stream: widget.addSalesBloc.advanceAmountRefreshStream,
+        builder: (context, snapshot) {
+          return Container(
+            decoration: BoxDecoration(
+                color: _appColors.amountBgColor,
+                borderRadius: BorderRadius.circular(10)),
+            padding: const EdgeInsets.all(5),
+            child: ListTile(
+              title: Text(
+                AppConstants.bookAdvAmt,
+                style: TextStyle(fontSize: 16, color: _appColors.primaryColor),
+              ),
+              trailing: Text(
+                AppUtils.formatCurrency(widget.addSalesBloc.advanceAmt ?? 0),
+                style: TextStyle(color: _appColors.primaryColor, fontSize: 16),
+              ),
+            ),
+          );
+        });
   }
 
   Widget _buildToBePayed() {
@@ -205,6 +231,10 @@ class _PaymentMethodsState extends State<PaymentMethods> {
                           setState(() {
                             _insuranceBloc.isInsuranceEntryDone = true;
                           });
+                          _updateOtherAmountDetails();
+
+                          widget.addSalesBloc
+                              .paymentDetailsStreamController(true);
                         }
                       },
                       buttonText: 'Submit')
@@ -663,47 +693,51 @@ class _PaymentMethodsState extends State<PaymentMethods> {
     widget.addSalesBloc.splitPaymentCheckBoxStreamController(true);
   }
 
-_buildSaveBtn() {
-  return CustomActionButtons(
-    onPressed: () {
-      if (_insuranceBloc.isInsuranceEntryDone == false) {
-        AppWidgetUtils.buildToast(
-          context,
-          ToastificationType.error,
-          'Insurance Entry',
-          Icon(Icons.not_interested_rounded, color: _appColors.errorColor),
-          'Please enter the insurance details before saving the sales bill!',
-          _appColors.errorLightColor,
-        );
-      } else if (widget.addSalesBloc.paymentFormKey.currentState!.validate()) {
-        widget.addSalesBloc.addNewSalesDeatils(salesPostObject(), (statusCode) {
-          if (statusCode == 200 || statusCode == 201) {
-            Navigator.pop(context);
-            widget.salesViewBloc.pageNumberUpdateStreamController(0);
-            AppWidgetUtils.buildToast(
-              context,
-              ToastificationType.success,
-              AppConstants.salesBillScc,
-              Icon(Icons.check_circle_outline_rounded, color: _appColors.successColor),
-              AppConstants.salesBillDescScc,
-              _appColors.successLightColor,
-            );
-          } else {
-            AppWidgetUtils.buildToast(
-              context,
-              ToastificationType.error,
-              AppConstants.salesBillerr,
-              Icon(Icons.not_interested_rounded, color: _appColors.errorColor),
-              AppConstants.salesBillDescerr,
-              _appColors.errorLightColor,
-            );
-          }
-        });
-      }
-    },
-    buttonText: AppConstants.save,
-  );
-}
+  _buildSaveBtn() {
+    return CustomActionButtons(
+      onPressed: () {
+        if (_insuranceBloc.isInsuranceEntryDone == false) {
+          AppWidgetUtils.buildToast(
+            context,
+            ToastificationType.error,
+            'Insurance Entry',
+            Icon(Icons.not_interested_rounded, color: _appColors.errorColor),
+            'Please enter the insurance details before saving the sales bill!',
+            _appColors.errorLightColor,
+          );
+        } else if (widget.addSalesBloc.paymentFormKey.currentState!
+            .validate()) {
+          widget.addSalesBloc.addNewSalesDeatils(salesPostObject(),
+              (statusCode) {
+            if (statusCode == 200 || statusCode == 201) {
+              Navigator.pop(context);
+              widget.salesViewBloc.pageNumberUpdateStreamController(0);
+              AppWidgetUtils.buildToast(
+                context,
+                ToastificationType.success,
+                AppConstants.salesBillScc,
+                Icon(Icons.check_circle_outline_rounded,
+                    color: _appColors.successColor),
+                AppConstants.salesBillDescScc,
+                _appColors.successLightColor,
+              );
+            } else {
+              AppWidgetUtils.buildToast(
+                context,
+                ToastificationType.error,
+                AppConstants.salesBillerr,
+                Icon(Icons.not_interested_rounded,
+                    color: _appColors.errorColor),
+                AppConstants.salesBillDescerr,
+                _appColors.errorLightColor,
+              );
+            }
+          });
+        }
+      },
+      buttonText: AppConstants.save,
+    );
+  }
 
   salesPostObject() {
     List<SalesItemDetail> itemdetails = [];
@@ -918,11 +952,14 @@ _buildSaveBtn() {
     double otherAmount =
         double.tryParse(widget.addSalesBloc.otherAmountTextController.text) ??
             0;
-
+    double advanceAmount = widget.addSalesBloc.advanceAmt ?? 0;
     double discountAmount = double.tryParse(
             widget.addSalesBloc.discountAmountTextController.text) ??
         0;
     double tobepayedAmount = widget.addSalesBloc.exShowrRomPrice ?? 0;
+
+    double insuranceAmount =
+        double.tryParse(_insuranceBloc.premiumAmountTextController.text) ?? 0;
 
     double totalAmount = rtoAmount +
         manditoryFittingAmount +
@@ -934,7 +971,8 @@ _buildSaveBtn() {
       totalAmount -= discountAmount;
     }
 
-    widget.addSalesBloc.toBePayed = totalAmount;
+    widget.addSalesBloc.toBePayed =
+        totalAmount - advanceAmount + insuranceAmount;
 
     widget.addSalesBloc.paymentDetailsStreamController(true);
 

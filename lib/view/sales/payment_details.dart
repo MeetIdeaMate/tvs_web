@@ -153,7 +153,6 @@ class _PaymentDetailsState extends State<PaymentDetails> {
                           widget.addSalesBloc.igstPresentageTextController
                               .clear();
                           _calculateGST();
-                          _updateTotalInvoiceAmount();
 
                           widget.addSalesBloc
                               .paymentDetailsStreamController(true);
@@ -255,7 +254,7 @@ class _PaymentDetailsState extends State<PaymentDetails> {
     double otherAmount =
         double.tryParse(widget.addSalesBloc.otherAmountTextController.text) ??
             0;
-
+    double advanceAmount = widget.addSalesBloc.advanceAmt ?? 0;
     double discountAmount = double.tryParse(
             widget.addSalesBloc.discountAmountTextController.text) ??
         0;
@@ -271,7 +270,7 @@ class _PaymentDetailsState extends State<PaymentDetails> {
       totalAmount -= discountAmount;
     }
 
-    widget.addSalesBloc.toBePayed = totalAmount;
+    widget.addSalesBloc.toBePayed = totalAmount - advanceAmount;
 
     widget.addSalesBloc.paymentDetailsStreamController(true);
 
@@ -295,13 +294,13 @@ class _PaymentDetailsState extends State<PaymentDetails> {
     }
     double advanceAmt = widget.addSalesBloc.advanceAmt ?? 0;
     double totalInvAmt = widget.addSalesBloc.totalInvAmount ?? 0;
-    widget.addSalesBloc.exShowrRomPrice = totalInvAmt - advanceAmt;
-
+    widget.addSalesBloc.exShowrRomPrice = totalInvAmt;
+    widget.addSalesBloc.toBePayed = totalInvAmt - advanceAmt;
+    widget.addSalesBloc.toBePayed =
+        double.parse(widget.addSalesBloc.toBePayed?.round().toString() ?? '');
     widget.addSalesBloc.exShowrRomPrice = double.parse(
         widget.addSalesBloc.exShowrRomPrice?.round().toString() ?? '');
-
-    widget.addSalesBloc.toBePayed = double.parse(
-        widget.addSalesBloc.exShowrRomPrice?.round().toString() ?? '');
+    widget.addSalesBloc.gstRadioBtnRefreashStreamController(true);
     widget.addSalesBloc.paymentDetailsStreamController(true);
   }
 
@@ -405,10 +404,7 @@ class _PaymentDetailsState extends State<PaymentDetails> {
                       _buildStateInsentive(),
                     AppWidgetUtils.buildSizedBox(custHeight: 10),
                     _buildTotalInvAmtText(),
-                    AppWidgetUtils.buildSizedBox(custHeight: 10),
-                    if (widget.addSalesBloc.selectedVehicleAndAccessories !=
-                        'Accessories')
-                      _buildAdvAmount(),
+
                     AppWidgetUtils.buildSizedBox(custHeight: 10),
                     _buildExShowRoomPrice(),
                     AppWidgetUtils.buildSizedBox(custHeight: 10),
@@ -452,29 +448,6 @@ class _PaymentDetailsState extends State<PaymentDetails> {
         ),
       ),
     );
-  }
-
-  StreamBuilder<bool> _buildAdvAmount() {
-    return StreamBuilder<bool>(
-        stream: widget.addSalesBloc.advanceAmountRefreshStream,
-        builder: (context, snapshot) {
-          return Container(
-            decoration: BoxDecoration(
-                color: _appColors.amountBgColor,
-                borderRadius: BorderRadius.circular(10)),
-            padding: const EdgeInsets.all(5),
-            child: ListTile(
-              title: Text(
-                AppConstants.bookAdvAmt,
-                style: TextStyle(fontSize: 16, color: _appColors.primaryColor),
-              ),
-              trailing: Text(
-                AppUtils.formatCurrency(widget.addSalesBloc.advanceAmt ?? 0),
-                style: TextStyle(color: _appColors.primaryColor, fontSize: 16),
-              ),
-            ),
-          );
-        });
   }
 
   ListTile _buildTotalInvAmtText() {

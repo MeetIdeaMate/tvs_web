@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -16,10 +14,7 @@ import 'package:tlds_flutter/components/tlds_input_form_field.dart';
 class SelectedSalesData extends StatefulWidget {
   final AddSalesBlocImpl addSalesBloc;
 
-  const SelectedSalesData({
-    super.key,
-    required this.addSalesBloc,
-  });
+  const SelectedSalesData({super.key, required this.addSalesBloc});
 
   @override
   State<SelectedSalesData> createState() => _SelectedSalesDataState();
@@ -118,7 +113,6 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
                                   itemCount: mandatoryAddOns.length,
                                   itemBuilder: (context, index) {
                                     String addOn = mandatoryAddOns[index];
-
                                     return _buildMandatoryAdd(
                                       addOn,
                                       widget.addSalesBloc
@@ -237,7 +231,6 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
                             itemCount: eVehicleComponents.length,
                             itemBuilder: (context, index) {
                               String bettery = eVehicleComponents[index];
-
                               return _buildMandatoryAdd(
                                 bettery,
                                 widget.addSalesBloc
@@ -488,7 +481,6 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
   Widget _buildSelectedVehicleCard(GetAllStockDetails vehicle, int index) {
     widget.addSalesBloc.unitRateControllers.text =
         widget.addSalesBloc.unitRates[index] ?? '';
-
     return Card(
       color: _appColors.whiteColor,
       elevation: 0,
@@ -639,6 +631,7 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
         double.tryParse(widget.addSalesBloc.otherAmountTextController.text) ??
             0;
     double tobepayedAmount = widget.addSalesBloc.exShowrRomPrice ?? 0;
+    double advanceAmt = widget.addSalesBloc.advanceAmt ?? 0;
 
     // Sum all the amounts including tobepayedAmount
     double totalAmount = rtoAmount +
@@ -647,7 +640,7 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
         otherAmount +
         tobepayedAmount;
 
-    widget.addSalesBloc.toBePayed = totalAmount;
+    widget.addSalesBloc.toBePayed = totalAmount -advanceAmt;
     widget.addSalesBloc.paymentDetailsStreamController(true);
     // Now you can use totalAmount as needed
     print('Total Amount: $totalAmount');
@@ -672,12 +665,12 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
     double advanceAmt = widget.addSalesBloc.advanceAmt ?? 0;
 
     double totalInvAmt = widget.addSalesBloc.totalInvAmount ?? 0;
-    widget.addSalesBloc.exShowrRomPrice = totalInvAmt - advanceAmt;
+    widget.addSalesBloc.exShowrRomPrice = totalInvAmt;
+    widget.addSalesBloc.toBePayed = totalInvAmt - advanceAmt;
     widget.addSalesBloc.exShowrRomPrice = double.tryParse(
         widget.addSalesBloc.exShowrRomPrice?.round().toString() ?? '');
-
     widget.addSalesBloc.toBePayed = double.tryParse(
-        widget.addSalesBloc.exShowrRomPrice?.round().toString() ?? '');
+        widget.addSalesBloc.toBePayed?.round().toString() ?? '');
     widget.addSalesBloc.paymentDetailsStreamController(true);
   }
 
