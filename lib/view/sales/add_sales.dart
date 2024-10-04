@@ -27,7 +27,17 @@ class _AddSalesState extends State<AddSales> {
     super.initState();
     _addSalesBloc.selectedVehicleAndAccessories = 'Vehicle';
     _addSalesBloc.selectedVehicleAndAccessoriesStreamController(true);
-
+    StreamBuilder<bool>(
+      stream: _addSalesBloc.dialogOpenStream,
+      builder: (context, snapshot) {
+        if (snapshot.data == true) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            _buildVehicleAndAccessoriesSelectionDialog(); // Open the dialog
+          });
+        }
+        return Container(); // Your main UI here
+      },
+    );
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _buildVehicleAndAccessoriesSelectionDialog();
     });
@@ -58,6 +68,12 @@ class _AddSalesState extends State<AddSales> {
       child: StreamBuilder<bool>(
           stream: _addSalesBloc.screenChangeStream,
           builder: (context, snapshot) {
+            if (_addSalesBloc
+                .vehicleNoAndEngineNoSearchController.text.isNotEmpty) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                _buildVehicleAndAccessoriesSelectionDialog(); // Open the dialog
+              });
+            }
             return Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -169,7 +185,7 @@ class _AddSalesState extends State<AddSales> {
           borderRadius: const BorderRadius.all(Radius.circular(8)),
           color: _appColors.lightBgColor,
         ),
-        child: SelectedSalesData(addSalesBloc: _addSalesBloc ),
+        child: SelectedSalesData(addSalesBloc: _addSalesBloc),
       ),
     );
   }

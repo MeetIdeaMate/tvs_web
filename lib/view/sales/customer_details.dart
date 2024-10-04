@@ -188,11 +188,14 @@ class _CustomerDetailsState extends State<CustomerDetails> {
                                   .addSalesBloc
                                   .vehicleNoAndEngineNoSearchController
                                   .text = element.partNo ?? '';
+
                               widget.addSalesBloc
                                   .vehicleAndEngineNumberStreamController(true);
                               widget.addSalesBloc
                                       .selectedVehicleAndAccessories =
                                   element.categoryName;
+                              widget.addSalesBloc
+                                  .openDialogStreamController(true);
                               //    var selectedValue = newValue.first;
                               widget.addSalesBloc.selectedVehiclesList?.clear();
                               widget.addSalesBloc.slectedAccessoriesList
@@ -272,10 +275,10 @@ class _CustomerDetailsState extends State<CustomerDetails> {
     } else {
       widget.addSalesBloc.totalInvAmount = 0.0;
     }
-    double advanceAmt = widget.addSalesBloc.advanceAmt ?? 0;
+    // double advanceAmt = widget.addSalesBloc.advanceAmt ?? 0;
     double totalInvAmt = widget.addSalesBloc.totalInvAmount ?? 0;
     widget.addSalesBloc.exShowrRomPrice = totalInvAmt;
-    widget.addSalesBloc.toBePayed = totalInvAmt - advanceAmt;
+    widget.addSalesBloc.toBePayed = totalInvAmt;
     widget.addSalesBloc.exShowrRomPrice = double.parse(
         widget.addSalesBloc.exShowrRomPrice?.round().toString() ?? '');
     widget.addSalesBloc.toBePayed =
@@ -336,6 +339,7 @@ class _CustomerDetailsState extends State<CustomerDetails> {
     // widget.addSalesBloc.advanceAmt = 0.0;
     widget.addSalesBloc.exShowrRomPrice = 0.0;
     widget.addSalesBloc.totalQty = 0.0;
+    widget.addSalesBloc.finalInvoiceValue = 0.0;
 
     // widget.addSalesBloc.selectedCustomer = null;
     // widget.addSalesBloc.selectedCustomerId = null;

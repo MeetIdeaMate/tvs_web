@@ -37,6 +37,7 @@ abstract class AddSalesBloc {
   Stream<bool> get refreshsalesDataTable;
   Stream<bool> get selectedPaymentListStream;
   Stream<bool> get selectedPaidAmtStream;
+  Stream<bool> get dialogOpenStream;
 
   Map<String, int> get totalAccessoriesQty;
 
@@ -171,6 +172,7 @@ class AddSalesBlocImpl extends AddSalesBloc {
   final _accessoriesIncrementStream = StreamController.broadcast();
   final _selectedVehicleAndAccessoriesListStream = StreamController.broadcast();
   final _selectedSalesStreamController = StreamController<bool>.broadcast();
+  final _openDialogStream = StreamController<bool>.broadcast();
   final _discountTextController = TextEditingController();
   final _transporterVehicleNumberController = TextEditingController();
   final _vehicleNoAndEngineNoSearchController = TextEditingController();
@@ -1030,5 +1032,12 @@ class AddSalesBlocImpl extends AddSalesBloc {
   double? get insuranceAmt => _insuranceAmt;
   set insuranceAmt(double? value) {
     _insuranceAmt = value;
+  }
+
+  @override
+  Stream<bool> get dialogOpenStream => _openDialogStream.stream;
+
+  openDialogStreamController(bool value) {
+    _openDialogStream.add(value);
   }
 }
