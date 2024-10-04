@@ -189,7 +189,9 @@ class _PaymentMethodsState extends State<PaymentMethods> {
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
               trailing: Text(
-                AppUtils.formatCurrency(widget.addSalesBloc.toBePayed ?? 0.00),
+                double.parse(
+                        widget.addSalesBloc.toBePayed?.round().toString() ?? '')
+                    .toString(),
                 style:
                     const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
               ),
@@ -848,7 +850,7 @@ class _PaymentMethodsState extends State<PaymentMethods> {
             discount: double.tryParse(
                     widget.addSalesBloc.discountTextController.text) ??
                 0,
-            finalInvoiceValue: widget.addSalesBloc.totalInvAmount ?? 0,
+            finalInvoiceValue: widget.addSalesBloc.finalInvoiceValue ?? 0,
             gstDetails: gstDetails,
             hsnSacCode: widget.addSalesBloc.hsnCodeTextController.text,
             incentives: insentive,
@@ -922,12 +924,12 @@ class _PaymentMethodsState extends State<PaymentMethods> {
       itemDetails: itemdetails,
       mandatoryAddons: mandatoryAddonsMap,
       netAmt: double.parse(
-          widget.addSalesBloc.totalInvAmount?.round().toString() ?? ''),
+          widget.addSalesBloc.finalInvoiceValue?.round().toString() ?? ''),
       paidDetails: paidDetails,
-      roundOffAmt:
-          double.parse(widget.addSalesBloc.totalInvAmount?.toString() ?? '') -
-              double.parse(
-                  widget.addSalesBloc.totalInvAmount?.round().toString() ?? ''),
+      roundOffAmt: double.parse(
+              widget.addSalesBloc.finalInvoiceValue?.toString() ?? '') -
+          double.parse(
+              widget.addSalesBloc.finalInvoiceValue?.round().toString() ?? ''),
       totalQty: totalQty,
       others:
           double.tryParse(widget.addSalesBloc.otherAmountTextController.text),
