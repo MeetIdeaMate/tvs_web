@@ -369,6 +369,7 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
                                       trailing: TldsInputFormField(
                                         width: 100,
                                         height: 40,
+                                        enabled: false,
                                         controller: controller,
                                         onChanged: (newValue) {
                                           double? newNumericValue =

@@ -1204,7 +1204,7 @@ class _PaymentDetailsState extends State<PaymentDetails> {
             discount: double.tryParse(
                     widget.addSalesBloc.discountTextController.text) ??
                 0,
-            finalInvoiceValue: 0,
+            finalInvoiceValue: widget.addSalesBloc.finalInvoiceValue,
             gstDetails: gstDetails,
             hsnSacCode: widget.addSalesBloc.hsnCodeTextController.text,
             incentives: insentive,
@@ -1260,14 +1260,24 @@ class _PaymentDetailsState extends State<PaymentDetails> {
         invoiceType: widget.addSalesBloc.selectedVehicleAndAccessories,
         itemDetails: itemdetails,
         mandatoryAddons: mandatoryAddonsMap,
-        netAmt: double.parse(
-            widget.addSalesBloc.finalInvoiceValue?.round().toString() ?? ''),
-        paidDetails: paidDetails,
-        roundOffAmt: double.parse(
-                widget.addSalesBloc.finalInvoiceValue?.toString() ?? '') -
-            double.parse(
+        netAmt: widget.addSalesBloc.accessoriesItemList?.isNotEmpty ?? false
+            ? double.parse(
+                widget.addSalesBloc.totalInvAmount?.round().toString() ?? '')
+            : double.parse(
                 widget.addSalesBloc.finalInvoiceValue?.round().toString() ??
                     ''),
+        paidDetails: paidDetails,
+        roundOffAmt: widget.addSalesBloc.accessoriesItemList?.isNotEmpty ??
+                false
+            ? double.parse(widget.addSalesBloc.totalInvAmount?.toString() ?? '') -
+                double.parse(
+                    widget.addSalesBloc.totalInvAmount?.round().toString() ??
+                        '')
+            : double.parse(
+                    widget.addSalesBloc.finalInvoiceValue?.toString() ?? '') -
+                double.parse(
+                    widget.addSalesBloc.finalInvoiceValue?.round().toString() ??
+                        ''),
         totalQty: totalQty);
   }
 }
