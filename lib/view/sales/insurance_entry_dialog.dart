@@ -9,7 +9,7 @@ import 'package:tlds_flutter/components/tlds_input_form_field.dart';
 
 class InsuranceEntryDialog extends StatefulWidget {
   final InsuranceEntryBlocImpl insuranceBloc;
-  
+
   const InsuranceEntryDialog(this.insuranceBloc, {super.key});
 
   @override
@@ -44,6 +44,7 @@ class _InsuranceEntryDialogState extends State<InsuranceEntryDialog> {
               children: [
                 Expanded(
                   child: TldsDatePicker(
+                    firstDate: DateTime(2000),
                     suffixIcon: SvgPicture.asset(AppConstants.icDate),
                     height: 70,
                     hintText: 'Insure Date',
@@ -116,6 +117,7 @@ class _InsuranceEntryDialogState extends State<InsuranceEntryDialog> {
               children: [
                 Expanded(
                   child: TldsDatePicker(
+                    firstDate: DateTime(2000),
                     suffixIcon: SvgPicture.asset(AppConstants.icDate),
                     height: 70,
                     hintText: 'Select Date',
@@ -133,6 +135,7 @@ class _InsuranceEntryDialogState extends State<InsuranceEntryDialog> {
                 AppWidgetUtils.buildSizedBox(custWidth: 10),
                 Expanded(
                   child: TldsDatePicker(
+                    firstDate: DateTime(2000),
                     suffixIcon: SvgPicture.asset(AppConstants.icDate),
                     height: 70,
                     hintText: 'Select Date',
