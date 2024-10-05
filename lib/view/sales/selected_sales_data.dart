@@ -611,9 +611,6 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
       widget.addSalesBloc.totalInvAmount = widget.addSalesBloc.invAmount;
     }
     _updateTotalInvoiceAmount();
-
-    _updateOtherAmountDetails();
-
     widget.addSalesBloc.paymentDetailsStreamController(true);
     widget.addSalesBloc.gstRadioBtnRefreashStreamController(true);
   }
@@ -709,6 +706,7 @@ class _SelectedSalesDataState extends State<SelectedSalesData> {
     widget.addSalesBloc.exShowrRomPrice = 0.0;
     widget.addSalesBloc.totalQty = 0.0;
     widget.addSalesBloc.totalDiscount = 0.0;
+    widget.addSalesBloc.finalInvoiceValue = 0.0;
 
     widget.addSalesBloc.selectedCustomer = null;
     widget.addSalesBloc.selectedCustomerId = null;

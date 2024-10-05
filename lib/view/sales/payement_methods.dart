@@ -189,9 +189,7 @@ class _PaymentMethodsState extends State<PaymentMethods> {
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
               trailing: Text(
-                double.parse(
-                        widget.addSalesBloc.toBePayed?.round().toString() ?? '')
-                    .toString(),
+                AppUtils.formatCurrency(widget.addSalesBloc.toBePayed ?? 0),
                 style:
                     const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
               ),

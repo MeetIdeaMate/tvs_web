@@ -384,7 +384,7 @@ class _AccessoriesSalesEntryDialogState
                       widget.addSalesBloc.unitRateTextController.text) ??
                   0;
 
-              if (discountAmount != null && discountAmount >= unitRate ||
+              if (discountAmount != null && discountAmount > unitRate ||
                   discountAmount == 0) {
                 widget.addSalesBloc.discountTextController.clear();
               }
@@ -581,7 +581,7 @@ class _AccessoriesSalesEntryDialogState
     double totalValues = widget.addSalesBloc.totalValue ?? 0;
     double discount =
         double.tryParse(widget.addSalesBloc.discountTextController.text) ?? 0;
-    if (discount >= unitRate || discount == 0) {
+    if (discount > unitRate || discount == 0) {
       widget.addSalesBloc.discountTextController.clear();
     }
     widget.addSalesBloc.taxableValue = totalValues - discount;

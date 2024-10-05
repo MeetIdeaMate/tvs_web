@@ -576,6 +576,7 @@ class _VehicleAccessoriesListState extends State<VehicleAccessoriesList> {
     // widget.addSalesBloc.advanceAmt = 0.0;
     widget.addSalesBloc.exShowrRomPrice = 0.0;
     widget.addSalesBloc.totalQty = 0.0;
+    widget.addSalesBloc.finalInvoiceValue = 0.0;
 
     // widget.addSalesBloc.selectedCustomer = null;
     // widget.addSalesBloc.selectedCustomerId = null;
