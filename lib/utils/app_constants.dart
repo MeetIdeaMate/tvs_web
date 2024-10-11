@@ -698,12 +698,18 @@ class AppConstants {
   static const String configNameAndAmountRequired =
       'Config Name and Amount are required';
 
-
-  //Insurance 
+  //Insurance
 
   static const String insuredDate = 'Insure Date';
   static const String insuranceNo = 'Insurance No';
   static const String insuranceCompanyName = 'Insurance Company Name';
   static const String thirdPartyExpiryDate = 'Third Party ExpiryDate';
 
+  //statements
+
+  static const String uploadStatement = 'Upload Statement';
+  static const String dragAndDropHere = 'Drag & drop your PDF here ';
+  static const String or = 'or';
+  static const String chooseFile = 'Choose File';
+  static const String confirm = 'Confirm';
 }

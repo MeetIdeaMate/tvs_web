@@ -3,6 +3,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tlbilling/components/responsive.dart';
 import 'package:tlbilling/components/side_menu_navigation_bloc.dart';
+import 'package:tlbilling/dash_board/dashBoard.dart';
 import 'package:tlbilling/utils/app_colors.dart';
 import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/utils/app_util_widgets.dart';
@@ -464,6 +465,8 @@ class _SideMenuNavigationState extends State<SideMenuNavigation> {
 
   Widget _buildPage(String menuItem) {
     switch (menuItem) {
+      case AppConstants.dashboard:
+        return const DashBoard();
       case AppConstants.purchase:
         return const PurchaseView();
       case AppConstants.stocks:
