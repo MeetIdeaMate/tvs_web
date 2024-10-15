@@ -223,6 +223,7 @@ class _StatementViewState extends State<StatementView> {
                   .toList();
 
               _statementCompareBloc.summaryDetails = summaryDetails;
+              _statementCompareBloc.tableRefreshStreamController(true);
             }
             _statementCompareBloc.bankStatmentDetails =
                 data.bankStatementSummaryList ?? [];
