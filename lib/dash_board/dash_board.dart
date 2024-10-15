@@ -14,20 +14,18 @@ class _DashBoardState extends State<DashBoard> {
     return const Scaffold(
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: 21, vertical: 28),
-        child: Column(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Row(
-              children: [
-                Expanded(
-                    child: Center(
-                  child: Text('Dashboard Sections'),
-                )),
-                SizedBox(width: 16),
-                Expanded(
-                  child: Center(child: UploadedStatements()),
-                )
-              ],
+            Center(
+              child: Text(
+                'Dashboard Sections',
+                style: TextStyle(fontSize: 18),
+              ),
             ),
+            SizedBox(width: 16),
+            UploadedStatements(),
           ],
         ),
       ),

@@ -23,6 +23,8 @@ import 'package:tlbilling/models/get_model/get_all_insurance_by_pagination_model
 import 'package:tlbilling/models/get_model/get_all_product_by_pagination.dart';
 import 'package:tlbilling/models/get_model/get_all_purchase_model.dart';
 import 'package:tlbilling/models/get_model/get_all_sales_list_model.dart';
+import 'package:tlbilling/models/get_model/get_all_statement_list_model.dart';
+import 'package:tlbilling/models/get_model/get_all_statement_summary_model.dart';
 import 'package:tlbilling/models/get_model/get_all_stock_with_pagination.dart';
 import 'package:tlbilling/models/get_model/get_all_stocks_model.dart';
 import 'package:tlbilling/models/get_model/get_all_stocks_without_pagination.dart';
@@ -33,6 +35,7 @@ import 'package:tlbilling/models/get_model/get_configuration_list_model.dart';
 import 'package:tlbilling/models/get_model/get_configuration_model.dart';
 import 'package:tlbilling/models/get_model/get_customer_booking_details.dart';
 import 'package:tlbilling/models/get_model/get_login_response.dart';
+import 'package:tlbilling/models/get_model/get_statement_by_id_model.dart';
 import 'package:tlbilling/models/get_model/get_transport_by_pagination.dart';
 import 'package:tlbilling/models/get_model/get_vendor_by_id_model.dart';
 import 'package:tlbilling/models/parent_response_model.dart';
@@ -48,9 +51,11 @@ import 'package:tlbilling/models/post_model/add_transport_model.dart';
 import 'package:tlbilling/models/post_model/add_vouchar_model.dart';
 import 'package:tlbilling/models/post_model/user_access_model.dart';
 import 'package:tlbilling/models/update/update_branch_model.dart';
+import 'package:tlbilling/models/update/update_statement_model.dart';
 import 'package:tlbilling/models/user_model.dart';
 import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/utils/app_util_widgets.dart';
+import 'package:tlbilling/utils/app_utils.dart';
 import '../models/post_model/add_vendor_model.dart';
 
 abstract class AppServiceUtil {
@@ -324,6 +329,19 @@ abstract class AppServiceUtil {
   Future<List<UserDetailsList>?> getAllUserNameList();
 
   Future<bool> updateProductConfig(Map<String, double> addOns, String itemId);
+
+  Future<String> statementUpload(FormData formData);
+
+  Future<List<GetAllStatementInfo>> getAllStatementInfo();
+
+  Future<Statement> getStatementById(
+      String statementId, String fromDate, String toDate);
+
+  Future<StatementSummary> getStatementSUmmary(
+      String statementId, String accountType, String fromDate, String toDate);
+
+  Future<bool> updateStatementSummary(
+      String statementId, UpdateStatementModel updateStatementModel);
 }
 
 class AppServiceUtilImpl extends AppServiceUtil {
@@ -1246,11 +1264,7 @@ class AppServiceUtilImpl extends AppServiceUtil {
       if (mobileNumber.isNotEmpty) {
         url += '&mobileNo=$mobileNumber';
       }
-      print('**************url => $url');
       var response = await dio.get(url);
-      print('**************response => $response');
-      print('**************status code  => ${response.statusCode}');
-
       return parentResponseModelFromJson(jsonEncode(response.data))
           .result
           ?.getAllInsuranceModel;
@@ -1967,6 +1981,124 @@ class AppServiceUtilImpl extends AppServiceUtil {
     String url = '${AppUrl.item}/addOns/$itemId';
     try {
       var response = await dio.patch(url, data: addOns);
+      return response.statusCode == 200;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  @override
+  Future<String> statementUpload(FormData formData) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var token = prefs.getString('token');
+    dio.options.headers['Authorization'] = 'Bearer $token';
+    String url = AppUrl.statementUpload;
+    try {
+      final response = await dio.post(
+        url,
+        data: formData,
+      );
+      String statementId =
+          await response.data["result"]["statement"]["statementId"];
+      return response.statusCode == 200 ? statementId : '';
+    } catch (e) {
+      return '';
+    }
+  }
+
+  @override
+  Future<List<GetAllStatementInfo>> getAllStatementInfo() async {
+    try {
+      final dio = Dio();
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      var token = prefs.getString('token');
+      dio.options.headers['Authorization'] = 'Bearer $token';
+      var url = AppUrl.statementFileInfo;
+      var response = await dio.get(url);
+      var statementList = parentResponseModelFromJson(jsonEncode(response.data))
+              .result
+              ?.getAllStatement ??
+          [];
+
+      return response.statusCode == 200 ? statementList : [];
+    } on DioException catch (exception) {
+      exception.response?.statusCode ?? 0;
+    }
+    return [];
+  }
+
+  @override
+  Future<Statement> getStatementById(
+      String statementId, String fromDate, String toDate) async {
+    try {
+      final dio = Dio();
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      var token = prefs.getString('token');
+      dio.options.headers['Authorization'] = 'Bearer $token';
+      var url = '${AppUrl.statement}/$statementId';
+      Map<String, dynamic>? queryParameters = {};
+      if (fromDate.isNotEmpty && toDate.isNotEmpty) {
+        queryParameters['fromDate'] = AppUtils.appToAPIDateFormat(fromDate);
+        queryParameters['toDate'] = AppUtils.appToAPIDateFormat(toDate);
+      }
+      var response = await dio.get(url, queryParameters: queryParameters);
+      var statement = parentResponseModelFromJson(jsonEncode(response.data))
+          .result
+          ?.getStatementById;
+      return response.statusCode == 200
+          ? statement ?? Statement()
+          : Statement();
+    } on DioException catch (exception) {
+      exception.response?.statusCode ?? 0;
+    }
+    return Statement();
+  }
+
+  @override
+  Future<StatementSummary> getStatementSUmmary(String statementId,
+      String accountType, String fromDate, String toDate) async {
+    try {
+      final dio = Dio();
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      var token = prefs.getString('token');
+      dio.options.headers['Authorization'] = 'Bearer $token';
+      var url = AppUrl.statementSummary;
+      Map<String, dynamic>? queryParameters = {};
+      if (accountType.isNotEmpty) {
+        queryParameters['accountType'] = accountType;
+      }
+      if (statementId.isNotEmpty) {
+        queryParameters['statementId'] = statementId;
+      }
+      if (fromDate.isNotEmpty && toDate.isNotEmpty) {
+        queryParameters['fromDate'] = AppUtils.appToAPIDateFormat(fromDate);
+        queryParameters['toDate'] = AppUtils.appToAPIDateFormat(toDate);
+      }
+      var response = await dio.get(url, queryParameters: queryParameters);
+      var statement = parentResponseModelFromJson(jsonEncode(response.data))
+          .result
+          ?.getStatementSummary;
+      return response.statusCode == 200
+          ? statement ?? StatementSummary()
+          : StatementSummary();
+    } on DioException catch (exception) {
+      exception.response?.statusCode ?? 0;
+    }
+    return StatementSummary();
+  }
+
+  @override
+  Future<bool> updateStatementSummary(
+      String statementId, UpdateStatementModel updateStatementModel) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var token = prefs.getString('token');
+    dio.options.headers['Authorization'] = 'Bearer $token';
+    String url = '${AppUrl.statementSummary}/$statementId';
+    try {
+      final response = await dio.patch(
+        url,
+        data: jsonEncode(updateStatementModel),
+      );
       return response.statusCode == 200;
     } catch (e) {
       return false;

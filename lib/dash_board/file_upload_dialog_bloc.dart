@@ -1,47 +1,37 @@
 import 'dart:async';
 import 'dart:typed_data';
+import 'package:dio/dio.dart';
 import 'package:flutter_dropzone/flutter_dropzone.dart';
+import 'package:tlbilling/api_service/app_service_utils.dart';
 
 abstract class FileUploadDialogBloc {
   DropzoneViewController get dropzoneViewController;
-  Stream<String?> get fileNameStream;
   Stream<bool?> get isDraggingStream;
-  Stream<Uint8List?> get selectedPdfBytesStream;
+  Stream<bool> get isLoadingStream;
   String? get fileName;
-  void pickPdf(Uint8List? pdfBytes, String? pdfName);
-  void draggingStream(bool isDragging);
+  Uint8List? get pdfBytes;
+  Future<String> statementUpload();
   void dispose();
 }
 
 class FileUploadDialogBlocImpl extends FileUploadDialogBloc {
+  final _apiService = AppServiceUtilImpl();
   late DropzoneViewController _dropzoneViewController;
 
   final _fileNameController = StreamController<String?>();
   final _isDraggingController = StreamController<bool?>();
   final _selectedPdfBytesController = StreamController<Uint8List?>();
+  final _isLoadingController = StreamController<bool>();
   String? _fileName;
+  Uint8List? _selectedPdfBytes;
 
   @override
   DropzoneViewController get dropzoneViewController => _dropzoneViewController;
 
   @override
-  Stream<String?> get fileNameStream => _fileNameController.stream;
-
-  @override
   Stream<bool?> get isDraggingStream => _isDraggingController.stream;
 
-  @override
-  Stream<Uint8List?> get selectedPdfBytesStream =>
-      _selectedPdfBytesController.stream;
-
-  @override
-  void pickPdf(Uint8List? pdfBytes, String? pdfName) {
-    _selectedPdfBytesController.add(pdfBytes);
-    _fileNameController.add(pdfName);
-  }
-
-  @override
-  void draggingStream(bool isDragging) {
+  draggingStream(bool isDragging) {
     _isDraggingController.add(isDragging);
   }
 
@@ -54,6 +44,17 @@ class FileUploadDialogBlocImpl extends FileUploadDialogBloc {
   }
 
   @override
+  Stream<bool> get isLoadingStream => _isLoadingController.stream;
+
+  isLoadingStreamUpdate(bool isLoading) {
+    _isLoadingController.add(isLoading);
+  }
+
+  set pdfBytes(Uint8List? pdfBytes) {
+    _selectedPdfBytes = pdfBytes;
+  }
+
+  @override
   void dispose() {
     _fileNameController.close();
     _isDraggingController.close();
@@ -62,4 +63,15 @@ class FileUploadDialogBlocImpl extends FileUploadDialogBloc {
 
   @override
   String? get fileName => _fileName;
+
+  @override
+  Uint8List? get pdfBytes => _selectedPdfBytes;
+
+  @override
+  Future<String> statementUpload() {
+    FormData formData = FormData.fromMap({
+      "file": MultipartFile.fromBytes(pdfBytes!, filename: fileName),
+    });
+    return _apiService.statementUpload(formData);
+  }
 }
