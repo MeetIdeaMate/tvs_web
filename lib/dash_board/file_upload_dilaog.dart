@@ -6,12 +6,14 @@ import 'package:flutter_dropzone/flutter_dropzone.dart';
 import 'package:tlbilling/components/custom_action_button.dart';
 import 'package:tlbilling/dash_board/file_upload_dialog_bloc.dart';
 import 'package:tlbilling/dash_board/statement_compare_view.dart';
+import 'package:tlbilling/dash_board/uploaded_statement_bloc.dart';
 import 'package:tlbilling/utils/app_colors.dart';
 import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/utils/app_util_widgets.dart';
 
 class FileUploadDialog extends StatefulWidget {
-  const FileUploadDialog({super.key});
+  final UploadedStatementBlocImpl? uploadedStatementBloc;
+  const FileUploadDialog({super.key, required this.uploadedStatementBloc});
 
   @override
   State<FileUploadDialog> createState() => _FileUploadDialogState();
@@ -164,6 +166,7 @@ class _FileUploadDialogState extends State<FileUploadDialog> {
               );
               _fileUploadDialogBloc.isLoadingStreamUpdate(false);
               Navigator.pop(context);
+              widget.uploadedStatementBloc?.updateTableRefreshStatus(true);
               Navigator.push(context, MaterialPageRoute(
                 builder: (context) {
                   return StatementView(
