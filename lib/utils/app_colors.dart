@@ -31,6 +31,8 @@ class AppColors {
   Color selectedVehicleAndAccessoriesColor = HexColor('#FAFAFA');
   Color transferDetailsContainerColor = HexColor('#F4F4F4');
   Color cardBorderColor = HexColor('#E0E0E0');
+  Color tableApplocationRecordColor = HexColor('#FFFBF4');
+  Color tableUpdatedRecordColor = HexColor('#F9F5FF');
 
 //State Colors
 
@@ -45,4 +47,5 @@ class AppColors {
   Color bgHighlightColor = HexColor('#F2E9FF');
   Color tableTotBtmColor = HexColor('#F2E9FF');
   Color amountBgColor = HexColor('#FCFAFF');
+  Color missMatchRowColor = HexColor('#FFEEEE');
 }

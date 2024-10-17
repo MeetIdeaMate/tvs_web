@@ -137,6 +137,9 @@ class AppConstants {
   static const icpayment = 'assets/icons/ic_payment.svg';
   static const icProduct = 'assets/icons/ic_product.svg';
   static const icEyeView = 'assets/icons/ic_eye_view.svg';
+  static const icCompare = 'assets/icons/ic_compare.svg';
+  static const icTally = 'assets/icons/ic_tally.svg';
+  static const icMatched = 'assets/icons/ic_matched.svg';
 
   //json
   static const jsonLoader = 'assets/json/json_loading_animation.json';
@@ -698,12 +701,39 @@ class AppConstants {
   static const String configNameAndAmountRequired =
       'Config Name and Amount are required';
 
-
-  //Insurance 
+  //Insurance
 
   static const String insuredDate = 'Insure Date';
   static const String insuranceNo = 'Insurance No';
   static const String insuranceCompanyName = 'Insurance Company Name';
   static const String thirdPartyExpiryDate = 'Third Party ExpiryDate';
 
+  //statements
+
+  static const String uploadStatement = 'Upload Statement';
+  static const String dragAndDropHere = 'Drag & drop your PDF here ';
+  static const String or = 'or';
+  static const String chooseFile = 'Choose File';
+  static const String confirm = 'Confirm';
+  static const String pleaseSelectFile = 'Please Select File';
+  static const String statementCompare = 'Statement Compare';
+  static const String statementUploaded = 'Statement Uploaded successfully';
+  static const String describtion = 'describtion';
+  static const String balance = 'Balance';
+  static const String cheque = 'Cheque';
+  static const String summarize = 'Summarize';
+  static const String applicationAmt = 'Application Amount';
+  static const String compare = 'Compare';
+  static const String matched = 'Matched';
+  static const String salesBillNo = 'Sales Bill No';
+  static const String partyName = 'Party Name';
+  static const String tally = 'Tally';
+  static const String updateStatement = 'Update Statement';
+  static const String update = 'Update';
+  static const String statementUpdated = 'Statement Updated Successfully';
+  static const String transactionId = 'Transaction Id';
+  static const String recentlyUploadedStatement = 'Recently Uploaded Statement';
+  static const String ok = 'OK';
+  static const String statementMatchedMsg =
+      'The Statement and the application amount\ncorrectly and matched perfectly';
 }

@@ -3,11 +3,10 @@ import 'package:flutter_svg/svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tlbilling/components/responsive.dart';
 import 'package:tlbilling/components/side_menu_navigation_bloc.dart';
+import 'package:tlbilling/dash_board/dash_board.dart';
 import 'package:tlbilling/utils/app_colors.dart';
 import 'package:tlbilling/utils/app_constants.dart';
 import 'package:tlbilling/utils/app_util_widgets.dart';
-
-import 'package:tlbilling/view/account_head/account_head_view.dart';
 import 'package:tlbilling/view/booking/booking_list.dart';
 import 'package:tlbilling/view/branch/branch_view.dart';
 import 'package:tlbilling/view/configuration/configuration_view.dart';
@@ -24,7 +23,6 @@ import 'package:tlbilling/view/transfer/transfer_view.dart';
 import 'package:tlbilling/view/transport/transport_view.dart';
 import 'package:tlbilling/view/user/user_view.dart';
 import 'package:tlbilling/view/useraccess/access_level_shared_pref.dart';
-import 'package:tlbilling/view/useraccess/user_access_levels.dart';
 import 'package:tlbilling/view/useraccess/user_access_view.dart';
 import 'package:tlbilling/view/vendor/vendor_view.dart';
 import 'package:tlbilling/view/voucher_receipt/voucher_receipt_list.dart';
@@ -464,6 +462,8 @@ class _SideMenuNavigationState extends State<SideMenuNavigation> {
 
   Widget _buildPage(String menuItem) {
     switch (menuItem) {
+      case AppConstants.dashboard:
+        return const DashBoard();
       case AppConstants.purchase:
         return const PurchaseView();
       case AppConstants.stocks:

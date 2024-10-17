@@ -46,6 +46,7 @@ class AppWidgetUtils {
       DataColumn(
         label: Text(
           headerValue,
+          overflow: TextOverflow.ellipsis,
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
       );
@@ -160,6 +161,22 @@ class AppWidgetUtils {
       icon: Icon(
         Icons.check_circle_outline_rounded,
         color: AppColors().errorColor,
+      ),
+      description: Text(description ?? ''),
+      autoCloseDuration: const Duration(seconds: 3),
+    );
+  }
+
+  static showSuccessToast(String? description) {
+    return toastification.show(
+      showProgressBar: false,
+      backgroundColor: AppColors().successLightColor,
+      borderRadius: BorderRadius.circular(10),
+      type: ToastificationType.success,
+      title: const Text('Success'),
+      icon: Icon(
+        Icons.check_circle_outline_rounded,
+        color: AppColors().successColor,
       ),
       description: Text(description ?? ''),
       autoCloseDuration: const Duration(seconds: 3),
