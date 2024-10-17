@@ -54,7 +54,9 @@ class _UploadedStatementsState extends State<UploadedStatements> {
               barrierDismissible: false,
               context: context,
               builder: (context) {
-                return const FileUploadDialog();
+                return FileUploadDialog(
+                  uploadedStatementBloc: _uploadedStatementBloc,
+                );
               },
             );
           },
@@ -65,19 +67,23 @@ class _UploadedStatementsState extends State<UploadedStatements> {
 
   Expanded _buildFetchUploadedData() {
     return Expanded(
-      child: FutureBuilder(
-        future: _uploadedStatementBloc.getAllStatement(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: AppWidgetUtils.buildLoading());
-          } else if (snapshot.data?.isEmpty ?? false) {
-            return const Center(child: Text(AppConstants.noData));
-          }
-          List<GetAllStatementInfo> statementInfo = snapshot.data ?? [];
+      child: StreamBuilder<bool>(
+          stream: _uploadedStatementBloc.tablerefreshStream,
+          builder: (context, snapshot) {
+            return FutureBuilder(
+              future: _uploadedStatementBloc.getAllStatement(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(child: AppWidgetUtils.buildLoading());
+                } else if (snapshot.data?.isEmpty ?? false) {
+                  return const Center(child: Text(AppConstants.noData));
+                }
+                List<GetAllStatementInfo> statementInfo = snapshot.data ?? [];
 
-          return _buildListView(statementInfo);
-        },
-      ),
+                return _buildListView(statementInfo);
+              },
+            );
+          }),
     );
   }
 
