@@ -1,7 +1,7 @@
 class AppUrl {
   // static const baseUrl = 'http://193.203.163.226:8084/';
-  static const baseUrl = 'http://192.168.1.4:8084/';
-  //static const baseUrl = 'https://tvs.techlambdas.com/';
+  // static const baseUrl = 'http://192.168.1.4:8084/';
+  static const baseUrl = 'https://tvs.techlambdas.com/';
   // static const baseUrl = 'https://haasinitvsapi.techlambdas.com/';
   // // http://195.35.21.50:8082/
   static const login = '${baseUrl}user/login';

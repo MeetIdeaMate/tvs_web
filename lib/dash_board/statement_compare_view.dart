@@ -32,7 +32,7 @@ class _StatementViewState extends State<StatementView> {
         child: Column(
           children: [
             _buildFiltersAndSummarizeChip(),
-            const SizedBox(height: 20),
+            AppWidgetUtils.buildSizedBox(custHeight: 20),
             _buildStatementTable(),
           ],
         ),

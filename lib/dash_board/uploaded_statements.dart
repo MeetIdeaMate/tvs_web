@@ -30,9 +30,9 @@ class _UploadedStatementsState extends State<UploadedStatements> {
         children: [
           AppWidgetUtils.buildHeaderText(
               AppConstants.recentlyUploadedStatement),
-          const SizedBox(height: 16),
+          AppWidgetUtils.buildSizedBox(custHeight: 16),
           _buildFetchUploadedData(),
-          const SizedBox(height: 16),
+          AppWidgetUtils.buildSizedBox(custHeight: 16),
           _buildUploadButton(context)
         ],
       ),

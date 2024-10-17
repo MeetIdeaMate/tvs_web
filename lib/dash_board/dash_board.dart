@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:tlbilling/dash_board/uploaded_statements.dart';
+import 'package:tlbilling/utils/app_constants.dart';
+import 'package:tlbilling/utils/app_util_widgets.dart';
 
 class DashBoard extends StatefulWidget {
   const DashBoard({super.key});
@@ -11,21 +14,20 @@ class DashBoard extends StatefulWidget {
 class _DashBoardState extends State<DashBoard> {
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
+    return Scaffold(
       body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 21, vertical: 28),
+        padding: const EdgeInsets.symmetric(horizontal: 21, vertical: 28),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Center(
-              child: Text(
-                'Dashboard Sections',
-                style: TextStyle(fontSize: 18),
-              ),
+            Expanded(
+              child: Container(
+                  child:
+                      Center(child: SvgPicture.asset(AppConstants.imgNoData))),
             ),
-            SizedBox(width: 16),
-            UploadedStatements(),
+            AppWidgetUtils.buildSizedBox(custWidth: 16),
+            const UploadedStatements(),
           ],
         ),
       ),

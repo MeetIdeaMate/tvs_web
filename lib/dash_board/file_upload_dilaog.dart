@@ -102,7 +102,7 @@ class _FileUploadDialogState extends State<FileUploadDialog> {
                         children: [
                           const Icon(Icons.picture_as_pdf,
                               size: 40, color: Colors.grey),
-                          const SizedBox(height: 10),
+                          AppWidgetUtils.buildSizedBox(custHeight: 10),
                           const Text(AppConstants.dragAndDropHere,
                               style: TextStyle(color: Colors.grey)),
                           const Text(AppConstants.or,

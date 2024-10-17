@@ -127,7 +127,7 @@ class _UpdateStatementDialogState extends State<UpdateStatementDialog> {
     );
   }
 
-  Row _buildChequeAndAmt() {
+  Widget _buildChequeAndAmt() {
     return Row(
       children: [
         _buildChequeField(),
@@ -137,7 +137,7 @@ class _UpdateStatementDialogState extends State<UpdateStatementDialog> {
     );
   }
 
-  Expanded _buildAmtField() {
+  Widget _buildAmtField() {
     return Expanded(
       child: TldsInputFormField(
         controller: _updateStatementBloc.amountTextEditController,
@@ -154,7 +154,7 @@ class _UpdateStatementDialogState extends State<UpdateStatementDialog> {
     );
   }
 
-  Expanded _buildChequeField() {
+  Widget _buildChequeField() {
     return Expanded(
       child: TldsInputFormField(
         controller: _updateStatementBloc.chequeTextEditingController,
@@ -165,7 +165,7 @@ class _UpdateStatementDialogState extends State<UpdateStatementDialog> {
     );
   }
 
-  TldsInputFormField _buildDescriptionField() {
+  Widget _buildDescriptionField() {
     return TldsInputFormField(
       maxLine: 100,
       height: 92,
@@ -181,7 +181,7 @@ class _UpdateStatementDialogState extends State<UpdateStatementDialog> {
     );
   }
 
-  TldsDatePicker _buildDatePicker() {
+  Widget _buildDatePicker() {
     return TldsDatePicker(
       controller: _updateStatementBloc.dateTextEditController,
       firstDate: DateTime(2000),
