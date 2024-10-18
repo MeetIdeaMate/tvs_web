@@ -293,72 +293,76 @@ class _StocksViewState extends State<StocksView>
                   child: SizedBox(
                     width: MediaQuery.of(context).size.width,
                     child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: DataTable(
-                        dividerThickness: 0.01,
-                        columns: [
-                          _buildVehicleTableHeader(AppConstants.sno),
-                          _buildVehicleTableHeader(AppConstants.branch),
-                          _buildVehicleTableHeader(AppConstants.partNo),
-                          _buildVehicleTableHeader(AppConstants.vehicleName),
-                          _buildVehicleTableHeader(AppConstants.categoryName),
-                          _buildVehicleTableHeader(AppConstants.stockStatus),
-                          _buildVehicleTableHeader(AppConstants.quantity),
-                          _buildVehicleTableHeader(AppConstants.action),
-                        ],
-                        rows: purchasedata.asMap().entries.map((entry) {
-                          return DataRow(
-                            color: WidgetStateColor.resolveWith((states) {
-                              return entry.key % 2 == 0
-                                  ? Colors.white
-                                  : _appColors.transparentBlueColor;
-                            }),
-                            cells: [
-                              _buildTableRow('${entry.key + 1}'),
-                              _buildTableRow(entry.value.branchName),
-                              _buildTableRow(entry.value.partNo),
-                              _buildTableRow(entry.value.itemName),
-                              _buildTableRow(entry.value.categoryName),
-                              //  _buildTableRow(entry.value.stockStatus),
-                              DataCell(Chip(
-                                  side: BorderSide(
-                                      color: entry.value.stockStatus ==
-                                              AppConstants.available
-                                          ? _appColors.successColor
-                                          : _appColors.yellowColor),
-                                  backgroundColor: _appColors.whiteColor,
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(50)),
-                                  label: Text(
-                                    entry.value.stockStatus ==
-                                            AppConstants.available
-                                        ? AppConstants.available
-                                        : AppConstants.transfer,
-                                    style: TextStyle(
+                      scrollDirection: Axis.vertical,
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: DataTable(
+                          dividerThickness: 0.01,
+                          columns: [
+                            _buildVehicleTableHeader(AppConstants.sno),
+                            _buildVehicleTableHeader(AppConstants.branch),
+                            _buildVehicleTableHeader(AppConstants.partNo),
+                            _buildVehicleTableHeader(AppConstants.vehicleName),
+                            _buildVehicleTableHeader(AppConstants.categoryName),
+                            _buildVehicleTableHeader(AppConstants.stockStatus),
+                            _buildVehicleTableHeader(AppConstants.quantity),
+                            _buildVehicleTableHeader(AppConstants.action),
+                          ],
+                          rows: purchasedata.asMap().entries.map((entry) {
+                            return DataRow(
+                              color: WidgetStateColor.resolveWith((states) {
+                                return entry.key % 2 == 0
+                                    ? Colors.white
+                                    : _appColors.transparentBlueColor;
+                              }),
+                              cells: [
+                                _buildTableRow('${entry.key + 1}'),
+                                _buildTableRow(entry.value.branchName),
+                                _buildTableRow(entry.value.partNo),
+                                _buildTableRow(entry.value.itemName),
+                                _buildTableRow(entry.value.categoryName),
+                                //  _buildTableRow(entry.value.stockStatus),
+                                DataCell(Chip(
+                                    side: BorderSide(
                                         color: entry.value.stockStatus ==
                                                 AppConstants.available
                                             ? _appColors.successColor
                                             : _appColors.yellowColor),
-                                  ))),
-                              _buildTableRow(
-                                  entry.value.totalQuantity.toString()),
-                              DataCell(IconButton(
-                                  onPressed: () {
-                                    showDialog(
-                                      context: context,
-                                      builder: (context) {
-                                        return _buildStockDetailsDialog(
-                                            entry.value);
-                                      },
-                                    );
-                                  },
-                                  icon: Icon(
-                                    Icons.table_chart_outlined,
-                                    color: AppColor().primaryColor,
-                                  ))),
-                            ],
-                          );
-                        }).toList(),
+                                    backgroundColor: _appColors.whiteColor,
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(50)),
+                                    label: Text(
+                                      entry.value.stockStatus ==
+                                              AppConstants.available
+                                          ? AppConstants.available
+                                          : AppConstants.transfer,
+                                      style: TextStyle(
+                                          color: entry.value.stockStatus ==
+                                                  AppConstants.available
+                                              ? _appColors.successColor
+                                              : _appColors.yellowColor),
+                                    ))),
+                                _buildTableRow(
+                                    entry.value.totalQuantity.toString()),
+                                DataCell(IconButton(
+                                    onPressed: () {
+                                      showDialog(
+                                        context: context,
+                                        builder: (context) {
+                                          return _buildStockDetailsDialog(
+                                              entry.value);
+                                        },
+                                      );
+                                    },
+                                    icon: Icon(
+                                      Icons.table_chart_outlined,
+                                      color: AppColor().primaryColor,
+                                    ))),
+                              ],
+                            );
+                          }).toList(),
+                        ),
                       ),
                     ),
                   ),
