@@ -42,6 +42,22 @@ class _StatementViewState extends State<StatementView> {
 
   AppBar _buildAppBar() {
     return AppBar(
+      automaticallyImplyLeading: false,
+      leading: IconButton(
+          onPressed: () {
+            if (_statementCompareBloc.summaryDetails?.isNotEmpty ?? false) {
+              _statementCompareBloc.summaryDetails?.clear();
+              _statementCompareBloc.tableRefreshStreamController(true);
+              _statementCompareBloc.matchedChipStreamController(true);
+            } else if (_statementCompareBloc.isSummarize) {
+              _statementCompareBloc.isSummarize = false;
+              _statementCompareBloc.matchedChipStreamController(true);
+              _statementCompareBloc.tableRefreshStreamController(true);
+            } else {
+              Navigator.pop(context);
+            }
+          },
+          icon: const Icon(Icons.arrow_back)),
       title: Text(
         AppConstants.statementCompare,
         style: TextStyle(color: _appColors.primaryColor),
@@ -243,6 +259,35 @@ class _StatementViewState extends State<StatementView> {
     );
   }
 
+  _buildDataTable(List<dynamic> data) {
+    return SingleChildScrollView(
+      scrollDirection: Axis.vertical,
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: SizedBox(
+          width: _statementCompareBloc.summaryDetails?.isEmpty ?? false
+              ? MediaQuery.of(context).size.width
+              : null,
+          child: DataTable(
+            headingRowHeight: 40,
+            columnSpacing: 10,
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.transparent),
+            ),
+            headingRowColor:
+                WidgetStatePropertyAll(_appColors.bgHighlightColor),
+            columns: _buildheader(),
+            rows: List.generate(data.length, (index) {
+              final statementData = data[index];
+
+              return _buildDataRow(index, statementData);
+            }),
+          ),
+        ),
+      ),
+    );
+  }
+
   _buildDataRow(int index, dynamic rowData) {
     if (_statementCompareBloc.isSummarize &&
         (_statementCompareBloc.summaryDetails?.isEmpty ?? false)) {
@@ -276,10 +321,10 @@ class _StatementViewState extends State<StatementView> {
           Text((index + 1).toString()),
         ),
         DataCell(Text(rowData.description ?? '')),
-        DataCell(Text(rowData.amount?.toStringAsFixed(2) ?? '')),
+        DataCell(Text(AppUtils.formatCurrency(rowData.amount ?? 0))),
         DataCell(Text(rowData.accountHeadName ?? '')),
+        DataCell(Text(AppUtils.formatCurrency(rowData.applicationAmt ?? 0))),
         DataCell(Text(rowData.accountType ?? '')),
-        DataCell(Text(rowData.applicationAmt?.toStringAsFixed(2) ?? '')),
         DataCell(InkWell(
           onTap: rowData.missMatch ?? false
               ? () {
@@ -365,7 +410,7 @@ class _StatementViewState extends State<StatementView> {
                 ? _appColors.tableUpdatedRecordColor
                 : null,
             width: double.infinity,
-            child: Text(rowData.amount?.toStringAsFixed(0).toString() ?? ''))),
+            child: Text(AppUtils.formatCurrency(rowData.amount ?? 0)))),
         DataCell(Container(
             padding: const EdgeInsets.symmetric(vertical: 10),
             color: _appColors.tableApplocationRecordColor,
@@ -385,7 +430,7 @@ class _StatementViewState extends State<StatementView> {
             padding: const EdgeInsets.symmetric(vertical: 10),
             color: _appColors.tableApplocationRecordColor,
             width: double.infinity,
-            child: Text(rowData.applicationAmt?.toStringAsFixed(2) ?? ''))),
+            child: Text(AppUtils.formatCurrency(rowData.applicationAmt ?? 0)))),
         DataCell(InkWell(
           onTap: rowData.missMatch ?? false
               ? () {
@@ -413,35 +458,6 @@ class _StatementViewState extends State<StatementView> {
           ),
         ))
       ],
-    );
-  }
-
-  _buildDataTable(List<dynamic> data) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.vertical,
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: SizedBox(
-          width: _statementCompareBloc.summaryDetails?.isEmpty ?? false
-              ? MediaQuery.of(context).size.width
-              : null,
-          child: DataTable(
-            headingRowHeight: 40,
-            columnSpacing: 10,
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.transparent),
-            ),
-            headingRowColor:
-                WidgetStatePropertyAll(_appColors.bgHighlightColor),
-            columns: _buildheader(),
-            rows: List.generate(data.length, (index) {
-              final statementData = data[index];
-
-              return _buildDataRow(index, statementData);
-            }),
-          ),
-        ),
-      ),
     );
   }
 

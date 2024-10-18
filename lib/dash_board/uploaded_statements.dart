@@ -39,7 +39,7 @@ class _UploadedStatementsState extends State<UploadedStatements> {
     );
   }
 
-  Column _buildUploadButton(BuildContext context) {
+  _buildUploadButton(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisAlignment: MainAxisAlignment.center,
@@ -65,7 +65,7 @@ class _UploadedStatementsState extends State<UploadedStatements> {
     );
   }
 
-  Expanded _buildFetchUploadedData() {
+  _buildFetchUploadedData() {
     return Expanded(
       child: StreamBuilder<bool>(
           stream: _uploadedStatementBloc.tablerefreshStream,
